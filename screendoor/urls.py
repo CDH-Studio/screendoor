@@ -8,6 +8,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('register/', views.register_form, name='register'),
 ]
 
 # Example URL patterns
