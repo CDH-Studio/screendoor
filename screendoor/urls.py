@@ -4,7 +4,7 @@ from . import views
 
 
 # Set application namespace
-app_name = 'screendoor'
+# app_name = 'screendoor'
 
 urlpatterns = [
     path('', views.index, name='index'),

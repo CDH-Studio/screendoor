@@ -50,9 +50,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SESSION_ENGINE = [
-    'django.contrib.sessions.backends.cached_db',
-]
+# SESSION_ENGINE = [
+#    'django.contrib.sessions.backends.cached_db',
+# ]
 
 ROOT_URLCONF = 'screendoor_app.urls'
 
@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'screendoor_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '',
+        'NAME': 'postgres',
         'USER': 'postgres',
         'HOST': 'db',
         'PORT': 5432,
@@ -129,6 +129,6 @@ STATIC_URL = '/static/'
 
 # Security
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
