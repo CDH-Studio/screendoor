@@ -1,0 +1,14 @@
+<label for="login">{{ login_form.text }}</label>
+<form action="" method="post">
+  {% csrf_token %}
+  {{ login_form.as_table }}
+  <input type="submit" value="{{ login_form.text }}">
+</form>
+
+{% if messages is not None %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

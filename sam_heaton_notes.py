@@ -1,5 +1,5 @@
 # Creating admin user
 # $ python manage.py createsuperuser
-# username: cdhadmin
+# username: cdhstudio
 # email: Sam.Heaton@canada.ca
-# password: generate something random
+# password: cdhadmin
