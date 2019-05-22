@@ -42,25 +42,21 @@ def register_form(request):
                 messages.warning(request, _(
                     'Password confirmation does not match original.'))
                 password_error = True
-            # Successful redirect
+            # Success
             if (not email_error and not password_error):
-                return render(request, 'screendoor/index.html',
-                              {'register_form': register_form})
+                create_account(request)
     # Returns form page
     return render(request, 'screendoor/register.html',
                   {'register_form': register_form})
 
 
 def create_account(request):
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        register_form = RegisterForm(request.POST)
-        # check whether it's valid
-        if register_form.is_valid():
-            # process
-            return HttpResponseRedirect('/dashboard/')
-        # else
-        return render(request, '', {'register_form': register_form})
+    first_name = request.POST['email'].split('.')[0]
+    last_name = request.POST['email'].split('.')[1].split('@')[0]
+    user = User.objects.create_user(
+        request.POST['email'], request.POST['password'], request.POST['email'], first_name, last_name)
+    return render(request, 'screendoor/index.html',
+                  {'register_form': register_form})
 
 
 def login(request):

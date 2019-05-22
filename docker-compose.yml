@@ -3,6 +3,11 @@ version: '3'
 services:
   db:
     image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: cdhstudio
+      POSTGRES_PASSWORD: cdhadmin
+      POSTGRES_DB: screendoor_db
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000

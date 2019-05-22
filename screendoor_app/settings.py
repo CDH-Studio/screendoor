@@ -81,9 +81,10 @@ WSGI_APPLICATION = 'screendoor_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
+        'NAME': 'screendoor_db',
+        'USER': 'cdhstudio',
+	'PASSWORD': 'cdhadmin',
+        'HOST': '172.29.0.2',
         'PORT': 5432,
     }
 }
