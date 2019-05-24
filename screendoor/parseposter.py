@@ -128,8 +128,9 @@ def findEssentialDetails(text, path, position):
     position.reference_number = referenceNumber
     position.selection_process_number = selectionProcessNumber
 
+    position.save()
 
-    # printCollectedInformation(referenceNumber, selectionProcessNumber, whoCanApply, jobTitle, closingDate, spotsLeft, salary, description, education, experience, assets)
+    printCollectedInformation(referenceNumber, selectionProcessNumber, whoCanApply, jobTitle, closingDate, spotsLeft, salary, description, education, experience, assets)
 
     return position
 
