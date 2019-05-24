@@ -1,4 +1,5 @@
 from string import digits
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
@@ -27,54 +28,52 @@ def register_form(request):
     register_form = ScreenDoorUserCreationForm
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        register_form = RegisterForm(request.POST)
+        register_form = ScreenDoorUserCreationForm(request.POST)
         # check whether it's valid
         if register_form.is_valid():
-            email_domain = request.POST['email'].split('@')[1].lower()
-            email_error = False
-            password_error = False
-            # Warning message for invalid e-mail domain
-            if email_domain != "canada.ca" and email_domain != "algonquinlive.com":
-                messages.warning(request, format(
-                    _('Invalid e-mail address domain: %s. Canada.ca email required.') % email_domain))
-                email_error = True
-            # Warning message for duplicate username/email
-            elif get_user_model().objects.filter(username=request.POST['email']).exists():
-                messages.warning(request, _(
-                    'Username %s already exists.') % request.POST['email'])
-                email_error = True
-            # Warning message for mismatched password fields
-            if request.POST['password'] != request.POST['password_repeat']:
-                messages.warning(request, _(
-                    'Password confirmation does not match original.'))
-                password_error = True
             # Success
-            if (not email_error and not password_error):
-                create_account(request)
+            # create_account(request)
+            send_user_email(request)
+            # Redirects to...
+            return redirect('account_created')
     # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
 
 
-def send_user_email(request):
-    None
-
-
 def create_account(request):
     # Creates account and saves email, password, username to database
     user = get_user_model().objects.create_user(
-        request.POST['email'].lower(), password=request.POST['password'], email=request.POST['email'].lower())
+        request.POST['email'].lower(), password=request.POST['password1'], email=request.POST['email'].lower())
     # Extrapolate first and last name from e-mail account (experimental)
     user.first_name = request.POST['email'].split('.')[0].title()
     user.last_name = request.POST['email'].split(
         '.')[1].split('@')[0].title().translate({ord(n): None for n in digits})
     # Set user as inactive until e-mail confirmation
-    user.is_active = False
+    user.email_confirmed = False
     # Save updated user info to database
     user.save()
-    # Redirects to...
-    return render(request, 'registration/login.html',
-                  {'register_form': register_form})
+
+
+def account_created(request):
+    if request.META.get('HTTP_REFERER') != None:
+        text = _(
+            "We have created your account. Please check your e-mail for a confirmation link to activate your account.")
+        return render(request, 'registration/account_created.html',
+                      {'text': text})
+    return redirect('login')
+
+
+def send_user_email(request):
+    mail_sent = send_mail(
+        'ScreenDoor: Please confirm e-mail address',
+        'Test.',
+        'screendoor@screendoor.ca',
+        ['heat0072@algonquinlive.com'],
+        fail_silently=False,
+    )
+    if mail_sent == 1:
+        create_account(request)
 
 
 def login_form(request):
@@ -84,16 +83,8 @@ def login_form(request):
     if request.method == 'POST':
         # Validates form and persists username data
         if login_form.is_valid():
-            # Returns not null if username and password match a user
-            user = authenticate(
-                username=request.POST['email'].lower(), password=request.POST['password'])
-            # Success
-            if user is not None:
-                login(request, user)
-                return redirect('home')
-            # Display warning
-            else:
-                messages.warning(request, _('Invalid username or password.'))
+            login(request, user)
+            return redirect('home')
     # Display login page
     return render(request, 'registration/login.html',
                   {'login_form': login_form})
@@ -107,20 +98,20 @@ def logout_view(request):
 def import_position(request):
 
     if request.method == 'POST':
-        #valid form
+        # valid form
         create_position_form = CreatePositionForm(request.POST, request.FILES)
         if create_position_form.is_valid():
-            #don't commit partial positions with only pdf/url into db
+            # don't commit partial positions with only pdf/url into db
             position = create_position_form.save(commit=False)
 
             #
-            #naman's parsing script here
-            #should finish with the position's fields filled out
+            # naman's parsing script here
+            # should finish with the position's fields filled out
             #
 
             return render(request, 'position.html', {'position': position})
     else:
-        #blank form
+        # blank form
         create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
         'form': create_position_form
