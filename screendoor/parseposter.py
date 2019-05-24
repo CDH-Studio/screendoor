@@ -1,9 +1,9 @@
 import os
 import re
-import pdfkit
 import tika
 from geotext import GeoText
 from tika import parser
+import pdfkit
 from django.db import models
 from .models import Position
 
