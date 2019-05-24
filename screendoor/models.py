@@ -3,4 +3,7 @@ from django.db import models
 
 
 class ScreenDoorUser(AbstractUser):
-    pass
+    email_confirmed = models.BooleanField(default=False)
+
+    def confirm_email(self):
+        self.email_confirmed = True

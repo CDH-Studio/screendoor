@@ -27,7 +27,7 @@ def register_form(request):
     register_form = ScreenDoorUserCreationForm
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        register_form = RegisterForm(request.POST)
+        register_form = ScreenDoorUserCreationForm(request.POST)
         # check whether it's valid
         if register_form.is_valid():
             email_domain = request.POST['email'].split('@')[1].lower()
@@ -43,11 +43,11 @@ def register_form(request):
                 messages.warning(request, _(
                     'Username %s already exists.') % request.POST['email'])
                 email_error = True
-            # Warning message for mismatched password fields
-            if request.POST['password'] != request.POST['password_repeat']:
-                messages.warning(request, _(
-                    'Password confirmation does not match original.'))
-                password_error = True
+            # # Warning message for mismatched password fields
+            # if request.POST['password'] != request.POST['password_repeat']:
+            #     messages.warning(request, _(
+            #         'Password confirmation does not match original.'))
+            #     password_error = True
             # Success
             if (not email_error and not password_error):
                 create_account(request)
@@ -63,18 +63,17 @@ def send_user_email(request):
 def create_account(request):
     # Creates account and saves email, password, username to database
     user = get_user_model().objects.create_user(
-        request.POST['email'].lower(), password=request.POST['password'], email=request.POST['email'].lower())
+        request.POST['email'].lower(), password=request.POST['password1'], email=request.POST['email'].lower())
     # Extrapolate first and last name from e-mail account (experimental)
     user.first_name = request.POST['email'].split('.')[0].title()
     user.last_name = request.POST['email'].split(
         '.')[1].split('@')[0].title().translate({ord(n): None for n in digits})
     # Set user as inactive until e-mail confirmation
-    user.is_active = False
+    user.email_confirmed = False
     # Save updated user info to database
     user.save()
-    # Redirects to...
-    return render(request, 'registration/login.html',
-                  {'register_form': register_form})
+    # Redirect to login screen
+    return redirect('login')
 
 
 def login_form(request):
@@ -82,15 +81,21 @@ def login_form(request):
     login_form = LoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
-        # Validates form and persists username data
+        # Validate form and persists username data
         if login_form.is_valid():
             # Returns not null if username and password match a user
             user = authenticate(
                 username=request.POST['email'].lower(), password=request.POST['password'])
-            # Success
+            # Does user with this email and password exist
             if user is not None:
-                login(request, user)
-                return redirect('home')
+                # Has user confirmed e-mail address
+                if user.email_confirmed == False:
+                    messages.warning(request, _(
+                        'Email address for user not confirmed.'))
+                # Login successfully
+                else:
+                    login(request, user)
+                    return redirect('home')
             # Display warning
             else:
                 messages.warning(request, _('Invalid username or password.'))
