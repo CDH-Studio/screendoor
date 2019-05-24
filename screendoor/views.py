@@ -83,7 +83,7 @@ def login_form(request):
     if request.method == 'POST':
         # Validates form and persists username data
         if login_form.is_valid():
-            login(request, user)
+            login(request, login_form.get_user)
             return redirect('home')
     # Display login page
     return render(request, 'registration/login.html',

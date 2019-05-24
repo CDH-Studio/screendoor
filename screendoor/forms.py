@@ -69,7 +69,7 @@ class LoginForm(forms.Form):
     email = forms.EmailField(
         label=_('Username/Email Address'), max_length=100)
     password = forms.CharField(
-        label=_('Password'), min_length=10, max_length=42, widget=forms.PasswordInput)
+        label=_('Password'), min_length=8, max_length=42, widget=forms.PasswordInput)
 
     def clean(self):
         email = self.cleaned_data.get('email')
@@ -86,6 +86,9 @@ class LoginForm(forms.Form):
             self.add_error('email', message)
 
         return self.cleaned_data
+
+    def get_user(self):
+        return authenticate(username=email, password=password)
 
 
 class LogoutForm(forms.Form):
