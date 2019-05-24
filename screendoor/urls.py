@@ -11,4 +11,5 @@ urlpatterns = [
     path('register/', views.register_form, name='register'),
     path('login/', views.login_form, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('createnewposition', views.import_position, name='importposition'),
 ]

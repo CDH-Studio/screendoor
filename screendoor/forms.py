@@ -1,8 +1,29 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import ScreenDoorUser
+from .models import ScreenDoorUser, Position
 from django.utils.translation import gettext as _
+
+
+#For creating a new position
+class CreatePositionForm(forms.ModelForm):
+    class Meta:
+        model = Position
+        fields = ('pdf', 'urlRef')
+
+    #Ensures strictly one of: pdf or url. mg
+    def clean(self):
+        pdf = self.cleaned_data.get('pdf')
+        url = self.cleaned_data.get('urlRef')
+
+        if not pdf and not url:
+            msg = forms.ValidationError(_('Please enter either a pdf file or a url link.'))
+            self.add_error('pdf', msg)
+        elif pdf and url:
+            msg = forms.ValidationError(_('Please enter *either* a pdf file or a url link, but not both.'))
+            self.add_error('pdf', msg)
+
+        return self.cleaned_data
 
 
 class ScreenDoorUserCreationForm(UserCreationForm):
