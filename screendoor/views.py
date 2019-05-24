@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 
-from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm
+from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm, CreatePositionForm
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -102,6 +102,30 @@ def login_form(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+def import_position(request):
+
+    if request.method == 'POST':
+        #valid form
+        create_position_form = CreatePositionForm(request.POST, request.FILES)
+        if create_position_form.is_valid():
+            #don't commit partial positions with only pdf/url into db
+            position = create_position_form.save(commit=False)
+
+            #
+            #naman's parsing script here
+            #should finish with the position's fields filled out
+            #
+
+            return render(request, 'position.html', {'position': position})
+    else:
+        #blank form
+        create_position_form = CreatePositionForm()
+    return render(request, 'createposition/importposition.html', {
+        'form': create_position_form
+    })
+
 
 # Exceptions - shortcut: get_object_or_404()
 # e.g.     question = get_object_or_404(Question, pk=question_id)
