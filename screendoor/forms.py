@@ -9,12 +9,12 @@ from django.utils.translation import gettext as _
 class CreatePositionForm(forms.ModelForm):
     class Meta:
         model = Position
-        fields = ('pdf', 'urlRef')
+        fields = ('pdf', 'url_ref')
 
     #Ensures strictly one of: pdf or url. mg
     def clean(self):
         pdf = self.cleaned_data.get('pdf')
-        url = self.cleaned_data.get('urlRef')
+        url = self.cleaned_data.get('url_ref')
 
         if not pdf and not url:
             msg = forms.ValidationError(_('Please enter either a pdf file or a url link.'))
