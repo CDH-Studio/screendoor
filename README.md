@@ -1,11 +1,6 @@
-<!-- PROJECT SHIELDS -->
-[![Build Status][build-shield]]()
-[![Contributors][contributors-shield]]()
-[![MIT License][license-shield]][license-url]
-
 <!-- GETTING STARTED -->
 ## Running the App (Untested)
-* Install Docker, Docker-Compose, PostgreSQL, Django, Psycopg2
+* Install Docker, Docker-Compose
 * Clone this repo
-* Inside the repo's root directory, run sudo docker-compose up to start application
-* Test application at localhost
+* Inside the repo's root directory, run 'docker-compose up' to start download dependencies and start application
+* Test application at localhost:8000

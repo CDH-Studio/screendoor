@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 
-from .forms import ScreenDoorUserCreationForm, ScreenDoorLoginForm, RegisterForm, LoginForm, LogoutForm
+from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -79,7 +79,7 @@ def create_account(request):
 
 def login_form(request):
     # Instantiate form object
-    login_form = ScreenDoorLoginForm(request.POST)
+    login_form = LoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
         # Validates form and persists username data
