@@ -1,2 +1,7 @@
 Django>=2.0,<3.0
 psycopg2>=2.7,<3.0
+pdfkit==0.6.1
+tika==1.19
+geotext==0.4.0
+wkhtmltopdf==0.2
+
