@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6069dd6=&$ym##io3fin2n$xe1f5%(f!ai(t^ncgrgj_!p@_+d'
+SECRET_KEY = '-t&#b2-=l%o=+a0-87weme6d&4pnn&$8a3x)v(my=yx7g5rp^s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,13 +31,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'screendoor.apps.ScreendoorConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # ScreenDoor
+    'screendoor.apps.ScreenDoorConfig'
 ]
 
 MIDDLEWARE = [
@@ -50,16 +52,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# SESSION_ENGINE = [
-#    'django.contrib.sessions.backends.cached_db',
-# ]
-
 ROOT_URLCONF = 'screendoor_app.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,12 +81,19 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'screendoor_db',
         'USER': 'cdhstudio',
-	'PASSWORD': 'cdhadmin',
-        'HOST': '172.29.0.2',
+        'PASSWORD': 'cdhadmin',
+        'HOST': 'db',
         'PORT': 5432,
     }
 }
 
+# Session Management
+#SESSION_ENGINE = [
+#    'django.contrib.sessions.backends.cached_db',
+#]
+
+# User Management
+AUTH_USER_MODEL = 'screendoor.ScreenDoorUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -128,8 +133,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Email Authentication
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+PASSWORD_RESET_TIMEOUT_DAYS = 1
+
 # Security
 
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+#SECURE_SSL_REDIRECT = True
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True

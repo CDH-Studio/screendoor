@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ScreendoorConfig(AppConfig):
+class ScreenDoorConfig(AppConfig):
     name = 'screendoor'

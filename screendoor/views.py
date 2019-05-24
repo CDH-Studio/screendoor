@@ -1,13 +1,14 @@
 from string import digits
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 
-from .forms import RegisterForm, LoginForm
+from .forms import ScreenDoorUserCreationForm, ScreenDoorLoginForm, RegisterForm, LoginForm, LogoutForm
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -15,18 +16,15 @@ from .forms import RegisterForm, LoginForm
 # @login_required
 # The login_required decorator redirects unauthenticated sessions to settings.LOGIN_URL
 
-@login_required
+@login_required(login_url='login/', redirect_field_name=None)
 def index(request):
-    return HttpResponse(_("Hello, world!"))
-
-
-@login_required
-def dashboard(request):
-    return HttpResponse("Valid user logged in")
+    # Returns main page
+    return render(request, 'index.html',
+                  {'user': request.user})
 
 
 def register_form(request):
-    register_form = RegisterForm
+    register_form = ScreenDoorUserCreationForm
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         register_form = RegisterForm(request.POST)
@@ -35,10 +33,15 @@ def register_form(request):
             email_domain = request.POST['email'].split('@')[1].lower()
             email_error = False
             password_error = False
-            # Warning message for invalid e-mail address
-            if email_domain != "canada.ca":
+            # Warning message for invalid e-mail domain
+            if email_domain != "canada.ca" and email_domain != "algonquinlive.com":
                 messages.warning(request, format(
                     _('Invalid e-mail address domain: %s. Canada.ca email required.') % email_domain))
+                email_error = True
+            # Warning message for duplicate username/email
+            elif get_user_model().objects.filter(username=request.POST['email']).exists():
+                messages.warning(request, _(
+                    'Username %s already exists.') % request.POST['email'])
                 email_error = True
             # Warning message for mismatched password fields
             if request.POST['password'] != request.POST['password_repeat']:
@@ -49,28 +52,34 @@ def register_form(request):
             if (not email_error and not password_error):
                 create_account(request)
     # Returns form page
-    return render(request, 'screendoor/register.html',
+    return render(request, 'registration/register.html',
                   {'register_form': register_form})
+
+
+def send_user_email(request):
+    None
 
 
 def create_account(request):
     # Creates account and saves email, password, username to database
-    user = User.objects.create_user(
+    user = get_user_model().objects.create_user(
         request.POST['email'].lower(), password=request.POST['password'], email=request.POST['email'].lower())
-    # Extrapolate first and last name (experimental)
+    # Extrapolate first and last name from e-mail account (experimental)
     user.first_name = request.POST['email'].split('.')[0].title()
     user.last_name = request.POST['email'].split(
         '.')[1].split('@')[0].title().translate({ord(n): None for n in digits})
-    # Saves updated user info to database
+    # Set user as inactive until e-mail confirmation
+    user.is_active = False
+    # Save updated user info to database
     user.save()
     # Redirects to...
-    return render(request, 'screendoor/index.html',
+    return render(request, 'registration/login.html',
                   {'register_form': register_form})
 
 
 def login_form(request):
     # Instantiate form object
-    login_form = LoginForm(request.POST)
+    login_form = ScreenDoorLoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
         # Validates form and persists username data
@@ -81,20 +90,18 @@ def login_form(request):
             # Success
             if user is not None:
                 login(request, user)
-                return render(request, 'screendoor/index.html')
+                return redirect('home')
             # Display warning
             else:
                 messages.warning(request, _('Invalid username or password.'))
     # Display login page
-    return render(request, 'screendoor/login.html',
+    return render(request, 'registration/login.html',
                   {'login_form': login_form})
 
 
-@login_required
 def logout_view(request):
     logout(request)
-    return None
-
+    return redirect('login')
 
 # Exceptions - shortcut: get_object_or_404()
 # e.g.     question = get_object_or_404(Question, pk=question_id)

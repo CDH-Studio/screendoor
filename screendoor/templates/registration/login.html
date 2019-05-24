@@ -1,9 +1,10 @@
-<label for="login">{{ login_form.text }}</label>
+<label for="login">{{ login_form.login_text }}</label>
 <form action="" method="post">
   {% csrf_token %}
   {{ login_form.as_table }}
-  <input type="submit" value="{{ login_form.text }}">
+  <input type="submit" value="{{ login_form.login_text }}">
 </form>
+ <a href="{% url 'register' %}">{{ login_form.create_account_text }}</a>
 
 {% if messages is not None %}
   <ul class="messages">
