@@ -127,4 +127,8 @@ class Requirement(models.Model):
 
 
 class ScreenDoorUser(AbstractUser):
+    email_confirmed = models.BooleanField(default=False)
     positions = models.ManyToManyField(Position, blank=True)
+
+    def confirm_email(self):
+        self.email_confirmed = True
