@@ -1,6 +1,10 @@
+import base64
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
+from cryptography.fernet import Fernet
 
 
 class FormQuestion(models.Model):
@@ -132,3 +136,16 @@ class ScreenDoorUser(AbstractUser):
 
     def confirm_email(self):
         self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+
+
+    def create_key(self):
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
+                                 str(datetime.datetime.now()), 'utf-8')
+        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
