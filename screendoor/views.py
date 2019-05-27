@@ -88,7 +88,7 @@ def account_created(request):
 
 def confirm_account(request):
     if request.method == 'GET':
-        account_key = request.GET.get('key', None)
+        account_key = request.GET.get('key')
         if EmailAuthenticateToken.objects.filter(key=account_key).exists():
             token = EmailAuthenticateToken.objects.get(key=account_key)
             user = token.user

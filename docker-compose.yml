@@ -20,4 +20,3 @@ services:
       - db
     stdin_open: true
     tty: true
-
