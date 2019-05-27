@@ -10,10 +10,19 @@ services:
       POSTGRES_DB: screendoor_db
   web:
     build: .
-    command: bash -c "sleep 5 && python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 5 && python3  manage.py runserver 0.0.0.0:8000 "
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - wdb
+    environment:
+      WDB_SOCKET_SERVER: wdb
+      WDB_NO_BROWSER_AUTO_OPEN: 1
+  wdb:
+    image: kozea/wdb
+    container_name: debugger
+    ports:
+      - "19840:1984"
