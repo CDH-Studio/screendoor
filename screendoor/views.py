@@ -70,11 +70,22 @@ def send_user_email(request, user):
 
 
 def generate_confirmation_url(request, user):
-    token = EmailAuthenticateToken()
-    token.user = user
-    token.create_key()
-    token.save()
-    return "http://localhost:8000/confirm?key=" + str(token.key)
+
+
+<< << << < HEAD
+token = EmailAuthenticateToken()
+token.user = user
+token.create_key()
+token.save()
+return "http://localhost:8000/confirm?key=" + str(token.key)
+== == == =
+url = reverse(
+    'confirm_account', current_app=request.resolver_match.namespace)
+token = EmailAuthenticateToken(user)
+token.save()
+return str(url) + "?key=" + str(token.key)
+>>>>>> > Email authentication token model added
+views not complete.
 
 
 def account_created(request):
