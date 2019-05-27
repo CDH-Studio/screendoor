@@ -1,29 +1,51 @@
 import os
 import re
+import tempfile
+
 import tika
 from geotext import GeoText
 from tika import parser
 import pdfkit
 from django.db import models
+
+from screendoor.forms import CreatePositionForm
+from screendoor_app.settings import BASE_DIR
 from .models import Position
 
-def printCollectedInformation(referenceNumber,selectionProcessNumber, whoCanApply, jobTitle, closingDate, spotsLeft, salary, description, education, experience, assets):
-    print("Reference Number : " + referenceNumber)
-    print("Selection Process Number : " + selectionProcessNumber)
-    print("Who Can Apply : " + whoCanApply)
+
+def printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber, selectionProcessNumber, url_ref , pdf, education, experience, assets):
+
     print("Job Title : " + jobTitle)
     print("Closing Date : " + closingDate)
     print("Available Positions : " + spotsLeft)
-    print("Salary Range : " + salary)
-    print("Description : " + description + "\n")
+    print("Salary Min : " + salaryMin)
+    print("Salary Max : " + salaryMax)
+    print("Classification : " + classification)
+    print("Description : " + description)
+    print("Who Can Apply : " + whoCanApply)
+    print("Reference Number : " + referenceNumber)
+    print("Selection Process Number : " + selectionProcessNumber)
+
     print("/////////////////  Education  ///////////////// \n" + education + "\n")
     print("/////////////////  Experience  ///////////////// \n" + experience + "\n")
     print("/////////////////  Assets  ///////////////// \n" + assets + "\n")
 
     return
 
+def extractJobTitle(text):
+
+    jobTitle = "N/A"
+
+    if "Reference" in text:
+        jobTitle = text.split('Home', 1)[1].split("Reference", 1)[0]
+        jobTitle = " ".join(jobTitle.split())
+
+    return jobTitle
 
 def findEssentialDetails(text, path, position):
+
+    from .models import Requirement
+
     referenceNumber = "N/A"
     selectionProcessNumber = "N/A"
     whoCanApply = "N/A"
@@ -35,38 +57,26 @@ def findEssentialDetails(text, path, position):
     essentialBlock = "N/A"
     education = "N/A"
     experience = "N/A"
-    assets = "N/A"
-    jobTitle = "N/A"
     salaryMin = "N/A"
     salaryMax = "N/A"
 
     text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
     text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
-
     text = text.strip("\n\n")
     print("////////// "+path+" //////////\n")
 
 
-    # Extract Job Title
-    if "Reference" in text:
-        jobTitle = text.split('Home', 1)[1].split("Reference", 1)[0]
-        jobTitle = " ".join(jobTitle.split())
+    jobTitle = extractJobTitle(text)
 
     # Get Essentials Block
     if "(essential qualifications)" in text:
         if "If you possess any" in text:
             essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
-        elif "The following will be applied / assessed at a later date" in text:
+        elif "The following will be applied / assessed" in text:
             essentialBlock = text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed at a later date", 1)[0]
     # Get Asset Block
     if "(other qualifications)" in text:
         assetBlock = text.split('(other qualifications)', 1)[1].split("The following will be ", 1)[0]
-    elif "(may be\nneeded for the job)" in text:
-        if "Conditions of employment" in text:
-            assetBlock = text.split('(may be\nneeded for the job)', 1)[1].split("Conditions of employment", 1)[0]
-        elif "Other information" in text:
-            assetBlock = text.split('(may be\nneeded for the job)', 1)[1].split("Other information", 1)[0]
-
 
     # Get Education and Experience Requirements
     if "Degree equivalency\n" in essentialBlock:
@@ -112,26 +122,25 @@ def findEssentialDetails(text, path, position):
 
     description = description.replace('N/A  ', '', 1)
     classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
-    city = GeoText(description).cities[0]
-    department = description.split(city)[0]
-    location = description.split(department)[1].split(classification)[0]
-
-    position.position_title = jobTitle
-    position.date_closed = closingDate
-    position.num_positions = spotsLeft
-    position.salary_min = salaryMin
-    position.salary_max = salaryMax
-    position.classification = classification
-    position.department = department
-    position.location = location
-    position.open_to = whoCanApply
-    position.reference_number = referenceNumber
+    position.position_title = jobTitle,
+    position.date_closed = closingDate,
+    position.num_positions = spotsLeft,
+    position.salary_min = salaryMin,
+    position.salary_max = salaryMax,
+    position.classification = classification,
+    position.description = description,
+    position.open_to = whoCanApply,
+    position.reference_number = referenceNumber,
     position.selection_process_number = selectionProcessNumber
 
-    position.save()
+    requirementEducation = Requirement(position=position, requirement_type="educations", abbreviation="", description=education)
+    requirementExperience = Requirement(position=position, requirement_type="experience", abbreviation="", description=experience)
+    requirementAssets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
 
-    printCollectedInformation(referenceNumber, selectionProcessNumber, whoCanApply, jobTitle, closingDate, spotsLeft, salary, description, education, experience, assets)
 
+
+    printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber, selectionProcessNumber,position.url_ref,position.pdf,education,experience,assets)
+    print("Hola, This means parse poster script is functional")
     return position
 
 
@@ -174,14 +183,21 @@ def scrapeFromGovJobs(govNum, counter):
 
 def parseUrlOrFile(position):
 
-    if position.url_ref is None:
-        pdfFilePath = position.pdf.url()
-        fileData = tika.parser.from_file(pdfFilePath)
+
+    print("THIS SHOULD PRINT FIRST")
+
+    if position.pdf.name:
+        print("THIS SHOULD PRINT SECOND")
+        os.chdir("..")
+        pdfFilePath = os.path.join(BASE_DIR, 'positions/Sample_Job_Poster_3.pdf')
+        print(pdfFilePath)
+        fileData = tika.parser.from_file(pdfFilePath,'http://tika:9998/tika')
         jobPosterText = fileData['content']
         position = findEssentialDetails(jobPosterText, pdfFilePath, position)
-    elif position.pdf is None:
+    else:
         url = position.url_ref
-        filePath = 'uploadedPoster_1.pdf'
+        temp = tempfile.NamedTemporaryFile()
+        filePath = temp.name
         try:
             pdfkit.from_url(str(url), str(filePath))
         except:

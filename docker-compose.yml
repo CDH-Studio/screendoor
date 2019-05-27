@@ -17,3 +17,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
+  tika:
+    image: logicalspark/docker-tikaserver
+    command: docker run -d -p 9998:9998 docker-tikaserver

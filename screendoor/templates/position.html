@@ -4,13 +4,13 @@
     <p>num position: {{ position.num_positions }}</p>
     <p>salary: ${{ position.salary_min }} to ${{ position.salary_max }}</p>
     <p>classification: {{ position.classification }}</p>
-    <p>department: {{ position.department }}</p>
-    <p>location: {{ position.location }}</p>
+    <p>description: {{ position.description }}</p>
     <p>open to: {{ position.open_to }}</p>
     <p>reference number: {{ position.reference_number }}</p>
     <p>selection process number: {{ position.selection_process_number }}</p>
+    <p>pdf: {{ position.pdf }}</p>
 
-{% for req in Position.requirement_set.all %}
+{% for req in position.requirement_set.all %}
             <div>
                 <p>name: {{ req.requirement_type }}</p>
                 <h2><a href="">{{ req.abbreviation }}</a></h2>
