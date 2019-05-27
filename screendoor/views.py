@@ -70,9 +70,11 @@ def send_user_email(request, user):
 
 
 def generate_confirmation_url(request, user):
-    token = EmailAuthenticateToken(user)
+    token = EmailAuthenticateToken()
+    token.user = user
+    token.create_key()
     token.save()
-    return "localhost:8000?key=" + str(token.key)
+    return "http://localhost:8000/confirm?key=" + str(token.key)
 
 
 def account_created(request):
@@ -86,7 +88,7 @@ def account_created(request):
 
 def confirm_account(request):
     if request.method == 'GET':
-        account_key = request.GET.get('key', None)
+        account_key = request.GET.get('key')
         if EmailAuthenticateToken.objects.filter(key=account_key).exists():
             token = EmailAuthenticateToken.objects.get(key=account_key)
             user = token.user
@@ -100,16 +102,17 @@ def confirm_account(request):
 
 def login_form(request):
     # Instantiate form object
-    login_form = LoginForm(request.POST)
+    form = LoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
         # Validates form and persists username data
-        if login_form.is_valid():
-            login(request, login_form.get_user)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
             return redirect('home')
     # Display login page
     return render(request, 'registration/login.html',
-                  {'login_form': login_form})
+                  {'login_form': form})
 
 
 def logout_view(request):

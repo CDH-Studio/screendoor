@@ -139,14 +139,13 @@ class ScreenDoorUser(AbstractUser):
 
 
 class EmailAuthenticateToken(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=False)
     key = models.CharField(max_length=500, null=True)
 
-    def __init__(self, user):
-        super().__init__()
+
+    def create_key(self):
         initial_key = Fernet.generate_key()
-        byte_values = bytes(str(user.email) +
-                                 str(datetime.datetime.now()), 'ascii')
+        byte_values = bytes(str(self.user.email) +
+                                 str(datetime.datetime.now()), 'utf-8')
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
-        self.user = user
-        self.key = base64.b64encode(encoded_bytes)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
