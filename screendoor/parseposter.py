@@ -42,6 +42,64 @@ def extractJobTitle(text):
 
     return jobTitle
 
+
+def extractEssentialBlock(text):
+
+    essentialBlock = "N/A"
+
+    if "(essential qualifications)" in text:
+        if "If you possess any" in text:
+            essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
+        elif "The following will be applied / assessed" in text:
+            essentialBlock = text.split('(essential qualifications)', 1)[1].split(
+                "The following will be applied / assessed at a later date", 1)[0]
+
+    return essentialBlock
+
+
+def extractAssetBlock(text):
+
+    assetBlock = "N/A"
+
+    if "(other qualifications)" in text:
+        assetBlock = text.split('(other qualifications)', 1)[1].split("The following will be ", 1)[0]
+
+    return assetBlock
+
+
+def extractEducation(essentialBlock):
+
+    education = "N/A"
+
+    if "Degree equivalency\n" in essentialBlock:
+        education = essentialBlock.split("Degree equivalency\n", 1)[0]
+        education = education.lstrip()
+        education = education.rstrip()
+
+    return education
+
+
+def extractExperience(essentialBlock):
+    experience = "N/A"
+
+    if "Degree equivalency\n" in essentialBlock:
+        experience = essentialBlock.split("Degree equivalency\n", 1)[1]
+        experience = experience.lstrip()
+        experience = experience.rstrip()
+
+    return experience
+
+
+def extractAssets(assetBlock):
+
+    assets = "N/A"
+
+    assets = assetBlock
+    assets = assets.lstrip()
+    assets = assets.rstrip()
+    return assets
+
+
 def findEssentialDetails(text, path, position):
 
     from .models import Requirement
@@ -53,10 +111,6 @@ def findEssentialDetails(text, path, position):
     spotsLeft = "N/A"
     salary = "N/A"
     description = "N/A"
-    assetBlock = "N/A"
-    essentialBlock = "N/A"
-    education = "N/A"
-    experience = "N/A"
     salaryMin = "N/A"
     salaryMax = "N/A"
 
@@ -68,36 +122,16 @@ def findEssentialDetails(text, path, position):
 
     jobTitle = extractJobTitle(text)
 
-    # Get Essentials Block
-    if "(essential qualifications)" in text:
-        if "If you possess any" in text:
-            essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
-        elif "The following will be applied / assessed" in text:
-            essentialBlock = text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed at a later date", 1)[0]
-    # Get Asset Block
-    if "(other qualifications)" in text:
-        assetBlock = text.split('(other qualifications)', 1)[1].split("The following will be ", 1)[0]
+    essentialBlock = extractEssentialBlock(text)
 
-    # Get Education and Experience Requirements
-    if "Degree equivalency\n" in essentialBlock:
-        education = essentialBlock.split("Degree equivalency\n", 1)[0]
-        education = education.lstrip()
-        education = education.rstrip()
+    assetBlock = extractAssetBlock(text)
 
-        experience = essentialBlock.split("Degree equivalency\n", 1)[1]
-        experience = experience.lstrip()
-        experience = experience.rstrip()
+    education = extractEducation(essentialBlock)
 
-    elif "Experience:" in text:
-        experience = text.split('Experience:', 1)[1].split("The following will be", 1)[0]
+    experience = extractExperience(essentialBlock)
 
-    # Get Asset Requirements
+    assets = extractAssets(assetBlock)
 
-    assets = assetBlock
-    assets = assets.lstrip()
-    assets = assets.rstrip()
-
-    # Extract Single line elements
     parsing = False
     for item in text.split("\n"):
 
@@ -122,6 +156,7 @@ def findEssentialDetails(text, path, position):
 
     description = description.replace('N/A  ', '', 1)
     classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
+
     position.position_title = jobTitle,
     position.date_closed = closingDate,
     position.num_positions = spotsLeft,
@@ -137,9 +172,9 @@ def findEssentialDetails(text, path, position):
     requirementExperience = Requirement(position=position, requirement_type="experience", abbreviation="", description=experience)
     requirementAssets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
 
+    printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber,
+                              selectionProcessNumber,position.url_ref,position.pdf,education,experience,assets)
 
-
-    printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber, selectionProcessNumber,position.url_ref,position.pdf,education,experience,assets)
     print("Hola, This means parse poster script is functional")
     return position
 
