@@ -32,8 +32,7 @@ def register_form(request):
         # check whether it's valid
         if register_form.is_valid():
             # Success
-            # create_account(request)
-            send_user_email(request)
+            send_user_email(request, create_account(request))
             # Redirects to...
             return redirect('account_created')
     # Returns form page
@@ -53,6 +52,27 @@ def create_account(request):
     user.email_confirmed = False
     # Save updated user info to database
     user.save()
+    return user
+
+
+def send_user_email(request, user):
+    url = generate_confirmation_url(request, user)
+    mail_sent = send_mail(
+        'ScreenDoor: Please confirm e-mail address',
+        'Please visit the following URL to confirm your account: ' + url,
+        'screendoor@screendoor.ca',
+        # Address: should be user.email
+        ['heat0072@algonquinlive.com'],
+        fail_silently=False,
+    )
+
+
+def generate_confirmation_url(request, user):
+    url = reverse(
+        'confirm_account', current_app=request.resolver_match.namespace)
+    token = EmailAuthenticateToken(user)
+    token.save()
+    return str(url) + "?key=" + str(token.key)
 
 
 def account_created(request):
@@ -64,16 +84,17 @@ def account_created(request):
     return redirect('login')
 
 
-def send_user_email(request):
-    mail_sent = send_mail(
-        'ScreenDoor: Please confirm e-mail address',
-        'Test.',
-        'screendoor@screendoor.ca',
-        ['heat0072@algonquinlive.com'],
-        fail_silently=False,
-    )
-    if mail_sent == 1:
-        create_account(request)
+def confirm_account(request):
+    if request.method == 'GET':
+        key = request.GET.get('key')
+        if EmailAuthenticateToken.objects.filter(key=key).exists():
+            token = EmailAuthenticateToken.objects.get(key=key)
+            user = token.user
+            user.email_confirmed = True
+            user.save()
+            return redirect('home')
+        else:
+            return "Invalid e-mail token"
 
 
 def login_form(request):

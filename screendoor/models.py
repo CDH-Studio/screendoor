@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import FileExtensionValidator
 
@@ -132,3 +133,17 @@ class ScreenDoorUser(AbstractUser):
 
     def confirm_email(self):
         self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    key = models.CharField(max_length=500, null=True)
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.DO_NOTHING, primary_key=True)
+
+    def __init__(self, user):
+        self.initial_key = Fernet.generate_key()
+        self.byte_values = bytes(str(user.email) +
+                                 str(datetime.datetime.now()), 'utf-8')
+        self.encoded_bytes = Fernet(self.key).encrypt(self.byte_values)
+        self.key = base64.b64encode(self.encoded_bytes)
+        super().__init__()
