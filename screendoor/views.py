@@ -1,4 +1,5 @@
 from string import digits
+from django.urls import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm, CreatePositionForm
+from .models import EmailAuthenticateToken
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -68,11 +70,9 @@ def send_user_email(request, user):
 
 
 def generate_confirmation_url(request, user):
-    url = reverse(
-        'confirm_account', current_app=request.resolver_match.namespace)
     token = EmailAuthenticateToken(user)
     token.save()
-    return str(url) + "?key=" + str(token.key)
+    return "localhost:8000?key=" + str(token.key)
 
 
 def account_created(request):
@@ -86,15 +86,16 @@ def account_created(request):
 
 def confirm_account(request):
     if request.method == 'GET':
-        key = request.GET.get('key')
-        if EmailAuthenticateToken.objects.filter(key=key).exists():
-            token = EmailAuthenticateToken.objects.get(key=key)
+        account_key = request.GET.get('key', None)
+        if EmailAuthenticateToken.objects.filter(key=account_key).exists():
+            token = EmailAuthenticateToken.objects.get(key=account_key)
             user = token.user
             user.email_confirmed = True
             user.save()
+            token.delete()
             return redirect('home')
         else:
-            return "Invalid e-mail token"
+            return HttpResponse("Invalid key")
 
 
 def login_form(request):
@@ -137,17 +138,3 @@ def import_position(request):
     return render(request, 'createposition/importposition.html', {
         'form': create_position_form
     })
-
-
-# Exceptions - shortcut: get_object_or_404()
-# e.g.     question = get_object_or_404(Question, pk=question_id)
-
-
-# Reverse function
-# return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
-# reverse function belongs to HttpResponseRedirect constructor.
-# Given name of the view we want to pass control to, and the variable portion
-# of the URL pattern that points to that view (plus arguments).
-
-
-# View component reuse: generic views
