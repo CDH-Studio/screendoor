@@ -11,7 +11,8 @@ class FormQuestion(models.Model):
     question_text = models.CharField(max_length=200)
     complementary_question_text = models.CharField(max_length=200)
     applicant_answer = models.BooleanField()
-    applicant_complementary_response = models.CharField(max_length=200, blank=True)
+    applicant_complementary_response = models.CharField(
+        max_length=200, blank=True)
     parsed_response = models.CharField(max_length=200, blank=True)
     analysis = models.CharField(max_length=200, blank=True)
     tabulation = models.CharField(max_length=200)
@@ -79,19 +80,25 @@ class Applicant(models.Model):
         ('INT', 'Intermediate'),
         ('ADV', 'Advanced')
     ]
-    french_working_ability = models.CharField(choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
-    english_working_ability = models.CharField(choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
-    first_official_language = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
+    french_working_ability = models.CharField(
+        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
+    english_working_ability = models.CharField(
+        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
+    first_official_language = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=200)
     written_exam = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
     correspondence = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
     interview = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
 
-    requirements_met = models.ManyToManyField(RequirementMet, symmetrical=False)
+    requirements_met = models.ManyToManyField(
+        RequirementMet, symmetrical=False)
     streams_selected = models.ManyToManyField(Stream, symmetrical=False)
-    classifications_selected = models.ManyToManyField(Classification, symmetrical=False)
+    classifications_selected = models.ManyToManyField(
+        Classification, symmetrical=False)
     educations = models.ManyToManyField(Education, symmetrical=False)
 
-    questions = models.ManyToManyField(FormQuestion, symmetrical=False, blank=True)
+    questions = models.ManyToManyField(
+        FormQuestion, symmetrical=False, blank=True)
     pdf = models.FileField()
     ranking = models.PositiveIntegerField()
 
@@ -100,12 +107,15 @@ class Applicant(models.Model):
 
 
 class Position(models.Model):
-    applications = models.ManyToManyField(Applicant, symmetrical=False, blank=True)
+    applications = models.ManyToManyField(
+        Applicant, symmetrical=False, blank=True)
     position_title = models.CharField(max_length=200, blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.PositiveIntegerField(null=True, blank=True)
-    salary_min = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
-    salary_max = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+    salary_min = models.DecimalField(
+        decimal_places=2, max_digits=10, null=True, blank=True)
+    salary_max = models.DecimalField(
+        decimal_places=2, max_digits=10, null=True, blank=True)
     classification = models.CharField(max_length=200, blank=True)
     department = models.CharField(max_length=200, blank=True)
     location = models.CharField(max_length=200, blank=True)
@@ -121,7 +131,8 @@ class Position(models.Model):
 
 
 class Requirement(models.Model):
-    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True)
+    position = models.ForeignKey(
+        Position, on_delete=models.SET_NULL, null=True)
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
     description = models.CharField(max_length=200)
@@ -139,13 +150,14 @@ class ScreenDoorUser(AbstractUser):
 
 
 class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
     key = models.CharField(max_length=500, null=True)
-
 
     def create_key(self):
         initial_key = Fernet.generate_key()
         byte_values = bytes(str(self.user.email) +
-                                 str(datetime.datetime.now()), 'utf-8')
+                            str(datetime.datetime.now()), 'utf-8')
+
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
         self.key = base64.b64encode(encoded_bytes).decode('utf-8')
