@@ -32,6 +32,12 @@ class CreatePositionForm(forms.ModelForm):
 
 class ScreenDoorUserCreationForm(UserCreationForm):
     text = _("Create Account")
+    email_text = _("Email address")
+    password_text = _("Choose a password")
+    password_confirm_text = _("Re-enter your password")
+    email = forms.EmailField(
+        label=_('Username/Email Address'), max_length=100)
+    login_button_text = _("Have an account? Sign in")
 
     class Meta(UserCreationForm):
         model = ScreenDoorUser
@@ -45,12 +51,12 @@ class ScreenDoorUserCreationForm(UserCreationForm):
         if email_domain != "canada.ca" and email_domain != "algonquinlive.com":
             message = forms.ValidationError(format(
                 _('Invalid e-mail address domain: %s. Canada.ca email required.')
-                % email_domain))
+                % email_domain), code='invalid_domain')
             self.add_error('email', message)
         # Validate if e-mail is unique in system
         elif get_user_model().objects.filter(username=email).exists():
             message = forms.ValidationError(format(_(
-                'Username %s already exists.') % email))
+                'Username %s already exists.') % email), code='duplicate_email')
             self.add_error('email', message)
 
         return self.cleaned_data
@@ -80,7 +86,7 @@ class LoginForm(forms.Form):
             message = forms.ValidationError(_('Invalid username or password.'))
             self.add_error('email', message)
         # Has user confirmed e-mail address
-        elif user.email_confirmed == False:
+        elif user.email_confirmed is False:
             message = forms.ValidationError(
                 _('Email address for user not confirmed.'))
             self.add_error('email', message)

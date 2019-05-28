@@ -1,0 +1,38 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<script src="{% static 'js/forms.js' %}"></script>
+<script src="{% static 'js/materialize.js' %}"></script>
+<body>
+  <!-- Navbar goes here -->
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+      <!-- <ul id="nav-mobile" class="right hide-on-med-and-down">
+           <li><a href="sass.html">Sass</a></li>
+           <li><a href="badges.html">Components</a></li>
+           <li><a href="collapsible.html">JavaScript</a></li>
+           </ul> -->
+    </div>
+  </nav>
+  <!-- Page Layout here -->
+  <div class="container">
+    <div class="row">
+      <div class="container valign-wrapper form-card">
+        <!-- Note that "m8 l9" was added -->
+        <!-- Teal page content
+
+             This content will be:
+             9-columns-wide on large screens,
+             8-columns-wide on medium screens,
+             12-columns-wide on small screens  -->
+        <div class="row">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+</body>

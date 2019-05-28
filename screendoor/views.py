@@ -27,7 +27,7 @@ def index(request):
 
 
 def register_form(request):
-    register_form = ScreenDoorUserCreationForm
+    register_form = ScreenDoorUserCreationForm()
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         register_form = ScreenDoorUserCreationForm(request.POST)
@@ -36,8 +36,11 @@ def register_form(request):
             # Success
             send_user_email(request, create_account(request))
             # Redirects to...
-            return redirect('account_created')
-    # Returns form page
+            success = _(
+                "Account created. Please check your e-mail for an activation link")
+            return render(request, 'registration/register.html',
+                          {'register_form': register_form, 'success': success})
+            # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
 
@@ -101,10 +104,11 @@ def confirm_account(request):
 
 
 def login_form(request):
-    # Instantiate form object
-    form = LoginForm(request.POST)
+    form = LoginForm()
     # Has the user hit login button
     if request.method == 'POST':
+        # Instantiate form object
+        form = LoginForm(request.POST)
         # Validates form and persists username data
         if form.is_valid():
             user = form.get_user()
