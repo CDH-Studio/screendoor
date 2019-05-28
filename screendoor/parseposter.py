@@ -1,23 +1,19 @@
 import os
 import re
 import tempfile
-
-import tika
-from geotext import GeoText
-from tika import parser
+from dateutil import parser as dateparser
 import pdfkit
-from django.db import models
-
-from screendoor.forms import CreatePositionForm
+import tika
+from tika import parser
 from screendoor_app.settings import BASE_DIR
-from .models import Position
 
 
-def printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber, selectionProcessNumber, url_ref , pdf, education, experience, assets):
-
+def print_information(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description,
+                      whoCanApply, referenceNumber, selectionProcessNumber, url_ref, pdf, education, experience,
+                      assets):
     print("Job Title : " + jobTitle)
     print("Closing Date : " + closingDate)
-    print("Available Positions : " + spotsLeft)
+    print("Available Positions : " + str(spotsLeft))
     print("Salary Min : " + salaryMin)
     print("Salary Max : " + salaryMax)
     print("Classification : " + classification)
@@ -32,8 +28,8 @@ def printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salar
 
     return
 
-def extractJobTitle(text):
 
+def extract_job_title(text):
     jobTitle = "N/A"
 
     if "Reference" in text:
@@ -42,23 +38,28 @@ def extractJobTitle(text):
 
     return jobTitle
 
+def extract_who_can_apply(text):
+    who_can_apply = "N/A"
 
-def extractEssentialBlock(text):
+    if "Who can apply:" in text:
+        who_can_apply = text.split("Who can apply:", 1)[1].split(".", 1)[0]
 
+    return who_can_apply
+
+
+def extract_essential_block(text):
     essentialBlock = "N/A"
 
     if "(essential qualifications)" in text:
         if "If you possess any" in text:
             essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
-        elif "The following will be applied / assessed" in text:
-            essentialBlock = text.split('(essential qualifications)', 1)[1].split(
-                "The following will be applied / assessed at a later date", 1)[0]
+        else:
+            essentialBlock = text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed", 1)[0]
 
     return essentialBlock
 
 
-def extractAssetBlock(text):
-
+def extract_asset_block(text):
     assetBlock = "N/A"
 
     if "(other qualifications)" in text:
@@ -67,8 +68,7 @@ def extractAssetBlock(text):
     return assetBlock
 
 
-def extractEducation(essentialBlock):
-
+def extract_education(essentialBlock):
     education = "N/A"
 
     if "Degree equivalency\n" in essentialBlock:
@@ -79,7 +79,7 @@ def extractEducation(essentialBlock):
     return education
 
 
-def extractExperience(essentialBlock):
+def extract_experience(essentialBlock):
     experience = "N/A"
 
     if "Degree equivalency\n" in essentialBlock:
@@ -90,8 +90,7 @@ def extractExperience(essentialBlock):
     return experience
 
 
-def extractAssets(assetBlock):
-
+def extract_Assets(assetBlock):
     assets = "N/A"
 
     assets = assetBlock
@@ -100,146 +99,118 @@ def extractAssets(assetBlock):
     return assets
 
 
-def findEssentialDetails(text, path, position):
-
+def find_essential_details(text, path, position):
     from .models import Requirement
 
-    referenceNumber = "N/A"
-    selectionProcessNumber = "N/A"
-    whoCanApply = "N/A"
-    closingDate = "N/A"
-    spotsLeft = "N/A"
+    reference_number = "N/A"
+    selection_process_number = "N/A"
+    who_can_apply = "N/A"
+    closing_date = "N/A"
+    spots_left = None
     salary = "N/A"
     description = "N/A"
-    salaryMin = "N/A"
-    salaryMax = "N/A"
+    salary_min = 0
+    salary_max = 0
 
     text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
     text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
     text = text.strip("\n\n")
-    print("////////// "+path+" //////////\n")
 
+    job_title = extract_job_title(text)
 
-    jobTitle = extractJobTitle(text)
+    essential_block = extract_essential_block(text)
 
-    essentialBlock = extractEssentialBlock(text)
+    asset_block = extract_asset_block(text)
 
-    assetBlock = extractAssetBlock(text)
+    education = extract_education(essential_block)
 
-    education = extractEducation(essentialBlock)
+    experience = extract_experience(essential_block)
 
-    experience = extractExperience(essentialBlock)
+    who_can_apply = extract_who_can_apply(text)
 
-    assets = extractAssets(assetBlock)
+    assets = extract_Assets(asset_block)
 
     parsing = False
     for item in text.split("\n"):
 
         if '$' in item:
             salary = item.strip()
-            salaryMin = salary.split(" to ", 1)[0]
-            salaryMax = salary.split(" to ", 1)[1]
+            salary_min = salary.split(" to ", 1)[0]
+            salary_max = salary.split(" to ", 1)[1].split(" ")[0]
             parsing = False
         if parsing:
             description = description + " " + item.strip()
         elif "Reference number" in item:
-            referenceNumber = item.strip().split(": ")[1]
+            reference_number = item.strip().split(": ")[1]
         elif "Selection process number" in item:
-            selectionProcessNumber = item.strip().split(": ")[1]
+            selection_process_number = item.strip().split(": ")[1]
             parsing = True
-        elif "Who can apply" in item:
-            whoCanApply = item.strip().split(": ")[1]
         elif "Closing date" in item:
-            closingDate = item.strip().split(": ")[1]
-        elif "Positions" in item:
-            spotsLeft = item.strip().split(": ")[1]
+            closing_date = item.strip().split(": ")[1]
+        elif "Position:" in item or "Positions to be filled:" in item:
+            spots_left = item.strip().split(": ")[1]
 
     description = description.replace('N/A  ', '', 1)
     classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
 
-    position.position_title = jobTitle,
-    position.date_closed = closingDate,
-    position.num_positions = spotsLeft,
-    position.salary_min = salaryMin,
-    position.salary_max = salaryMax,
-    position.classification = classification,
-    position.description = description,
-    position.open_to = whoCanApply,
-    position.reference_number = referenceNumber,
-    position.selection_process_number = selectionProcessNumber
+    date = closing_date.rsplit(",", 1)[0]
+    timezone = closing_date.rsplit(",", 1)[1]  # TODO Need to add timezone
+    position.date_closed = dateparser.parse(date)
 
-    requirementEducation = Requirement(position=position, requirement_type="educations", abbreviation="", description=education)
-    requirementExperience = Requirement(position=position, requirement_type="experience", abbreviation="", description=experience)
-    requirementAssets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
+    position.position_title = job_title
+    position.num_positions = spots_left
 
-    printCollectedInformation(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description, whoCanApply, referenceNumber,
-                              selectionProcessNumber,position.url_ref,position.pdf,education,experience,assets)
+    salary_min = salary_min.replace("$", "")
+    salary_min = salary_min.replace(",", "")
+    salary_max = salary_max.replace("$", "")
+    salary_max = salary_max.replace(",", "")
 
-    print("Hola, This means parse poster script is functional")
+    position.salary_min = salary_min
+    position.salary_max = salary_max
+    position.classification = classification
+    position.description = description
+    position.open_to = who_can_apply
+    position.reference_number = reference_number
+    position.selection_process_number = selection_process_number
+
+    position.save()
+
+    requirement_education = Requirement(position=position, requirement_type="educations", abbreviation="",
+                                        description=education)
+    requirement_experience = Requirement(position=position, requirement_type="experience", abbreviation="",
+                                         description=experience)
+    requirement_assets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
+
+    requirement_education.save()
+    requirement_experience.save()
+    requirement_assets.save()
+
+    print_information(job_title, closing_date, spots_left, salary_min, salary_max, classification, description,
+                      who_can_apply, reference_number,
+                      selection_process_number, position.url_ref, position.pdf, education, experience, assets)
+
     return position
 
 
-def doChecks(posterText):
-    if "This is not a real advertisement" in posterText:
-        return False
-    if "We couldn't find that" in posterText:
-        return False
-    if "File not found" in posterText:
-        return False
-    if "Notification of Consideration" in posterText:
-        return False
-    if "Appointment of: " in posterText:
-        return False
-    if "Reference number:" not in posterText:
-        return False
-    return True
-
-
-def scrapeFromGovJobs(govNum, counter):
-    for x in range(0, counter):
-
-        url = 'https://emploisfp-psjobs.cfp-psc.gc.ca/psrs-srfp/applicant/page1800?poster=' + str(govNum + x)
-        filePath = 'Sample Job Posters/Sample Poster' + str(x) + '.pdf'
-
-        try:
-            pdfkit.from_url(str(url), str(filePath))
-        except:
-            pass
-
-        fileData = tika.parser.from_file(filePath)
-        jobPosterText = fileData['content']
-
-        if doChecks(jobPosterText) is False:
-            continue
-
-        findEssentialDetails(jobPosterText, filePath)
-
-        return
-
-def parseUrlOrFile(position):
-
-
-    print("THIS SHOULD PRINT FIRST")
-
+def parse_upload(position):
     if position.pdf.name:
-        print("THIS SHOULD PRINT SECOND")
         os.chdir("..")
-        pdfFilePath = os.path.join(BASE_DIR, 'positions/Sample_Job_Poster_3.pdf')
-        print(pdfFilePath)
-        fileData = tika.parser.from_file(pdfFilePath,'http://tika:9998/tika')
-        jobPosterText = fileData['content']
-        position = findEssentialDetails(jobPosterText, pdfFilePath, position)
+        pdf_file_path = os.path.join(BASE_DIR, position.pdf.url)
+        file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
+        job_poster_text = file_data['content']
+        position = find_essential_details(job_poster_text, pdf_file_path, position)
     else:
         url = position.url_ref
+
         temp = tempfile.NamedTemporaryFile()
-        filePath = temp.name
+        pdf_file_path =  temp.name
+
         try:
-            pdfkit.from_url(str(url), str(filePath))
+            pdfkit.from_url(str(url), str(pdf_file_path))
         except:
             pass
-        fileData = tika.parser.from_file(filePath)
-        jobPosterText = fileData['content']
-        position = findEssentialDetails(jobPosterText, filePath, position)
-        os.remove('uploadedPoster_1.pdf')
+        file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
+        job_poster_text = file_data['content']
+        position = find_essential_details(job_poster_text, pdf_file_path, position)
 
     return position

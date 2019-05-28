@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
-from screendoor.parseposter import parseUrlOrFile
+from screendoor.parseposter import parse_upload
 from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm, CreatePositionForm
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
@@ -102,8 +102,8 @@ def import_position(request):
         create_position_form = CreatePositionForm(request.POST, request.FILES)
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save(commit=False)
-            position = parseUrlOrFile(position)
+            position = create_position_form.save()
+            position = parse_upload(position)
             return render(request, 'position.html', {'position': position})
     else:
         # blank form
