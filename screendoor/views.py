@@ -105,6 +105,7 @@ def login_form(request):
     form = LoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
+
         # Validates form and persists username data
         if form.is_valid():
             user = form.get_user()
