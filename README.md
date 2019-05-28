@@ -15,4 +15,3 @@ Steps:
 
 ## Frequent errors
 * Django 'new migration' detection is imperfect, and will sometimes brick the application as a result. Delete your migrations folder to remove Django's cache, and rerun the migration process.
-
