@@ -158,5 +158,6 @@ class EmailAuthenticateToken(models.Model):
         initial_key = Fernet.generate_key()
         byte_values = bytes(str(self.user.email) +
                             str(datetime.datetime.now()), 'utf-8')
+
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
         self.key = base64.b64encode(encoded_bytes).decode('utf-8')
