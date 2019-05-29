@@ -67,7 +67,7 @@ def send_user_email(request, user):
         'Please visit the following URL to confirm your account: ' + url,
         'screendoor@screendoor.ca',
         # Address: should be user.email
-        ['heat0072@algonquinlive.com'],
+        [user.email],
         fail_silently=False,
     )
 
@@ -110,10 +110,9 @@ def login_form(request):
                 user = form.get_user()
                 login(request, user)
                 return redirect('home')
-        # Display login page
-        return render(request, 'registration/login.html',
-                      {'login_form': form})
-    return redirect('home')
+    # Display login page
+    return render(request, 'registration/login.html',
+                  {'login_form': form})
 
 
 @login_required(login_url='login/', redirect_field_name=None)
