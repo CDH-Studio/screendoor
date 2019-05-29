@@ -8,12 +8,19 @@ from tika import parser
 from screendoor_app.settings import BASE_DIR
 
 
+def text_between(start_string, end_string, text):
+
+    extracted_text = text.split(start_string, 1)[1].split(end_string, 1)[0]
+
+    return extracted_text
+
+
 def extract_job_title(text):
     jobTitle = "N/A"
 
     if "Reference" in text:
         # Gets job title between 2 strings, Home and Reference.
-        jobTitle = text.split('Home', 1)[1].split("Reference", 1)[0]
+        jobTitle = text_between('Home', "Reference", text)
         jobTitle = " ".join(jobTitle.split())
 
     return jobTitle
@@ -21,10 +28,8 @@ def extract_job_title(text):
 
 def extract_who_can_apply(text):
     who_can_apply = "N/A"
-
     if "Who can apply:" in text:
-        who_can_apply = text.split("Who can apply:", 1)[1].split(".", 1)[0]
-
+        who_can_apply = text_between("Who can apply:", ".", text)
     return who_can_apply
 
 
@@ -37,10 +42,11 @@ def extract_essential_block(text):
 
     if "(essential qualifications)" in text:
         if "If you possess any" in text:
-            essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
+            essentialBlock = text_between('(essential qualifications)', "If you possess any", text)
+
         else:
-            essentialBlock = \
-                text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed", 1)[0]
+            essentialBlock = text_between('(essential qualifications)', "The following will be applied / assessed", text)
+
 
     return essentialBlock
 
@@ -49,7 +55,7 @@ def extract_asset_block(text):
     assetBlock = "N/A"
 
     if "(other qualifications)" in text:
-        assetBlock = text.split('(other qualifications)', 1)[1].split("The following will be ", 1)[0]
+        assetBlock = text_between('(other qualifications)', "The following will be ", text)
 
     return assetBlock
 
@@ -91,7 +97,7 @@ def extract_salary_min(salary):
 
 
 def extract_salary_max(salary):
-    salary_max = salary.split(" to ", 1)[1].split(" ")[0]
+    salary_max = text_between(" to ", " ", salary)
     salary_max = salary_max.replace("$", "")
     salary_max = salary_max.replace(",", "")
 
