@@ -4,4 +4,4 @@ pdfkit==0.6.1
 tika==1.19
 geotext==0.4.0
 wkhtmltopdf==0.2
-
+python-dateutil==2.8.0
