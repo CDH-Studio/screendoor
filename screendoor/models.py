@@ -117,8 +117,7 @@ class Position(models.Model):
     salary_max = models.DecimalField(
         decimal_places=2, max_digits=10, null=True, blank=True)
     classification = models.CharField(max_length=200, blank=True)
-    department = models.CharField(max_length=200, blank=True)
-    location = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=2000, blank=True)
     open_to = models.CharField(max_length=200, blank=True)
     reference_number = models.CharField(max_length=200, blank=True)
     selection_process_number = models.CharField(max_length=200, blank=True)
@@ -135,7 +134,7 @@ class Requirement(models.Model):
         Position, on_delete=models.SET_NULL, null=True)
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=5000)
 
     def __str__(self):
         return self.abbreviation
