@@ -9,6 +9,18 @@ from .models import ScreenDoorUser, Position
 
 # For creating a new position
 class CreatePositionForm(forms.ModelForm):
+    # Text relating to form display. Consider moving to an external file.
+    text = _("Upload New Position")
+    description = _(
+        "Please select either PDF or link to the jobs.gc.ca posting")
+    pdf_name = _("PDF")
+    url_name = _("URL")
+    pdf_text = _("Drag or browse for a PDF file")
+    url_text = _("Link to job description")
+    upload_text = _("Choose a file")
+    browse_text = _("Browse")
+    submit_text = _("Submit")
+
     class Meta:
         model = Position
         fields = ('pdf', 'url_ref')
@@ -26,6 +38,9 @@ class CreatePositionForm(forms.ModelForm):
             msg = forms.ValidationError(
                 _('Please enter *either* a pdf file or a url link, but not both.'))
             self.add_error('pdf', msg)
+        # TODO: validate file is genuine PDF using https://github.com/ahupp/python-magic
+        # Python implementation libmagic unix program for validating file types
+        # TODO: validate that URL is from jobs.gc.ca.
 
         return self.cleaned_data
 
@@ -88,7 +103,7 @@ class LoginForm(forms.Form):
         # Has user confirmed e-mail address
         elif user.email_confirmed is False:
             message = forms.ValidationError(
-                _('Email address for user not confirmed.'))
+                _('Email address for user not confirmed. Please check your email or contact a site administrator.'))
             self.add_error('email', message)
 
         return self.cleaned_data
@@ -97,7 +112,3 @@ class LoginForm(forms.Form):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
         return authenticate(username=email, password=password)
-
-
-class LogoutForm(forms.Form):
-    text = _("Log out")

@@ -1,3 +1,49 @@
-/* .error {
-   color: #e51c23
+/* hr {
+   border-bottom: 1px solid #333;
    } */
+
+/* .welcome-text {
+   padding-left: 15px;
+   } */
+
+/* Chrome, Safari, AND NOW ALSO the Edge Browser and Firefox */
+/* @media and (-webkit-min-device-pixel-ratio:0) {
+   [type="radio"]:not(:checked), [type="radio"]:checked {
+   position: relative;
+   opacity: 1;
+   }
+   } */
+
+/* Chrome 29+ */
+/* @media screen and (-webkit-min-device-pixel-ratio:0)
+   and (min-resolution:.001dpcm) {
+   [type="radio"]:not(:checked), [type="radio"]:checked {
+   position: relative;
+   opacity: 1;
+   }
+   }
+ */
+
+
+.sidenav{
+  /* top: 65px; */
+  width: 300px;
+}
+
+header, main, footer {
+  padding-left: 300px;
+}
+
+.menu-button {
+  margin-right: -15px;
+}
+
+@media only screen and (max-width : 992px) {
+  header, main, footer {
+    padding-left: 0;
+  }
+
+  .menu-button {
+    display: none;
+  }
+}

@@ -1,8 +1,103 @@
+{% extends '../base_logged_in.html' %}
+{% load static %}
 {% block content %}
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
+<script>
+ /* Make file and URL forms invisible on page load */
+ window.onload = function() {
+   document.getElementById('radio_pdf').checked = false;
+   document.getElementById('radio_url').checked = false;
+   document.getElementById('pdf_upload_form').style.display = 'none';
+   document.getElementById('url_upload_form').style.display = 'none';
+   document.getElementById('position_submit_button').style.display = 'none';
+ };
+ /* Show PDF form, hide and clear URL input form */
+ function showPdf() {
+   document.getElementById('pdf_upload_form').style.display = 'block';
+   document.getElementById('pdf_input').required = true;
+   document.getElementById('url_upload_form').style.display = 'none';
+   document.getElementById('url_input').required = false;
+   document.getElementById('url_input').value = null;
+   document.getElementById('position_submit_button').style.display = 'block';
+ }
+ /* Show URL form, hide and clear PDF input form */
+ function showUrl() {
+   document.getElementById('pdf_upload_form').style.display = 'none';
+   document.getElementById('pdf_input').required = false;
+   document.getElementById('pdf_input').value = null;
+   document.getElementById('pdf_path_input').value = null;
+   document.getElementById('url_upload_form').style.display = 'block';
+   document.getElementById('url_input').required = true;
+   document.getElementById('position_submit_button').style.display = 'block';
+ }
+</script>
+<!--Beginning of upload position card -->
+<div class="col card horizontal hoverable">
+  <!-- Beginning of form -->
+  <form method="post" enctype="multipart/form-data" action="">
+    <div class="card-content col s12">
+      <!-- Upload position title -->
+      <row>
+        <label class="card-title col s12" for="importposition">{{ form.text }}</label>
+      </row>
+      {% csrf_token %}
+      <!-- Radio buttons to select PDF or URL -->
+      <row>
+        <br>
+        <!-- Upload position form error messages -->
+        {% if forms.errors.pdf %}
+        <span class="error-text">{{ form.errors.pdf }}</span>
+        <!-- Upload position form instructions -->
+        {% else %}
+        <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+        {% endif %}
+        <br>
+        <br>
+        <!-- PDF upload radio button -->
+        <div class="col s4">
+          <label>
+            <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
+            <span>{{ form.pdf_name }}</span>
+          </label>
+        </div>
+        <!-- URL submit radio button -->
+        <div class="col s4">
+          <label>
+            <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
+            <span>{{ form.url_name }}</span>
+          </label>
+        </div>
+        <br>
+        <br>
+      </row>
+      <!-- PDF/File input -->
+      <row>
+        <div class="col s12 file-field input-field" id="pdf_upload_form">
+          <div class="btn-small">
+            <span>{{ form.browse_text }}</span>
+            <input type="file" name="pdf" id="pdf_input">
+          </div>
+          <div class="file-path-wrapper">
+            <input id="pdf_path_input" class="file-path validate" type="text"
+                   placeholder="{{ form.upload_text }}" />
+          </div>
+        </div>
+      </row>
+      <!-- URL input -->
+      <row>
+        <div class="input-field col s12" id="url_upload_form">
+          <input id="url_input" name="url_ref" type="url" class="validate">
+          <label for="url">{{ form.url_text }}</label>
+        </div>
+      </row>
+      <!-- Submit button -->
+      <row>
+        <div class="input-field col s12" id="position_submit_button">
+          <input class="right btn" type="submit" value="{{ form.submit_text }}">
+        </div>
+      </row>
+    </div>
+    <!-- End of form -->
   </form>
-
+  <!-- End of card -->
+</div>
 {% endblock %}

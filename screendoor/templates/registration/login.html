@@ -2,38 +2,43 @@
 {% extends '../base_logged_out.html' %}
 {% load static %}
 {% block content %}
-<script>
- $(document).ready(function() {
-   M.updateTextFields();
- });
-</script>
+
+<!-- Beginning of login card -->
 <div class="col card horizontal hoverable">
+  <!-- Beginning of form -->
   <form action="" method="post">
     <div class="card-content col s12">
+      <!-- Displays "Login" -->
       <label class="card-title col s12" for="login">{{ login_form.login_text }}</label>
       {% csrf_token %}
+      <!-- Error-display relating to e-mail address -->
       <div class="col s12">
         <span class="error-text">{{ login_form.errors.email }}</span>
       </div>
+      <!-- Input and label for e-mail/username -->
       <div class="input-field col s12">
         {{ login_form.email.label_tag }}
         <input name="email" class="validate" type="email" required id="id_email" value="{{ login_form.email.value|default:"" }}">
       </div>
+      <!-- Input and label for password -->
       <div class="input-field col s12">
         {{ login_form.password.label_tag }}
         {{ login_form.password }}
       </div>
+      <!-- Error-display relating to password -->
       <div class="col s12">
         {% if login_form.errors.password is not None %}
         <span class="error-text">{{ login_form.errors.password }}</span>
         {% endif %}
       </div>
+      <!-- Create account and login buttons -->
       <div class="row">
         <input class="right btn btn-margin" type="submit" value="{{ login_form.login_text }}">
         <a class="btn-flat btn-margin waves-effect right" href="{% url 'register' %}">{{ login_form.create_account_text }}</a>
       </div>
     </div>
   </form>
+  <!-- End of form -->
 </div>
-</div>
+<!-- End of login card -->
 {% endblock %}

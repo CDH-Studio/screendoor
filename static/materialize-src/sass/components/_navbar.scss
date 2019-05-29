@@ -58,24 +58,24 @@ nav {
 
   // Logo
   .brand-logo {
-    position: absolute;
+    // position: absolute;
     color: $navbar-font-color;
     display: inline-block;
     font-size: $navbar-brand-font-size;
-    padding: 22;
+    padding: 20;
     &.center {
       left: 50%;
       transform: translateX(-50%);
     }
     img {
-        max-width: 100px;
+        max-width: 115px;
     }
     @media #{$medium-and-down} {
       left: 50%;
       transform: translateX(-50%);
 
       &.left, &.right {
-        padding: 18;
+        padding: 22;
         transform: none;
       }
 
