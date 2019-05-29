@@ -87,6 +87,11 @@ class LoginForm(forms.Form):
 
         return self.cleaned_data
 
+    def get_user(self):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        return authenticate(username=email, password=password)
+
 
 
 class LogoutForm(forms.Form):

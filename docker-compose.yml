@@ -10,16 +10,18 @@ services:
       POSTGRES_DB: screendoor_db
   web:
     build: .
-    command: bash -c "sleep 5 && python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 5 && python3  manage.py runserver 0.0.0.0:8000 "
+    container_name: screendoor
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - db
-  tika:
+    stdin_open: true
+    tty: true
+ tika:
     image: logicalspark/docker-tikaserver
     command: docker run -d -p 9998:9998 docker-tikaserver
-
 
 

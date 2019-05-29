@@ -1,4 +1,5 @@
 from string import digits
+from django.urls import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from screendoor.parseposter import parse_upload
 from .forms import ScreenDoorUserCreationForm, LoginForm, LogoutForm, CreatePositionForm
+from .models import EmailAuthenticateToken
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -32,8 +34,7 @@ def register_form(request):
         # check whether it's valid
         if register_form.is_valid():
             # Success
-            # create_account(request)
-            send_user_email(request)
+            send_user_email(request, create_account(request))
             # Redirects to...
             return redirect('account_created')
     # Returns form page
@@ -53,6 +54,27 @@ def create_account(request):
     user.email_confirmed = False
     # Save updated user info to database
     user.save()
+    return user
+
+
+def send_user_email(request, user):
+    url = generate_confirmation_url(request, user)
+    mail_sent = send_mail(
+        'ScreenDoor: Please confirm e-mail address',
+        'Please visit the following URL to confirm your account: ' + url,
+        'screendoor@screendoor.ca',
+        # Address: should be user.email
+        ['heat0072@algonquinlive.com'],
+        fail_silently=False,
+    )
+
+
+def generate_confirmation_url(request, user):
+    token = EmailAuthenticateToken()
+    token.user = user
+    token.create_key()
+    token.save()
+    return "http://localhost:8000/confirm?key=" + str(token.key)
 
 
 def account_created(request):
@@ -64,30 +86,35 @@ def account_created(request):
     return redirect('login')
 
 
-def send_user_email(request):
-    mail_sent = send_mail(
-        'ScreenDoor: Please confirm e-mail address',
-        'Test.',
-        'screendoor@screendoor.ca',
-        ['heat0072@algonquinlive.com'],
-        fail_silently=False,
-    )
-    if mail_sent == 1:
-        create_account(request)
+def confirm_account(request):
+    if request.method == 'GET':
+        account_key = request.GET.get('key')
+        if EmailAuthenticateToken.objects.filter(key=account_key).exists():
+            token = EmailAuthenticateToken.objects.get(key=account_key)
+            user = token.user
+            user.email_confirmed = True
+            user.save()
+            token.delete()
+            return redirect('home')
+        else:
+            return HttpResponse("Invalid key")
 
 
 def login_form(request):
     # Instantiate form object
-    login_form = LoginForm(request.POST)
+    form = LoginForm(request.POST)
     # Has the user hit login button
     if request.method == 'POST':
+
         # Validates form and persists username data
-        if login_form.is_valid():
-            login(request, login_form.get_user)
+
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
             return redirect('home')
     # Display login page
     return render(request, 'registration/login.html',
-                  {'login_form': login_form})
+                  {'login_form': form})
 
 
 def logout_view(request):
@@ -111,17 +138,3 @@ def import_position(request):
     return render(request, 'createposition/importposition.html', {
         'form': create_position_form
     })
-
-
-# Exceptions - shortcut: get_object_or_404()
-# e.g.     question = get_object_or_404(Question, pk=question_id)
-
-
-# Reverse function
-# return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
-# reverse function belongs to HttpResponseRedirect constructor.
-# Given name of the view we want to pass control to, and the variable portion
-# of the URL pattern that points to that view (plus arguments).
-
-
-# View component reuse: generic views
