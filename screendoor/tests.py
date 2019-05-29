@@ -4,7 +4,6 @@ from .models import ScreenDoorUser
 from django.test.client import Client
 from django.urls import reverse
 from .errormessages import *
-# Create your tests here.
 
 class UserRegistrationTests(TestCase):
 
@@ -89,14 +88,3 @@ class CreatePositionTests(TestCase):
         form.fields['pdf'].initial = "positions/heck.pdf"
         self.assertTrue(form.is_valid())
 #python manage.py test
-
-
-
-
-
-
-
-
-
-
-

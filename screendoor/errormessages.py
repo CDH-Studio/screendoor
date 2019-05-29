@@ -8,9 +8,9 @@ errormsg_overfilled_create_position_form = _('Please enter *either* a pdf file o
 
 
     ## ScreenDoorUserCreationForm Errors ##
-# Translators: When a user tries to make a duplicate account.
+# Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
 errormsg_user_already_exists = _('Username %s already exists.')
-# Translators: When a user tries to sign on with something that isn't a government email.
+# Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
 errormsg_invalid_email_domain = _('Invalid e-mail address domain: %s. Canada.ca email required.')
 
 
@@ -21,6 +21,6 @@ errormsg_unconfirmed_email = _('Email address for user not confirmed.')
 errormsg_invalid_un_or_pw = _('Invalid username or password.')
 
 
-#translate command (in web sh: python manage.py makemessages -l pl)
+#translate command (in web sh): python manage.py makemessages -l pl
 #note: Translators: is specific syntax that makes the comment appear in the translation file
 #dont omit it

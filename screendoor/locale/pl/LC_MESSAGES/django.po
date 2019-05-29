@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-29 14:48+0000\n"
+"POT-Creation-Date: 2019-05-29 17:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,49 +19,56 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n"
 "%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n"
 "%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-#: screendoor/errormessages.py:3 screendoor/forms.py:84
-msgid "Email address for user not confirmed."
-msgstr ""
 
-#: screendoor/errormessages.py:4
+#. Translators: When a user tries to upload a blank position form.
+#: screendoor/errormessages.py:5
 msgid "Please enter either a pdf file or a url link."
 msgstr ""
 
-#: screendoor/errormessages.py:5
+#. Translators: When a user tries to upload a position form with too much data.
+#: screendoor/errormessages.py:7
 msgid "Please enter *either* a pdf file or a url link, but not both."
 msgstr ""
 
-#: screendoor/forms.py:32 screendoor/forms.py:67
-msgid "Create Account"
-msgstr ""
-
-#: screendoor/forms.py:45
-#, python-format
-msgid "Invalid e-mail address domain: %s. Canada.ca email required."
-msgstr ""
-
-#: screendoor/forms.py:52
+#. Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
+#: screendoor/errormessages.py:12
 #, python-format
 msgid "Username %s already exists."
 msgstr ""
 
-#: screendoor/forms.py:66
-msgid "Login"
+#. Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
+#: screendoor/errormessages.py:14
+#, python-format
+msgid "Invalid e-mail address domain: %s. Canada.ca email required."
 msgstr ""
 
-#: screendoor/forms.py:69
-msgid "Username/Email Address"
+#. Translators: When a user tries to login with an unauthenticated account
+#: screendoor/errormessages.py:19
+msgid "Email address for user not confirmed."
 msgstr ""
 
-#: screendoor/forms.py:71
-msgid "Password"
-msgstr ""
-
-#: screendoor/forms.py:79
+#. Translators: When a user submits an invalid username and/or password.
+#: screendoor/errormessages.py:21
 msgid "Invalid username or password."
 msgstr ""
 
-#: screendoor/forms.py:96
+#: screendoor/forms.py:31 screendoor/forms.py:56
+msgid "Create Account"
+msgstr ""
+
+#: screendoor/forms.py:55
+msgid "Login"
+msgstr ""
+
+#: screendoor/forms.py:58
+msgid "Username/Email Address"
+msgstr ""
+
+#: screendoor/forms.py:60
+msgid "Password"
+msgstr ""
+
+#: screendoor/forms.py:84
 msgid "Log out"
 msgstr ""
 

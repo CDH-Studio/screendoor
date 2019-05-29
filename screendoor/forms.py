@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model, authenticate
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext as _
 from .errormessages import *
 
@@ -37,25 +37,18 @@ class ScreenDoorUserCreationForm(UserCreationForm):
     # Clean and validate fields. Password validation is handled by Django UserCreationForm
     def clean(self):
         email = self.cleaned_data.get('email')
-        # Validate e-mail domain (algonquinlive.com for testing purposes only)
+        # Validate e-mail domain (canada.ca only)
         email_domain = email.split('@')[1].lower()
         if email_domain != "canada.ca":
             message = forms.ValidationError(format(errormsg_invalid_email_domain % email_domain))
             self.add_error('email', message)
-        # Validate if e-mail is unique in system
 
+        # Validate if e-mail is unique in system
         elif get_user_model().objects.filter(username=email.lower()).exists():
             message = forms.ValidationError(format(errormsg_user_already_exists % email))
             self.add_error('email', message)
 
         return self.cleaned_data
-
-
-class ScreenDoorUserChangeForm(UserChangeForm):
-
-    class Meta:
-        model = ScreenDoorUser
-        fields = ('email',)
 
 
 class LoginForm(forms.Form):
@@ -74,7 +67,7 @@ class LoginForm(forms.Form):
         if user is None:
             message = forms.ValidationError(errormsg_invalid_un_or_pw)
             self.add_error('email', message)
-        # Has user confirmed e-mail address
+        # Has user confirmed e-mail address?
         elif user.email_confirmed == False:
             message = forms.ValidationError(errormsg_unconfirmed_email)
             self.add_error('email', message)
