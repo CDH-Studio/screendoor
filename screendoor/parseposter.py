@@ -187,12 +187,16 @@ def find_essential_details(text, position):
 
 
 def parse_upload(position):
+
     if position.pdf.name:
         os.chdir("..")
         pdf_file_path = os.path.join(BASE_DIR, position.pdf.url)
         file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
-        position = find_essential_details(job_poster_text, position)
+        if "Selection process number:" in job_poster_text:
+            position = find_essential_details(job_poster_text, position)
+        else:
+            return None
     else:
         url = position.url_ref
 
