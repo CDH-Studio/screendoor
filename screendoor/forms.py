@@ -12,6 +12,7 @@ class CreatePositionForm(forms.ModelForm):
     class Meta:
         model = Position
         fields = ('pdf', 'url_ref')
+        widgets = {'url_ref': forms.TextInput(attrs={'disabled': 'disabled'})}
 
     # Ensures strictly one of: pdf or url. mg
     def clean(self):

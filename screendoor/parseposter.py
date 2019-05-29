@@ -12,6 +12,7 @@ def extract_job_title(text):
     jobTitle = "N/A"
 
     if "Reference" in text:
+        # Gets job title between 2 strings, Home and Reference.
         jobTitle = text.split('Home', 1)[1].split("Reference", 1)[0]
         jobTitle = " ".join(jobTitle.split())
 
@@ -29,6 +30,10 @@ def extract_who_can_apply(text):
 
 def extract_essential_block(text):
     essentialBlock = "N/A"
+
+    # Every poster normally has "essential qualifications"
+    # but not every poster has assets in the form of "other qualifications"
+    # These if statements check both cases to extract the text block containing experience and education.
 
     if "(essential qualifications)" in text:
         if "If you possess any" in text:
@@ -94,12 +99,15 @@ def extract_salary_max(salary):
 
 
 def extract_classification(description):
+    # Regex string that looks for the qualification level in  the form of two capital letters and two numbers
+    # separated by a hyphen.
     classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
 
     return classification
 
 
 def extract_closing_date(item):
+    # Strip the string and remove any leading or trailing spacing. Find text after colon. Ex. closing date: dd/mm/yy
     raw_date = item.strip().split(": ")[1]
     date = raw_date.rsplit(",", 1)[0]
     closing_date = dateparser.parse(date)
@@ -117,6 +125,8 @@ def find_essential_details(text, position):
     description = "N/A"
     salary_min = 0
     salary_max = 0
+
+    # Regex to remove lines starting with https and mailto
 
     text = re.sub(r'^https?://.*[\r\n]*', '', text, flags=re.MULTILINE)
     text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
@@ -137,6 +147,9 @@ def find_essential_details(text, position):
     assets = extract_assets(asset_block)
 
     parsing = False
+
+    # A loop that extracts single line position fields like salary or reference number
+
     for item in text.split("\n"):
 
         if '$' in item:
@@ -159,11 +172,11 @@ def find_essential_details(text, position):
     description = description.replace('N/A  ', '', 1)
     classification = extract_classification(description)
 
-    position.date_closed = closing_date
+    # Save all position info to position.
 
+    position.date_closed = closing_date
     position.position_title = job_title
     position.num_positions = spots_left
-
     position.salary_min = salary_min
     position.salary_max = salary_max
     position.classification = classification
@@ -171,15 +184,12 @@ def find_essential_details(text, position):
     position.open_to = who_can_apply
     position.reference_number = reference_number
     position.selection_process_number = selection_process_number
-
     position.save()
-
     requirement_education = Requirement(position=position, requirement_type="educations", abbreviation="",
                                         description=education)
     requirement_experience = Requirement(position=position, requirement_type="experience", abbreviation="",
                                          description=experience)
     requirement_assets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
-
     requirement_education.save()
     requirement_experience.save()
     requirement_assets.save()
