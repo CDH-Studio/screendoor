@@ -149,6 +149,7 @@ class ScreenDoorUser(AbstractUser):
         self.email_confirmed = True
 
 
+
 class EmailAuthenticateToken(models.Model):
     user = models.OneToOneField(
         get_user_model(), on_delete=models.CASCADE, primary_key=False)

@@ -64,7 +64,7 @@ def send_user_email(request, user):
         'Please visit the following URL to confirm your account: ' + url,
         'screendoor@screendoor.ca',
         # Address: should be user.email
-        ['heat0072@algonquinlive.com'],
+        [user.email],
         fail_silently=False,
     )
 
