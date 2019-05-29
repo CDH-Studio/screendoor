@@ -9,7 +9,7 @@ from screendoor_app.settings import BASE_DIR
 
 
 def text_between(start_string, end_string, text):
-
+    # Effectively returns the string between the first occurrence of start_string in text and the end_string.
     extracted_text = text.split(start_string, 1)[1].split(end_string, 1)[0]
 
     return extracted_text
@@ -45,8 +45,8 @@ def extract_essential_block(text):
             essentialBlock = text_between('(essential qualifications)', "If you possess any", text)
 
         else:
-            essentialBlock = text_between('(essential qualifications)', "The following will be applied / assessed", text)
-
+            essentialBlock = text_between('(essential qualifications)', "The following will be applied / assessed",
+                                          text)
 
     return essentialBlock
 
@@ -124,14 +124,6 @@ def extract_closing_date(item):
 def find_essential_details(text, position):
     from .models import Requirement
 
-    reference_number = "N/A"
-    selection_process_number = "N/A"
-    closing_date = "N/A"
-    spots_left = None
-    description = "N/A"
-    salary_min = 0
-    salary_max = 0
-
     # Regex to remove lines starting with https and mailto
 
     text = re.sub(r'^https?://.*[\r\n]*', '', text, flags=re.MULTILINE)
@@ -164,7 +156,7 @@ def find_essential_details(text, position):
             position.salary_max = extract_salary_max(salary)
             parsing = False
         if parsing:
-            description = description + " " + item.strip()
+            position.description = position.description + " " + item.strip()
         elif "Reference number" in item:
             position.reference_number = item.strip().split(": ")[1]
         elif "Selection process number" in item:
@@ -175,8 +167,8 @@ def find_essential_details(text, position):
         elif "Position:" in item or "Positions to be filled:" in item:
             position.num_positions = item.strip().split(": ")[1]
 
-    position.description = description.replace('N/A  ', '', 1)
-    position.classification = extract_classification(description)
+    position.description = position.description.replace('N/A  ', '', 1)
+    position.classification = extract_classification(position.description)
 
     # Save all position info to position.
     position.save()
@@ -193,7 +185,8 @@ def find_essential_details(text, position):
 
 
 def parse_upload(position):
-
+    # checking for the existence of the pdf upload. If true, convert uploaded pdf into text
+    # using tika and process using find_essential_details method. If false, process url.
     if position.pdf.name:
         os.chdir("..")
         pdf_file_path = os.path.join(BASE_DIR, position.pdf.url)
