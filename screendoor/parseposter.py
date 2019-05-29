@@ -8,27 +8,6 @@ from tika import parser
 from screendoor_app.settings import BASE_DIR
 
 
-def print_information(jobTitle, closingDate, spotsLeft, salaryMin, salaryMax, classification, description,
-                      whoCanApply, referenceNumber, selectionProcessNumber, url_ref, pdf, education, experience,
-                      assets):
-    print("Job Title : " + jobTitle)
-    print("Closing Date : " + closingDate)
-    print("Available Positions : " + str(spotsLeft))
-    print("Salary Min : " + salaryMin)
-    print("Salary Max : " + salaryMax)
-    print("Classification : " + classification)
-    print("Description : " + description)
-    print("Who Can Apply : " + whoCanApply)
-    print("Reference Number : " + referenceNumber)
-    print("Selection Process Number : " + selectionProcessNumber)
-
-    print("/////////////////  Education  ///////////////// \n" + education + "\n")
-    print("/////////////////  Experience  ///////////////// \n" + experience + "\n")
-    print("/////////////////  Assets  ///////////////// \n" + assets + "\n")
-
-    return
-
-
 def extract_job_title(text):
     jobTitle = "N/A"
 
@@ -37,6 +16,7 @@ def extract_job_title(text):
         jobTitle = " ".join(jobTitle.split())
 
     return jobTitle
+
 
 def extract_who_can_apply(text):
     who_can_apply = "N/A"
@@ -54,7 +34,8 @@ def extract_essential_block(text):
         if "If you possess any" in text:
             essentialBlock = text.split('(essential qualifications)', 1)[1].split("If you possess any", 1)[0]
         else:
-            essentialBlock = text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed", 1)[0]
+            essentialBlock = \
+                text.split('(essential qualifications)', 1)[1].split("The following will be applied / assessed", 1)[0]
 
     return essentialBlock
 
@@ -68,51 +49,76 @@ def extract_asset_block(text):
     return assetBlock
 
 
-def extract_education(essentialBlock):
+def extract_education(essential_block):
     education = "N/A"
 
-    if "Degree equivalency\n" in essentialBlock:
-        education = essentialBlock.split("Degree equivalency\n", 1)[0]
+    if "Degree equivalency\n" in essential_block:
+        education = essential_block.split("Degree equivalency\n", 1)[0]
         education = education.lstrip()
         education = education.rstrip()
 
     return education
 
 
-def extract_experience(essentialBlock):
+def extract_experience(essential_block):
     experience = "N/A"
 
-    if "Degree equivalency\n" in essentialBlock:
-        experience = essentialBlock.split("Degree equivalency\n", 1)[1]
+    if "Degree equivalency\n" in essential_block:
+        experience = essential_block.split("Degree equivalency\n", 1)[1]
         experience = experience.lstrip()
         experience = experience.rstrip()
 
     return experience
 
 
-def extract_Assets(assetBlock):
-    assets = "N/A"
-
-    assets = assetBlock
+def extract_assets(asset_block):
+    assets = asset_block
     assets = assets.lstrip()
     assets = assets.rstrip()
     return assets
 
 
-def find_essential_details(text, path, position):
+def extract_salary_min(salary):
+    salary_min = salary.split(" to ", 1)[0]
+    salary_min = salary_min.replace("$", "")
+    salary_min = salary_min.replace(",", "")
+    return salary_min
+
+
+def extract_salary_max(salary):
+    salary_max = salary.split(" to ", 1)[1].split(" ")[0]
+    salary_max = salary_max.replace("$", "")
+    salary_max = salary_max.replace(",", "")
+
+    return salary_max
+
+
+def extract_classification(description):
+    classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
+
+    return classification
+
+
+def extract_closing_date(item):
+    raw_date = item.strip().split(": ")[1]
+    date = raw_date.rsplit(",", 1)[0]
+    closing_date = dateparser.parse(date)
+
+    return closing_date
+
+
+def find_essential_details(text, position):
     from .models import Requirement
 
     reference_number = "N/A"
     selection_process_number = "N/A"
-    who_can_apply = "N/A"
     closing_date = "N/A"
     spots_left = None
-    salary = "N/A"
     description = "N/A"
     salary_min = 0
     salary_max = 0
 
-    text = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^https?://.*[\r\n]*', '', text, flags=re.MULTILINE)
     text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
     text = text.strip("\n\n")
 
@@ -128,15 +134,15 @@ def find_essential_details(text, path, position):
 
     who_can_apply = extract_who_can_apply(text)
 
-    assets = extract_Assets(asset_block)
+    assets = extract_assets(asset_block)
 
     parsing = False
     for item in text.split("\n"):
 
         if '$' in item:
             salary = item.strip()
-            salary_min = salary.split(" to ", 1)[0]
-            salary_max = salary.split(" to ", 1)[1].split(" ")[0]
+            salary_min = extract_salary_min(salary)
+            salary_max = extract_salary_max(salary)
             parsing = False
         if parsing:
             description = description + " " + item.strip()
@@ -146,24 +152,17 @@ def find_essential_details(text, path, position):
             selection_process_number = item.strip().split(": ")[1]
             parsing = True
         elif "Closing date" in item:
-            closing_date = item.strip().split(": ")[1]
+            closing_date = extract_closing_date(item)
         elif "Position:" in item or "Positions to be filled:" in item:
             spots_left = item.strip().split(": ")[1]
 
     description = description.replace('N/A  ', '', 1)
-    classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
+    classification = extract_classification(description)
 
-    date = closing_date.rsplit(",", 1)[0]
-    timezone = closing_date.rsplit(",", 1)[1]  # TODO Need to add timezone
-    position.date_closed = dateparser.parse(date)
+    position.date_closed = closing_date
 
     position.position_title = job_title
     position.num_positions = spots_left
-
-    salary_min = salary_min.replace("$", "")
-    salary_min = salary_min.replace(",", "")
-    salary_max = salary_max.replace("$", "")
-    salary_max = salary_max.replace(",", "")
 
     position.salary_min = salary_min
     position.salary_max = salary_max
@@ -185,10 +184,6 @@ def find_essential_details(text, path, position):
     requirement_experience.save()
     requirement_assets.save()
 
-    print_information(job_title, closing_date, spots_left, salary_min, salary_max, classification, description,
-                      who_can_apply, reference_number,
-                      selection_process_number, position.url_ref, position.pdf, education, experience, assets)
-
     return position
 
 
@@ -198,19 +193,20 @@ def parse_upload(position):
         pdf_file_path = os.path.join(BASE_DIR, position.pdf.url)
         file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
-        position = find_essential_details(job_poster_text, pdf_file_path, position)
+        position = find_essential_details(job_poster_text, position)
     else:
         url = position.url_ref
 
         temp = tempfile.NamedTemporaryFile()
-        pdf_file_path =  temp.name
+        pdf_file_path = temp.name
 
         try:
             pdfkit.from_url(str(url), str(pdf_file_path))
         except:
             pass
+
         file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
-        position = find_essential_details(job_poster_text, pdf_file_path, position)
+        position = find_essential_details(job_poster_text, position)
 
     return position
