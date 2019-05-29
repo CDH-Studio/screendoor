@@ -39,6 +39,7 @@ class UserRegistrationTests(TestCase):
 
 
 class UserLoginTests(TestCase):
+    #note: uses first way to test forms, submitting the form through the post request
     def setUp(self):
         self.c = Client()
         unconfirmed_user = ScreenDoorUser.objects.create_user(username="bad@canada.ca", email="bad@canada.ca",
@@ -62,7 +63,7 @@ class UserLoginTests(TestCase):
 
 
 class CreatePositionTests(TestCase):
-
+    #note: uses second way to test forms, creating the form object and validating it
     def setUp(self):
         self.c = Client()
 
