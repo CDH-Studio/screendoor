@@ -132,7 +132,7 @@ def find_essential_details(text, position):
     text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
     text = text.strip("\n\n")
 
-    job_title = extract_job_title(text)
+    position.position_title = extract_job_title(text)
 
     essential_block = extract_essential_block(text)
 
@@ -142,7 +142,7 @@ def find_essential_details(text, position):
 
     experience = extract_experience(essential_block)
 
-    who_can_apply = extract_who_can_apply(text)
+    position.open_to = extract_who_can_apply(text)
 
     assets = extract_assets(asset_block)
 
@@ -154,36 +154,25 @@ def find_essential_details(text, position):
 
         if '$' in item:
             salary = item.strip()
-            salary_min = extract_salary_min(salary)
-            salary_max = extract_salary_max(salary)
+            position.salary_min = extract_salary_min(salary)
+            position.salary_max = extract_salary_max(salary)
             parsing = False
         if parsing:
             description = description + " " + item.strip()
         elif "Reference number" in item:
-            reference_number = item.strip().split(": ")[1]
+            position.reference_number = item.strip().split(": ")[1]
         elif "Selection process number" in item:
-            selection_process_number = item.strip().split(": ")[1]
+            position.selection_process_number = item.strip().split(": ")[1]
             parsing = True
         elif "Closing date" in item:
-            closing_date = extract_closing_date(item)
+            position.date_closed = extract_closing_date(item)
         elif "Position:" in item or "Positions to be filled:" in item:
-            spots_left = item.strip().split(": ")[1]
+            position.num_positions = item.strip().split(": ")[1]
 
-    description = description.replace('N/A  ', '', 1)
-    classification = extract_classification(description)
+    position.description = description.replace('N/A  ', '', 1)
+    position.classification = extract_classification(description)
 
     # Save all position info to position.
-
-    position.date_closed = closing_date
-    position.position_title = job_title
-    position.num_positions = spots_left
-    position.salary_min = salary_min
-    position.salary_max = salary_max
-    position.classification = classification
-    position.description = description
-    position.open_to = who_can_apply
-    position.reference_number = reference_number
-    position.selection_process_number = selection_process_number
     position.save()
     requirement_education = Requirement(position=position, requirement_type="educations", abbreviation="",
                                         description=education)

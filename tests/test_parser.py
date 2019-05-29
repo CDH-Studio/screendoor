@@ -38,11 +38,11 @@ class YourTestClass(TestCase):
 
         self.assertTrue(html_response.__contains__("description: Health Canada - Corporate Services Branch"))
 
-        self.assertTrue(html_response.__contains__("<p>open to:  Employees of Health Canada working in National Capital"))
+        self.assertTrue(html_response.__contains__("open to:  Employees of Health Canada working in National Capital"))
 
-        self.assertTrue(html_response.__contains__("<p>reference number: SHC19J-020046-000203</p>"))
+        self.assertTrue(html_response.__contains__("reference number: SHC19J-020046-000203"))
 
-        self.assertTrue(html_response.__contains__("<p>selection process number: 19-NHW-CSB-IA-NCR-262953</p>"))
+        self.assertTrue(html_response.__contains__("selection process number: 19-NHW-CSB-IA-NCR-262953"))
 
         # TODO need to find out how to test education/assets/experience
         pass
