@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
 from .models import EmailAuthenticateToken
+from screendoor.parseposter import parse_upload
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
 
@@ -131,12 +132,8 @@ def import_position(request):
         create_position_form = CreatePositionForm(request.POST, request.FILES)
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save(commit=False)
-
-            #
-            # naman's parsing script here
-            # should finish with the position's fields filled out
-            #
+            position = create_position_form.save()
+            position = parse_upload(position)
 
             return render(request, 'position.html', {'position': position})
     # blank form
