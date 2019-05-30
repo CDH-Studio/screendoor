@@ -1,6 +1,23 @@
-.form-card {
-    margin-top: 7%;
+.form-cards {
+    margin-top: 75px;
+    flex-direction: column;
+    display: flexbox;
+    justify-content: center;
     /*transform: translateY(-50%);*/
+}
+
+.card-offset {
+    margin-left: 500px;
+}
+
+.card-center {
+    flex-direction: column;
+    display: flexbox;
+    justify-content: center;
+}
+
+.upload-card {
+    float: none;
 }
 
 .form-image {

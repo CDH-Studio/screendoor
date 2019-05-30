@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <script src="{% static 'js/collapsible.js' %}"></script>
-<script type="text/javascript">
+<script>
  /* TODO: Function to persist the form values after submit is clicked
     and the position information is displayed*/
  /* Make file and URL forms invisible on page load */
@@ -39,73 +39,78 @@
 </script>
 <!-- <div class="container"> -->
 <!--Beginning of upload position card -->
-<div class="row card-center">
-  <div class="col card horizontal hoverable">
-    <!-- Beginning of form -->
-    <form method="post" enctype="multipart/form-data" action="">
-      <div class="card-content col s12">
-        <!-- Upload position title -->
-        <div class="row">
-          <label class="card-title col s12" for="importposition">{{ form.text }}</label>
-        </div>
-        {% csrf_token %}
-        <!-- Radio buttons to select PDF or URL -->
-        <div class="row">
-          <br>
-          <!-- Upload position form error messages -->
-          {% if forms.errors.pdf %}
-          <span class="error-text">{{ form.errors.pdf }}</span>
-          <!-- Upload position form instructions -->
-          {% else %}
-          <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
-          {% endif %}
-          <br>
-          <br>
-          <!-- PDF upload radio button -->
-          <div class="col s4">
-            <label>
-              <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
-              <span>{{ form.pdf_name }}</span>
-            </label>
+<div class="row">
+  {% if position is not None %}
+  <div class="card horizontal hoverable">
+    {% else %}
+    <div class="col s12 card horizontal hoverable">
+      {% endif %}
+      <!-- Beginning of form -->
+      <form method="post" enctype="multipart/form-data" action="">
+        <div class="card-content col s12">
+          <!-- Upload position title -->
+          <div class="row">
+            <label class="card-title col s12" for="importposition">{{ form.text }}</label>
           </div>
-          <!-- URL submit radio button -->
-          <div class="col s4">
-            <label>
-              <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
-              <span>{{ form.url_name }}</span>
-            </label>
-          </div>
-          <br>
-          <br>
-        </div>
-        <!-- PDF/File input -->
-        <div class="row" id="pdf_upload_form">
-          <div class="col s12 file-field input-field">
-            <div class="btn-small">
-              <span>{{ form.browse_text }}</span>
-              <input type="file" name="pdf" id="pdf_input">
+          {% csrf_token %}
+          <!-- Radio buttons to select PDF or URL -->
+          <div class="row">
+            <br>
+            <!-- Upload position form error messages -->
+            {% if forms.errors.pdf %}
+            <span class="error-text">{{ form.errors.pdf }}</span>
+            <!-- Upload position form instructions -->
+            {% else %}
+            <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+            {% endif %}
+            <br>
+            <br>
+            <!-- PDF upload radio button -->
+            <div class="col s4">
+              <label>
+                <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
+                <span>{{ form.pdf_name }}</span>
+              </label>
             </div>
-            <div class="file-path-wrapper">
-              <input id="pdf_path_input" class="file-path validate" type="text"
-                     placeholder="{{ form.upload_text }}" />
+            <!-- URL submit radio button -->
+            <div class="col s4">
+              <label>
+                <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
+                <span>{{ form.url_name }}</span>
+              </label>
+            </div>
+            <br>
+            <br>
+          </div>
+          <!-- PDF/File input -->
+          <div class="row" id="pdf_upload_form">
+            <div class="col s12 file-field input-field">
+              <div class="btn-small">
+                <span>{{ form.browse_text }}</span>
+                <input type="file" name="pdf" id="pdf_input">
+              </div>
+              <div class="file-path-wrapper">
+                <input id="pdf_path_input" class="file-path validate" type="text"
+                       placeholder="{{ form.upload_text }}" />
+              </div>
             </div>
           </div>
-        </div>
-        <!-- URL input -->
-        <div class="row" id="url_upload_form">
-          <div class="input-field col s12">
-            <input id="url_input" name="url_ref" type="url" class="validate">
-            <label for="url">{{ form.url_text }}</label>
+          <!-- URL input -->
+          <div class="row" id="url_upload_form">
+            <div class="input-field col s12">
+              <input id="url_input" name="url_ref" type="url" class="validate">
+              <label for="url">{{ form.url_text }}</label>
+            </div>
           </div>
+          <!-- Submit button -->
+          <input class="right btn" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
         </div>
-        <!-- Submit button -->
-        <input class="right btn" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
-      </div>
-      <!-- End of form -->
-    </form>
-    <!-- End of card -->
+        <!-- End of form -->
+      </form>
+      <!-- End of card -->
+    </div>
   </div>
-</row>
+</div>
 <!-- TODO: Hard-coding of field names is temporary. -->
 <!-- They should be coupled with the model or part master strings file -->
 <!-- Beginning of position display -->
@@ -115,52 +120,85 @@
     <label><h5 class="center">We think this is the position. Can you take a look and make sure it is correct?</h5></label>
   </div>
   <!--Beginning of confirm position card -->
-  <div class="col card horizontal hoverable">
+  <div class="col">
     <div class="card-content col s12">
       <!-- Position title row -->
       <div class="row">
-        <label class="col s12 card-title">{{ position.position_title }}</label>
+        <h4 class="col s12 grey-text">{{ position.position_title }}</h4>
       </div>
       <!-- Position information row 1 -->
       <div class="row">
         <!-- Classification column -->
         <div class="col s4">
-          Classification<br>
-          {{ position.classification }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">collections</i>Classification</div>
+              <div class="collapsible-body"><span>{{ position.classification }}</span></div>
+            </li>
+          </ul>
         </div>
-
         <!-- Reference number column -->
         <div class="col s4">
-          Reference number<br>
-          {{ position.reference_number }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_1</i>Reference number</div>
+              <div class="collapsible-body"><span>{{ position.reference_number }}
+              </span></div>
+            </li>
+          </ul>
         </div>
         <!-- Selection process number column -->
         <div class="col s4">
-          Selection process number<br>
-          {{ position.selection_process_number }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_2</i>Selection process number</div>
+              <div class="collapsible-body"><span>{{ position.selection_process_number }}
+
+              </span></div>
+            </li>
+          </ul>
         </div>
       </div>
       <!-- Position information row 2 -->
       <div class="row">
         <!-- Date closed column -->
         <div class="col s3">
-          Date closed<br>
-          {{ position.date_closed|date:"M d, Y" }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">date_range</i>Date closed</div>
+              <div class="collapsible-body"><span>{{ position.date_closed|date:"M d, Y" }}
+              </span></div>
+            </li>
+          </ul>
         </div>
         <!-- Number of positions column -->
         <div class="col s3">
-          Number of positions<br>
-          {{ position.num_positions }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">supervisor_account</i>Number of positions</div>
+              <div class="collapsible-body"><span>{{ position.num_positions }}
+              </span></div>
+            </li>
+          </ul>
         </div>
         <!-- Salary column -->
         <div class="col s3">
-          Salary range<br>
-          ${{ position.salary_min }}-${{ position.salary_max }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">attach_money</i>Salary range</div>
+              <div class="collapsible-body"><span>${{ position.salary_min }} - ${{ position.salary_max }}
+              </span></div>
+            </li>
+          </ul>
         </div>
         <!-- Open to column -->
         <div class="col s3">
-          Open to<br>
-          {{ position.open_to }}
+          <ul class="collapsible">
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">account_box</i>Open to</div>
+              <div class="collapsible-body"><span>{{ position.open_to }}</span></div>
+            </li>
+          </ul>
         </div>
       </div>
       <!-- Position information row 3 -->
@@ -168,8 +206,8 @@
         <!-- Position description column -->
         <div class="col s12">
           <ul class="collapsible">
-            <li>
-              <div class="collapsible-header screendoor-color white-text"><i class="material-icons">filter_drama</i>Position information</div>
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_bulleted</i>Position information</div>
               <div class="collapsible-body"><span>{{ position.description }}</span></div>
             </li>
           </ul>
@@ -177,15 +215,15 @@
       </div>
       <!-- Education and Experience header row -->
       <div class="row">
-        <label class="col s12 card-title">Education and Experience Criteria</label>
+        <h5 class="col s12 card-title grey-text">Education and Experience Criteria</h5>
       </div>
       <!-- Education and experience row 1 -->
       <div class="row">
         {% for req in position.requirement_set.all reversed %}
         <div class="col s4">
           <ul class="collapsible">
-            <li>
-              <div class="collapsible-header screendoor-color white-text"><i class="material-icons">filter_drama</i>{{ req.requirement_type }}</div>
+            <li class="active">
+              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_numbered</i>{{ req.requirement_type }}</div>
               <div class="collapsible-body"><span>{{ req.description|linebreaksbr }}</span></div>
             </li>
           </ul>
@@ -193,11 +231,17 @@
         {% endfor %}
       </div>
       <!-- Confirm/Edit button row -->
-      <div class="row right">
+      <div class="row center">
         <div class="col s12">
-          <input class="btn" type="submit" value="Edit">
+          <br>
+          <input class="btn" type="submit" value="Edit">&nbsp&nbsp&nbsp&nbsp&nbsp
           <input class="btn" type="submit" value="Create Position">
         </div>
+      </div>
+      <div class="row">
+        <br>
+        <br>
+        <br>
       </div>
     </div>
   </div>

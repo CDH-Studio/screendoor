@@ -28,6 +28,12 @@
 .screendoor-color-text.text-error {
   color: #e51c23 !important; }
 
+.screendoor-color.lighten {
+  background-color: #a097db !important; }
+
+.screendoor-color-text.text-lighten {
+  color: #a097db !important; }
+
 .screendoor-color.lighten-5 {
   background-color: #fdeaeb !important; }
 
@@ -2676,7 +2682,7 @@ table span.badge {
 .row {
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 20px; }
+  margin-bottom: 5px; }
   .row:after {
     content: "";
     display: table;
@@ -3508,6 +3514,9 @@ small {
   display: flexbox;
   justify-content: center;
   /*transform: translateY(-50%);*/ }
+
+.card-offset {
+  margin-left: 500px; }
 
 .card-center {
   flex-direction: column;
