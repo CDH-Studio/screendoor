@@ -3502,9 +3502,20 @@ small {
   .scale-transition.scale-in {
     transform: scale(1); }
 
-.form-card {
-  margin-top: 7%;
+.form-cards {
+  margin-top: 75px;
+  flex-direction: column;
+  display: flexbox;
+  justify-content: center;
   /*transform: translateY(-50%);*/ }
+
+.card-center {
+  flex-direction: column;
+  display: flexbox;
+  justify-content: center; }
+
+.upload-card {
+  float: none; }
 
 .form-image {
   width: 100%;
@@ -4268,9 +4279,9 @@ body.keyboard-focused .dropdown-content li:focus {
   will-change: bottom, opacity; }
 
 .collapsible {
-  border-top: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-  border-left: 1px solid #ddd;
+  border-top: 0px solid #ddd;
+  border-right: 0px solid #ddd;
+  border-left: 0px solid #ddd;
   margin: 0.5rem 0 1rem 0; }
 
 .collapsible-header {
@@ -4280,7 +4291,7 @@ body.keyboard-focused .dropdown-content li:focus {
   line-height: 1.5;
   padding: 1rem;
   background-color: #fff;
-  border-bottom: 1px solid #ddd; }
+  border-bottom: 0px solid #ddd; }
   .collapsible-header:focus {
     outline: 0; }
   .collapsible-header i {

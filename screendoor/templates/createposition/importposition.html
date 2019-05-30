@@ -1,14 +1,17 @@
 {% extends '../base_logged_in.html' %}
 {% load static %}
 {% block content %}
-<script>
+<script src="{% static 'js/collapsible.js' %}"></script>
+<script type="text/javascript">
+ /* TODO: Function to persist the form values after submit is clicked
+    and the position information is displayed*/
  /* Make file and URL forms invisible on page load */
  window.onload = function() {
-   document.getElementById('radio_pdf').checked = false;
-   document.getElementById('radio_url').checked = false;
    document.getElementById('pdf_upload_form').style.display = 'none';
    document.getElementById('url_upload_form').style.display = 'none';
    document.getElementById('position_submit_button').style.display = 'none';
+   document.getElementById('radio_pdf').checked = false;
+   document.getElementById('radio_url').checked = false;
  };
  /* Show PDF form, hide and clear URL input form */
  function showPdf() {
@@ -29,75 +32,177 @@
    document.getElementById('url_input').required = true;
    document.getElementById('position_submit_button').style.display = 'block';
  }
+ document.addEventListener('DOMContentLoaded', function() {
+   var elems = document.querySelectorAll('.collapsible');
+   var instances = M.Collapsible.init(elems, {} /* options */);
+ });
 </script>
+<!-- <div class="container"> -->
 <!--Beginning of upload position card -->
-<div class="col card horizontal hoverable">
-  <!-- Beginning of form -->
-  <form method="post" enctype="multipart/form-data" action="">
+<div class="row card-center">
+  <div class="col card horizontal hoverable">
+    <!-- Beginning of form -->
+    <form method="post" enctype="multipart/form-data" action="">
+      <div class="card-content col s12">
+        <!-- Upload position title -->
+        <div class="row">
+          <label class="card-title col s12" for="importposition">{{ form.text }}</label>
+        </div>
+        {% csrf_token %}
+        <!-- Radio buttons to select PDF or URL -->
+        <div class="row">
+          <br>
+          <!-- Upload position form error messages -->
+          {% if forms.errors.pdf %}
+          <span class="error-text">{{ form.errors.pdf }}</span>
+          <!-- Upload position form instructions -->
+          {% else %}
+          <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+          {% endif %}
+          <br>
+          <br>
+          <!-- PDF upload radio button -->
+          <div class="col s4">
+            <label>
+              <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
+              <span>{{ form.pdf_name }}</span>
+            </label>
+          </div>
+          <!-- URL submit radio button -->
+          <div class="col s4">
+            <label>
+              <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
+              <span>{{ form.url_name }}</span>
+            </label>
+          </div>
+          <br>
+          <br>
+        </div>
+        <!-- PDF/File input -->
+        <div class="row" id="pdf_upload_form">
+          <div class="col s12 file-field input-field">
+            <div class="btn-small">
+              <span>{{ form.browse_text }}</span>
+              <input type="file" name="pdf" id="pdf_input">
+            </div>
+            <div class="file-path-wrapper">
+              <input id="pdf_path_input" class="file-path validate" type="text"
+                     placeholder="{{ form.upload_text }}" />
+            </div>
+          </div>
+        </div>
+        <!-- URL input -->
+        <div class="row" id="url_upload_form">
+          <div class="input-field col s12">
+            <input id="url_input" name="url_ref" type="url" class="validate">
+            <label for="url">{{ form.url_text }}</label>
+          </div>
+        </div>
+        <!-- Submit button -->
+        <input class="right btn" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+      </div>
+      <!-- End of form -->
+    </form>
+    <!-- End of card -->
+  </div>
+</row>
+<!-- TODO: Hard-coding of field names is temporary. -->
+<!-- They should be coupled with the model or part master strings file -->
+<!-- Beginning of position display -->
+{% if position is not None %}
+<div class="row">
+  <div class="col s12">
+    <label><h5 class="center">We think this is the position. Can you take a look and make sure it is correct?</h5></label>
+  </div>
+  <!--Beginning of confirm position card -->
+  <div class="col card horizontal hoverable">
     <div class="card-content col s12">
-      <!-- Upload position title -->
-      <row>
-        <label class="card-title col s12" for="importposition">{{ form.text }}</label>
-      </row>
-      {% csrf_token %}
-      <!-- Radio buttons to select PDF or URL -->
-      <row>
-        <br>
-        <!-- Upload position form error messages -->
-        {% if forms.errors.pdf %}
-        <span class="error-text">{{ form.errors.pdf }}</span>
-        <!-- Upload position form instructions -->
-        {% else %}
-        <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
-        {% endif %}
-        <br>
-        <br>
-        <!-- PDF upload radio button -->
+      <!-- Position title row -->
+      <div class="row">
+        <label class="col s12 card-title">{{ position.position_title }}</label>
+      </div>
+      <!-- Position information row 1 -->
+      <div class="row">
+        <!-- Classification column -->
         <div class="col s4">
-          <label>
-            <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
-            <span>{{ form.pdf_name }}</span>
-          </label>
+          Classification<br>
+          {{ position.classification }}
         </div>
-        <!-- URL submit radio button -->
+
+        <!-- Reference number column -->
         <div class="col s4">
-          <label>
-            <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
-            <span>{{ form.url_name }}</span>
-          </label>
+          Reference number<br>
+          {{ position.reference_number }}
         </div>
-        <br>
-        <br>
-      </row>
-      <!-- PDF/File input -->
-      <row>
-        <div class="col s12 file-field input-field" id="pdf_upload_form">
-          <div class="btn-small">
-            <span>{{ form.browse_text }}</span>
-            <input type="file" name="pdf" id="pdf_input">
-          </div>
-          <div class="file-path-wrapper">
-            <input id="pdf_path_input" class="file-path validate" type="text"
-                   placeholder="{{ form.upload_text }}" />
-          </div>
+        <!-- Selection process number column -->
+        <div class="col s4">
+          Selection process number<br>
+          {{ position.selection_process_number }}
         </div>
-      </row>
-      <!-- URL input -->
-      <row>
-        <div class="input-field col s12" id="url_upload_form">
-          <input id="url_input" name="url_ref" type="url" class="validate">
-          <label for="url">{{ form.url_text }}</label>
+      </div>
+      <!-- Position information row 2 -->
+      <div class="row">
+        <!-- Date closed column -->
+        <div class="col s3">
+          Date closed<br>
+          {{ position.date_closed|date:"M d, Y" }}
         </div>
-      </row>
-      <!-- Submit button -->
-      <row>
-        <div class="input-field col s12" id="position_submit_button">
-          <input class="right btn" type="submit" value="{{ form.submit_text }}">
+        <!-- Number of positions column -->
+        <div class="col s3">
+          Number of positions<br>
+          {{ position.num_positions }}
         </div>
-      </row>
+        <!-- Salary column -->
+        <div class="col s3">
+          Salary range<br>
+          ${{ position.salary_min }}-${{ position.salary_max }}
+        </div>
+        <!-- Open to column -->
+        <div class="col s3">
+          Open to<br>
+          {{ position.open_to }}
+        </div>
+      </div>
+      <!-- Position information row 3 -->
+      <div class="row">
+        <!-- Position description column -->
+        <div class="col s12">
+          <ul class="collapsible">
+            <li>
+              <div class="collapsible-header screendoor-color white-text"><i class="material-icons">filter_drama</i>Position information</div>
+              <div class="collapsible-body"><span>{{ position.description }}</span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Education and Experience header row -->
+      <div class="row">
+        <label class="col s12 card-title">Education and Experience Criteria</label>
+      </div>
+      <!-- Education and experience row 1 -->
+      <div class="row">
+        {% for req in position.requirement_set.all reversed %}
+        <div class="col s4">
+          <ul class="collapsible">
+            <li>
+              <div class="collapsible-header screendoor-color white-text"><i class="material-icons">filter_drama</i>{{ req.requirement_type }}</div>
+              <div class="collapsible-body"><span>{{ req.description|linebreaksbr }}</span></div>
+            </li>
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Confirm/Edit button row -->
+      <div class="row right">
+        <div class="col s12">
+          <input class="btn" type="submit" value="Edit">
+          <input class="btn" type="submit" value="Create Position">
+        </div>
+      </div>
     </div>
-    <!-- End of form -->
-  </form>
-  <!-- End of card -->
+  </div>
 </div>
+{% endif %}
+<!-- </div> -->
+<!-- End of position display -->
 {% endblock %}
