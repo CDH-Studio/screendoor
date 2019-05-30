@@ -1,14 +1,47 @@
-<label for="register">{{ register_form.text }}</label>
-<form action="" method="post">
-  {% csrf_token %}
-  {{ register_form.as_table }}
-  <input type="submit" value="{{ register_form.text }}">
-</form>
-
-{% if messages is not None %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+{% extends '../base_logged_out.html' %}
+{% load static %}
+{% block content %}
+<!-- Beginning of create account card  -->
+<div class="col card horizontal hoverable">
+  <!-- Beginning of form -->
+  <form action="" method="post">
+    <div class="card-content col s12">
+      <!-- Text displays "Create Account" -->
+      <label class="card-title col s12" for="register">{{ register_form.text }}</label>
+      {% csrf_token %}
+      <div class="col s12">
+        <!-- Registration success message -->
+        {% if success %}<div class="success-text">{{ success }}</div>{% endif %}
+        <!-- Registration error messages related to e-mail address -->
+        <span class="error-text">{{ register_form.errors.email }}</span>
+      </div>
+      <!-- Email label and input -->
+      <div class="input-field col s12">
+        {{ register_form.email.label_tag }}
+        <input name="email" class="validate" type="email" required id="id_email" value="{{ register_form.email.value|default:"" }}">
+      </div>
+      <!-- Password label and input -->
+      <div class="input-field col s12">
+        {{ register_form.password1.label_tag }}
+        {{ register_form.password1 }}
+      </div>
+      <!-- Password confirmation label and input -->
+      <div class="input-field col s12">
+        {{ register_form.password2.label_tag }}
+        {{ register_form.password2 }}
+      </div>
+      <!-- Registration error messages related to password -->
+      <div class="col s12">
+        <span class="error-text">{{ register_form.errors.password2 }}</span>
+      </div>
+      <!-- Create account button and login redirect button -->
+      <div class="row">
+        <input class="right btn btn-margin" type="submit" value="{{ register_form.text }}">
+        <a class="btn-flat btn-margin waves-effect right" href="{% url 'login' %}">{{ register_form.login_button_text }}</a>
+      </div>
+    </div>
+    <!-- End of form -->
+  </form>
+  <!-- End of card -->
+</div>
+{% endblock %}

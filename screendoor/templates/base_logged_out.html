@@ -1,0 +1,24 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<script src="{% static 'js/forms.js' %}"></script>
+<script src="{% static 'js/materialize.js' %}"></script>
+<body>
+  <!-- Top navbar in purple displaying ScreenDoor logo -->
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+    </div>
+  </nav>
+  <!-- Page Layout here -->
+  <div class="container">
+    <div class="row">
+      <div class="container valign-wrapper form-card">
+        <div class="row">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

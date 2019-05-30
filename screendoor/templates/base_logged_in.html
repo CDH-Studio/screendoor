@@ -1,0 +1,46 @@
+{% load static %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<script src="{% static 'js/forms.js' %}"></script>
+<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/sidenav.js' %}"></script>
+<body>
+  <!-- Top navbar in purple displaying ScreenDoor logo -->
+  <header>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons menu-button">menu</i></a>
+        <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+      </div>
+    </nav>
+  </header>
+  <!-- Sidebar menu -->
+  <ul id="slide-out" class="sidenav sidenav-fixed">
+    <br>
+    <li><a href="/"><i class="material-icons">account_circle</i>{{ welcome }}</a></li>
+    <br>
+    <!-- TODO: Text must be moved to an external string -->
+    <li><a href="/"><i class="material-icons">folder_open</i>View Positions</a></li>
+    <!-- TODO: Text must be moved to an external string -->
+    <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>New Position</a></li>
+    <!-- TODO: Text must be moved to an external string -->
+    <li><a href="/logout"><i class="material-icons">arrow_back</i>Logout</a></li>
+  </ul>
+  <!-- Page Layout here -->
+  <main>
+    <div class="container valign-wrapper form-card">
+      <div class="row">
+        {% block content %}
+        {% endblock  %}
+      </div>
+    </div>
+  </main>
+</body>
+<script type="text/javascript">
+ /* Script required for side menu */
+ document.addEventListener('DOMContentLoaded', function() {
+   var elems = document.querySelectorAll('.sidenav');
+   var instances = M.Sidenav.init(elems, {}/* options */);
+ });
+</script>
