@@ -1,0 +1,20 @@
+<div>
+    <p>name: {{ position.position_title }}</p>
+    <p>date closed: {{ position.date_closed|date:"M d, Y" }}</p>
+    <p>num position: {{ position.num_positions }}</p>
+    <p>salary: ${{ position.salary_min }} to ${{ position.salary_max }}</p>
+    <p>classification: {{ position.classification }}</p>
+    <p>description: {{ position.description }}</p>
+    <p>open to: {{ position.open_to }}</p>
+    <p>reference number: {{ position.reference_number }}</p>
+    <p>selection process number: {{ position.selection_process_number }}</p>
+
+{% for req in position.requirement_set.all %}
+            <div>
+                <p>name: {{ req.requirement_type }}</p>
+                <h2><a href="">{{ req.abbreviation }}</a></h2>
+                <p>{{ req.description|linebreaksbr }}</p>
+            </div>
+{% endfor %}
+
+</div>
