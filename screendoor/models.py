@@ -18,7 +18,7 @@ class FormQuestion(models.Model):
     tabulation = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.questio_text
+        return self.question_text
 
 
 class RequirementMet(models.Model):

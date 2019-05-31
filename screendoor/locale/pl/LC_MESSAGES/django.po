@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-30 18:30+0000\n"
+"POT-Creation-Date: 2019-05-31 13:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Translators: StandardFormText
 #. Translators: CreatePositionForm
-#: screendoor/uservisibletext.py:8 screendoor/uservisibletext.py:60
+#: screendoor/uservisibletext.py:8 screendoor/uservisibletext.py:83
 msgid "Create Account"
 msgstr ""
 
@@ -74,7 +74,7 @@ msgid "New Position"
 msgstr ""
 
 #. Translators: Sidebar
-#: screendoor/uservisibletext.py:32 screendoor/views.py:127
+#: screendoor/uservisibletext.py:32 screendoor/views.py:128
 #, python-format
 msgid "Welcome, %s"
 msgstr ""
@@ -84,81 +84,133 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:39
-msgid "Upload New Position"
+msgid ""
+"We think this is the position. Can you take a look and make sure it is "
+"correct?"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:41
-msgid "Please select either PDF or link to the jobs.gc.ca posting"
+msgid "Classification"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:43
-msgid "PDF"
+msgid "Reference number"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:45
-msgid "URL"
+msgid "Selection process number"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:47
-msgid "Drag or browse for a PDF file"
+msgid "Date closed"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:49
-msgid "Link to job description"
+msgid "Number of positions"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:51
-msgid "Choose a file"
+msgid "Salary range"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:53
-msgid "Browse"
+msgid "Open To"
 msgstr ""
 
-#. Translators: CreatePositionForm
+#. Translators: Confirming Position Information
 #: screendoor/uservisibletext.py:55
-msgid "Submit"
+msgid "Position information"
+msgstr ""
+
+#. Translators: Confirming Position Information
+#: screendoor/uservisibletext.py:57
+msgid "Education and Experience Criteria"
 msgstr ""
 
 #. Translators: CreatePositionForm
 #: screendoor/uservisibletext.py:62
-msgid "Email address"
+msgid "Upload New Position"
 msgstr ""
 
 #. Translators: CreatePositionForm
 #: screendoor/uservisibletext.py:64
-msgid "Choose a password"
+msgid "Please select either PDF or link to the jobs.gc.ca posting"
 msgstr ""
 
 #. Translators: CreatePositionForm
 #: screendoor/uservisibletext.py:66
-msgid "Re-enter your password"
+msgid "PDF"
 msgstr ""
 
 #. Translators: CreatePositionForm
 #: screendoor/uservisibletext.py:68
+msgid "URL"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:70
+msgid "Drag or browse for a PDF file"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:72
+msgid "Link to job description"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:74
+msgid "Choose a file"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:76
+msgid "Browse"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:78
+msgid "Submit"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:85
+msgid "Email address"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:87
+msgid "Choose a password"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:89
+msgid "Re-enter your password"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:91
 msgid "Have an account? Sign in"
 msgstr ""
 
+#: screendoor/uservisibletext.py:94
+msgid "Account created. Please check your e-mail for an activation link"
+msgstr ""
+
 #. Translators: LoginForm
-#: screendoor/uservisibletext.py:73
+#: screendoor/uservisibletext.py:99
 msgid "Login"
 msgstr ""
 
 #. Translators: LoginForm
-#: screendoor/uservisibletext.py:75
+#: screendoor/uservisibletext.py:101
 msgid "Password"
-msgstr ""
-
-#: screendoor/views.py:39
-msgid "Account created. Please check your e-mail for an activation link"
 msgstr ""
