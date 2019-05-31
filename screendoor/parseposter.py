@@ -1,40 +1,30 @@
+# ////////////////////////////////////////START IMPORTS//////////////////////////////////
 import os
 import re
 import tempfile
-from dateutil import parser as dateparser
+
+import nltk
 import pdfkit
 import tika
+from dateutil import parser as dateparser
 from tika import parser
+
 from screendoor_app.settings import BASE_DIR
+from .models import Requirement
+
+
+# ////////////////////////////////////////END IMPORTS////////////////////////////////////
 
 
 def text_between(start_string, end_string, text):
-    # Effectively returns the string between the first occurrence of start_string in text and the end_string.
+    # Effectively returns the string between the first occurrence of start_string and end_string in text
     extracted_text = text.split(start_string, 1)[1].split(end_string, 1)[0]
 
     return extracted_text
 
 
-def extract_job_title(text):
-    jobTitle = "N/A"
-
-    if "Reference" in text:
-        # Gets job title between 2 strings, Home and Reference.
-        jobTitle = text_between('Home', "Reference", text)
-        jobTitle = " ".join(jobTitle.split())
-
-    return jobTitle
-
-
-def extract_who_can_apply(text):
-    who_can_apply = "N/A"
-    if "Who can apply:" in text:
-        who_can_apply = text_between("Who can apply:", ".", text)
-    return who_can_apply
-
-
 def extract_essential_block(text):
-    essentialBlock = "N/A"
+    essential_block = "N/A"
 
     # Every poster normally has "essential qualifications"
     # but not every poster has assets in the form of "other qualifications"
@@ -42,51 +32,98 @@ def extract_essential_block(text):
 
     if "(essential qualifications)" in text:
         if "If you possess any" in text:
-            essentialBlock = text_between('(essential qualifications)', "If you possess any", text)
+            essential_block = text_between('(essential qualifications)', "If you possess any", text)
 
         else:
-            essentialBlock = text_between('(essential qualifications)', "The following will be applied / assessed",
-                                          text)
+            essential_block = text_between('(essential qualifications)', "The following will be applied / assessed",
+                                           text)
 
-    return essentialBlock
+    return essential_block
 
 
 def extract_asset_block(text):
-    assetBlock = "N/A"
+    asset_block = "N/A"
 
     if "(other qualifications)" in text:
-        assetBlock = text_between('(other qualifications)', "The following will be ", text)
+        asset_block = text_between('(other qualifications)', "The following will be ", text)
 
-    return assetBlock
+    return asset_block
 
 
-def extract_education(essential_block):
+def extract_education(essential_block, position):
     education = "N/A"
+    titles = ["education", "education ", "education:", "education: "]
+    for item in essential_block.split("\n"):
+        item_lower = item.lower()
+        if "Degree equivalency\n" in essential_block:
+            for title in titles:
+                if title == item_lower:
+                    education = text_between(item, "Degree equivalency", essential_block)
+                    education = education.lstrip()
+                    education = education.rstrip()
+            if education == "N/A":
+                education = essential_block.split("Degree equivalency\n", 1)[0]
+                education = education.lstrip()
+                education = education.rstrip()
 
-    if "Degree equivalency\n" in essential_block:
-        education = essential_block.split("Degree equivalency\n", 1)[0]
-        education = education.lstrip()
-        education = education.rstrip()
+    lines = nltk.sent_tokenize(education)
 
-    return education
+    education = scrub_hard_returns(education)
+
+    return Requirement(position=position, requirement_type="Education", abbreviation="", description=education)
 
 
-def extract_experience(essential_block):
+def extract_experience(essential_block, position):
     experience = "N/A"
 
-    if "Degree equivalency\n" in essential_block:
-        experience = essential_block.split("Degree equivalency\n", 1)[1]
-        experience = experience.lstrip()
-        experience = experience.rstrip()
+    titles = ["experience", "experience ", "experience:", "experience: ", "experiences: ", "experiences:"]
+    for item in essential_block.split("\n"):
+        item_lower = item.lower()
+        if "Degree equivalency\n" in essential_block:
+            for title in titles:
+                if title == item_lower:
+                    experience = text_between(item, "Degree equivalency", essential_block)
+                    experience = experience.lstrip()
+                    experience = experience.rstrip()
+            if experience == "N/A":
+                experience = essential_block.split("Degree equivalency\n", 1)[1]
+                experience = experience.lstrip()
+                experience = experience.rstrip()
 
-    return experience
+    experience = scrub_hard_returns(experience)
+
+    return Requirement(position=position, requirement_type="Experience", abbreviation="", description=experience)
 
 
-def extract_assets(asset_block):
+def extract_assets(asset_block, position):
     assets = asset_block
+
+    if "Degree equivalency\n" in assets:
+        assets = assets.replace("Degree equivalency\n", "")
     assets = assets.lstrip()
     assets = assets.rstrip()
-    return assets
+
+    assets = scrub_hard_returns(assets)
+
+    return Requirement(position=position, requirement_type="Assets", abbreviation="", description=assets)
+
+
+def extract_job_title(text):
+    job_title = "N/A"
+
+    if "Reference" in text:
+        # Gets job title between 2 strings, Home and Reference.
+        job_title = text_between('Home', "Reference", text)
+        job_title = " ".join(job_title.split())
+
+    return job_title
+
+
+def extract_who_can_apply(text):
+    who_can_apply = "N/A"
+    if "Who can apply:" in text:
+        who_can_apply = text_between("Who can apply:", ".", text)
+    return who_can_apply
 
 
 def extract_salary_min(salary):
@@ -107,7 +144,9 @@ def extract_salary_max(salary):
 def extract_classification(description):
     # Regex string that looks for the qualification level in  the form of two capital letters and two numbers
     # separated by a hyphen.
-    classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
+    classification = "N/A"
+    if re.search(r"([A-Z][A-Z][x-]\d\d)", description):
+        classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
 
     return classification
 
@@ -121,47 +160,127 @@ def extract_closing_date(item):
     return closing_date
 
 
-def find_essential_details(text, position):
-    from .models import Requirement
+def education_requirements_engine(text, position):
+    education_requirement_list = []
 
+    return education_requirement_list
+
+
+def scrub_definitions(text):
+    for item in text.split("\n"):
+        if item.find("* Recent") != -1:
+            text = text.split("* Significant", 1)[0]
+            break
+        if item.find("* Significant") != -1:
+            text = text.split("* Significant", 1)[0]
+            break
+        elif item.find("* Management") != -1:
+            text = text.split("* Management", 1)[0]
+            break
+    return text
+
+
+def scrub_hard_returns(text):
+    text = re.sub(r"(?<!\.|\;)\n", " ", text)
+
+    text = text.replace("; ", ";\n")
+    text = text.replace(". ", ".\n")
+    text = text.replace(": ", ":\n")
+
+    text = re.sub(r'(\d+\.\s)', '', text, flags=re.MULTILINE)
+
+    return text
+
+
+def scrub_raw_text(pdf_poster_text):
+    pdf_poster_text = re.sub(r'^https?://.*[\r\n]*', '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r'^mailto?:*[\r\n]*', '', pdf_poster_text, flags=re.MULTILINE)
+
+    for item in pdf_poster_text.split("\n"):
+
+        if re.match('^\d{1,2}/\d{1,2}/\d{4}', item):
+            pdf_poster_text = pdf_poster_text.replace(item, "")
+
+        item = re.sub(' +', ' ', item)
+
+    pdf_poster_text = re.sub(r'\n\s*\n', '\n', pdf_poster_text)
+
+    return pdf_poster_text
+
+
+def experience_requirements_engine(text, position):
+    text = scrub_definitions(text)
+
+    experience_requirement_list = []
+    x = 1
+    for item in re.split('[\.;]+', text):
+        if item != "":
+            item.replace("\n", "")
+            experience_requirement_list.append(
+                Requirement(position=position, requirement_type= "Experience", abbreviation="EX" + str(x), description=item))
+            x = x + 1
+    return experience_requirement_list
+
+
+def assets_requirements_engine(text, position):
+    assets_requirement_list = []
+
+    return assets_requirement_list
+
+
+def save_requirement_lists(list1, list2, list3):
+    uber_list = [list1, list2, list3]
+
+    for req_list in uber_list:
+        for item in req_list:
+            item.save()
+
+    return
+
+
+def find_essential_details(pdf_poster_text, position):
     # Regex to remove lines starting with https and mailto
 
-    text = re.sub(r'^https?://.*[\r\n]*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'^mailto?:*[\r\n]*', '', text, flags=re.MULTILINE)
-    text = text.strip("\n\n")
+    pdf_poster_text = scrub_raw_text(pdf_poster_text)
 
-    position.position_title = extract_job_title(text)
+    print(pdf_poster_text)
 
-    essential_block = extract_essential_block(text)
+    position.position_title = extract_job_title(pdf_poster_text)
 
-    asset_block = extract_asset_block(text)
+    essential_block = extract_essential_block(pdf_poster_text)
 
-    education = extract_education(essential_block)
+    asset_block = extract_asset_block(pdf_poster_text)
 
-    experience = extract_experience(essential_block)
+    requirement_education = extract_education(essential_block, position)
 
-    position.open_to = extract_who_can_apply(text)
+    requirement_experience = extract_experience(essential_block, position)
 
-    assets = extract_assets(asset_block)
+    position.open_to = extract_who_can_apply(pdf_poster_text)
 
-    parsing = False
+    requirement_assets = extract_assets(asset_block, position)
+
+    is_description_parsing = False
+
+    # list1 = education_requirements_engine(requirement_education.description, position)
+    # list2 = experience_requirements_engine(requirement_experience.description, position)
+    # list3 = assets_requirements_engine(requirement_assets.description, position)
 
     # A loop that extracts single line position fields like salary or reference number
 
-    for item in text.split("\n"):
+    for item in pdf_poster_text.split("\n"):
 
         if '$' in item:
             salary = item.strip()
             position.salary_min = extract_salary_min(salary)
             position.salary_max = extract_salary_max(salary)
-            parsing = False
-        if parsing:
+            is_description_parsing = False
+        if is_description_parsing:
             position.description = position.description + " " + item.strip()
         elif "Reference number" in item:
             position.reference_number = item.strip().split(": ")[1]
         elif "Selection process number" in item:
             position.selection_process_number = item.strip().split(": ")[1]
-            parsing = True
+            is_description_parsing = True
         elif "Closing date" in item:
             position.date_closed = extract_closing_date(item)
         elif "Position:" in item or "Positions to be filled:" in item:
@@ -172,14 +291,11 @@ def find_essential_details(text, position):
 
     # Save all position info to position.
     position.save()
-    requirement_education = Requirement(position=position, requirement_type="educations", abbreviation="",
-                                        description=education)
-    requirement_experience = Requirement(position=position, requirement_type="experience", abbreviation="",
-                                         description=experience)
-    requirement_assets = Requirement(position=position, requirement_type="assets", abbreviation="", description=assets)
+
     requirement_education.save()
     requirement_experience.save()
     requirement_assets.save()
+    # save_requirement_lists(list1, list2, list3)
 
     return position
 
