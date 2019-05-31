@@ -100,6 +100,7 @@ def confirm_account(request):
 
 
 def login_form(request):
+    # If user is not logged in, display login form
     if not request.user.is_authenticated:
         form = LoginForm()
         # Has the user hit login button
@@ -111,9 +112,11 @@ def login_form(request):
                 user = form.get_user()
                 login(request, user)
                 return redirect('home')
-    # Display login page
-    return render(request, 'registration/login.html',
-                  {'login_form': form})
+        # Display login page
+        return render(request, 'registration/login.html',
+                      {'login_form': form})
+    # If the user is already logged in, redirect to home
+    return redirect('home')
 
 
 @login_required(login_url='login/', redirect_field_name=None)
@@ -134,8 +137,7 @@ def import_position(request):
             # don't commit partial positions with only pdf/url into db
             position = create_position_form.save()
             position = parse_upload(position)
-
-            return render(request, 'position.html', {'position': position})
+            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'welcome': welcome_message})
     # blank form
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {

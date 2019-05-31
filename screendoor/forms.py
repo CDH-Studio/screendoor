@@ -84,7 +84,8 @@ class LoginForm(forms.Form):
         label=_('Password'), min_length=8, max_length=42, widget=forms.PasswordInput)
 
     def clean(self):
-        email = self.cleaned_data.get('email')
+        # Entered e-mail is compared as lower to ensure login is not case-sensitive
+        email = self.cleaned_data.get('email').lower()
         password = self.cleaned_data.get('password')
         user = authenticate(username=email, password=password)
 
@@ -100,6 +101,7 @@ class LoginForm(forms.Form):
         return self.cleaned_data
 
     def get_user(self):
-        email = self.cleaned_data.get('email')
+        # Entered e-mail is compared as lower to ensure login is not case-sensitive
+        email = self.cleaned_data.get('email').lower()
         password = self.cleaned_data.get('password')
         return authenticate(username=email, password=password)
