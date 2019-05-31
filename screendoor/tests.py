@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .forms import CreatePositionForm
+from .forms import CreatePositionForm, LoginForm
 from .models import ScreenDoorUser
 from django.test.client import Client
 from django.urls import reverse
@@ -37,21 +37,20 @@ class UserRegistrationTests(TestCase):
 
     def test_user_already_exists_error(self):
         response = self.c.post(reverse('register'),{'email': "good@canada.ca"})
-        breakpoint()
         self.assertFormError(response, "register_form", "email", format(ErrorMessages.user_already_exists % "good@canada.ca"))
 
 class UserLoginTests(TestCase):
     #note: uses first way to test forms, submitting the form through the post request
     def setUp(self):
         self.c = Client()
-        unconfirmed_user = ScreenDoorUser.objects.create_user(
+        self.unconfirmed_user = ScreenDoorUser.objects.create_user(
             username="bad@canada.ca", email="bad@canada.ca",
             password="password76", email_confirmed=False)
-        confirmed_user = ScreenDoorUser.objects.create_user(
+        self.confirmed_user = ScreenDoorUser.objects.create_user(
             username="good@canada.ca", email="good@canada.ca",
             password="password76", email_confirmed=True)
-        unconfirmed_user.save()
-        confirmed_user.save()
+        self.unconfirmed_user.save()
+        self.confirmed_user.save()
         self.error_strings = ErrorMessages()
 
     def test_login(self):
@@ -63,19 +62,30 @@ class UserLoginTests(TestCase):
         self.assertFormError(response, "login_form", "email", ErrorMessages.invalid_un_or_pw)
 
     def test_no_activated_account(self):
-        response = self.c.post(reverse('login'), {'email': "bad@canada.ca", 'password': "password76"})
-        self.assertFormError(response, "login_form", "email", ErrorMessages.unconfirmed_email)
-
+        form = LoginForm(
+            data={'email': 'bad@canada.ca', 'password': 'password76'})
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['email'],
+                        ErrorMessages.unconfirmed_email)
 
 class CreatePositionTests(TestCase):
     #note: uses second way to test forms, creating the form object and validating it
     def setUp(self):
         self.c = Client()
+        self.user = ScreenDoorUser.objects.create_user(
+            username="good@canada.ca", email="good@canada.ca",
+            password="password76")
+        self.user.save()
 
-    def test_create_position_view_exists(self):
-        response = self.c.post(reverse('importposition'))
+    def test_logged_out_user_gets_redirected(self):
+        response = self.c.get(reverse('importposition'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "screendoor/login/")
+
+    def test_logged_in_user_doesnt_get_redirected(self):
+        self.c.login(username="good@canada.ca", password="password76")
+        response = self.c.get(reverse('importposition'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "createposition/importposition.html")
 
     def test_reject_empty_form(self):
         form = CreatePositionForm(data={})

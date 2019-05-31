@@ -111,13 +111,11 @@
     </div>
   </div>
 </div>
-<!-- TODO: Hard-coding of field names is temporary. -->
-<!-- They should be coupled with the model or part master strings file -->
 <!-- Beginning of position display -->
 {% if position is not None %}
 <div class="row">
   <div class="col s12">
-    <label><h5 class="center">We think this is the position. Can you take a look and make sure it is correct?</h5></label>
+    <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label>
   </div>
   <!--Beginning of confirm position card -->
   <div class="col">
@@ -132,7 +130,7 @@
         <div class="col s4">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">collections</i>Classification</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">collections</i>{{ userVisibleText.classification }}</div>
               <div class="collapsible-body"><span>{{ position.classification }}</span></div>
             </li>
           </ul>
@@ -141,7 +139,7 @@
         <div class="col s4">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_1</i>Reference number</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_1</i>{{ userVisibleText.reference_number }}</div>
               <div class="collapsible-body"><span>{{ position.reference_number }}
               </span></div>
             </li>
@@ -151,7 +149,7 @@
         <div class="col s4">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_2</i>Selection process number</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_2</i>{{ userVisibleText.selection_process_number }}</div>
               <div class="collapsible-body"><span>{{ position.selection_process_number }}
 
               </span></div>
@@ -165,7 +163,7 @@
         <div class="col s3">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">date_range</i>Date closed</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">date_range</i>{{ userVisibleText.date_closed }}</div>
               <div class="collapsible-body"><span>{{ position.date_closed|date:"M d, Y" }}
               </span></div>
             </li>
@@ -175,7 +173,7 @@
         <div class="col s3">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">supervisor_account</i>Number of positions</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">supervisor_account</i>{{ userVisibleText.number_of_positions }}</div>
               <div class="collapsible-body"><span>{{ position.num_positions }}
               </span></div>
             </li>
@@ -185,7 +183,7 @@
         <div class="col s3">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">attach_money</i>Salary range</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">attach_money</i>{{ userVisibleText.salary_range }}</div>
               <div class="collapsible-body"><span>${{ position.salary_min }} - ${{ position.salary_max }}
               </span></div>
             </li>
@@ -195,7 +193,7 @@
         <div class="col s3">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">account_box</i>Open to</div>
+              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">account_box</i>{{ userVisibleText.open_to }}</div>
               <div class="collapsible-body"><span>{{ position.open_to }}</span></div>
             </li>
           </ul>
@@ -207,7 +205,7 @@
         <div class="col s12">
           <ul class="collapsible">
             <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_bulleted</i>Position information</div>
+              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_bulleted</i>{{ userVisibleText.position_information }}</div>
               <div class="collapsible-body"><span>{{ position.description }}</span></div>
             </li>
           </ul>
@@ -215,7 +213,7 @@
       </div>
       <!-- Education and Experience header row -->
       <div class="row">
-        <h5 class="col s12 card-title grey-text">Education and Experience Criteria</h5>
+        <h5 class="col s12 card-title grey-text">{{ userVisibleText.education_and_experience_criteria }}</h5>
       </div>
       <!-- Education and experience row 1 -->
       <div class="row">

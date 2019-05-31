@@ -79,7 +79,8 @@ class LoginForm(forms.Form):
     create_account_text = StandardFormText.create_account
     email = forms.EmailField(
         label=StandardFormText.username_or_email_label, max_length=100)
-    password = LoginFormText.password
+    password = forms.CharField(
+        label=LoginFormText.password, min_length=8, max_length=42, widget=forms.PasswordInput)
 
     def clean(self):
         # Entered e-mail is compared as lower to ensure login is not case-sensitive

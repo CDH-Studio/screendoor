@@ -10,20 +10,20 @@ class StandardFormText():
 
 class ErrorMessages():
     # Translators: When a user tries to upload a blank position form.
-    empty_create_position_form = _('Please enter either a pdf file or a url link.'),
+    empty_create_position_form = _('Please enter either a pdf file or a url link.')
     # Translators: When a user tries to upload a position form with too much data.
-    overfilled_create_position_form = _('Please enter *either* a pdf file or a url link, but not both.'),
+    overfilled_create_position_form = _('Please enter *either* a pdf file or a url link, but not both.')
     # Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
-    user_already_exists = _('Username %s already exists.'),
+    user_already_exists = _('Username %s already exists.')
     # Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
-    invalid_email_domain = _('Invalid e-mail address domain: %s. Canada.ca email required.'),
+    invalid_email_domain = _('Invalid e-mail address domain: %s. Canada.ca email required.')
     # Translators: When a user tries to login with an unauthenticated account
-    unconfirmed_email = _('Email address for user not confirmed.'),
+    unconfirmed_email = _('Email address for user not confirmed.')
     # Translators: When a user submits an invalid username and/or password.
     invalid_un_or_pw = _('Invalid username or password.')
 
 
-class Interface():
+class InterfaceText():
     # Translators: Sidebar
     view_positions =_('View Positions')
     # Translators: Sidebar
@@ -32,6 +32,29 @@ class Interface():
     welcome_user = _("Welcome, %s")
     # Translators: Sidebar
     logout = _("Logout")
+
+
+class PositionText():
+    # Translators: Confirming Position Information
+    we_think_this_is_correct =_('We think this is the position. Can you take a look and make sure it is correct?')
+    # Translators: Confirming Position Information
+    classification = _('Classification')
+    # Translators: Confirming Position Information
+    reference_number = _("Reference number")
+    # Translators: Confirming Position Information
+    selection_process_number = _("Selection process number")
+    # Translators: Confirming Position Information
+    date_closed = _("Date closed")
+    # Translators: Confirming Position Information
+    number_of_positions = _("Number of positions")
+    # Translators: Confirming Position Information
+    salary_range = _("Salary range")
+    # Translators: Confirming Position Information
+    open_to = _("Open To")
+    # Translators: Confirming Position Information
+    position_information = _("Position information")
+    # Translators: Confirming Position Information
+    education_and_experience_criteria = _("Education and Experience Criteria")
 
 
 class CreatePositionFormText():
