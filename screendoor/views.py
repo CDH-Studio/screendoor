@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
+from .uservisibletext import Interface, CreateAccountFormText
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
 from .models import EmailAuthenticateToken
@@ -137,9 +138,17 @@ def import_position(request):
             # don't commit partial positions with only pdf/url into db
             position = create_position_form.save()
             position = parse_upload(position)
+
+            # Add position to user (test, may be moved)
+            save_position_to_current_user(request.user, position)
+
             return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'welcome': welcome_message})
     # blank form
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': create_position_form, 'welcome': welcome_message
+        'form': create_position_form, 'userVisibleText': Interface
     })
+
+
+def save_position_to_current_user(user, position):
+    user.positions.add(position)

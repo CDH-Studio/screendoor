@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-29 17:53+0000\n"
+"POT-Creation-Date: 2019-05-30 18:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,60 +20,145 @@ msgstr ""
 "%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n"
 "%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
+#. Translators: StandardFormText
+#: screendoor/uservisibletext.py:6
+msgid "Username/Email Address"
+msgstr ""
+
+#. Translators: StandardFormText
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:8 screendoor/uservisibletext.py:60
+msgid "Create Account"
+msgstr ""
+
 #. Translators: When a user tries to upload a blank position form.
-#: screendoor/errormessages.py:5
+#: screendoor/uservisibletext.py:13
 msgid "Please enter either a pdf file or a url link."
 msgstr ""
 
 #. Translators: When a user tries to upload a position form with too much data.
-#: screendoor/errormessages.py:7
+#: screendoor/uservisibletext.py:15
 msgid "Please enter *either* a pdf file or a url link, but not both."
 msgstr ""
 
 #. Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
-#: screendoor/errormessages.py:12
+#: screendoor/uservisibletext.py:17
 #, python-format
 msgid "Username %s already exists."
 msgstr ""
 
 #. Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
-#: screendoor/errormessages.py:14
+#: screendoor/uservisibletext.py:19
 #, python-format
 msgid "Invalid e-mail address domain: %s. Canada.ca email required."
 msgstr ""
 
 #. Translators: When a user tries to login with an unauthenticated account
-#: screendoor/errormessages.py:19
+#: screendoor/uservisibletext.py:21
 msgid "Email address for user not confirmed."
 msgstr ""
 
 #. Translators: When a user submits an invalid username and/or password.
-#: screendoor/errormessages.py:21
+#: screendoor/uservisibletext.py:23
 msgid "Invalid username or password."
 msgstr ""
 
-#: screendoor/forms.py:31 screendoor/forms.py:56
-msgid "Create Account"
+#. Translators: Sidebar
+#: screendoor/uservisibletext.py:28
+msgid "View Positions"
 msgstr ""
 
-#: screendoor/forms.py:55
+#. Translators: Sidebar
+#: screendoor/uservisibletext.py:30
+msgid "New Position"
+msgstr ""
+
+#. Translators: Sidebar
+#: screendoor/uservisibletext.py:32 screendoor/views.py:127
+#, python-format
+msgid "Welcome, %s"
+msgstr ""
+
+#. Translators: Sidebar
+#: screendoor/uservisibletext.py:34
+msgid "Logout"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:39
+msgid "Upload New Position"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:41
+msgid "Please select either PDF or link to the jobs.gc.ca posting"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:43
+msgid "PDF"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:45
+msgid "URL"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:47
+msgid "Drag or browse for a PDF file"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:49
+msgid "Link to job description"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:51
+msgid "Choose a file"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:53
+msgid "Browse"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:55
+msgid "Submit"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:62
+msgid "Email address"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:64
+msgid "Choose a password"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:66
+msgid "Re-enter your password"
+msgstr ""
+
+#. Translators: CreatePositionForm
+#: screendoor/uservisibletext.py:68
+msgid "Have an account? Sign in"
+msgstr ""
+
+#. Translators: LoginForm
+#: screendoor/uservisibletext.py:73
 msgid "Login"
 msgstr ""
 
-#: screendoor/forms.py:58
-msgid "Username/Email Address"
-msgstr ""
-
-#: screendoor/forms.py:60
+#. Translators: LoginForm
+#: screendoor/uservisibletext.py:75
 msgid "Password"
 msgstr ""
 
-#: screendoor/forms.py:84
-msgid "Log out"
-msgstr ""
-
-#: screendoor/views.py:83
-msgid ""
-"We have created your account. Please check your e-mail for a confirmation "
-"link to activate your account."
+#: screendoor/views.py:39
+msgid "Account created. Please check your e-mail for an activation link"
 msgstr ""

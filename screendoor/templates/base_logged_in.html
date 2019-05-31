@@ -1,4 +1,5 @@
 {% load static %}
+{% load string_interpolation %}
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
@@ -18,14 +19,14 @@
   <!-- Sidebar menu -->
   <ul id="slide-out" class="sidenav sidenav-fixed">
     <br>
-    <li><a href="/"><i class="material-icons">account_circle</i>{{ welcome }}</a></li>
+    <li><a href="/"><i class="material-icons">account_circle</i>{{ userVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
     <!-- TODO: Text must be moved to an external string -->
-    <li><a href="/"><i class="material-icons">folder_open</i>View Positions</a></li>
+    <li><a href="/"><i class="material-icons">folder_open</i>{{ userVisibleText.view_positions }}</a></li>
     <!-- TODO: Text must be moved to an external string -->
-    <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>New Position</a></li>
+    <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>{{ userVisibleText.new_position }}</a></li>
     <!-- TODO: Text must be moved to an external string -->
-    <li><a href="/logout"><i class="material-icons">arrow_back</i>Logout</a></li>
+    <li><a href="/logout"><i class="material-icons">arrow_back</i>{{ userVisibleText.logout }}</a></li>
   </ul>
   <!-- Page Layout here -->
   <main>
