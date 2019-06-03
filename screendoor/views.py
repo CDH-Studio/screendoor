@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
 from .models import EmailAuthenticateToken
@@ -19,12 +20,9 @@ from screendoor.parseposter import parse_upload
 
 @login_required(login_url='login/', redirect_field_name=None)
 def index(request):
-    # String required for sidebar display in template.
-    # Strings such as this should all be moved to an external file to avoid repetition
-    welcome_message = format(_("Welcome, %s") % request.user.first_name)
     # Returns main page
     return render(request, 'index.html',
-                  {'user': request.user, 'welcome': welcome_message})
+                  {'user': request.user, 'userVisibleText': InterfaceText})
 
 
 def register_form(request):
@@ -37,10 +35,8 @@ def register_form(request):
             # Success
             send_user_email(request, create_account(request))
             # Redirects to...
-            success = _(
-                "Account created. Please check your e-mail for an activation link")
             return render(request, 'registration/register.html',
-                          {'register_form': register_form, 'success': success})
+                          {'register_form': register_form, 'success': CreateAccountFormText.account_created})
             # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
@@ -137,9 +133,17 @@ def import_position(request):
             # don't commit partial positions with only pdf/url into db
             position = create_position_form.save()
             position = parse_upload(position)
-            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'welcome': welcome_message})
+
+            # Add position to user (test, may be moved)
+            save_position_to_current_user(request.user, position)
+
+            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'userVisibleText': PositionText})
     # blank form
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': create_position_form, 'welcome': welcome_message
+        'form': create_position_form, 'userVisibleText': InterfaceText
     })
+
+
+def save_position_to_current_user(user, position):
+    user.positions.add(position)
