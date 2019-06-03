@@ -22,8 +22,9 @@ def text_between(start_string, end_string, text):
     return extracted_text
 
 
+
 def extract_essential_block(text):
-    essential_block = "N/A"
+    essential_block = ""
 
     # Every poster normally has "essential qualifications"
     # but not every poster has assets in the form of "other qualifications"
@@ -41,7 +42,7 @@ def extract_essential_block(text):
 
 
 def extract_asset_block(text):
-    asset_block = "N/A"
+    asset_block = ""
 
     # Some posters have an assets section found between other qualifications and the statement "The following will be"
 
@@ -52,7 +53,7 @@ def extract_asset_block(text):
 
 
 def extract_education(essential_block, position):
-    education = "N/A"
+    education = ""
 
     # Due to the fact that the stylistics of the statement "EDUCATION: in the
     # essential requirements section vary, there is an array called titles that
@@ -61,16 +62,15 @@ def extract_education(essential_block, position):
 
     titles = ["education", "education:"]
     first_word = essential_block.split(" ", 1)[0]
-    print(first_word)
     first_word_lower = first_word.lower()
-    first_word_lower = first_word_lower.replace(" ","")
+    first_word_lower = first_word_lower.replace(" ", "")
     if "Degree equivalency\n" in essential_block:
         for title in titles:
             if first_word_lower.__contains__(title):
                 education = text_between(first_word, "Degree equivalency", essential_block)
                 education = education.lstrip()
                 education = education.rstrip()
-        if education == "N/A":
+        if education == "":
             education = essential_block.split("Degree equivalency\n", 1)[0]
             education = education.lstrip()
             education = education.rstrip()
@@ -81,7 +81,7 @@ def extract_education(essential_block, position):
 
 
 def extract_experience(essential_block, position):
-    experience = "N/A"
+    experience = ""
 
     # Same deal as the extract_education
 
@@ -95,7 +95,7 @@ def extract_experience(essential_block, position):
                     experience = text_between(item, "Degree equivalency", essential_block)
                     experience = experience.lstrip()
                     experience = experience.rstrip()
-            if experience == "N/A":
+            if experience == "":
                 experience = essential_block.split("Degree equivalency\n", 1)[1]
                 experience = experience.lstrip()
                 experience = experience.rstrip()
@@ -121,7 +121,7 @@ def extract_assets(asset_block, position):
 
 
 def extract_job_title(text):
-    job_title = "N/A"
+    job_title = ""
 
     # Title can be found between the phrases "Home" and "reference"
 
@@ -134,7 +134,7 @@ def extract_job_title(text):
 
 
 def extract_who_can_apply(text):
-    who_can_apply = "N/A"
+    who_can_apply = ""
 
     # Who can apply is found right after string "Who can apply:"
 
@@ -167,7 +167,7 @@ def extract_salary_max(salary):
 def extract_classification(description):
     # Regex string that looks for the qualification level in  the form of two capital letters and two numbers
     # separated by a hyphen.
-    classification = "N/A"
+    classification = ""
     if re.search(r"([A-Z][A-Z][x-]\d\d)", description):
         classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
 
@@ -183,10 +183,15 @@ def extract_closing_date(item):
     return closing_date
 
 
-def scrub_definitions(text):
-    # Scrubs out definitions sometimes found at the bottom of the experience section.
+def scrub_entry(text):
+    # Scrubs out useless text
+    text = text.strip()
+
+    if re.search(r"\w+[:]", text):
+        text = re.sub(r"\w+[:]", "", text)
 
     for item in text.split("\n"):
+
         if item.find("* Recent") != -1:
             text = text.split("* Significant", 1)[0]
             break
@@ -196,6 +201,7 @@ def scrub_definitions(text):
         elif item.find("* Management") != -1:
             text = text.split("* Management", 1)[0]
             break
+
     return text
 
 
@@ -241,51 +247,61 @@ def scrub_raw_text(pdf_poster_text):
 def experience_requirements_engine(text, position):
     # Generates EX1, EX2, etc.
 
-    text = scrub_definitions(text)
+    text = scrub_entry(text)
 
     experience_requirement_list = []
     x = 1
-    for item in re.split('(?<!\d)[;.]|[;.](?!\d)', text):
-        if item != "":
-            item.replace("\n", "")
-            experience_requirement_list.append(
-                Requirement(position=position, requirement_type="Experience", abbreviation="EX" + str(x),
-                            description=item))
-            x = x + 1
+    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', text)
+    for item in lines:
+        if item != "" and not item.lower().__contains__("incumbents"):
+            item = item.strip()
+            if not re.match(r"[*]", item):
+                item.replace("\n", "")
+                experience_requirement_list.append(
+                    Requirement(position=position, requirement_type="Experience", abbreviation="EX" + str(x),
+                                description=item))
+                x = x + 1
     return experience_requirement_list
 
 
 def education_requirements_engine(text, position):
     # Generates the ED1, ED2, etc.
 
-    text = scrub_definitions(text)
+    text = scrub_entry(text)
 
     education_requirement_list = []
     x = 1
-    for item in re.split('[.;]+', text):
-        if item != "":
-            item.replace("\n", "")
-            education_requirement_list.append(
-                Requirement(position=position, requirement_type="Education", abbreviation="ED" + str(x),
-                            description=item))
-            x = x + 1
+    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', text)
+    for item in lines:
+
+        if item != "" and not item.lower().__contains__("incumbents"):
+            item = item.strip()
+            if not re.match(r"[*]", item):
+                item.replace("\n", "")
+                education_requirement_list.append(
+                    Requirement(position=position, requirement_type="Education", abbreviation="ED" + str(x),
+                                description=item))
+                x = x + 1
     return education_requirement_list
 
 
 def assets_requirements_engine(text, position):
     # Generates A01, AO2, etc.
 
-    text = scrub_definitions(text)
+    text = scrub_entry(text)
 
     assets_requirement_list = []
     x = 1
-    for item in re.split('[.;]+', text):
-        if item != "":
-            item.replace("\n", "")
-            assets_requirement_list.append(
-                Requirement(position=position, requirement_type="Asset", abbreviation="A" + str(x),
-                            description=item))
-            x = x + 1
+    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', text)
+    for item in lines:
+        if item != "" and not item.lower().__contains__("incumbents"):
+            item = item.strip()
+            if not re.match(r"[*]", item):
+                item.replace("\n", "")
+                assets_requirement_list.append(
+                    Requirement(position=position, requirement_type="Asset", abbreviation="A" + str(x),
+                                description=item))
+                x = x + 1
     return assets_requirement_list
 
 
@@ -297,8 +313,6 @@ def save_requirement_lists(list1, list2, list3):
     for req_list in mega_list:
         for item in req_list:
             item.save()
-            print(item)
-
     return
 
 
@@ -354,9 +368,6 @@ def find_essential_details(pdf_poster_text, position):
     position = assign_single_line_values(position, pdf_poster_text)
 
     position.save()
-    requirement_education.save()
-    requirement_experience.save()
-    requirement_assets.save()
 
     list1 = education_requirements_engine(requirement_education.description, position)
     list2 = experience_requirements_engine(requirement_experience.description, position)
