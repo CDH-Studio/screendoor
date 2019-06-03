@@ -2351,6 +2351,7 @@ table, th, td {
   border: none; }
 
 table {
+  table-layout: fixed;
   width: 100%;
   display: table;
   border-collapse: collapse;
@@ -2372,7 +2373,7 @@ tr {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
 
 td, th {
-  padding: 15px 5px;
+  padding: 10px 5px;
   display: table-cell;
   text-align: left;
   vertical-align: middle;
@@ -3407,6 +3408,8 @@ h4 {
   font-size: 2.28rem;
   line-height: 110%;
   margin: 1.52rem 0 0.912rem 0; }
+  h4.position-header {
+    margin: 0.456rem 0 0.912rem 0; }
 
 h5 {
   font-size: 1.64rem;
@@ -3806,6 +3809,12 @@ small {
   margin-top: 25px;
   margin-right: 20px;
   margin-bottom: -15px; }
+
+.btn-left {
+  margin-left: 15px; }
+
+.btn-pad {
+  margin: 0.456rem 0 0.912rem 15; }
 
 .btn, .btn-large, .btn-small,
 .btn-flat {

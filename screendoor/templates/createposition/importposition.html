@@ -7,12 +7,37 @@
     and the position information is displayed*/
  /* Make file and URL forms invisible on page load */
  window.onload = function() {
-   document.getElementById('pdf_upload_form').style.display = 'none';
-   document.getElementById('url_upload_form').style.display = 'none';
-   document.getElementById('position_submit_button').style.display = 'none';
-   document.getElementById('radio_pdf').checked = false;
-   document.getElementById('radio_url').checked = false;
+   if (localStorage.length > 0) {
+     document.getElementById('pdf_input').required = localStorage.getItem('pdfRequired');
+     document.getElementById('url_input').required = localStorage.getItem('urlRequired');
+     document.getElementById('pdf_path_input').value = localStorage.getItem('pdfText');
+     /* document.getElementById('pdf_input').value = localStorage.getItem('pdfFile'); */
+     document.getElementById('url_input').value = localStorage.getItem('urlText');
+     document.getElementById('pdf_upload_form').style.display = localStorage.getItem('pdfDisplay');
+     document.getElementById('url_upload_form').style.display = localStorage.getItem('urlDisplay');
+     document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
+     document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
+     localStorage.clear();
+   } else {
+     document.getElementById('pdf_upload_form').style.display = 'none';
+     document.getElementById('url_upload_form').style.display = 'none';
+     document.getElementById('position_submit_button').style.display = 'none';
+     document.getElementById('radio_pdf').checked = false;
+     document.getElementById('radio_url').checked = false;
+   }
  };
+ function persistUploaded() {
+   localStorage.clear();
+   localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
+   localStorage.setItem('urlRequired', document.getElementById('url_input').required);
+   localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
+   localStorage.setItem('pdfFile', document.getElementById('pdf_input').value);
+   localStorage.setItem('urlText', document.getElementById('url_input').value);
+   localStorage.setItem('pdfDisplay', document.getElementById('pdf_upload_form').style.display);
+   localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').style.display);
+   localStorage.setItem('pdfChecked', document.getElementById('radio_pdf').checked);
+   localStorage.setItem('urlChecked', document.getElementById('radio_url').checked);
+ }
  /* Show PDF form, hide and clear URL input form */
  function showPdf() {
    document.getElementById('pdf_upload_form').style.display = 'block';
@@ -103,7 +128,7 @@
             </div>
           </div>
           <!-- Submit button -->
-          <input class="right btn" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+          <input class="right btn" onclick="persistUploaded();" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
         </div>
         <!-- End of form -->
       </form>
@@ -111,139 +136,97 @@
     </div>
   </div>
 </div>
+
 <!-- Beginning of position display -->
 {% if position is not None %}
 <div class="row">
   <div class="col s12">
-    <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label>
+    <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label><br>
   </div>
+</div>
+<div class="row">
   <!--Beginning of confirm position card -->
-  <div class="col">
+  <div class="col card white hoverable">
     <div class="card-content col s12">
+      <div class="row valign-wrapper">
+        <h4 class="col s8 left position-header">{{ position.position_title }}</h4>
+        <!-- Confirm/Edit button row -->
+        <div class="col s4 right right-align">
+          <input class="btn-small btn-left btn-pad" type="submit" value="{{ userVisibleText.edit }}">
+          <input class="btn-small btn-left btn-pad" type="submit" value="{{ userVisibleText.save }}">
+        </div>
+      </div>
       <!-- Position title row -->
-      <div class="row">
-        <h4 class="col s12 grey-text">{{ position.position_title }}</h4>
-      </div>
-      <!-- Position information row 1 -->
-      <div class="row">
-        <!-- Classification column -->
-        <div class="col s4">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">collections</i>{{ userVisibleText.classification }}</div>
-              <div class="collapsible-body"><span>{{ position.classification }}</span></div>
-            </li>
-          </ul>
-        </div>
-        <!-- Reference number column -->
-        <div class="col s4">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_1</i>{{ userVisibleText.reference_number }}</div>
-              <div class="collapsible-body"><span>{{ position.reference_number }}
-              </span></div>
-            </li>
-          </ul>
-        </div>
-        <!-- Selection process number column -->
-        <div class="col s4">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">filter_2</i>{{ userVisibleText.selection_process_number }}</div>
-              <div class="collapsible-body"><span>{{ position.selection_process_number }}
-
-              </span></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- Position information row 2 -->
-      <div class="row">
-        <!-- Date closed column -->
-        <div class="col s3">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">date_range</i>{{ userVisibleText.date_closed }}</div>
-              <div class="collapsible-body"><span>{{ position.date_closed|date:"M d, Y" }}
-              </span></div>
-            </li>
-          </ul>
-        </div>
-        <!-- Number of positions column -->
-        <div class="col s3">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">supervisor_account</i>{{ userVisibleText.number_of_positions }}</div>
-              <div class="collapsible-body"><span>{{ position.num_positions }}
-              </span></div>
-            </li>
-          </ul>
-        </div>
-        <!-- Salary column -->
-        <div class="col s3">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">attach_money</i>{{ userVisibleText.salary_range }}</div>
-              <div class="collapsible-body"><span>${{ position.salary_min }} - ${{ position.salary_max }}
-              </span></div>
-            </li>
-          </ul>
-        </div>
-        <!-- Open to column -->
-        <div class="col s3">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text active"><i class="material-icons">account_box</i>{{ userVisibleText.open_to }}</div>
-              <div class="collapsible-body"><span>{{ position.open_to }}</span></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- Position information row 3 -->
-      <div class="row">
-        <!-- Position description column -->
-        <div class="col s12">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_bulleted</i>{{ userVisibleText.position_information }}</div>
-              <div class="collapsible-body"><span>{{ position.description }}</span></div>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- Education and Experience header row -->
-      <div class="row">
-        <h5 class="col s12 card-title grey-text">{{ userVisibleText.education_and_experience_criteria }}</h5>
-      </div>
-      <!-- Education and experience row 1 -->
-      <div class="row">
+      <table class="highlight">
+        <thead>
+          <tr>
+            <th colspan="1">{{ userVisibleText.classification }}</th>
+            <th colspan="2">{{ userVisibleText.reference_number }}</th>
+            <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="1">{{ position.classification }}</td>
+            <td colspan="2">{{ position.reference_number }}</td>
+            <td colspan="2">{{ position.selection_process_number }}</td>
+          </tr>
+        </tbody>
+        <thead>
+          <tr>
+            <th colspan="1">{{ userVisibleText.date_closed }}</th>
+            <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
+            <th colspan="1">{{ userVisibleText.salary_range }}</th>
+            <th colspan="2">{{ userVisibleText.open_to }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
+            <td colspan="1">{{ position.num_positions }}</td>
+            <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+            <td colspan="2">{{ position.open_to }}</td>
+          </tr>
+        </tbody>
+        <thead>
+          <tr>
+            <th colspan="5">{{ userVisibleText.position_information }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">{{ position.description }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
+      <table class="highlight">
         {% for req in position.requirement_set.all reversed %}
-        <div class="col s4">
-          <ul class="collapsible">
-            <li class="active">
-              <div class="collapsible-header screendoor-color lighten white-text"><i class="material-icons">format_list_numbered</i>{{ req.requirement_type }}</div>
-              <div class="collapsible-body"><span>{{ req.description|linebreaksbr }}</span></div>
-            </li>
-          </ul>
-        </div>
+        <thead>
+          <tr>
+            {% if forloop.counter is 1 %}
+            <th colspan="5">{{ userVisibleText.education }}</th>
+
+            {% elif forloop.counter is 2 %}
+            <th colspan="5">{{ userVisibleText.experience }}</th>
+
+            {% elif forloop.counter is 3 %}
+            <th colspan="5">{{ userVisibleText.assets }}</th>
+
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5">{{ req.description|linebreaksbr }}</td>
+          </tr>
+        </tbody>
         {% endfor %}
-      </div>
-      <!-- Confirm/Edit button row -->
-      <div class="row center">
-        <div class="col s12">
-          <br>
-          <input class="btn" type="submit" value="Edit">&nbsp&nbsp&nbsp&nbsp&nbsp
-          <input class="btn" type="submit" value="Create Position">
-        </div>
-      </div>
-      <div class="row">
-        <br>
-        <br>
-        <br>
-      </div>
+      </table>
     </div>
   </div>
 </div>
+<!-- </div> -->
 {% endif %}
 <!-- </div> -->
 <!-- End of position display -->

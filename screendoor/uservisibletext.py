@@ -50,15 +50,25 @@ class PositionText():
     # Translators: Confirming Position Information
     date_closed = _("Date closed")
     # Translators: Confirming Position Information
-    number_of_positions = _("Number of positions")
+    number_of_positions = _("No. positions")
     # Translators: Confirming Position Information
     salary_range = _("Salary range")
     # Translators: Confirming Position Information
-    open_to = _("Open To")
+    open_to = _("Open to")
     # Translators: Confirming Position Information
     position_information = _("Position information")
     # Translators: Confirming Position Information
     education_and_experience_criteria = _("Education and Experience Criteria")
+    # Translators: Confirming Position Information
+    education = _("Education")
+    # Translators: Confirming Position Information
+    experience = _("Experience")
+    # Translators: Confirming Position Information
+    assets = _("Assets")
+    # Translators: Confirming Position Information
+    save = _("Save")
+    # Translators: Confirming Position Information
+    edit = _("Edit")
 
 
 class CreatePositionFormText():
