@@ -3,7 +3,6 @@ import os
 import re
 import tempfile
 
-import nltk
 import pdfkit
 import tika
 from dateutil import parser as dateparser
@@ -191,7 +190,7 @@ def scrub_definitions(text):
         if item.find("* Recent") != -1:
             text = text.split("* Significant", 1)[0]
             break
-        if item.find("* Significant") != -1:
+        elif item.find("* Significant") != -1:
             text = text.split("* Significant", 1)[0]
             break
         elif item.find("* Management") != -1:
@@ -205,7 +204,7 @@ def scrub_hard_returns(text):
 
     # Fancy Regex that just removes newlines within sentences
 
-    text = re.sub(r"(?<!\.|\;)\n", " ", text)
+    text = re.sub(r"(?<![.;])\n", " ", text)
 
     # Adds a newline after end of every sentence.
 
@@ -220,8 +219,8 @@ def scrub_hard_returns(text):
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
 
-    pdf_poster_text = re.sub(r'^https?://.*[\r\n]*', '', pdf_poster_text, flags=re.MULTILINE)
-    pdf_poster_text = re.sub(r'^mailto?:*[\r\n]*', '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
 
     # Removes lines starting with a date (This normally infers a footer extracted by tika
 
@@ -246,7 +245,7 @@ def experience_requirements_engine(text, position):
 
     experience_requirement_list = []
     x = 1
-    for item in re.split('[\.;]+', text):
+    for item in re.split('(?<!\d)[;.]|[;.](?!\d)', text):
         if item != "":
             item.replace("\n", "")
             experience_requirement_list.append(
@@ -259,16 +258,34 @@ def experience_requirements_engine(text, position):
 def education_requirements_engine(text, position):
     # Generates the ED1, ED2, etc.
 
-    education_requirement_list = []
+    text = scrub_definitions(text)
 
+    education_requirement_list = []
+    x = 1
+    for item in re.split('[.;]+', text):
+        if item != "":
+            item.replace("\n", "")
+            education_requirement_list.append(
+                Requirement(position=position, requirement_type="Education", abbreviation="ED" + str(x),
+                            description=item))
+            x = x + 1
     return education_requirement_list
 
 
 def assets_requirements_engine(text, position):
     # Generates A01, AO2, etc.
 
-    assets_requirement_list = []
+    text = scrub_definitions(text)
 
+    assets_requirement_list = []
+    x = 1
+    for item in re.split('[.;]+', text):
+        if item != "":
+            item.replace("\n", "")
+            assets_requirement_list.append(
+                Requirement(position=position, requirement_type="Asset", abbreviation="A" + str(x),
+                            description=item))
+            x = x + 1
     return assets_requirement_list
 
 
@@ -280,6 +297,7 @@ def save_requirement_lists(list1, list2, list3):
     for req_list in mega_list:
         for item in req_list:
             item.save()
+            print(item)
 
     return
 
@@ -340,10 +358,10 @@ def find_essential_details(pdf_poster_text, position):
     requirement_experience.save()
     requirement_assets.save()
 
-    # list1 = education_requirements_engine(requirement_education.description, position)
-    # list2 = experience_requirements_engine(requirement_experience.description, position)
-    # list3 = assets_requirements_engine(requirement_assets.description, position)
-    # save_requirement_lists(list1, list2, list3)
+    list1 = education_requirements_engine(requirement_education.description, position)
+    list2 = experience_requirements_engine(requirement_experience.description, position)
+    list3 = assets_requirements_engine(requirement_assets.description, position)
+    save_requirement_lists(list1, list2, list3)
 
     return position
 
