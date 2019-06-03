@@ -24,7 +24,10 @@ class ErrorMessages():
     unconfirmed_email = _('Email address for user not confirmed.')
     # Translators: When a user submits an invalid username and/or password.
     invalid_un_or_pw = _('Invalid username or password.')
-
+    # Translators: When a user tries to upload a faulty pdf
+    incorrect_mime_type = _('Please enter a valid pdf file.')
+    # Translators: When a user tries to upload a url other than the jobs.gc.ca posters
+    invalid_url_domain = _('Please enter a jobs.gc.ca url.')
 
 class InterfaceText():
     # Translators: Sidebar

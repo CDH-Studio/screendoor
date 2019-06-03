@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext as _
+import magic, mimetypes
 
 from .models import ScreenDoorUser, Position
 from .uservisibletext import ErrorMessages, CreatePositionFormText, \
@@ -25,20 +26,36 @@ class CreatePositionForm(forms.ModelForm):
         fields = ('pdf', 'url_ref')
         widgets = {'url_ref': forms.TextInput(attrs={'disabled': 'disabled'})}
 
-    # Ensures strictly one of: pdf or url. mg
+    # Ensures strictly one of: pdf or url.
     def clean(self):
         pdf = self.cleaned_data.get('pdf')
         url = self.cleaned_data.get('url_ref')
+        # Check for an empty form
         if not pdf and not url:
             msg = forms.ValidationError(ErrorMessages.empty_create_position_form)
             self.add_error('pdf', msg)
+        # Check for an overfilled form
         elif pdf and url:
             msg = forms.ValidationError(
                 ErrorMessages.overfilled_create_position_form)
             self.add_error('pdf', msg)
-        # TODO: validate file is genuine PDF using https://github.com/ahupp/python-magic
-        # Python implementation libmagic unix program for validating file types
-        # TODO: validate that URL is from jobs.gc.ca.
+
+        # Verify if the pdf upload has an correct mimetype (i.e. a pdf file)
+        if pdf:
+            file_type = mimetypes.MimeTypes().types_map_inv[1][
+                magic.from_buffer(self.cleaned_data['pdf'].read(), mime=True)
+            ][0]
+            if not (file_type == '.pdf'):
+                msg = forms.ValidationError(
+                    ErrorMessages.incorrect_mime_type)
+                self.add_error('pdf', msg)
+
+        # Verify if the url matches the job.gc.ca domain
+        if url:
+            if not "https://emploisfp-psjobs.cfp-psc.gc.ca" in url:
+                msg = forms.ValidationError(
+                    ErrorMessages.invalid_url_domain)
+                self.add_error('url_ref', msg)
 
         return self.cleaned_data
 

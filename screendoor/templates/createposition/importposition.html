@@ -80,9 +80,8 @@
           {% csrf_token %}
           <!-- Radio buttons to select PDF or URL -->
           <div class="row">
-            <br>
             <!-- Upload position form error messages -->
-            {% if forms.errors.pdf %}
+            {% if form.errors.pdf %}
             <span class="error-text">{{ form.errors.pdf }}</span>
             <!-- Upload position form instructions -->
             {% else %}
