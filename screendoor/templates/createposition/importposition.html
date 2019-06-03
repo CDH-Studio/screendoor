@@ -81,12 +81,13 @@
           <!-- Radio buttons to select PDF or URL -->
           <div class="row">
             <!-- Upload position form error messages -->
-            {% if form.errors.pdf %}
+            {% if form.errors %}
             <span class="error-text">{{ form.errors.pdf }}</span>
-            <!-- Upload position form instructions -->
-            {% else %}
-            <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+              <span class="error-text">{{ form.errors.url }}</span>
             {% endif %}
+            <!-- Upload position form instructions -->
+            <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+
             <br>
             <br>
             <!-- PDF upload radio button -->

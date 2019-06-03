@@ -132,7 +132,7 @@ def import_position(request):
         create_position_form = CreatePositionForm(request.POST, request.FILES)
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save()
+            position = create_position_form.save(commit=False)
             position = parse_upload(position)
 
             save_position_to_current_user(request.user, position)
