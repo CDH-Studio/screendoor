@@ -77,7 +77,7 @@ def extract_education(essential_block, position):
 
     education = scrub_hard_returns(education)
 
-    return Requirement(position=position, requirement_type="Education", abbreviation="", description=education)
+    return Requirement(position=position, requirement_type="Education", abbreviation="CONTENT", description=education)
 
 
 def extract_experience(essential_block, position):
@@ -102,7 +102,7 @@ def extract_experience(essential_block, position):
 
     experience = scrub_hard_returns(experience)
 
-    return Requirement(position=position, requirement_type="Experience", abbreviation="", description=experience)
+    return Requirement(position=position, requirement_type="Experience", abbreviation="CONTENT", description=experience)
 
 
 def extract_assets(asset_block, position):
@@ -117,7 +117,7 @@ def extract_assets(asset_block, position):
 
     assets = scrub_hard_returns(assets)
 
-    return Requirement(position=position, requirement_type="Assets", abbreviation="", description=assets)
+    return Requirement(position=position, requirement_type="Assets", abbreviation="CONTENT", description=assets)
 
 
 def extract_job_title(text):
