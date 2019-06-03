@@ -10,10 +10,18 @@
       <label class="card-title col s12" for="register">{{ register_form.text }}</label>
       {% csrf_token %}
       <div class="col s12">
-        <!-- Registration success message -->
-        {% if success %}<div class="success-text">{{ success }}</div>{% endif %}
+        <!-- Account created success message -->
+        {% if account_created is not None %}
+        <span class="success-text">{{ account_created }}</span>
+        {% endif %}
         <!-- Registration error messages related to e-mail address -->
+        {% if login_form.errors.email is not None %}
         <span class="error-text">{{ register_form.errors.email }}</span>
+        {% endif %}
+        <!-- Registration error messages related to password -->
+        {% if login_form.errors.password2 is not None %}
+        <span class="error-text">{{ register_form.errors.password2 }}</span>
+        {% endif %}
       </div>
       <!-- Email label and input -->
       <div class="input-field col s12">
@@ -30,13 +38,13 @@
         {{ register_form.password2.label_tag }}
         {{ register_form.password2 }}
       </div>
-      <!-- Registration error messages related to password -->
-      <div class="col s12">
-        <span class="error-text">{{ register_form.errors.password2 }}</span>
-      </div>
       <!-- Create account button and login redirect button -->
       <div class="row">
+        {% if account_created is not None %}
+        <input class="right btn btn-margin disabled" type="submit" value="{{ register_form.text }}">
+        {% else %}
         <input class="right btn btn-margin" type="submit" value="{{ register_form.text }}">
+        {% endif %}
         <a class="btn-flat btn-margin waves-effect right" href="{% url 'login' %}">{{ register_form.login_button_text }}</a>
       </div>
     </div>

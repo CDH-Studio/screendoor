@@ -10,13 +10,16 @@ class StandardFormText():
 
 class ErrorMessages():
     # Translators: When a user tries to upload a blank position form.
-    empty_create_position_form = _('Please enter either a pdf file or a url link.')
+    empty_create_position_form = _(
+        'Please enter either a pdf file or a url link.')
     # Translators: When a user tries to upload a position form with too much data.
-    overfilled_create_position_form = _('Please enter *either* a pdf file or a url link, but not both.')
+    overfilled_create_position_form = _(
+        'Please enter *either* a pdf file or a url link, but not both.')
     # Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
     user_already_exists = _('Username %s already exists.')
     # Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
-    invalid_email_domain = _('Invalid e-mail address domain: %s. Canada.ca email required.')
+    invalid_email_domain = _(
+        'Invalid e-mail address domain: %s. Canada.ca email required.')
     # Translators: When a user tries to login with an unauthenticated account
     unconfirmed_email = _('Email address for user not confirmed.')
     # Translators: When a user submits an invalid username and/or password.
@@ -25,7 +28,7 @@ class ErrorMessages():
 
 class InterfaceText():
     # Translators: Sidebar
-    view_positions =_('View Positions')
+    view_positions = _('View Positions')
     # Translators: Sidebar
     new_position = _('New Position')
     # Translators: Sidebar
@@ -36,7 +39,8 @@ class InterfaceText():
 
 class PositionText():
     # Translators: Confirming Position Information
-    we_think_this_is_correct =_('We think this is the position. Can you take a look and make sure it is correct?')
+    we_think_this_is_correct = _(
+        'We think this is the position. Can you take a look and make sure it is correct?')
     # Translators: Confirming Position Information
     classification = _('Classification')
     # Translators: Confirming Position Information
@@ -61,7 +65,8 @@ class CreatePositionFormText():
     # Translators: CreatePositionForm
     upload_new_position = _("Upload New Position")
     # Translators: CreatePositionForm
-    please_select_either_filetype = _("Please select either PDF or link to the jobs.gc.ca posting")
+    please_select_either_filetype = _(
+        "Please select either PDF or link to the jobs.gc.ca posting")
     # Translators: CreatePositionForm
     pdf = _("PDF")
     # Translators: CreatePositionForm
@@ -91,7 +96,7 @@ class CreateAccountFormText():
     have_an_account_sign_in = _("Have an account? Sign in")
     # Translators: CreatePositionForm
     account_created = _(
-        "Account created. Please check your e-mail for an activation link")
+        "Account %s created. Please check your e-mail for an activation link.")
 
 
 class LoginFormText():
@@ -99,9 +104,10 @@ class LoginFormText():
     login = _("Login")
     # Translators: LoginForm
     password = _('Password')
+    # Translators: LoginForm
+    account_confirmed = _("Account %s confirmed. Please sign in below.")
 
 
-
-#translate command (in web sh): python manage.py makemessages -l pl
-#note: Translators: is specific syntax that makes the comment appear in the translation file
-#dont omit it
+# translate command (in web sh): python manage.py makemessages -l pl
+# note: Translators: is specific syntax that makes the comment appear in the translation file
+# dont omit it

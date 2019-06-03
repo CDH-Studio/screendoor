@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, LoginFormText
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
 from .models import EmailAuthenticateToken
@@ -30,13 +30,15 @@ def register_form(request):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         register_form = ScreenDoorUserCreationForm(request.POST)
-        # check whether it's valid
+        # check whether form data is valid
         if register_form.is_valid():
-            # Success
-            send_user_email(request, create_account(request))
+            # Create user
+            user = create_account(request)
+            # Send confirmation e-mail
+            send_user_email(request, user)
             # Redirects to...
             return render(request, 'registration/register.html',
-                          {'register_form': register_form, 'success': CreateAccountFormText.account_created})
+                          {'register_form': register_form, 'account_created': format(CreateAccountFormText.account_created % user)})
             # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
@@ -78,23 +80,6 @@ def generate_confirmation_url(request, user):
     return "http://localhost:8000/confirm?key=" + str(token.key)
 
 
-def confirm_account(request):
-    if request.method == 'GET':
-        account_key = request.GET.get('key')
-        # Is the token valid in the database
-        if EmailAuthenticateToken.objects.filter(key=account_key).exists():
-            token = EmailAuthenticateToken.objects.get(key=account_key)
-            user = token.user
-            user.email_confirmed = True
-            user.save()
-            token.delete()
-            # TODO: Display message on redirect (to login) showing email confirmation
-            return redirect('home')
-        else:
-            # TODO: Nicer error message display
-            return HttpResponse("Invalid key. Please contact site administrator.")
-
-
 def login_form(request):
     # If user is not logged in, display login form
     if not request.user.is_authenticated:
@@ -108,6 +93,21 @@ def login_form(request):
                 user = form.get_user()
                 login(request, user)
                 return redirect('home')
+        if request.GET.get('key') is not None:
+            account_key = request.GET.get('key')
+            # Is the token valid in the database
+            if EmailAuthenticateToken.objects.filter(key=account_key).exists():
+                token = EmailAuthenticateToken.objects.get(key=account_key)
+                user = token.user
+                user.email_confirmed = True
+                user.save()
+                token.delete()
+                # Display account confirmation message
+                return render(request, 'registration/login.html',
+                              {'login_form': form, 'account_confirmed': format(LoginFormText.account_confirmed % user.email)})
+            # Display validation error message
+            return render(request, 'registration/login.html',
+                          {'login_form': form, 'account_confirmed': LoginFormText.account_confirmed})
         # Display login page
         return render(request, 'registration/login.html',
                       {'login_form': form})

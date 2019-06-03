@@ -11,9 +11,23 @@
       <!-- Displays "Login" -->
       <label class="card-title col s12" for="login">{{ login_form.login_text }}</label>
       {% csrf_token %}
-      <!-- Error-display relating to e-mail address -->
       <div class="col s12">
+        <!-- Account confirmed success message -->
+        {% if account_confirmed is not None %}
+        <span class="success-text">{{ account_confirmed }}</span>
+        {% endif %}
+        <!-- Account validation error message -->
+        {% if validation_error is not None %}
+        <span class="error-text">{{ validation_error }}</span>
+        {% endif %}
+        <!-- Error-display relating to e-mail address -->
+        {% if login_form.errors.email is not None %}
         <span class="error-text">{{ login_form.errors.email }}</span>
+        {% endif %}
+        <!-- Error-display relating to password -->
+        {% if login_form.errors.password is not None %}
+        <span class="error-text">{{ login_form.errors.password }}</span>
+        {% endif %}
       </div>
       <!-- Input and label for e-mail/username -->
       <div class="input-field col s12">
@@ -24,12 +38,6 @@
       <div class="input-field col s12">
         {{ login_form.password.label_tag }}
         {{ login_form.password }}
-      </div>
-      <!-- Error-display relating to password -->
-      <div class="col s12">
-        {% if login_form.errors.password is not None %}
-        <span class="error-text">{{ login_form.errors.password }}</span>
-        {% endif %}
       </div>
       <!-- Create account and login buttons -->
       <div class="row">
