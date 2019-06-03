@@ -405,6 +405,7 @@ table, th, td {
 }
 
 table {
+  table-layout: fixed;
   width:100%;
   display: table;
   border-collapse: collapse;
@@ -445,7 +446,7 @@ tr {
 }
 
 td, th{
-  padding: 15px 5px;
+  padding: 10px 5px;
   display: table-cell;
   text-align: left;
   vertical-align: middle;

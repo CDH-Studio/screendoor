@@ -6,6 +6,14 @@
     margin-bottom: -15px;
 }
 
+.btn-left {
+    margin-left: 15px;
+}
+
+.btn-pad {
+    margin: ($h4-fontsize / 5) 0 ($h4-fontsize / 2.5) 15;
+}
+
 .btn,
 .btn-flat {
   border: $button-border;

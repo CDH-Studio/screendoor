@@ -119,13 +119,13 @@ def login_form(request):
     return redirect('home')
 
 
-@login_required(login_url='login/', redirect_field_name=None)
+@login_required(login_url='/login/', redirect_field_name=None)
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
-@login_required(login_url='login/', redirect_field_name=None)
+@login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
     # String required for sidebar display in template.
     # Strings such as this should all be moved to an external file to avoid repetition
@@ -141,11 +141,11 @@ def import_position(request):
             # Add position to user (test, may be moved)
             save_position_to_current_user(request.user, position)
 
-            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'userVisibleText': PositionText})
+            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'baseVisibleText': InterfaceText, 'userVisibleText': PositionText})
     # blank form
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': create_position_form, 'userVisibleText': InterfaceText
+        'form': create_position_form, 'baseVisibleText': InterfaceText
     })
 
 
