@@ -86,6 +86,10 @@ def login_form(request):
         form = LoginForm()
         # Has the user hit login button
         if request.method == 'POST':
+            # Clears any GET data
+            request.GET._mutable = True
+            request.GET['key'] = None
+            request.GET._mutable = False
             # Instantiate form object
             form = LoginForm(request.POST)
             # Validates form and persists username data
@@ -107,7 +111,7 @@ def login_form(request):
                               {'login_form': form, 'account_confirmed': format(LoginFormText.account_confirmed % user.email)})
             # Display validation error message
             return render(request, 'registration/login.html',
-                          {'login_form': form, 'account_confirmed': LoginFormText.account_confirmed})
+                          {'login_form': form, 'validation_error': LoginFormText.validation_error})
         # Display login page
         return render(request, 'registration/login.html',
                       {'login_form': form})

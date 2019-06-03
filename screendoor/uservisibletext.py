@@ -106,6 +106,9 @@ class LoginFormText():
     password = _('Password')
     # Translators: LoginForm
     account_confirmed = _("Account %s confirmed. Please sign in below.")
+    # Translators: LoginForm
+    validation_error = _(
+        "Validation token error: invalid link or account is already confirmed.")
 
 
 # translate command (in web sh): python manage.py makemessages -l pl
