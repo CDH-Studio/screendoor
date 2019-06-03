@@ -111,7 +111,7 @@ class Position(models.Model):
         Applicant, symmetrical=False, blank=True)
     position_title = models.CharField(max_length=200, blank=True)
     date_closed = models.DateField(null=True, blank=True)
-    num_positions = models.PositiveIntegerField(null=True, blank=True)
+    num_positions = models.CharField(max_length=200, blank=True)
     salary_min = models.DecimalField(
         decimal_places=2, max_digits=10, null=True, blank=True)
     salary_max = models.DecimalField(
