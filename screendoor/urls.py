@@ -11,6 +11,6 @@ urlpatterns = [
     path('register/', views.register_form, name='register'),
     path('login/', views.login_form, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('confirm/', views.confirm_account, name='confirm_account'),
+    path('confirm/', views.login_form, name='confirm_account'),
     path('createnewposition/', views.import_position, name='importposition'),
 ]
