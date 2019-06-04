@@ -6,7 +6,7 @@
     draggable: true,
     inDuration: 250,
     outDuration: 200,
-    onOpenStart: null,
+    onOpenStart: this.close(),
     onOpenEnd: null,
     onCloseStart: null,
     onCloseEnd: null,
@@ -174,7 +174,7 @@
 
         let sidenavInstance = document.getElementById(sidenavId).M_Sidenav;
         if (sidenavInstance) {
-          sidenavInstance.open($trigger);
+          /* sidenavInstance.open($trigger); */
         }
         e.preventDefault();
       }
@@ -356,18 +356,17 @@
      * Handle Window Resize
      */
     _handleWindowResize() {
-      // Only handle horizontal resizes
-      if (this.lastWindowWidth !== window.innerWidth) {
-        if (window.innerWidth > 992) {
-          this.open();
-        } else {
-          this.close();
-        }
+      /*       Only handle horizontal resizes */
+      if (window.innerWidth > 992 && JSON.parse(localStorage.getItem('sidenavOpen'))) {
+        this.open();
+      } else {
+        this.close();
       }
-
-      this.lastWindowWidth = window.innerWidth;
-      this.lastWindowHeight = window.innerHeight;
     }
+
+    this.lastWindowWidth = window.innerWidth;
+    this.lastWindowHeight = window.innerHeight;
+  }
 
     _setupClasses() {
       if (this.options.edge === 'right') {
@@ -383,7 +382,8 @@
 
     _setupFixed() {
       if (this._isCurrentlyFixed()) {
-        this.open();
+        /* this.open(); */
+        this.close();
       }
     }
 
@@ -445,9 +445,9 @@
     }
 
     close() {
-      if (this.isOpen === false) {
-        return;
-      }
+      /* if (this.isOpen === false) {
+       *   return;
+       * } */
 
       this.isOpen = false;
 

@@ -5839,7 +5839,8 @@ $jscomp.polyfill = function (e, r, p, m) {
       value: function _handleWindowResize() {
         // Only handle horizontal resizes
         if (this.lastWindowWidth !== window.innerWidth) {
-          if (window.innerWidth > 992) {
+          /* Checks for saved sidebar state */
+          if (window.innerWidth > 992 && JSON.parse(localStorage.getItem('sidenavOpen'))) {
             this.open();
           } else {
             this.close();
@@ -5867,7 +5868,8 @@ $jscomp.polyfill = function (e, r, p, m) {
       key: "_setupFixed",
       value: function _setupFixed() {
         if (this._isCurrentlyFixed()) {
-          this.open();
+          /* this.open(); */
+          this.close();
         }
       }
     }, {
@@ -5935,9 +5937,9 @@ $jscomp.polyfill = function (e, r, p, m) {
     }, {
       key: "close",
       value: function close() {
-        if (this.isOpen === false) {
-          return;
-        }
+        /* if (this.isOpen === false) {
+         *   return;
+         * } */
 
         this.isOpen = false;
 

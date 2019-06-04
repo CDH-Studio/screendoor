@@ -1,13 +1,16 @@
 {% extends '../base_logged_in.html' %}
 {% load static %}
 {% block content %}
-<script src="{% static 'js/collapsible.js' %}"></script>
 <script>
- /* Submit form in case submission has already taken place */
-
  /* Display persisted form information, or if none exists, hide PDF and URL forms */
  window.onload = function() {
-   if (localStorage.length > 0) {
+   if (localStorage.getItem('pdfRequired') === null) {
+     document.getElementById('pdf_upload_form').style.display = 'none';
+     document.getElementById('url_upload_form').style.display = 'none';
+     document.getElementById('position_submit_button').style.display = 'none';
+     document.getElementById('radio_pdf').checked = false;
+     document.getElementById('radio_url').checked = false;
+   } else {
      document.getElementById('pdf_input').required = localStorage.getItem('pdfRequired');
      document.getElementById('url_input').required = !localStorage.getItem('pdfRequired');
      document.getElementById('pdf_path_input').value = localStorage.getItem('pdfText');
@@ -17,13 +20,7 @@
      document.getElementById('url_upload_form').style.display = localStorage.getItem('urlDisplay');
      document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
      document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
-     localStorage.clear();
-   } else {
-     document.getElementById('pdf_upload_form').style.display = 'none';
-     document.getElementById('url_upload_form').style.display = 'none';
-     document.getElementById('position_submit_button').style.display = 'none';
-     document.getElementById('radio_pdf').checked = false;
-     document.getElementById('radio_url').checked = false;
+     clearExceptSidebar();
    }
  };
  /* Persist the form data to display alongside processed position */

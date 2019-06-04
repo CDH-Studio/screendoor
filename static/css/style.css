@@ -25,25 +25,22 @@
  */
 
 
-.sidenav{
-  /* top: 65px; */
-  width: 300px;
-}
+/* .sidenav{
+   top: 65px;
+   width: 300px;
+   } */
 
 header, main, footer {
   padding-left: 300px;
 }
 
 .menu-button {
-  margin-right: -15px;
+  margin-right: -5px !important;
+  padding-left: 15px;
 }
 
 @media only screen and (max-width : 992px) {
   header, main, footer {
     padding-left: 0;
-  }
-
-  .menu-button {
-    display: none;
   }
 }

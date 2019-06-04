@@ -3,30 +3,30 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-<script src="{% static 'js/forms.js' %}"></script>
 <script src="{% static 'js/materialize.js' %}"></script>
-<script src="{% static 'js/sidenav.js' %}"></script>
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
-  <header>
+  <header id="base-header">
     <nav>
       <div class="nav-wrapper">
-        <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons menu-button">menu</i></a>
+        <a id="toggle_sidenav" href="#"><i class="material-icons left menu-button">menu</i></a>
         <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
       </div>
     </nav>
   </header>
-  <!-- Sidebar menu -->
+  <!-- End of top navbar -->
+  <!-- Beginning of sidebar menu -->
   <ul id="slide-out" class="sidenav sidenav-fixed">
     <br>
-    <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
+    <li><a href=""><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
     <li><a href="/"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
     <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
     <li><a href="/logout"><i class="material-icons">arrow_back</i>{{ baseVisibleText.logout }}</a></li>
   </ul>
-  <!-- Page Layout here -->
-  <main>
+  <!-- End of sidebar menu -->
+  <!-- Beginning of page content -->
+  <main id="base-main">
     <div class="container valign-wrapper form-cards">
       <div class="row card-center">
         {% block content %}
@@ -34,11 +34,93 @@
       </div>
     </div>
   </main>
+  <!-- End of page content -->
+  <script type="text/javascript">
+   /* Register sidenav and related variables */
+   let elems = document.querySelectorAll('.sidenav-fixed'),
+       instances = M.Sidenav.init(elems, {}/* options */),
+       elem = document.querySelector('.sidenav-fixed'),
+       instance = M.Sidenav.getInstance(elem);
+
+   /* Initialize sidenav to close and load storage */
+   function initSideNav() {
+     closeSideNav();
+
+     /* Open sidebar if saved state is to open */
+     if (JSON.parse(localStorage.getItem('sidenavOpen'))) {
+       openSideNav();
+     }
+     fixPaddingWidth();
+   }
+
+   /* Listener for page load */
+   window.addEventListener('DOMContentLoaded', (event) => {
+     initSideNav();
+   });
+
+   /* Clears all local storage except sidebar open boolean */
+   function clearExceptSidebar() {
+     let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
+     localStorage.clear();
+     localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+   }
+
+   /* Adjusts navbar and body main padding if window is > 992px width */
+   function fixPaddingWidth() {
+     if (!isWindowFullSize()) {
+       removeSidenavPadding();
+     } else if (isWindowFullSize() && JSON.parse(localStorage.getItem('sidenavOpen'))) {
+       addSidenavPadding();
+     }
+   }
+
+   /* Listen for window size changes */
+   window.addEventListener('resize', function() {
+     fixPaddingWidth();
+   });
+
+   /* Listen for menu button clicks */
+   document.querySelector("#toggle_sidenav").addEventListener('click', function() {
+     toggleSidebar();
+   });
+
+   /* Toggle sidebar */
+   function toggleSidebar() {
+     instance.isOpen ? closeSideNav() : openSideNav();
+     localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+   }
+
+   /* Change CSS to add padding when sidenav opened */
+   function addSidenavPadding() {
+     document.getElementById('base-header').style.paddingLeft = "300";
+     document.getElementById('base-main').style.paddingLeft = "300";
+   }
+
+   /* Change CSS to remove padding when sidenav closed */
+   function removeSidenavPadding() {
+     document.getElementById('base-header').style.paddingLeft = "0";
+     document.getElementById('base-main').style.paddingLeft = "0";
+   }
+
+   /* Is the window above 992 pixels */
+   function isWindowFullSize() {
+     return window.innerWidth > 992;
+   }
+
+   /* Open sidenav */
+   function openSideNav() {
+     instance.open();
+     if (isWindowFullSize()) {
+       addSidenavPadding();
+     }
+   }
+
+   /* Close sidenav */
+   function closeSideNav() {
+     instance.close();
+     if (isWindowFullSize()) {
+       removeSidenavPadding();
+     }
+   }
+  </script>
 </body>
-<script type="text/javascript">
- /* Script required for side menu */
- document.addEventListener('DOMContentLoaded', function() {
-   var elems = document.querySelectorAll('.sidenav');
-   var instances = M.Sidenav.init(elems, {}/* options */);
- });
-</script>

@@ -22,7 +22,7 @@ from screendoor.parseposter import parse_upload
 def index(request):
     # Returns main page
     return render(request, 'index.html',
-                  {'user': request.user, 'userVisibleText': InterfaceText})
+                  {'user': request.user, 'baseVisibleText': InterfaceText})
 
 
 def register_form(request):
