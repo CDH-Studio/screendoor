@@ -18,7 +18,7 @@
   <!-- Beginning of sidebar menu -->
   <ul id="slide-out" class="sidenav sidenav-fixed">
     <br>
-    <li><a href=""><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
+    <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
     <li><a href="/"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
     <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
