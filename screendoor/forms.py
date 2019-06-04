@@ -26,7 +26,7 @@ class CreatePositionForm(forms.ModelForm):
         fields = ('pdf', 'url_ref')
         widgets = {'url_ref': forms.TextInput(attrs={'disabled': 'disabled'})}
 
-    # Ensures strictly one of: pdf or url.
+
     def clean(self):
         pdf = self.cleaned_data.get('pdf')
         url = self.cleaned_data.get('url_ref')
