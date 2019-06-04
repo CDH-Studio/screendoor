@@ -3,15 +3,15 @@
 {% block content %}
 <script src="{% static 'js/collapsible.js' %}"></script>
 <script>
- /* TODO: Function to persist the form values after submit is clicked
-    and the position information is displayed*/
- /* Make file and URL forms invisible on page load */
+ /* Submit form in case submission has already taken place */
+
+ /* Display persisted form information, or if none exists, hide PDF and URL forms */
  window.onload = function() {
    if (localStorage.length > 0) {
      document.getElementById('pdf_input').required = localStorage.getItem('pdfRequired');
-     document.getElementById('url_input').required = localStorage.getItem('urlRequired');
+     document.getElementById('url_input').required = !localStorage.getItem('pdfRequired');
      document.getElementById('pdf_path_input').value = localStorage.getItem('pdfText');
-     /* document.getElementById('pdf_input').value = localStorage.getItem('pdfFile'); */
+     document.getElementById('pdf_input').value = null;
      document.getElementById('url_input').value = localStorage.getItem('urlText');
      document.getElementById('pdf_upload_form').style.display = localStorage.getItem('pdfDisplay');
      document.getElementById('url_upload_form').style.display = localStorage.getItem('urlDisplay');
@@ -26,12 +26,11 @@
      document.getElementById('radio_url').checked = false;
    }
  };
+
+ /* Persist the form data to display alongside processed position */
  function persistUploaded() {
-   localStorage.clear();
    localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
-   localStorage.setItem('urlRequired', document.getElementById('url_input').required);
    localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
-   localStorage.setItem('pdfFile', document.getElementById('pdf_input').value);
    localStorage.setItem('urlText', document.getElementById('url_input').value);
    localStorage.setItem('pdfDisplay', document.getElementById('pdf_upload_form').style.display);
    localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').style.display);
@@ -57,10 +56,6 @@
    document.getElementById('url_input').required = true;
    document.getElementById('position_submit_button').style.display = 'block';
  }
- document.addEventListener('DOMContentLoaded', function() {
-   var elems = document.querySelectorAll('.collapsible');
-   var instances = M.Collapsible.init(elems, {} /* options */);
- });
 </script>
 <!-- <div class="container"> -->
 <!--Beginning of upload position card -->
@@ -71,7 +66,7 @@
     <div class="col s12 card horizontal hoverable">
       {% endif %}
       <!-- Beginning of form -->
-      <form method="post" enctype="multipart/form-data" action="">
+      <form method="post" id="upload_position" enctype="multipart/form-data" action="">
         <div class="card-content col s12">
           <!-- Upload position title -->
           <div class="row">
@@ -156,7 +151,7 @@
           <input class="btn-small btn-left btn-pad" type="submit" value="{{ userVisibleText.save }}">
         </div>
       </div>
-      <!-- Position title row -->
+      <!-- Position row 1 headers -->
       <table class="highlight">
         <thead>
           <tr>
@@ -165,6 +160,7 @@
             <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
           </tr>
         </thead>
+        <!-- Position row 1 body -->
         <tbody>
           <tr>
             <td colspan="1">{{ position.classification }}</td>
@@ -172,6 +168,7 @@
             <td colspan="2">{{ position.selection_process_number }}</td>
           </tr>
         </tbody>
+        <!-- Position row 2 headers -->
         <thead>
           <tr>
             <th colspan="1">{{ userVisibleText.date_closed }}</th>
@@ -180,6 +177,7 @@
             <th colspan="2">{{ userVisibleText.open_to }}</th>
           </tr>
         </thead>
+        <!-- Position row 2 body -->
         <tbody>
           <tr>
             <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
@@ -188,17 +186,21 @@
             <td colspan="2">{{ position.open_to }}</td>
           </tr>
         </tbody>
+        <!-- Position row 3 header -->
         <thead>
           <tr>
             <th colspan="5">{{ userVisibleText.position_information }}</th>
           </tr>
         </thead>
+        <!-- Position row 3 body -->
         <tbody>
           <tr>
             <td colspan="5">{{ position.description }}</td>
           </tr>
         </tbody>
       </table>
+      <!-- Position education and experience rows -->
+      <!-- TODO: Change for updated data model -->
       <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
       <table class="highlight">
         {% for req in position.requirement_set.all reversed %}
@@ -206,13 +208,10 @@
           <tr>
             {% if forloop.counter is 1 %}
             <th colspan="5">{{ userVisibleText.education }}</th>
-
             {% elif forloop.counter is 2 %}
             <th colspan="5">{{ userVisibleText.experience }}</th>
-
             {% elif forloop.counter is 3 %}
             <th colspan="5">{{ userVisibleText.assets }}</th>
-
             {% endif %}
           </tr>
         </thead>
@@ -228,6 +227,5 @@
 </div>
 <!-- </div> -->
 {% endif %}
-<!-- </div> -->
 <!-- End of position display -->
 {% endblock %}
