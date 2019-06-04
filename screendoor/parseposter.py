@@ -382,8 +382,7 @@ def parse_upload(position):
     # using tika and process using find_essential_details method. If false, process url.
     if position.pdf.name:
         os.chdir("..")
-        pdf_file_path = os.path.join(BASE_DIR, position.pdf.url)
-        file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
+        file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
         if "Selection process number:" in job_poster_text:
             position = find_essential_details(job_poster_text, position)

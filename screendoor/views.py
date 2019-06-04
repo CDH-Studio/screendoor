@@ -127,21 +127,25 @@ def logout_view(request):
 
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
-    # String required for sidebar display in template.
-    # Strings such as this should all be moved to an external file to avoid repetition
-    welcome_message = format(_("Welcome, %s") % request.user.first_name)
     if request.method == 'POST':
         # valid form
         create_position_form = CreatePositionForm(request.POST, request.FILES)
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save()
+            position = create_position_form.save(commit=False)
             position = parse_upload(position)
 
-            # Add position to user (test, may be moved)
             save_position_to_current_user(request.user, position)
 
-            return render(request, 'createposition/importposition.html', {'position': position, 'form': create_position_form, 'baseVisibleText': InterfaceText, 'userVisibleText': PositionText})
+            return render(request, 'createposition/importposition.html',
+                          {'position': position, 'form': create_position_form,
+                           'baseVisibleText': InterfaceText,
+                           'userVisibleText': PositionText})
+        else:
+            return render(request, 'createposition/importposition.html',
+                          {'form': create_position_form,
+                           'baseVisibleText': InterfaceText,
+                           'userVisibleText': PositionText})
     # blank form
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {

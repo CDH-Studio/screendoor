@@ -75,13 +75,14 @@
           {% csrf_token %}
           <!-- Radio buttons to select PDF or URL -->
           <div class="row">
-            <br>
             <!-- Upload position form error messages -->
-            {% if form.errors.pdf %}
+            {% if form.errors %}
             <span class="error-text">{{ form.errors.pdf }}</span>
+              <span class="error-text">{{ form.errors.url_ref }}</span>
             {% endif %}
             <!-- Upload position form instructions -->
             <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+
             <br>
             <br>
             <!-- PDF upload radio button -->
