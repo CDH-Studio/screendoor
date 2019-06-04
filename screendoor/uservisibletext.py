@@ -28,6 +28,8 @@ class ErrorMessages():
     incorrect_mime_type = _('Please enter a valid pdf file.')
     # Translators: When a user tries to upload a url other than the jobs.gc.ca posters
     invalid_url_domain = _('Please enter a jobs.gc.ca url.')
+    # Translators: When a user tries to upload a pdf we cant parse
+    incorrect_pdf_file = _('Unable to parse pdf. Please enter a valid pdf file.')
 
 class InterfaceText():
     # Translators: Sidebar

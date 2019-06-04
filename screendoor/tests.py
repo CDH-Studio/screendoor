@@ -4,7 +4,7 @@ from .models import ScreenDoorUser
 from django.test.client import Client
 from django.urls import reverse
 from .uservisibletext import ErrorMessages
-
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class UserRegistrationTests(TestCase):
@@ -76,11 +76,17 @@ class CreatePositionTests(TestCase):
             username="good@canada.ca", email="good@canada.ca",
             password="password76")
         self.user.save()
+        self.pdf_file = SimpleUploadedFile("tests/Sample Job Poster.pdf",
+                                           b"file_content",
+                                           content_type="application/pdf")
+        self.html_file = SimpleUploadedFile("tests/Sample Job Poster.html",
+                                           b"file_content",
+                                           content_type="application/html")
 
     def test_logged_out_user_gets_redirected(self):
         response = self.c.get(reverse('importposition'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "screendoor/login/")
+        self.assertRedirects(response, "/login/")
 
     def test_logged_in_user_doesnt_get_redirected(self):
         self.c.login(username="good@canada.ca", password="password76")
@@ -95,12 +101,27 @@ class CreatePositionTests(TestCase):
     def test_reject_overfilled_form(self):
         form = CreatePositionForm(data={'url_ref': 'http://localhost:8000/createnewposition'})
         form.fields['url_ref'].initial = "http://localhost:8000/createnewposition"
-        form.fields['pdf'].initial = "positions/heck.pdf"
+        form.fields['pdf'].initial = self.pdf_file
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors['pdf'], ErrorMessages.overfilled_create_position_form)
 
+    #needs to be verbose, else the mime type gets identified as .ksh
     def test_pass_good_form(self):
+        with open(
+                'tests/Sample Job Poster.pdf'.format("Sample Job Poster.pdf"),
+                'rb') as file:
+            form = CreatePositionForm(data={})
+            form.fields['pdf'].initial = file
+            self.assertTrue(form.is_valid())
+
+    def test_reject_bad_file_type(self):
         form = CreatePositionForm(data={})
-        form.fields['pdf'].initial = "positions/heck.pdf"
-        self.assertTrue(form.is_valid())
+        form.fields['pdf'].initial = self.html_file
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['pdf'], ErrorMessages.incorrect_mime_type)
+
+    def test_reject_bad_url(self):
+        form = CreatePositionForm(data={'url_ref': 'http://localhost:8000/createnewposition'})
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['url_ref'], ErrorMessages.invalid_url_domain)
 #python manage.py test

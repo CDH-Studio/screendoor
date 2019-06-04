@@ -137,7 +137,7 @@ class Requirement(models.Model):
     description = models.CharField(max_length=5000)
 
     def __str__(self):
-        return self.abbreviation
+        return self.position.__str__() + " - " + self.abbreviation
 
 
 class ScreenDoorUser(AbstractUser):
