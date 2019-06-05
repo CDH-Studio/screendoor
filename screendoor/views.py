@@ -1,15 +1,13 @@
 from string import digits
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext as _
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, LoginFormText
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
-from .models import EmailAuthenticateToken
+from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
@@ -20,6 +18,7 @@ from screendoor.parseposter import parse_upload
 
 @login_required(login_url='login/', redirect_field_name=None)
 def index(request):
+    return redirect('positions')
     # Returns main page
     return render(request, 'index.html',
                   {'user': request.user, 'baseVisibleText': InterfaceText})
@@ -128,8 +127,10 @@ def logout_view(request):
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
+        # if request.POST.get("upload-position"):
         # valid form
-        create_position_form = CreatePositionForm(request.POST, request.FILES)
+        create_position_form = CreatePositionForm(
+            request.POST, request.FILES)
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
             position = create_position_form.save(commit=False)
@@ -137,24 +138,26 @@ def import_position(request):
             errors = d.get('errors')
             if errors:
                 create_position_form.add_error('pdf', errors)
-
-            #second check
+            # second check
             if create_position_form.is_valid():
                 position = d.get('position')
-                # save_position_to_current_user(request.user, position)
-
+                # Persist position ID in session for saving and editing
+                request.session['position_id'] = position.id
                 # Successful render of a position
                 return render(request, 'createposition/importposition.html',
-                          {'position': position, 'form': create_position_form,
+                              {'position': position, 'form': create_position_form,
+                               'baseVisibleText': InterfaceText,
+                               'userVisibleText': PositionText})
+
+            # Default view for a form with errors
+            return render(request, 'createposition/importposition.html',
+                          {'form': create_position_form,
                            'baseVisibleText': InterfaceText,
                            'userVisibleText': PositionText})
-
-        # Default view for a form with errors
-        return render(request, 'createposition/importposition.html',
-            {'form': create_position_form,
-                'baseVisibleText': InterfaceText,
-                'userVisibleText': PositionText})
-
+        if request.POST.get("save-position"):
+            position = Position.objects.get(id=request.session['position_id'])
+            request.user.positions.add(position)
+            return redirect('home')
     # view for a GET request instead of a POST request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
@@ -162,5 +165,8 @@ def import_position(request):
     })
 
 
-def save_position_to_current_user(user, position):
-    user.positions.add(position)
+@login_required(login_url='/login/', redirect_field_name=None)
+def positions(request):
+    return render(request, 'positions.html', {
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all
+    })

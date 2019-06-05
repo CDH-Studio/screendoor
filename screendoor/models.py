@@ -124,6 +124,8 @@ class Position(models.Model):
     pdf = models.FileField(upload_to="positions/", validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
                            blank=True)
     url_ref = models.URLField(max_length=200, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.position_title
