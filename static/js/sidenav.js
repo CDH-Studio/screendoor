@@ -368,202 +368,201 @@
     this.lastWindowHeight = window.innerHeight;
   }
 
-    _setupClasses() {
-      if (this.options.edge === 'right') {
-        this.el.classList.add('right-aligned');
-        this.dragTarget.classList.add('right-aligned');
-      }
-    }
-
-    _removeClasses() {
-      this.el.classList.remove('right-aligned');
-      this.dragTarget.classList.remove('right-aligned');
-    }
-
-    _setupFixed() {
-      if (this._isCurrentlyFixed()) {
-        /* this.open(); */
-        this.close();
-      }
-    }
-
-    _isCurrentlyFixed() {
-      return this.isFixed && window.innerWidth > 992;
-    }
-
-    _createDragTarget() {
-      let dragTarget = document.createElement('div');
-      dragTarget.classList.add('drag-target');
-      document.body.appendChild(dragTarget);
-      this.dragTarget = dragTarget;
-    }
-
-    _preventBodyScrolling() {
-      let body = document.body;
-      body.style.overflow = 'hidden';
-    }
-
-    _enableBodyScrolling() {
-      let body = document.body;
-      body.style.overflow = '';
-    }
-
-    open() {
-      if (this.isOpen === true) {
-        return;
-      }
-
-      this.isOpen = true;
-
-      // Run onOpenStart callback
-      if (typeof this.options.onOpenStart === 'function') {
-        this.options.onOpenStart.call(this, this.el);
-      }
-
-      // Handle fixed Sidenav
-      if (this._isCurrentlyFixed()) {
-        anim.remove(this.el);
-        anim({
-          targets: this.el,
-          translateX: 0,
-          duration: 0,
-          easing: 'easeOutQuad'
-        });
-        this._enableBodyScrolling();
-        this._overlay.style.display = 'none';
-
-        // Handle non-fixed Sidenav
-      } else {
-        if (this.options.preventScrolling) {
-          this._preventBodyScrolling();
-        }
-
-        if (!this.isDragged || this.percentOpen != 1) {
-          this._animateIn();
-        }
-      }
-    }
-
-    close() {
-      /* if (this.isOpen === false) {
-       *   return;
-       * } */
-
-      this.isOpen = false;
-
-      // Run onCloseStart callback
-      if (typeof this.options.onCloseStart === 'function') {
-        this.options.onCloseStart.call(this, this.el);
-      }
-
-      // Handle fixed Sidenav
-      if (this._isCurrentlyFixed()) {
-        let transformX = this.options.edge === 'left' ? '-105%' : '105%';
-        this.el.style.transform = `translateX(${transformX})`;
-
-        // Handle non-fixed Sidenav
-      } else {
-        this._enableBodyScrolling();
-
-        if (!this.isDragged || this.percentOpen != 0) {
-          this._animateOut();
-        } else {
-          this._overlay.style.display = 'none';
-        }
-      }
-    }
-
-    _animateIn() {
-      this._animateSidenavIn();
-      this._animateOverlayIn();
-    }
-
-    _animateSidenavIn() {
-      let slideOutPercent = this.options.edge === 'left' ? -1 : 1;
-      if (this.isDragged) {
-        slideOutPercent =
-          this.options.edge === 'left'
-            ? slideOutPercent + this.percentOpen
-            : slideOutPercent - this.percentOpen;
-      }
-
-      anim.remove(this.el);
-      anim({
-        targets: this.el,
-        translateX: [`${slideOutPercent * 100}%`, 0],
-        duration: this.options.inDuration,
-        easing: 'easeOutQuad',
-        complete: () => {
-          // Run onOpenEnd callback
-          if (typeof this.options.onOpenEnd === 'function') {
-            this.options.onOpenEnd.call(this, this.el);
-          }
-        }
-      });
-    }
-
-    _animateOverlayIn() {
-      let start = 0;
-      if (this.isDragged) {
-        start = this.percentOpen;
-      } else {
-        $(this._overlay).css({
-          display: 'block'
-        });
-      }
-
-      anim.remove(this._overlay);
-      anim({
-        targets: this._overlay,
-        opacity: [start, 1],
-        duration: this.options.inDuration,
-        easing: 'easeOutQuad'
-      });
-    }
-
-    _animateOut() {
-      this._animateSidenavOut();
-      this._animateOverlayOut();
-    }
-
-    _animateSidenavOut() {
-      let endPercent = this.options.edge === 'left' ? -1 : 1;
-      let slideOutPercent = 0;
-      if (this.isDragged) {
-        slideOutPercent =
-          this.options.edge === 'left'
-            ? endPercent + this.percentOpen
-            : endPercent - this.percentOpen;
-      }
-
-      anim.remove(this.el);
-      anim({
-        targets: this.el,
-        translateX: [`${slideOutPercent * 100}%`, `${endPercent * 105}%`],
-        duration: this.options.outDuration,
-        easing: 'easeOutQuad',
-        complete: () => {
-          // Run onOpenEnd callback
-          if (typeof this.options.onCloseEnd === 'function') {
-            this.options.onCloseEnd.call(this, this.el);
-          }
-        }
-      });
-    }
-
-    _animateOverlayOut() {
-      anim.remove(this._overlay);
-      anim({
-        targets: this._overlay,
-        opacity: 0,
-        duration: this.options.outDuration,
-        easing: 'easeOutQuad',
-        complete: () => {
-          $(this._overlay).css('display', 'none');
-        }
-      });
+  _setupClasses() {
+    if (this.options.edge === 'right') {
+      this.el.classList.add('right-aligned');
+      this.dragTarget.classList.add('right-aligned');
     }
   }
+
+  _removeClasses() {
+    this.el.classList.remove('right-aligned');
+    this.dragTarget.classList.remove('right-aligned');
+  }
+
+  _setupFixed() {
+    if (this._isCurrentlyFixed()) {
+      /* this.open(); */
+      /* this.close(); */
+    }
+  }
+
+  _isCurrentlyFixed() {
+    return this.isFixed && window.innerWidth > 992;
+  }
+
+  _createDragTarget() {
+    let dragTarget = document.createElement('div');
+    dragTarget.classList.add('drag-target');
+    document.body.appendChild(dragTarget);
+    this.dragTarget = dragTarget;
+  }
+
+  _preventBodyScrolling() {
+    let body = document.body;
+    body.style.overflow = 'hidden';
+  }
+
+  _enableBodyScrolling() {
+    let body = document.body;
+    body.style.overflow = '';
+  }
+
+  open() {
+    if (this.isOpen === true) {
+      return;
+    }
+
+    this.isOpen = true;
+
+    // Run onOpenStart callback
+    if (typeof this.options.onOpenStart === 'function') {
+      this.options.onOpenStart.call(this, this.el);
+    }
+
+    // Handle fixed Sidenav
+    if (this._isCurrentlyFixed()) {
+      anim.remove(this.el);
+      anim({
+        targets: this.el,
+        translateX: 0,
+        duration: 0,
+        easing: 'easeOutQuad'
+      });
+      this._enableBodyScrolling();
+      this._overlay.style.display = 'none';
+
+      // Handle non-fixed Sidenav
+    } else {
+      if (this.options.preventScrolling) {
+        this._preventBodyScrolling();
+      }
+
+      if (!this.isDragged || this.percentOpen != 1) {
+        this._animateIn();
+      }
+    }
+  }
+
+  close() {
+    if (!this.isOpen) {
+      return;
+    }
+    this.isOpen = false;
+
+    // Run onCloseStart callback
+    if (typeof this.options.onCloseStart === 'function') {
+      this.options.onCloseStart.call(this, this.el);
+    }
+
+    // Handle fixed Sidenav
+    if (this._isCurrentlyFixed()) {
+      let transformX = this.options.edge === 'left' ? '-105%' : '105%';
+      this.el.style.transform = `translateX(${transformX})`;
+
+      // Handle non-fixed Sidenav
+    } else {
+      this._enableBodyScrolling();
+
+      if (!this.isDragged || this.percentOpen != 0) {
+        this._animateOut();
+      } else {
+        this._overlay.style.display = 'none';
+      }
+    }
+  }
+
+  _animateIn() {
+    this._animateSidenavIn();
+    this._animateOverlayIn();
+  }
+
+  _animateSidenavIn() {
+    let slideOutPercent = this.options.edge === 'left' ? -1 : 1;
+    if (this.isDragged) {
+      slideOutPercent =
+        this.options.edge === 'left'
+        ? slideOutPercent + this.percentOpen
+        : slideOutPercent - this.percentOpen;
+    }
+
+    anim.remove(this.el);
+    anim({
+      targets: this.el,
+      translateX: [`${slideOutPercent * 100}%`, 0],
+      duration: this.options.inDuration,
+      easing: 'easeOutQuad',
+      complete: () => {
+        // Run onOpenEnd callback
+        if (typeof this.options.onOpenEnd === 'function') {
+          this.options.onOpenEnd.call(this, this.el);
+        }
+      }
+    });
+  }
+
+  _animateOverlayIn() {
+    let start = 0;
+    if (this.isDragged) {
+      start = this.percentOpen;
+    } else {
+      $(this._overlay).css({
+        display: 'block'
+      });
+    }
+
+    anim.remove(this._overlay);
+    anim({
+      targets: this._overlay,
+      opacity: [start, 1],
+      duration: this.options.inDuration,
+      easing: 'easeOutQuad'
+    });
+  }
+
+  _animateOut() {
+    this._animateSidenavOut();
+    this._animateOverlayOut();
+  }
+
+  _animateSidenavOut() {
+    let endPercent = this.options.edge === 'left' ? -1 : 1;
+    let slideOutPercent = 0;
+    if (this.isDragged) {
+      slideOutPercent =
+        this.options.edge === 'left'
+        ? endPercent + this.percentOpen
+        : endPercent - this.percentOpen;
+    }
+
+    anim.remove(this.el);
+    anim({
+      targets: this.el,
+      translateX: [`${slideOutPercent * 100}%`, `${endPercent * 105}%`],
+      duration: this.options.outDuration,
+      easing: 'easeOutQuad',
+      complete: () => {
+        // Run onOpenEnd callback
+        if (typeof this.options.onCloseEnd === 'function') {
+          this.options.onCloseEnd.call(this, this.el);
+        }
+      }
+    });
+  }
+
+  _animateOverlayOut() {
+    anim.remove(this._overlay);
+    anim({
+      targets: this._overlay,
+      opacity: 0,
+      duration: this.options.outDuration,
+      easing: 'easeOutQuad',
+      complete: () => {
+        $(this._overlay).css('display', 'none');
+      }
+    });
+  }
+}
 
   /**
    * @static

@@ -47,7 +47,7 @@
      closeSideNav();
 
      /* Open sidebar if saved state is to open */
-     if (JSON.parse(localStorage.getItem('sidenavOpen'))) {
+     if (JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize()) {
        openSideNav();
      }
      fixPaddingWidth();
@@ -87,7 +87,9 @@
    /* Toggle sidebar */
    function toggleSidebar() {
      instance.isOpen ? closeSideNav() : openSideNav();
-     localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+     if (isWindowFullSize()) {
+       localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+     }
    }
 
    /* Change CSS to add padding when sidenav opened */

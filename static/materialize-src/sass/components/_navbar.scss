@@ -62,7 +62,7 @@ nav {
     color: $navbar-font-color;
     display: inline-block;
     font-size: $navbar-brand-font-size;
-    padding: 20;
+    padding: 22;
     &.center {
       left: 50%;
       transform: translateX(-50%);
@@ -79,7 +79,9 @@ nav {
         transform: none;
       }
 
-      &.left { left: 0.5rem; }
+      &.left {
+          left: 0.5rem;
+             }
       &.right {
         right: 0.5rem;
         left: auto;
