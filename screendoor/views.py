@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, LoginFormText
 
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken
 from screendoor.parseposter import parse_upload
 
@@ -164,3 +164,18 @@ def import_position(request):
 
 def save_position_to_current_user(user, position):
     user.positions.add(position)
+
+def import_applications(request):
+    if request.method == 'POST':
+        form = ImportApplicationsForm(request.POST, request.FILES)
+        if form.is_valid():
+            breakpoint()
+            ##Call application parser logic here##
+
+
+            return render(request, 'importapplications/applications.html', {
+        'form': form})
+
+    form = ImportApplicationsForm()
+    return render(request, 'importapplications/applications.html', {
+        'form': form})

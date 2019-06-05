@@ -13,4 +13,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('confirm/', views.login_form, name='confirm_account'),
     path('createnewposition/', views.import_position, name='importposition'),
+    path('importapplications/', views.import_applications, name='importapplications'),
 ]
