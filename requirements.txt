@@ -1,3 +1,6 @@
+tabula
+pandas
+weasyprint
 Django>=2.0,<3.0
 psycopg2>=2.7,<3.0
 cryptography>=2.6
