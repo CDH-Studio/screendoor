@@ -32,7 +32,7 @@ class YourTestClass(TestCase):
                            description="Experience in managing and/or operating information management system(s)")
         self.exp2 = Requirement(requirement_type="Experience",
                            abbreviation="EXP2",
-                           description="Experience in capturing and validating clients' business requirements")
+                           description="Experience in capturing and validating clients&#39; business requirements")
         self.exp3 = Requirement(requirement_type="Experience",
                            abbreviation="EXP3",
                            description="Experience in developing procedures and/or program training")
@@ -41,7 +41,7 @@ class YourTestClass(TestCase):
                            description="Experience in developing and maintaining stakeholder relationships with government and/or private sector.")
         self.aexp1 = Requirement(requirement_type="Asset",
                             abbreviation="AEXP1",
-                            description="ASSET   Experience in managing a program trianing plan geared at both  internal and external partners")
+                            description="ASSET   Experience in managing a program trianing plan geared at both internal and external partners")
         self.aexp2 = Requirement(requirement_type="Asset",
                             abbreviation="AEXP2",
                             description="Experience in working in a health care environment")
