@@ -1,0 +1,1 @@
+This is where you put the applications you want to redact, then select upload on the importpositions view.
