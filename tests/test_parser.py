@@ -26,10 +26,10 @@ class YourTestClass(TestCase):
                                      )
         self.ed1 = Requirement(requirement_type="Education",
                           abbreviation="ED1",
-                          description="Successful completion of a secondary school diploma, or an acceptable  combination of education, training and/or experience relevant to the position.")
+                          description="Successful completion of a secondary school diploma, or an acceptable combination of education, training and/or experience relevant to the position.")
         self.exp1 = Requirement(requirement_type="Experience",
                            abbreviation="EXP1",
-                           description="Experience in managing and/or operating information management  system(s)")
+                           description="Experience in managing and/or operating information management system(s)")
         self.exp2 = Requirement(requirement_type="Experience",
                            abbreviation="EXP2",
                            description="Experience in capturing and validating clients' business requirements")
@@ -38,7 +38,7 @@ class YourTestClass(TestCase):
                            description="Experience in developing procedures and/or program training")
         self.exp4 = Requirement(requirement_type="Experience",
                            abbreviation="EXP4",
-                           description="Experience in developing and maintaining stakeholder relationships with  government and/or private sector.")
+                           description="Experience in developing and maintaining stakeholder relationships with government and/or private sector.")
         self.aexp1 = Requirement(requirement_type="Asset",
                             abbreviation="AEXP1",
                             description="ASSET   Experience in managing a program trianing plan geared at both  internal and external partners")
@@ -77,3 +77,21 @@ class YourTestClass(TestCase):
         self.assertTrue(self.testPosition.open_to in html_response)
 
         self.assertTrue(self.testPosition.description in html_response)
+
+        self.assertTrue(self.ed1.description in html_response)
+
+        self.assertTrue(self.exp1.description in html_response)
+
+        self.assertTrue(self.exp2.description in html_response)
+
+        self.assertTrue(self.exp3.description in html_response)
+
+        self.assertTrue(self.exp4.description in html_response)
+
+        self.assertTrue(self.aexp1.description in html_response)
+
+        self.assertTrue(self.aexp2.description in html_response)
+
+        self.assertTrue(self.aexp3.description in html_response)
+
+        self.assertTrue(self.aexp3.description in html_response)
