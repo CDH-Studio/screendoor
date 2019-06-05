@@ -15,21 +15,23 @@ class ErrorMessages():
     # Translators: When a user tries to upload a position form with too much data.
     overfilled_create_position_form = _(
         'Please enter *either* a pdf file or a url link, but not both.')
-    # Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca)
+    # Translators: When a user tries to make a duplicate account. %s is the email (i.e. joesmith@canada.ca).
     user_already_exists = _('Username %s already exists.')
-    # Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca)
+    # Translators: When a user tries to sign on with something that isn't a government email. %s is the email domain (i.e. email.ca).
     invalid_email_domain = _(
         'Invalid e-mail address domain: %s. Canada.ca email required.')
-    # Translators: When a user tries to login with an unauthenticated account
+    # Translators: When a user tries to login with an unauthenticated account.
     unconfirmed_email = _('Email address for user not confirmed.')
     # Translators: When a user submits an invalid username and/or password.
     invalid_un_or_pw = _('Invalid username or password.')
-    # Translators: When a user tries to upload a faulty pdf
+    # Translators: When a user tries to upload a faulty pdf/
     incorrect_mime_type = _('Please enter a valid pdf file.')
-    # Translators: When a user tries to upload a url other than the jobs.gc.ca posters
+    # Translators: When a user tries to upload a url other than the jobs.gc.ca posters.
     invalid_url_domain = _('Please enter a jobs.gc.ca url.')
-    # Translators: When a user tries to upload a pdf we cant parse
-    incorrect_pdf_file = _('Unable to parse pdf. Please enter a valid pdf file.')
+    # Translators: When a user tries to upload a pdf we cant parse.
+    incorrect_pdf_file = _('Unable to parse pdf. Please enter a pdf from jobs.gc.ca.')
+    # Translators: When a user tries to upload a url.
+    url_upload_not_supported_yet = _('URL uploading not currently supported. Please upload a pdf file.')
 
 class InterfaceText():
     # Translators: Sidebar

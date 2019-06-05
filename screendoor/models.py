@@ -131,7 +131,7 @@ class Position(models.Model):
 
 class Requirement(models.Model):
     position = models.ForeignKey(
-        Position, on_delete=models.SET_NULL, null=True)
+        Position, on_delete=models.CASCADE, null=True)
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
     description = models.CharField(max_length=5000)

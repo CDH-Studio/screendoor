@@ -53,7 +53,7 @@ def extract_asset_block(text):
     return asset_block
 
 
-def extract_education(essential_block, position):
+def extract_education(essential_block):
     education = ""
 
     # Due to the fact that the stylistics of the statement "EDUCATION: in the
@@ -81,7 +81,7 @@ def extract_education(essential_block, position):
     return education
 
 
-def extract_experience(essential_block, position):
+def extract_experience(essential_block):
     experience = ""
 
     # Same deal as the extract_education
@@ -106,7 +106,7 @@ def extract_experience(essential_block, position):
     return experience
 
 
-def extract_assets(asset_block, position):
+def extract_assets(asset_block):
     assets = asset_block
 
     # scrub out the phrase degree equivalency in asset block and return it essentially.
@@ -318,11 +318,11 @@ def find_essential_details(pdf_poster_text, position):
 
     asset_block = extract_asset_block(pdf_poster_text)
 
-    requirement_education = extract_education(essential_block, position)
+    requirement_education = extract_education(essential_block)
 
-    requirement_experience = extract_experience(essential_block, position)
+    requirement_experience = extract_experience(essential_block)
 
-    requirement_assets = extract_assets(asset_block, position)
+    requirement_assets = extract_assets(asset_block)
 
     position = assign_single_line_values(position, pdf_poster_text)
 
@@ -338,8 +338,7 @@ def find_essential_details(pdf_poster_text, position):
                            asset_experience_reqs)
 
     dictionary = {
-        'position': position,
-        'errors' : ''
+        'position': position
     }
 
     return dictionary
@@ -349,25 +348,13 @@ def parse_upload(position):
     # checking for the existence of the pdf upload. If true, convert uploaded pdf into text
     # using tika and process using find_essential_details method. If false, process url.
 
-    # To contain both the 'position', and any 'errors' that arise
-    dictionary = {}
     if position.pdf.name:
         os.chdir("..")
         file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
         if "Selection process number:" in job_poster_text:
-            dictionary = find_essential_details(job_poster_text, position)
+            return find_essential_details(job_poster_text, position)
         else:
             return {'errors': ErrorMessages.incorrect_pdf_file}
     elif position.url_ref:
-
-        url = position.url_ref
-        breakpoint()
-        pdfkit.from_url(str(url), False)
-
-
-        # file_data = tika.parser.from_file(pdf_file_path, 'http://tika:9998/tika')
-        # job_poster_text = file_data['content']
-        # position = find_essential_details(job_poster_text, position)
-
-    return dictionary
+        return {'errors': ErrorMessages.url_upload_not_supported_yet}

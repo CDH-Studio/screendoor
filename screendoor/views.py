@@ -140,19 +140,22 @@ def import_position(request):
 
             #second check
             if create_position_form.is_valid():
-            # Add position to user (test, may be moved)
                 position = d.get('position')
                 # save_position_to_current_user(request.user, position)
+
+                # Successful render of a position
                 return render(request, 'createposition/importposition.html',
                           {'position': position, 'form': create_position_form,
                            'baseVisibleText': InterfaceText,
                            'userVisibleText': PositionText})
-            else:
-                return render(request, 'createposition/importposition.html',
-                          {'form': create_position_form,
-                           'baseVisibleText': InterfaceText,
-                           'userVisibleText': PositionText})
-    # blank form
+
+        # Default view for a form with errors
+        return render(request, 'createposition/importposition.html',
+            {'form': create_position_form,
+                'baseVisibleText': InterfaceText,
+                'userVisibleText': PositionText})
+
+    # view for a GET request instead of a POST request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
         'form': create_position_form, 'baseVisibleText': InterfaceText
