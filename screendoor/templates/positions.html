@@ -1,0 +1,83 @@
+{% extends 'base_logged_in.html' %}
+{% load static %}
+{% block content %}
+<div class="container positions">
+  <!-- Row for sorting options that will defined the dictsort value below -->
+  <div class="row">
+    <h6 class="btn-flat disabled">{{ userVisibleText.sort_by }}</h6>
+    <h6 class="btn-flat waves-effect">{{ userVisibleText.date_uploaded }}</h6>
+    <h6 class="btn-flat waves-effect">{{ userVisibleText.date_closed }}</h6>
+    <h6 class="btn-flat waves-effect">{{ userVisibleText.position }}</h6>
+    <h6 class="btn-flat waves-effect">{{ userVisibleText.no_applicants }}</h6>
+    <h6 class="btn-flat waves-effect">{{ userVisibleText.score }}</h6>
+  </div>
+  <!-- Beginning of Positions view -->
+  <!-- The dictsort value determines the order of the positions -->
+  {% for position in positions|dictsortreversed:"created" %}
+  <!-- Beginning of position display -->
+  <div class="row">
+    <!--Beginning of confirm position card -->
+    <div class="col card white hoverable">
+      <div class="card-content col s12">
+        <div class="row valign-wrapper">
+          <h5 class="col s8 left position-header">{{ position.position_title }}</h5>
+          <!-- Confirm/Edit button row -->
+          <div class="col s4 right right-align">
+            <input class="btn-small green btn-left btn-pad" name="edit-position" type="submit" value="TEMP">
+            <input class="btn-small red btn-left btn-pad" name="save-position" type="submit" value="TEMP">
+          </div>
+        </div>
+        <!-- Position row 1 headers -->
+        <table class="highlight">
+          <thead>
+            <tr>
+              <th colspan="1">{{ positionText.classification }}</th>
+              <th colspan="2">{{ positionText.reference_number }}</th>
+              <th colspan="2">{{ positionText.selection_process_number }}</th>
+            </tr>
+          </thead>
+          <!-- Position row 1 body -->
+          <tbody>
+            <tr>
+              <td colspan="1">{{ position.classification }}</td>
+              <td colspan="2">{{ position.reference_number }}</td>
+              <td colspan="2">{{ position.selection_process_number }}</td>
+            </tr>
+          </tbody>
+          <!-- Position row 2 headers -->
+          <thead>
+            <tr>
+              <th colspan="1">{{ positionText.date_closed }}</th>
+              <th colspan="1">{{ positionText.number_of_positions }}</th>
+              <th colspan="1">{{ positionText.salary_range }}</th>
+              <th colspan="2">{{ positionText.open_to }}</th>
+            </tr>
+          </thead>
+          <!-- Position row 2 body -->
+          <tbody>
+            <tr>
+              <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
+              <td colspan="1">{{ position.num_positions }}</td>
+              <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+              <td colspan="2">{{ position.open_to }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Position row 3 / buttons -->
+        <div class="row position-buttons left">
+          <h6 class="btn-flat screendoor-color-text waves-effect">{{ userVisibleText.view }}</h6>
+          <h6 class="btn-flat screendoor-color-text waves-effect">{{ userVisibleText.download }}</h6>
+          <h6 class="btn-flat screendoor-color-text waves-effect">{{ userVisibleText.delete }}</h6>
+        </div>
+        <div class="row position-buttons right">
+          <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End of position display -->
+  {% endfor %}
+  <!-- End of Positions view -->
+  <br>
+</div>
+{% endblock %}

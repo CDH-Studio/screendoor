@@ -29,9 +29,12 @@ class ErrorMessages():
     # Translators: When a user tries to upload a url other than the jobs.gc.ca posters.
     invalid_url_domain = _('Please enter a jobs.gc.ca url.')
     # Translators: When a user tries to upload a pdf we cant parse.
-    incorrect_pdf_file = _('Unable to parse pdf. Please enter a pdf from jobs.gc.ca.')
+    incorrect_pdf_file = _(
+        'Unable to parse pdf. Please enter a pdf from jobs.gc.ca.')
     # Translators: When a user tries to upload a url.
-    url_upload_not_supported_yet = _('URL uploading not currently supported. Please upload a pdf file.')
+    url_upload_not_supported_yet = _(
+        'URL uploading not currently supported. Please upload a pdf file.')
+
 
 class InterfaceText():
     # Translators: Sidebar
@@ -126,6 +129,27 @@ class LoginFormText():
     # Translators: LoginForm
     validation_error = _(
         "Validation token error: invalid link or account is already confirmed.")
+
+
+class PositionsViewText():
+    # Translators: Position View
+    sort_by = _("Sort by")
+    # Translators: Position View
+    position = _("Position")
+    # Translators: Position View
+    score = _("Avg Score")
+    # Translators: Position View
+    no_applicants = _("Applicants")
+    # Translators: Position View
+    date_closed = _("Date closed")
+    # Translators: Position View
+    date_uploaded = _("Date uploaded")
+    # Translators: Position View
+    view = _("View")
+    # Translators: Position View
+    download = _("Download")
+    # Translators: Position View
+    delete = _("Delete")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file

@@ -2662,10 +2662,16 @@ table span.badge {
 
 @media only screen and (min-width: 601px) {
   .container {
-    width: 85%; } }
+    width: 85%; }
+    .container.positions {
+      width: 90%;
+      padding-top: 2%; } }
 @media only screen and (min-width: 993px) {
   .container {
-    width: 70%; } }
+    width: 70%; }
+    .container.positions {
+      width: 90%;
+      padding-top: 2%; } }
 .col .row {
   margin-left: -0.75rem;
   margin-right: -0.75rem; }
@@ -2684,6 +2690,8 @@ table span.badge {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 5px; }
+  .row.position-buttons {
+    margin-bottom: -15px; }
   .row:after {
     content: "";
     display: table;
@@ -3417,6 +3425,10 @@ h5 {
   font-size: 1.64rem;
   line-height: 110%;
   margin: 1.0933333333rem 0 0.656rem 0; }
+  h5.position-header {
+    margin: 0.456rem 0 0.912rem 0; }
+  h5 .position-header {
+    margin: 0.456rem 0 0.912rem 0; }
 
 h6 {
   font-size: 1.15rem;

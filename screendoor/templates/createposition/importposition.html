@@ -29,7 +29,6 @@
      clearExceptSidebar();
    }
  };
-
  /* Persist the form data to display alongside processed position */
  function persistUploaded() {
    localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
@@ -60,173 +59,179 @@
    document.getElementById('position_submit_button').style.display = 'block';
  }
 </script>
-<!-- <div class="container"> -->
-<!--Beginning of upload position card -->
-<div class="row">
-  {% if position is not None %}
-  <div class="card horizontal hoverable">
-    {% else %}
-    <div class="col s12 card horizontal hoverable">
-      {% endif %}
-      <!-- Beginning of form -->
-      <form method="post" id="upload_position" enctype="multipart/form-data" action="">
-        <div class="card-content col s12">
-          <!-- Upload position title -->
-          <div class="row">
-            <label class="card-title col s12" for="importposition">{{ form.text }}</label>
-          </div>
-          {% csrf_token %}
-          <!-- Radio buttons to select PDF or URL -->
-          <div class="row">
-            <!-- Upload position form error messages -->
-            {% if form.errors %}
-            <span class="error-text">{{ form.errors.pdf }}</span>
-            <span class="error-text">{{ form.errors.url_ref }}</span>
-            {% endif %}
-            <!-- Upload position form instructions -->
-            <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
-            <br>
-            <br>
-            <!-- PDF upload radio button -->
-            <div class="col s4">
-              <label>
-                <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
-                <span>{{ form.pdf_name }}</span>
-              </label>
-            </div>
-            <!-- URL submit radio button -->
-            <div class="col s4">
-              <label>
-                <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
-                <span>{{ form.url_name }}</span>
-              </label>
-            </div>
-            <br>
-            <br>
-          </div>
-          <!-- PDF/File input -->
-          <div class="row" id="pdf_upload_form">
-            <div class="col s12 file-field input-field">
-              <div class="btn-small">
-                <span>{{ form.browse_text }}</span>
-                <input type="file" name="pdf" id="pdf_input">
+<div class="container valign-wrapper form-cards">
+  <div class="row card-center">
+    <!--Beginning of upload position card -->
+    <div class="row">
+      {% if position is not None %}
+      <div class="card horizontal hoverable">
+        {% else %}
+        <div class="col s12 card horizontal hoverable">
+          {% endif %}
+          <!-- Beginning of form -->
+          <form method="post" id="upload_position" enctype="multipart/form-data" action="">
+            <div class="card-content col s12">
+              <!-- Upload position title -->
+              <div class="row">
+                <label class="card-title col s12" for="importposition">{{ form.text }}</label>
               </div>
-              <div class="file-path-wrapper">
-                <input id="pdf_path_input" class="file-path validate" type="text"
-                       placeholder="{{ form.upload_text }}" />
+              {% csrf_token %}
+              <!-- Radio buttons to select PDF or URL -->
+              <div class="row">
+                <!-- Upload position form error messages -->
+                {% if form.errors %}
+                <span class="error-text">{{ form.errors.pdf }}</span>
+                <span class="error-text">{{ form.errors.url_ref }}</span>
+                {% endif %}
+                <!-- Upload position form instructions -->
+                <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+                <br>
+                <br>
+                <!-- PDF upload radio button -->
+                <div class="col s4">
+                  <label>
+                    <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
+                    <span>{{ form.pdf_name }}</span>
+                  </label>
+                </div>
+                <!-- URL submit radio button -->
+                <div class="col s4">
+                  <label>
+                    <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
+                    <span>{{ form.url_name }}</span>
+                  </label>
+                </div>
+                <br>
+                <br>
               </div>
+              <!-- PDF/File input -->
+              <div class="row" id="pdf_upload_form">
+                <div class="col s12 file-field input-field">
+                  <div class="btn-small">
+                    <span>{{ form.browse_text }}</span>
+                    <input type="file" name="pdf" id="pdf_input">
+                  </div>
+                  <div class="file-path-wrapper">
+                    <input id="pdf_path_input" class="file-path validate" type="text"
+                           placeholder="{{ form.upload_text }}" />
+                  </div>
+                </div>
+              </div>
+              <!-- URL input -->
+              <div class="row" id="url_upload_form">
+                <div class="input-field col s12">
+                  <input id="url_input" name="url_ref" type="url" class="validate">
+                  <label for="url">{{ form.url_text }}</label>
+                </div>
+              </div>
+              <!-- Submit button -->
+              <input class="right btn" onclick="persistUploaded();" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
             </div>
-          </div>
-          <!-- URL input -->
-          <div class="row" id="url_upload_form">
-            <div class="input-field col s12">
-              <input id="url_input" name="url_ref" type="url" class="validate">
-              <label for="url">{{ form.url_text }}</label>
-            </div>
-          </div>
-          <!-- Submit button -->
-          <input class="right btn" onclick="persistUploaded();" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
-        </div>
-        <!-- End of form -->
-      </form>
-      <!-- End of card -->
-    </div>
-  </div>
-</div>
-
-<!-- Beginning of position display -->
-{% if position is not None %}
-<div class="row">
-  <div class="col s12">
-    <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label><br>
-  </div>
-</div>
-<div class="row">
-  <!--Beginning of confirm position card -->
-  <div class="col card white hoverable">
-    <div class="card-content col s12">
-      <div class="row valign-wrapper">
-        <h4 class="col s8 left position-header">{{ position.position_title }}</h4>
-        <!-- Confirm/Edit button row -->
-        <div class="col s4 right right-align">
-          <input class="btn-small btn-left btn-pad" type="submit" value="{{ userVisibleText.edit }}">
-          <input class="btn-small btn-left btn-pad" type="submit" value="{{ userVisibleText.save }}">
+            <!-- End of form -->
+          </form>
+          <!-- End of card -->
         </div>
       </div>
-      <!-- Position row 1 headers -->
-      <table class="highlight">
-        <thead>
-          <tr>
-            <th colspan="1">{{ userVisibleText.classification }}</th>
-            <th colspan="2">{{ userVisibleText.reference_number }}</th>
-            <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
-          </tr>
-        </thead>
-        <!-- Position row 1 body -->
-        <tbody>
-          <tr>
-            <td colspan="1">{{ position.classification }}</td>
-            <td colspan="2">{{ position.reference_number }}</td>
-            <td colspan="2">{{ position.selection_process_number }}</td>
-          </tr>
-        </tbody>
-        <!-- Position row 2 headers -->
-        <thead>
-          <tr>
-            <th colspan="1">{{ userVisibleText.date_closed }}</th>
-            <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
-            <th colspan="1">{{ userVisibleText.salary_range }}</th>
-            <th colspan="2">{{ userVisibleText.open_to }}</th>
-          </tr>
-        </thead>
-        <!-- Position row 2 body -->
-        <tbody>
-          <tr>
-            <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
-            <td colspan="1">{{ position.num_positions }}</td>
-            <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
-            <td colspan="2">{{ position.open_to }}</td>
-          </tr>
-        </tbody>
-        <!-- Position row 3 header -->
-        <thead>
-          <tr>
-            <th colspan="5">{{ userVisibleText.position_information }}</th>
-          </tr>
-        </thead>
-        <!-- Position row 3 body -->
-        <tbody>
-          <tr>
-            <td colspan="5">{{ position.description }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <!-- Position education and experience rows -->
-      <!-- TODO: Change for updated data model -->
-      <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-      <table class="highlight">
-        {% for req in position.requirement_set.all reversed %}
-        <thead>
-          <tr>
-            {% if forloop.counter is 1 %}
-            <th colspan="5">{{ userVisibleText.education }}</th>
-            {% elif forloop.counter is 2 %}
-            <th colspan="5">{{ userVisibleText.experience }}</th>
-            {% elif forloop.counter is 3 %}
-            <th colspan="5">{{ userVisibleText.assets }}</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="5">{{ req.description|linebreaksbr }}</td>
-          </tr>
-        </tbody>
-        {% endfor %}
-      </table>
     </div>
+
+    <!-- Beginning of position display -->
+    {% if position is not None %}
+    <div class="row">
+      <div class="col s12">
+        <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label><br>
+      </div>
+    </div>
+    <div class="row">
+      <!--Beginning of confirm position card -->
+      <div class="col card white hoverable">
+        <div class="card-content col s12">
+          <div class="row valign-wrapper">
+            <h4 class="col s8 left position-header">{{ position.position_title }}</h4>
+            <!-- Confirm/Edit button row -->
+            <div class="col s4 right right-align">
+              <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
+                {% csrf_token %}
+                <input class="btn-small btn-left btn-pad" name="edit-position" type="submit" value="{{ userVisibleText.edit }}">
+                <input class="btn-small btn-left btn-pad" name="save-position" type="submit" value="{{ userVisibleText.save }}">
+              </form>
+            </div>
+          </div>
+          <!-- Position row 1 headers -->
+          <table class="highlight">
+            <thead>
+              <tr>
+                <th colspan="1">{{ userVisibleText.classification }}</th>
+                <th colspan="2">{{ userVisibleText.reference_number }}</th>
+                <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 1 body -->
+            <tbody>
+              <tr>
+                <td colspan="1">{{ position.classification }}</td>
+                <td colspan="2">{{ position.reference_number }}</td>
+                <td colspan="2">{{ position.selection_process_number }}</td>
+              </tr>
+            </tbody>
+            <!-- Position row 2 headers -->
+            <thead>
+              <tr>
+                <th colspan="1">{{ userVisibleText.date_closed }}</th>
+                <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
+                <th colspan="1">{{ userVisibleText.salary_range }}</th>
+                <th colspan="2">{{ userVisibleText.open_to }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 2 body -->
+            <tbody>
+              <tr>
+                <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
+                <td colspan="1">{{ position.num_positions }}</td>
+                <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+                <td colspan="2">{{ position.open_to }}</td>
+              </tr>
+            </tbody>
+            <!-- Position row 3 header -->
+            <thead>
+              <tr>
+                <th colspan="5">{{ userVisibleText.position_information }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 3 body -->
+            <tbody>
+              <tr>
+                <td colspan="5">{{ position.description }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Position education and experience rows -->
+          <!-- TODO: Change for updated data model -->
+          <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
+          <table class="highlight">
+            {% for req in position.requirement_set.all reversed %}
+            <thead>
+              <tr>
+                {% if forloop.counter is 1 %}
+                <th colspan="5">{{ userVisibleText.education }}</th>
+                {% elif forloop.counter is 2 %}
+                <th colspan="5">{{ userVisibleText.experience }}</th>
+                {% elif forloop.counter is 3 %}
+                <th colspan="5">{{ userVisibleText.assets }}</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5">{{ req.description|linebreaksbr }}</td>
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
-{% endif %}
 <!-- End of position display -->
 {% endblock %}
