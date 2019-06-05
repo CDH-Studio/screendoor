@@ -52,10 +52,17 @@ class CreatePositionForm(forms.ModelForm):
 
         # Verify if the url matches the job.gc.ca domain
         if url:
-            if not "https://emploisfp-psjobs.cfp-psc.gc.ca" in url:
-                msg = forms.ValidationError(
-                    ErrorMessages.invalid_url_domain)
-                self.add_error('url_ref', msg)
+            ## Note: Below code is temporary, until url uploading is supported.
+            msg = forms.ValidationError(
+                     ErrorMessages.url_upload_not_supported_yet)
+            self.add_error('url_ref', msg)
+
+
+            ## Note: Desired code below.
+            # if not "https://emploisfp-psjobs.cfp-psc.gc.ca" in url:
+            #     msg = forms.ValidationError(
+            #         ErrorMessages.invalid_url_domain)
+            #     self.add_error('url_ref', msg)
 
         return self.cleaned_data
 
