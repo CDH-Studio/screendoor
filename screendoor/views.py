@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from django.utils.translation import gettext as _
 from screendoor.redactor import parse_applications
-
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
@@ -184,6 +183,7 @@ def import_applications(request):
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
+            parse_applications()
             # Call application parser logic here##
 
             return render(request, 'importapplications/applications.html', {
