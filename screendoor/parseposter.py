@@ -331,7 +331,7 @@ def find_essential_details(pdf_poster_text, position):
     education_reqs = generate_requirements(requirement_education, position,
                                   "Education", "ED")
     experience_reqs = generate_requirements(requirement_experience, position,
-                                  "Education", "EXP")
+                                  "Experience", "EXP")
     asset_experience_reqs = generate_requirements(requirement_assets, position,
                                   "Asset", "AEXP")
     save_requirement_lists(education_reqs, experience_reqs,
