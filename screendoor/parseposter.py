@@ -131,7 +131,7 @@ def extract_job_title(text):
         job_title = text_between('Home', "Reference", text)
         job_title = " ".join(job_title.split())
 
-    return job_title
+    return scrub_extra_whitespace(job_title)
 
 
 def extract_who_can_apply(text):
@@ -141,7 +141,7 @@ def extract_who_can_apply(text):
 
     if "Who can apply:" in text:
         who_can_apply = text_between("Who can apply:", ".", text)
-    return who_can_apply
+    return scrub_extra_whitespace(who_can_apply)
 
 
 def extract_salary_min(salary):
@@ -183,6 +183,10 @@ def extract_closing_date(item):
 
     return closing_date
 
+
+# Removes any newlines and double spaces caused by other parsing rules.
+def scrub_extra_whitespace(item):
+    return str(item).replace('\n', '').replace('  ', ' ')
 
 def scrub_entry(text):
     # Scrubs out useless text
@@ -253,7 +257,7 @@ def generate_requirements(text, position, requirement_type,
     lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', text)
     for item in lines:
         if item != "" and not item.lower().__contains__("incumbents"):
-            item = item.strip()
+            item = scrub_extra_whitespace(item.strip())
             if not re.match(r"[*]", item):
                 item.replace("\n", "")
                 requirement_list.append(
@@ -331,7 +335,7 @@ def find_essential_details(pdf_poster_text, position):
     education_reqs = generate_requirements(requirement_education, position,
                                   "Education", "ED")
     experience_reqs = generate_requirements(requirement_experience, position,
-                                  "Education", "EXP")
+                                  "Experience", "EXP")
     asset_experience_reqs = generate_requirements(requirement_assets, position,
                                   "Asset", "AEXP")
     save_requirement_lists(education_reqs, experience_reqs,
