@@ -61,7 +61,7 @@ def find_essential_details(list_of_data_frames, filename):
     pass
 
 
-def parse_application():
+def parse_applications():
 
     pd.set_option('display.max_colwidth', -1)
 
@@ -82,4 +82,4 @@ def parse_application():
     pass
 
 
-parse_application()
+parse_applications()
