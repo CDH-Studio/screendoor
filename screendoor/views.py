@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
 
@@ -170,3 +170,19 @@ def positions(request):
     return render(request, 'positions.html', {
         'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all
     })
+
+  
+def import_applications(request):
+    if request.method == 'POST':
+        form = ImportApplicationsForm(request.POST, request.FILES)
+        if form.is_valid():
+            breakpoint()
+            ##Call application parser logic here##
+
+
+            return render(request, 'importapplications/applications.html', {
+        'form': form})
+
+    form = ImportApplicationsForm()
+    return render(request, 'importapplications/applications.html', {
+        'form': form})

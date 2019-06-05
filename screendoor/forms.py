@@ -4,10 +4,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext as _
 import magic, mimetypes
 
-from .models import ScreenDoorUser, Position
+from .models import ScreenDoorUser, Position, Applicant
 from .uservisibletext import ErrorMessages, CreatePositionFormText, \
     CreateAccountFormText, StandardFormText, LoginFormText
 
+# For creating a new position
+class ImportApplicationsForm(forms.ModelForm):
+    class Meta:
+        model = Applicant
+        fields = ('pdf', )
 
 # For creating a new position
 class CreatePositionForm(forms.ModelForm):
@@ -34,11 +39,13 @@ class CreatePositionForm(forms.ModelForm):
         if not pdf and not url:
             msg = forms.ValidationError(ErrorMessages.empty_create_position_form)
             self.add_error('pdf', msg)
+            return
         # Check for an overfilled form
         elif pdf and url:
             msg = forms.ValidationError(
                 ErrorMessages.overfilled_create_position_form)
             self.add_error('pdf', msg)
+            return
 
         # Verify if the pdf upload has an correct mimetype (i.e. a pdf file)
         if pdf:
