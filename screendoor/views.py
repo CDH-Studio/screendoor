@@ -133,19 +133,29 @@ def import_position(request):
         if create_position_form.is_valid():
             # don't commit partial positions with only pdf/url into db
             position = create_position_form.save(commit=False)
-            position = parse_upload(position)
+            d = parse_upload(position)
+            errors = d.get('errors')
+            if errors:
+                create_position_form.add_error('pdf', errors)
 
-            save_position_to_current_user(request.user, position)
-            return render(request, 'createposition/importposition.html',
+            #second check
+            if create_position_form.is_valid():
+                position = d.get('position')
+                # save_position_to_current_user(request.user, position)
+
+                # Successful render of a position
+                return render(request, 'createposition/importposition.html',
                           {'position': position, 'form': create_position_form,
                            'baseVisibleText': InterfaceText,
                            'userVisibleText': PositionText})
-        else:
-            return render(request, 'createposition/importposition.html',
-                          {'form': create_position_form,
-                           'baseVisibleText': InterfaceText,
-                           'userVisibleText': PositionText})
-    # blank form
+
+        # Default view for a form with errors
+        return render(request, 'createposition/importposition.html',
+            {'form': create_position_form,
+                'baseVisibleText': InterfaceText,
+                'userVisibleText': PositionText})
+
+    # view for a GET request instead of a POST request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
         'form': create_position_form, 'baseVisibleText': InterfaceText
