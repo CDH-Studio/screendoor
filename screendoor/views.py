@@ -6,13 +6,17 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
+
+from screendoor.redactor import parse_applications
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, LoginFormText
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken
 from screendoor.parseposter import parse_upload
 
-# Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404.
+
+# Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
+# the requested page, or raising an exception such as Http404.
 
 
 # @login_required
@@ -38,7 +42,8 @@ def register_form(request):
             send_user_email(request, user)
             # Redirects to...
             return render(request, 'registration/register.html',
-                          {'register_form': register_form, 'account_created': format(CreateAccountFormText.account_created % user)})
+                          {'register_form': register_form,
+                           'account_created': format(CreateAccountFormText.account_created % user)})
             # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
@@ -108,7 +113,8 @@ def login_form(request):
                 token.delete()
                 # Display account confirmation message
                 return render(request, 'registration/login.html',
-                              {'login_form': form, 'account_confirmed': format(LoginFormText.account_confirmed % user.email)})
+                              {'login_form': form,
+                               'account_confirmed': format(LoginFormText.account_confirmed % user.email)})
             # Display validation error message
             return render(request, 'registration/login.html',
                           {'login_form': form, 'validation_error': LoginFormText.validation_error})
@@ -128,53 +134,22 @@ def logout_view(request):
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
-        # valid form
-        create_position_form = CreatePositionForm(request.POST, request.FILES)
-        if create_position_form.is_valid():
-            # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save(commit=False)
-            d = parse_upload(position)
-            errors = d.get('errors')
-            if errors:
-                create_position_form.add_error('pdf', errors)
+        parse_applications()
 
-            #second check
-            if create_position_form.is_valid():
-                position = d.get('position')
-                # save_position_to_current_user(request.user, position)
-
-                # Successful render of a position
-                return render(request, 'createposition/importposition.html',
-                          {'position': position, 'form': create_position_form,
-                           'baseVisibleText': InterfaceText,
-                           'userVisibleText': PositionText})
-
-        # Default view for a form with errors
-        return render(request, 'createposition/importposition.html',
-            {'form': create_position_form,
-                'baseVisibleText': InterfaceText,
-                'userVisibleText': PositionText})
-
-    # view for a GET request instead of a POST request
-    create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': create_position_form, 'baseVisibleText': InterfaceText
+        'form': ImportApplicationsForm, 'baseVisibleText': InterfaceText
     })
 
-
-def save_position_to_current_user(user, position):
-    user.positions.add(position)
 
 def import_applications(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
-            ##Call application parser logic here##
-
+            # Call application parser logic here##
 
             return render(request, 'importapplications/applications.html', {
-        'form': form})
+                'form': form})
 
     form = ImportApplicationsForm()
     return render(request, 'importapplications/applications.html', {
