@@ -2,6 +2,12 @@
 {% load static %}
 {% block content %}
 <script>
+ /* Clears all local storage except sidebar open boolean */
+ function clearExceptSidebar() {
+   let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
+   localStorage.clear();
+   localStorage.setItem('sidenavOpen', tempSidebarStatus);
+ }
  /* Display persisted form information, or if none exists, hide PDF and URL forms */
  window.onload = function() {
    if (localStorage.getItem('pdfRequired') === null) {
@@ -24,7 +30,7 @@
    }
  };
 
-/* Persist the form data to display alongside processed position */
+ /* Persist the form data to display alongside processed position */
  function persistUploaded() {
    localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
    localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
@@ -75,7 +81,7 @@
             <!-- Upload position form error messages -->
             {% if form.errors %}
             <span class="error-text">{{ form.errors.pdf }}</span>
-              <span class="error-text">{{ form.errors.url_ref }}</span>
+            <span class="error-text">{{ form.errors.url_ref }}</span>
             {% endif %}
             <!-- Upload position form instructions -->
             <div class="col s12 grey-text"><p>{{ form.description }}</p></div>

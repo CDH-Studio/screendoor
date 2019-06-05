@@ -44,12 +44,19 @@
 
    /* Initialize sidenav to close and load storage */
    function initSideNav() {
-     closeSideNav();
-
      /* Open sidebar if saved state is to open */
-     if (JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize()) {
-       openSideNav();
+     if ((JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize())
+         || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
+       instance.isOpen = false;
+       toggleSidebar();
+       localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+       /* Otherwise re-initialize to closed  */
+     } else {
+       instance.isOpen = true;
+       toggleSidebar();
+       localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
      }
+     /* Check padding and fix depending on sidebar closed/open status */
      fixPaddingWidth();
    }
 
@@ -57,13 +64,6 @@
    window.addEventListener('DOMContentLoaded', (event) => {
      initSideNav();
    });
-
-   /* Clears all local storage except sidebar open boolean */
-   function clearExceptSidebar() {
-     let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
-     localStorage.clear();
-     localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
-   }
 
    /* Adjusts navbar and body main padding if window is > 992px width */
    function fixPaddingWidth() {

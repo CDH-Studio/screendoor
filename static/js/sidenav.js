@@ -409,7 +409,7 @@
   }
 
   open() {
-    if (this.isOpen === true) {
+    if (this.isOpen) {
       return;
     }
 

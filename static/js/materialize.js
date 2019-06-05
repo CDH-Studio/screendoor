@@ -5900,7 +5900,7 @@ $jscomp.polyfill = function (e, r, p, m) {
     }, {
       key: "open",
       value: function open() {
-        if (this.isOpen === true) {
+        if (this.isOpen) {
           return;
         }
 
