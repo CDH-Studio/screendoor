@@ -146,7 +146,7 @@ def import_applications(request):
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
-            # Call application parser logic here##
+            parse_applications()
 
             return render(request, 'importapplications/applications.html', {
                 'form': form})
