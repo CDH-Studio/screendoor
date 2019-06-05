@@ -99,7 +99,9 @@ class Applicant(models.Model):
 
     questions = models.ManyToManyField(
         FormQuestion, symmetrical=False, blank=True)
-    pdf = models.FileField()
+    pdf = models.FileField(upload_to="applications/", validators=[
+        FileExtensionValidator(allowed_extensions=['pdf'])],
+                           blank=True)
     ranking = models.PositiveIntegerField()
 
     def __str__(self):

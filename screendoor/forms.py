@@ -4,10 +4,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext as _
 import magic, mimetypes
 
-from .models import ScreenDoorUser, Position
+from .models import ScreenDoorUser, Position, Applicant
 from .uservisibletext import ErrorMessages, CreatePositionFormText, \
     CreateAccountFormText, StandardFormText, LoginFormText
 
+# For creating a new position
+class ImportApplicationsForm(forms.ModelForm):
+    class Meta:
+        model = Applicant
+        fields = ('pdf', )
 
 # For creating a new position
 class CreatePositionForm(forms.ModelForm):
