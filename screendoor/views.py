@@ -141,16 +141,11 @@ def import_position(request):
     })
 
 
-def save_position_to_current_user(user, position):
-    user.positions.add(position)
-
-
 def import_applications(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
-
             # Call application parser logic here##
 
             return render(request, 'importapplications/applications.html', {
