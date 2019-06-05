@@ -41,7 +41,7 @@ class YourTestClass(TestCase):
                            description="Experience in developing and maintaining stakeholder relationships with government and/or private sector.")
         self.aexp1 = Requirement(requirement_type="Asset",
                             abbreviation="AEXP1",
-                            description="ASSET   Experience in managing a program trianing plan geared at both internal and external partners")
+                            description="ASSET  Experience in managing a program trianing plan geared at both internal and external partners")
         self.aexp2 = Requirement(requirement_type="Asset",
                             abbreviation="AEXP2",
                             description="Experience in working in a health care environment")
@@ -52,7 +52,7 @@ class YourTestClass(TestCase):
                             abbreviation="AEXP3",
                             description="Experience in managing change initiatives within an organization.")
 
-    def test_parser(self):
+    def validate_parser_against_premade_fields(self):
         self.c.login(username="good@canada.ca", password="password76")
         with open('tests/Sample Job Poster.pdf'.format("Sample Job Poster.pdf"), 'rb') as file:
             response = self.c.post(reverse("importposition"), {'url_ref': "", 'pdf': file})
