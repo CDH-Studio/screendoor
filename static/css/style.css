@@ -36,7 +36,8 @@ header, main, footer {
 
 .menu-button {
   margin-right: -5px !important;
-  padding-left: 15px;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 @media only screen and (max-width : 992px) {
