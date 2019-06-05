@@ -1,17 +1,15 @@
 from string import digits
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from django.utils.translation import gettext as _
-
 from screendoor.redactor import parse_applications
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, LoginFormText
-
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken
+from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
 
 
@@ -24,6 +22,7 @@ from screendoor.parseposter import parse_upload
 
 @login_required(login_url='login/', redirect_field_name=None)
 def index(request):
+    return redirect('positions')
     # Returns main page
     return render(request, 'index.html',
                   {'user': request.user, 'baseVisibleText': InterfaceText})
@@ -134,19 +133,58 @@ def logout_view(request):
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
-        parse_applications()
+        # if request.POST.get("upload-position"):
+        # valid form
+        create_position_form = CreatePositionForm(
+            request.POST, request.FILES)
+        if create_position_form.is_valid():
+            # don't commit partial positions with only pdf/url into db
+            position = create_position_form.save(commit=False)
+            d = parse_upload(position)
+            errors = d.get('errors')
+            if errors:
+                create_position_form.add_error('pdf', errors)
+            # second check
+            if create_position_form.is_valid():
+                position = d.get('position')
+                # Persist position ID in session for saving and editing
+                request.session['position_id'] = position.id
+                # Successful render of a position
+                return render(request, 'createposition/importposition.html',
+                              {'position': position, 'form': create_position_form,
+                               'baseVisibleText': InterfaceText,
+                               'userVisibleText': PositionText})
 
+            # Default view for a form with errors
+            return render(request, 'createposition/importposition.html',
+                          {'form': create_position_form,
+                           'baseVisibleText': InterfaceText,
+                           'userVisibleText': PositionText})
+        if request.POST.get("save-position"):
+            position = Position.objects.get(id=request.session['position_id'])
+            request.user.positions.add(position)
+            return redirect('home')
+    # view for a GET request instead of a POST request
+    create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
         'form': ImportApplicationsForm, 'baseVisibleText': InterfaceText
     })
 
 
+@login_required(login_url='/login/', redirect_field_name=None)
+def positions(request):
+    return render(request, 'positions.html', {
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all
+    })
+
+  
 def import_applications(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
             parse_applications()
+            # Call application parser logic here##
 
             return render(request, 'importapplications/applications.html', {
                 'form': form})

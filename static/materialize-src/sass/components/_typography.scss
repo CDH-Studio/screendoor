@@ -37,7 +37,14 @@ h4 { font-size: $h4-fontsize; line-height: 110%; margin: ($h4-fontsize / 1.5) 0 
          margin: ($h4-fontsize / 5) 0 ($h4-fontsize / 2.5) 0;
      }
    }
-h5 { font-size: $h5-fontsize; line-height: 110%; margin: ($h5-fontsize / 1.5) 0 ($h5-fontsize / 2.5) 0;}
+h5 { font-size: $h5-fontsize; line-height: 110%; margin: ($h5-fontsize / 1.5) 0 ($h5-fontsize / 2.5) 0;
+     &.position-header {
+         margin: ($h4-fontsize / 5) 0 ($h4-fontsize / 2.5) 0;
+     }
+     .position-header {
+         margin: ($h4-fontsize / 5) 0 ($h4-fontsize / 2.5) 0;
+     }
+   }
 h6 { font-size: $h6-fontsize; line-height: 110%; margin: ($h6-fontsize / 1.5) 0 ($h6-fontsize / 2.5) 0;}
 
 // Text Styles

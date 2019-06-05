@@ -20,18 +20,26 @@
     <br>
     <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
-    <li><a href="/"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
+    <!-- Display View Positions menu item in blue if user is at that page -->
+     {% if request.path == '/positions/' %}
+    <li><a href="{% url 'positions' %}" class="blue-text"><i class="material-icons blue-text">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
+    {% else %}
+    <li><a href="{% url 'positions' %}"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
+    {% endif %}
+    <!-- Display create new position menu item in blue if user is at that page -->
+    {% if request.path == '/createnewposition/' %}
+    <li><a href="{% url 'importposition' %}" class="blue-text"><i class="material-icons blue-text">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
+    {% else %}
     <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
+    {% endif %}
     <li><a href="/logout"><i class="material-icons">arrow_back</i>{{ baseVisibleText.logout }}</a></li>
   </ul>
   <!-- End of sidebar menu -->
   <!-- Beginning of page content -->
   <main id="base-main">
-    <div class="container valign-wrapper form-cards">
-      <div class="row card-center">
-        {% block content %}
-        {% endblock  %}
-      </div>
+    <div class="row">
+      {% block content %}
+      {% endblock  %}
     </div>
   </main>
   <!-- End of page content -->
