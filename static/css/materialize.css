@@ -2665,11 +2665,17 @@ table span.badge {
     width: 85%; }
     .container.positions {
       width: 90%;
+      padding-top: 2%; }
+    .container.position {
+      width: 90%;
       padding-top: 2%; } }
 @media only screen and (min-width: 993px) {
   .container {
     width: 70%; }
     .container.positions {
+      width: 90%;
+      padding-top: 2%; }
+    .container.position {
       width: 90%;
       padding-top: 2%; } }
 .col .row {
@@ -3449,6 +3455,40 @@ small {
 
 .thin {
   font-weight: 200; }
+
+.back-to-position {
+  align-items: center;
+  padding-bottom: 5px;
+  padding-top: 5px;
+  font-weight: bold;
+  text-transform: uppercase; }
+
+.position-back-arrow {
+  margin-bottom: 0px; }
+
+.position-back-text {
+  margin-top: 2px; }
+
+.sort-positions {
+  margin-top: -5;
+  margin-bottom: 0; }
+
+.position-button {
+  margin-bottom: -35px;
+  color: #8477d6 !important; }
+
+.position-title {
+  font-size: 1.64rem;
+  background: none;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: normal;
+  border: 0px none;
+  cursor: pointer;
+  margin-top: 0px;
+  margin-bottom: 0px; }
+
+input .position-title {
+  cursor: pointer; }
 
 @media only screen and (min-width: 360px) {
   .flow-text {
