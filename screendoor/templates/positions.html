@@ -1,19 +1,33 @@
 {% extends 'base_logged_in.html' %}
+{% load string_interpolation %}
 {% load static %}
 {% block content %}
 <div class="container positions">
-  <!-- Row for sorting options that will defined the dictsort value below -->
-  <div class="row">
+  <!-- Row for sorting options. If statements allow for highlighting currently selected sort -->
+  {% if positions|length > 1 %}
+  <form action="" method="POST">
+    {% csrf_token %}
     <h6 class="btn-flat disabled">{{ userVisibleText.sort_by }}</h6>
-    <h6 class="btn-flat waves-effect">{{ userVisibleText.date_uploaded }}</h6>
-    <h6 class="btn-flat waves-effect">{{ userVisibleText.date_closed }}</h6>
-    <h6 class="btn-flat waves-effect">{{ userVisibleText.position }}</h6>
-    <h6 class="btn-flat waves-effect">{{ userVisibleText.no_applicants }}</h6>
-    <h6 class="btn-flat waves-effect">{{ userVisibleText.score }}</h6>
-  </div>
+    {% if "created" in sort %}
+    <input type="submit" name="sort-created" class="btn-flat blue-text" value="{{ userVisibleText.date_uploaded }}"></input>
+    {% else %}
+    <input type="submit" name="sort-created" class="btn-flat" value="{{ userVisibleText.date_uploaded }}"></input>
+    {% endif %}
+    {% if "date_closed" in sort %}
+    <input type="submit" name="sort-closed" class="btn-flat blue-text" value="{{ userVisibleText.date_closed }}"></input>
+    {% else %}
+    <input type="submit" name="sort-closed" class="btn-flat" value="{{ userVisibleText.date_closed }}"></input>
+    {% endif %}
+    {% if "position_title" in sort %}
+    <input type="submit" name="sort-position" class="btn-flat blue-text" value="{{ userVisibleText.position }}"></input>
+    {% else %}
+    <input type="submit" name="sort-position" class="btn-flat" value="{{ userVisibleText.position }}"></input>
+    {% endif %}
+  </form>
+  {% endif %}
   <!-- Beginning of Positions view -->
-  <!-- The dictsort value determines the order of the positions -->
-  {% for position in positions|dictsortreversed:"created" %}
+  <!-- Sorting is determined in view -->
+  {% for position in positions %}
   <!-- Beginning of position display -->
   <div class="row">
     <!--Beginning of confirm position card -->
@@ -23,8 +37,8 @@
           <h5 class="col s8 left position-header">{{ position.position_title }}</h5>
           <!-- Confirm/Edit button row -->
           <div class="col s4 right right-align">
-            <input class="btn-small green btn-left btn-pad" name="edit-position" type="submit" value="TEMP">
-            <input class="btn-small red btn-left btn-pad" name="save-position" type="submit" value="TEMP">
+            <!-- <input class="btn-small green btn-left btn-pad" name="edit-position" type="submit" value="TEMP">
+                 <input class="btn-small red btn-left btn-pad" name="save-position" type="submit" value="TEMP"> -->
           </div>
         </div>
         <!-- Position row 1 headers -->
@@ -74,6 +88,8 @@
         </div>
       </div>
     </div>
+    {% empty %}
+    <h6>{{ userVisibleText.no_positions|interpolate:baseVisibleText.new_position }}</h6>
   </div>
   <!-- End of position display -->
   {% endfor %}

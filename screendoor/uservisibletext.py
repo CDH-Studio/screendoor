@@ -150,6 +150,10 @@ class PositionsViewText():
     download = _("Download")
     # Translators: Position View
     delete = _("Delete")
+    # Translators: Position View
+    no_positions = _(
+        'You have not uploaded any positons. Click %s to get started.')
+
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
