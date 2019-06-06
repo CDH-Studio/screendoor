@@ -54,6 +54,49 @@ small { font-size: 75%; }
 .light { font-weight: 300; }
 .thin { font-weight: 200; }
 
+.back-to-position {
+    align-items: center;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.position-back-arrow {
+    margin-bottom: 0px;
+}
+
+.position-back-text {
+    margin-top: 2px;
+}
+
+.sort-positions {
+    margin-top: -5;
+    margin-bottom: 0;
+}
+
+.position-button {
+    margin-bottom: -35px;
+    color: #8477d6 !important;
+}
+
+.position-title {
+    font-size: $h5-fontsize;
+    background: none;
+    color: $off-black;
+    font-weight: normal;
+    border: 0px none;
+    cursor: pointer;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+input {
+    .position-title {
+        cursor: pointer;
+    }
+}
+
 
 .flow-text{
   $i: 0;
