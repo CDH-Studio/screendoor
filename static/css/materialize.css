@@ -3474,8 +3474,7 @@ small {
   margin-bottom: 0; }
 
 .position-button {
-  margin-bottom: -35px;
-  color: #8477d6 !important; }
+  margin-bottom: -35px; }
 
 .position-title {
   font-size: 1.64rem;
@@ -3858,6 +3857,9 @@ input .position-title {
   z-index: -1;
   transform-origin: 50% 0%;
   visibility: hidden; }
+
+.position-view-buttons {
+  margin-bottom: 5px; }
 
 .btn-margin {
   margin-top: 25px;

@@ -1,27 +1,52 @@
 {% extends 'base_logged_in.html' %}
 {% load static %}
 {% block content %}
+<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
+<script type="text/javascript">
+ document.addEventListener('DOMContentLoaded', function() {
+   var elems = document.querySelectorAll('.modal');
+   var instances = M.Modal.init(elems, {} /* options */ );
+ });
+ /* Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
+ function handleDeletion(id) {
+   var positionTitle = "{{ position.position_title }}"
+   document.getElementById("delete-text").innerHTML = positionTitle;
+   document.getElementById("delete-confirm-id").value = id;
+ }
+</script>
 <!-- Beginning of position display -->
 {% if position is not None %}
 <div class="container positions">
   <form action="" method="POST" class="sort-positions">
     {% csrf_token %}
-    <input type="submit" class="btn-flat blue-text" value="Back to Positions">
+    <input type="submit" class="btn-flat blue-text" value="←  {{ positionText.back_to_positions }}">
+    <h6 class="btn-flat disabled"></h6>
   </form>
   <div class="row">
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
       <div class="card-content col s12">
         <div class="row valign-wrapper">
-          <h4 class="col s12 left position-header">{{ position.position_title }}</h4>
+          <h4 class="col s12 left position-header grey-text text-darken-3">{{ position.position_title }}</h4>
         </div>
+
+        <div class="row left">
+          <form action="" method="POST" class="position-view-buttons">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ position.id }}">
+            <input type="submit" class="btn-flat blue-text" name="upload-applications" value="{{ userVisibleText.upload_applications }}">
+            <a class="btn-flat blue-text modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">Delete</a>
+          </form>
+        </div>
+
         <!-- Position row 1 headers -->
         <table class="highlight">
           <thead>
             <tr>
-              <th colspan="1">{{ userVisibleText.classification }}</th>
-              <th colspan="2">{{ userVisibleText.reference_number }}</th>
-              <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
+              <th colspan="1">{{ positionText.classification }}</th>
+              <th colspan="2">{{ positionText.reference_number }}</th>
+              <th colspan="2">{{ positionText.selection_process_number }}</th>
             </tr>
           </thead>
           <!-- Position row 1 body -->
@@ -35,10 +60,10 @@
           <!-- Position row 2 headers -->
           <thead>
             <tr>
-              <th colspan="1">{{ userVisibleText.date_closed }}</th>
-              <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
-              <th colspan="1">{{ userVisibleText.salary_range }}</th>
-              <th colspan="2">{{ userVisibleText.open_to }}</th>
+              <th colspan="1">{{ positionText.date_closed }}</th>
+              <th colspan="1">{{ positionText.number_of_positions }}</th>
+              <th colspan="1">{{ positionText.salary_range }}</th>
+              <th colspan="2">{{ positionText.open_to }}</th>
             </tr>
           </thead>
           <!-- Position row 2 body -->
@@ -62,10 +87,8 @@
               <td colspan="5">{{ position.description }}</td>
             </tr>
           </tbody>
-        </table>
-        <!-- Position education and experience rows -->
-        <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-        <table class="highlight">
+          <!-- Position education and experience rows -->
+          <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
           {% for req in position.requirement_set.all %}
           {% ifchanged %}
           <thead>
@@ -81,13 +104,34 @@
           </tbody>
           {% endfor %}
         </table>
+        <div class="row position-buttons right">
+          <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
+        </div>
       </div>
     </div>
   </div>
 </div>
 <br>
 {% else %}
-TEMPORARY: Error: position cannot be displayed
+<h5>{{ positionText.cannot_display_position }}</h5>
 <!-- End of position display -->
 {% endif %}
+
+<!-- Modal delete position confirmation pop-up -->
+<div id="delete-modal" class="modal">
+  <div class="modal-content">
+    <h5>{{ userVisibleText.confirm_delete_header }}</h5>
+    <p>{{ userVisibleText.confirm_delete }}</p>
+    <h6 id="delete-text"></h6>
+  </div>
+  <form action="" method="POST">
+    <div class="modal-footer">
+      {% csrf_token %}
+      <input type="hidden" id="delete-confirm-id" name="id" value="">
+      <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+      <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
+    </div>
+  </form>
+</div>
+
 {% endblock %}

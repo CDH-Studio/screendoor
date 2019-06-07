@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import re
 import tabula
 from pandas import options
 from tika import parser
@@ -11,6 +12,7 @@ from weasyprint import HTML, CSS
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
     length = len(list_of_data_frames)
     no_applicants_batch = 1
+
     # /////////////////////////////////////////////////////////////////////////
 
     list_of_data_frames = [item.replace(r'\r', ' ', regex=True) for item in list_of_data_frames]
@@ -26,6 +28,7 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
             if item[0].str.contains("Nom de famille / Last Name:").any():
                 count = count + 1
                 no_applicants_batch = no_applicants_batch + 1
+
                 print("Processing applicant: " + str(count))
                 series = item.set_index(0)[1]
                 forbidden.append(series["Nom de famille / Last Name:"])
@@ -57,18 +60,21 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
     print("This may take a while...")
     # //////////////////////// Li's html printing Thang ////////////////////////////////
     no_applicants_total = 1
+
     deletion = False
     for idx, item in enumerate(list_of_data_frames):
 
         if str(item.shape) == "(1, 1)":
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
+
                     print("Writing Applicant: " + str(no_applicants_total))
                     no_applicants_total = no_applicants_total + 1
                     print(item)
                     deletion = True
 
         if not (item[0].dtype == np.float64 or item[0].dtype == np.int64):
+
             if item[0].str.contains("Nom de famille / Last Name:").any():
                 deletion = False
 
@@ -114,6 +120,7 @@ def get_resume_starter_string(pdf_file_path):
 def parse_applications():
     print("Starting Redactor...")
 
+
     pd.set_option('display.max_colwidth', -1)
     count = 0
     if not os.path.isdir("redacted"):
@@ -135,4 +142,5 @@ def parse_applications():
 
 
 applicant_count = parse_applications()
+
 print("Total number of applicants processed: " + str(applicant_count))
