@@ -79,6 +79,10 @@ class PositionText():
     save = _("Save")
     # Translators: Confirming Position Information
     edit = _("Edit")
+    # Translators: Confirming Position Information
+    back_to_positions = _("Back to Positions")
+    # Translators: Confirming Position Informatino
+    cannot_display_position = _("Error: Position cannot be displayed")
 
 
 class CreatePositionFormText():
@@ -151,8 +155,14 @@ class PositionsViewText():
     # Translators: Position View
     delete = _("Delete")
     # Translators: Position View
+    upload_applications = _("Upload applications")
+    # Translators: Position View
     no_positions = _(
         'You have not uploaded any positons. Click %s to get started.')
+    # Translators: Position View
+    confirm_delete_header = _("Please Confirm Deletion")
+    # Translators: Position View
+    confirm_delete = _("Are you sure you want to delete this position?")
 
 
 # translate command (in web sh): python manage.py makemessages -l pl

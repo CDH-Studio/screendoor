@@ -174,7 +174,10 @@ def import_position(request):
 
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
-    sort_by = request.session['position_sort'] if request.session['position_sort'] is not None else '-created'
+    try:
+        sort_by = request.session['position_sort']
+    except KeyError:
+        sort_by = '-created'
     if request.method == 'POST':
         if request.POST.get("sort-created"):
             sort_by = '-created'
