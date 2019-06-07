@@ -134,5 +134,3 @@ def parse_applications():
     return count
 
 
-applicant_count = parse_applications()
-print("Total number of applicants processed: " + str(applicant_count))
