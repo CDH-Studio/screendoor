@@ -31,8 +31,7 @@
    } */
 
 header, main, footer {
-  padding-left: 300px;
-}
+  padding-left: 300px;}
 
 .menu-button {
   margin-right: -5px !important;
@@ -44,4 +43,16 @@ header, main, footer {
   header, main, footer {
     padding-left: 0;
   }
+}
+
+.sortby-button {
+  margin-top: 9px;
+}
+
+form {
+  font-weight: normal !important;
+}
+
+input {
+  font-weight: normal;
 }

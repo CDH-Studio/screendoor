@@ -2,12 +2,31 @@
 {% load string_interpolation %}
 {% load static %}
 {% block content %}
+<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
+<script type="text/javascript">
+ document.addEventListener('DOMContentLoaded', function() {
+   var elems = document.querySelectorAll('.modal');
+   var instances = M.Modal.init(elems, {} /* options */ );
+ });
+ /* Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
+ function handleDeletion(id) {
+   var positionTitle;
+   "{% for position in positions %}"
+   if (id == "{{ position.id }}"){
+     positionTitle = "{{ position.position_title }}"
+     document.getElementById("delete-text").innerHTML = positionTitle;
+     document.getElementById("delete-confirm-id").value = id;
+   }
+   "{% endfor %}"
+ }
+</script>
 <div class="container positions">
   <!-- Row for sorting options. If statements allow for highlighting currently selected sort -->
   {% if positions|length > 1 %}
   <form action="" method="POST" class="sort-positions">
     {% csrf_token %}
-    <h6 class="btn-flat disabled">{{ userVisibleText.sort_by }}</h6>
+    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
     {% if "created" in sort %}
     <input type="submit" name="sort-created" class="btn-flat blue-text" value="{{ userVisibleText.date_uploaded }}">
     {% else %}
@@ -26,9 +45,9 @@
   </form>
   {% endif %}
   <!-- Beginning of Positions view -->
-  <!-- Sorting is determined in view -->
+  <!-- Sorting is determined in views.py -->
   {% for position in positions %}
-  <!-- Beginning of position display -->
+  <!-- Beginning of single position display -->
   <div class="row">
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
@@ -37,7 +56,7 @@
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
-            <input type="submit" class="position-title" name="position" value="{{ position.position_title }}">
+            <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
           </form>
         </div>
         <!-- Position row 1 headers -->
@@ -81,8 +100,9 @@
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
-            <input type="submit" class="btn-flat screendoor-color-text position-button" name="position" value="{{ userVisibleText.view }}">
-            <input type="submit" class="btn-flat screendoor-color-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+            <input type="submit" class="btn-flat blue-text position-button" name="position" value="{{ userVisibleText.view }}">
+            <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">Delete</a>
+            <input type="submit" class="btn-flat blue-text position-button" name="upload-applications" value="{{ userVisibleText.upload_applications }}">
           </form>
         </div>
         <div class="row position-buttons right">
@@ -97,5 +117,22 @@
   {% endfor %}
   <!-- End of Positions view -->
   <br>
+</div>
+
+<!-- Modal delete position confirmation pop-up -->
+<div id="delete-modal" class="modal">
+  <div class="modal-content">
+    <h5>{{ userVisibleText.confirm_delete_header }}</h5>
+    <p>{{ userVisibleText.confirm_delete }}</p>
+    <h6 id="delete-text"></h6>
+  </div>
+  <form action="" method="POST">
+    <div class="modal-footer">
+      {% csrf_token %}
+      <input type="hidden" id="delete-confirm-id" name="id" value="">
+      <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+      <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}
