@@ -1,4 +1,5 @@
 from string import digits
+from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
@@ -167,17 +168,40 @@ def import_position(request):
     # view for a GET request instead of a POST request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': ImportApplicationsForm, 'baseVisibleText': InterfaceText
+        'form': CreatePositionForm, 'baseVisibleText': InterfaceText
     })
 
 
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
+    sort_by = request.session['position_sort'] if request.session['position_sort'] is not None else '-created'
+    if request.method == 'POST':
+        if request.POST.get("sort-created"):
+            sort_by = '-created'
+        elif request.POST.get("sort-closed"):
+            sort_by = '-date_closed'
+        elif request.POST.get("sort-position"):
+            sort_by = 'position_title'
+        elif request.POST.get("position"):
+            return position(request, Position.objects.get(
+                id=request.POST.get("id")))
+        elif request.POST.get("delete"):
+            Position.objects.get(
+                id=request.POST.get("id")).delete()
+
+    request.session['position_sort'] = sort_by
     return render(request, 'positions.html', {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
     })
 
-  
+
+@login_required(login_url='/login/', redirect_field_name=None)
+def position(request, position):
+    return render(request, 'position.html', {
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position
+    })
+
+
 def import_applications(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)

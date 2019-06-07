@@ -47,6 +47,8 @@
    document.getElementById('url_input').required = false;
    document.getElementById('url_input').value = null;
    document.getElementById('position_submit_button').style.display = 'block';
+   document.getElementById('position_submit_button').className = 'right btn';
+   document.getElementById('position_submit_button').value = 'Submit';
  }
  /* Show URL form, hide and clear PDF input form */
  function showUrl() {
@@ -57,6 +59,8 @@
    document.getElementById('url_upload_form').style.display = 'block';
    document.getElementById('url_input').required = true;
    document.getElementById('position_submit_button').style.display = 'block';
+   document.getElementById('position_submit_button').className = 'right btn disabled';
+   document.getElementById('position_submit_button').value = 'Coming soon';
  }
 </script>
 <div class="container valign-wrapper form-cards">
@@ -205,24 +209,19 @@
             </tbody>
           </table>
           <!-- Position education and experience rows -->
-          <!-- TODO: Change for updated data model -->
           <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
           <table class="highlight">
-            {% for req in position.requirement_set.all reversed %}
+            {% for req in position.requirement_set.all %}
+            {% ifchanged %}
             <thead>
               <tr>
-                {% if forloop.counter is 1 %}
-                <th colspan="5">{{ userVisibleText.education }}</th>
-                {% elif forloop.counter is 2 %}
-                <th colspan="5">{{ userVisibleText.experience }}</th>
-                {% elif forloop.counter is 3 %}
-                <th colspan="5">{{ userVisibleText.assets }}</th>
-                {% endif %}
+                <th colspan="5">{{ req.requirement_type }}</th>
               </tr>
             </thead>
+            {% endifchanged %}
             <tbody>
               <tr>
-                <td colspan="5">{{ req.description|linebreaksbr }}</td>
+                <td colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
               </tr>
             </tbody>
             {% endfor %}
