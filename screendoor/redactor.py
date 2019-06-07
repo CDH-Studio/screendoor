@@ -1,54 +1,84 @@
 import os
 
+import PyPDF2
+import numpy as np
 import pandas as pd
+import re
 import tabula
 from pandas import options
+from tika import parser
 from weasyprint import HTML, CSS
 
 
-def find_essential_details(list_of_data_frames, filename):
+def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
+    length = len(list_of_data_frames)
+    y = 1
     # /////////////////////////////////////////////////////////////////////////
 
     list_of_data_frames = [item.replace(r'\r', ' ', regex=True) for item in list_of_data_frames]
 
-    series1 = list_of_data_frames[1].set_index(0)[1]
+    print("Reading file: " + filename)
 
-    series1["Nom de famille / Last Name:"] = "REDACTED"
-    series1["Prénom / First Name:"] = "REDACTED"
-    series1["Initiales / Initials:"] = "REDACTED"
-    series1["No SRFP / PSRS no:"] = "REDACTED"
+    forbidden = []
 
-    list_of_data_frames[1] = pd.DataFrame({'key': series1.index, 'value': series1.values})
+    for idx, item in enumerate(list_of_data_frames):
+        if item[0].dtype == np.float64 or item[0].dtype == np.int64:
+            continue
+        else:
+            if item[0].str.contains("Nom de famille / Last Name:").any():
+                count = count + 1
+                y = y + 1
+                print("Processing applicant: " + str(count))
+                series = item.set_index(0)[1]
+                forbidden.append(series["Nom de famille / Last Name:"])
+                forbidden.append(series["No SRFP / PSRS no:"])
+                series["Nom de famille / Last Name:"] = "REDACTED"
+                series["Prénom / First Name:"] = "REDACTED"
+                series["Initiales / Initials:"] = "REDACTED"
+                series["No SRFP / PSRS no:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
 
-    list_of_data_frames[1].to_html()
-
-    # /////////////////////////////////////////////////////////////////////////
-
-    series3 = list_of_data_frames[3].set_index(0)[1]
-
-    series3["Adresse / Address:"] = "REDACTED"
-    series3["Courriel / E-mail:"] = "REDACTED"
-    series3["Téléphone / Telephone:"] = "REDACTED"
-
-    list_of_data_frames[3] = pd.DataFrame({'key': series3.index, 'value': series3.values})
-
-    # /////////////////////////////////////////////////////////////////////////
-
-    series5 = list_of_data_frames[5].set_index(0)[1]
-    series5["Adresse / Address:"] = "REDACTED"
-
-    list_of_data_frames[5] = pd.DataFrame({'key': series5.index, 'value': series5.values})
+            elif item[0].str.contains("Courriel / E-mail:").any():
+                series = item.set_index(0)[1]
+                forbidden.append(series["Courriel / E-mail:"])
+                forbidden.append(series["Adresse / Address:"])
+                forbidden.append(series["Téléphone / Telephone:"])
+                series["Adresse / Address:"] = "REDACTED"
+                series["Courriel / E-mail:"] = "REDACTED"
+                series["Téléphone / Telephone:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
+            elif item[0].str.contains("Adresse / Address:").any():
+                series = item.set_index(0)[1]
+                series["Adresse / Address:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
 
     # /////////////////////////////////////////////////////////////////////////
 
     documents = []
+    print("Writing to html and appending to redacted pdf")
+    print("This may take a while...")
+    # //////////////////////// Li's html printing Thang ////////////////////////////////
+    x = 1
+    deletion = False
+    for idx, item in enumerate(list_of_data_frames):
 
-    for item in list_of_data_frames:
         if str(item.shape) == "(1, 1)":
-            if len(item.iat[0, 0]) > 2000:
-                continue
-        html = item.to_html(index=False, header=False)
-        documents.append(HTML(string=html).render(stylesheets=[CSS(string='table, tr, td {border: 1px solid black;}')]))
+            for string in string_array:
+                if item.iat[0, 0].replace(" ", "").startswith(string):
+                    print("Writing Applicant: " + str(x))
+                    x = x + 1
+                    print(item)
+                    deletion = True
+
+        legit = not (item[0].dtype == np.float64 or item[0].dtype == np.int64)
+        if legit:
+            if item[0].str.contains("Nom de famille / Last Name:").any():
+                deletion = False
+
+        if not deletion:
+            html = item.to_html(index=False, header=False)
+            documents.append(
+                HTML(string=html).render(stylesheets=[CSS(string='table, tr, td {border: 1px solid black;}')]))
 
     pages = []
 
@@ -57,29 +87,55 @@ def find_essential_details(list_of_data_frames, filename):
             pages.append(page)
 
     documents[0].copy(pages).write_pdf('redacted/re' + filename)
+    print("TOTAL RESUMES REDACTED: " + str(x))
+    print("TOTAL APPLICANTS: " + str(y))
 
-    pass
+    return count
 
 
-def parse_applications():
+def get_resume_starter_string(pdf_file_path):
+    string_array = []
+
+    fileData = parser.from_file(pdf_file_path)
+    text = fileData['content']
+    array1 = text.split("Curriculum vitae / Résumé\n")
+    string_array = []
+    for idx, item in enumerate(array1):
+
+        item = item.replace("\n", "")
+        item = item.replace("\t", " ")
+        item = item.strip()
+        item = " ".join(item.split(" ", 2)[:2])
+        item = item.replace(" ", "")
+
+        string_array.append(item)
+
+    print(*string_array, sep='\n')
+    return string_array
+
+
+def parse_application():
+    print("Starting Redactor...")
 
     pd.set_option('display.max_colwidth', -1)
-
+    count = 0
     if not os.path.isdir("redacted"):
+        print("Creating folder redacted...")
         os.mkdir("redacted")
 
     directory = "sensitive"
-
     for filename in os.listdir(directory):
         if filename.endswith(".pdf"):
             pdf_file_path = os.path.join(directory, filename)
             df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true", lattice="true")
-            find_essential_details(df, filename)
+            string_array = get_resume_starter_string(pdf_file_path)
+            count = find_essential_details(df, filename, count, pdf_file_path, string_array)
             continue
         else:
             continue
 
-    pass
+    return count
 
 
-parse_applications()
+applicant_count = parse_application()
+print("Total number of applicants processed: " + str(applicant_count))
