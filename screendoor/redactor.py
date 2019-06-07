@@ -10,7 +10,7 @@ from weasyprint import HTML, CSS
 
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
     length = len(list_of_data_frames)
-    y = 1
+    no_applicants_batch = 1
     # /////////////////////////////////////////////////////////////////////////
 
     list_of_data_frames = [item.replace(r'\r', ' ', regex=True) for item in list_of_data_frames]
@@ -25,7 +25,7 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
         else:
             if item[0].str.contains("Nom de famille / Last Name:").any():
                 count = count + 1
-                y = y + 1
+                no_applicants_batch = no_applicants_batch + 1
                 print("Processing applicant: " + str(count))
                 series = item.set_index(0)[1]
                 forbidden.append(series["Nom de famille / Last Name:"])
@@ -56,20 +56,19 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
     print("Writing to html and appending to redacted pdf")
     print("This may take a while...")
     # //////////////////////// Li's html printing Thang ////////////////////////////////
-    x = 1
+    no_applicants_total = 1
     deletion = False
     for idx, item in enumerate(list_of_data_frames):
 
         if str(item.shape) == "(1, 1)":
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
-                    print("Writing Applicant: " + str(x))
-                    x = x + 1
+                    print("Writing Applicant: " + str(no_applicants_total))
+                    no_applicants_total = no_applicants_total + 1
                     print(item)
                     deletion = True
 
-        legit = not (item[0].dtype == np.float64 or item[0].dtype == np.int64)
-        if legit:
+        if not (item[0].dtype == np.float64 or item[0].dtype == np.int64):
             if item[0].str.contains("Nom de famille / Last Name:").any():
                 deletion = False
 
@@ -85,8 +84,8 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
             pages.append(page)
 
     documents[0].copy(pages).write_pdf('redacted/re' + filename)
-    print("TOTAL RESUMES REDACTED: " + str(x))
-    print("TOTAL APPLICANTS: " + str(y))
+    print("TOTAL RESUMES REDACTED: " + str(no_applicants_total))
+    print("TOTAL APPLICANTS: " + str(no_applicants_batch))
 
     return count
 
@@ -112,7 +111,7 @@ def get_resume_starter_string(pdf_file_path):
     return string_array
 
 
-def parse_application():
+def parse_applications():
     print("Starting Redactor...")
 
     pd.set_option('display.max_colwidth', -1)
@@ -135,5 +134,5 @@ def parse_application():
     return count
 
 
-applicant_count = parse_application()
+applicant_count = parse_applications()
 print("Total number of applicants processed: " + str(applicant_count))
