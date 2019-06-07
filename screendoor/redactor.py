@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 import pandas as pd
-import re
 import tabula
 from pandas import options
 from tika import parser
@@ -140,7 +139,3 @@ def parse_applications():
 
     return count
 
-
-applicant_count = parse_applications()
-
-print("Total number of applicants processed: " + str(applicant_count))
