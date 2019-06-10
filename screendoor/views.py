@@ -1,5 +1,4 @@
 from string import digits
-from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
@@ -7,20 +6,18 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
-from django.utils.translation import gettext as _
-from screendoor.redactor import parse_applications
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
+from screendoor.redactor import parse_applications
 
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
+# The @login_required decorator redirects unauthenticated sessions to 'settings.LOGIN_URL' or the specified URL
 
 
-# @login_required
-# The login_required decorator redirects unauthenticated sessions to 'settings.LOGIN_URL'
-
+# Index currently redirects to the positions view if logged in
 @login_required(login_url='login/', redirect_field_name=None)
 def index(request):
     return redirect('positions')
@@ -29,6 +26,7 @@ def index(request):
                   {'user': request.user, 'baseVisibleText': InterfaceText})
 
 
+# Renders account registration form
 def register_form(request):
     register_form = ScreenDoorUserCreationForm()
     if request.method == 'POST':
@@ -44,11 +42,12 @@ def register_form(request):
             return render(request, 'registration/register.html',
                           {'register_form': register_form,
                            'account_created': format(CreateAccountFormText.account_created % user)})
-            # Returns form page
+    # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
 
 
+# Creates and returns user object from request data
 def create_account(request):
     # Creates account and saves email, password, username to database
     user = get_user_model().objects.create_user(
@@ -64,9 +63,11 @@ def create_account(request):
     return user
 
 
+# Sends account confirmation e-mail to user
+# Currently sends mock e-mail via console
 def send_user_email(request, user):
     url = generate_confirmation_url(request, user)
-    mail_sent = send_mail(
+    send_mail(
         'ScreenDoor: Please confirm e-mail address',
         'Please visit the following URL to confirm your account: ' + url,
         'screendoor@screendoor.ca',
@@ -76,6 +77,7 @@ def send_user_email(request, user):
     )
 
 
+# Creates and returns a working account confirmation URL
 def generate_confirmation_url(request, user):
     token = EmailAuthenticateToken()
     token.user = user
@@ -85,32 +87,46 @@ def generate_confirmation_url(request, user):
     return "http://localhost:8000/confirm?key=" + str(token.key)
 
 
+# Clears any GET data, i.e. account confirmation token string from URL
+def clear_get_data(request):
+    # Clears any GET data
+    request.GET._mutable = True
+    request.GET['key'] = None
+    request.GET._mutable = False
+
+
+# Returns true if user authentication token is valid and userhas been validated and saved
+def authenticate_user(account_key):
+    # If authentication key is valid, activate user and delete authentication token
+    if EmailAuthenticateToken.objects.filter(key=account_key).exists():
+        token = EmailAuthenticateToken.objects.get(key=account_key)
+        user = token.user
+        user.email_confirmed = True
+        user.save()
+        token.delete()
+        return True
+    return False
+
+
+# Displays form for user login and calls validation methods
 def login_form(request):
     # If user is not logged in, display login form
     if not request.user.is_authenticated:
         form = LoginForm()
         # Has the user hit login button
         if request.method == 'POST':
-            # Clears any GET data
-            request.GET._mutable = True
-            request.GET['key'] = None
-            request.GET._mutable = False
+            clear_get_data(request)
             # Instantiate form object
             form = LoginForm(request.POST)
             # Validates form and persists username data
             if form.is_valid():
                 user = form.get_user()
+                # Logs in and redirects user
                 login(request, user)
                 return redirect('home')
         if request.GET.get('key') is not None:
-            account_key = request.GET.get('key')
-            # Is the token valid in the database
-            if EmailAuthenticateToken.objects.filter(key=account_key).exists():
-                token = EmailAuthenticateToken.objects.get(key=account_key)
-                user = token.user
-                user.email_confirmed = True
-                user.save()
-                token.delete()
+            # Check if authentication key is valid
+            if (authenticate_user(request.GET.get('key'))):
                 # Display account confirmation message
                 return render(request, 'registration/login.html',
                               {'login_form': form,
@@ -125,29 +141,40 @@ def login_form(request):
     return redirect('home')
 
 
+# Logs out user
 @login_required(login_url='/login/', redirect_field_name=None)
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
+# Run parse upload script and return dictionary
+def parse_position_return_dictionary(create_position_form):
+    # don't commit partial positions with only pdf/url into db
+    return parse_upload(create_position_form.save(commit=False))
+
+
+# Adds position to user data
+def save_position_to_user(request):
+    request.user.positions.add(Position.objects.get(
+        id=request.session['position_id']))
+
+
+# Displays form allowing users to upload job posting PDF files and URLs
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
-        # if request.POST.get("upload-position"):
-        # valid form
         create_position_form = CreatePositionForm(
             request.POST, request.FILES)
+        # Is the form data valid
         if create_position_form.is_valid():
-            # don't commit partial positions with only pdf/url into db
-            position = create_position_form.save(commit=False)
-            d = parse_upload(position)
-            errors = d.get('errors')
+            dictionary = parse_position_return_dictionary(create_position_form)
+            errors = dictionary.get('errors')
             if errors:
                 create_position_form.add_error('pdf', errors)
-            # second check
+            # Is the parsed data valid (any errors added)
             if create_position_form.is_valid():
-                position = d.get('position')
+                position = dictionary.get('position')
                 # Persist position ID in session for saving and editing
                 request.session['position_id'] = position.id
                 # Successful render of a position
@@ -155,49 +182,65 @@ def import_position(request):
                               {'position': position, 'form': create_position_form,
                                'baseVisibleText': InterfaceText,
                                'userVisibleText': PositionText})
-
-            # Default view for a form with errors
+            # Display errors
             return render(request, 'createposition/importposition.html',
                           {'form': create_position_form,
                            'baseVisibleText': InterfaceText,
                            'userVisibleText': PositionText})
+        # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            position = Position.objects.get(id=request.session['position_id'])
-            request.user.positions.add(position)
+            save_position_to_user(request)
             return redirect('home')
-    # view for a GET request instead of a POST request
+    # Default view for GET request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
         'form': CreatePositionForm, 'baseVisibleText': InterfaceText
     })
 
 
+# Gets user's persisted positions sort method, or returns default
+def get_positions_sort_method(request):
+    try:
+        return request.session['position_sort']
+    except KeyError:
+        return '-created'
+
+
+# Changes positions sort method
+def change_positions_sort_method(request, sort_by):
+    if request.POST.get("sort-created"):
+        return '-created'
+    elif request.POST.get("sort-closed"):
+        return '-date_closed'
+    elif request.POST.get("sort-position"):
+        return 'position_title'
+    return sort_by
+
+
+# View of all positions associated with a user account
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
-    try:
-        sort_by = request.session['position_sort']
-    except KeyError:
-        sort_by = '-created'
+    # Order of positions display
+    sort_by = get_positions_sort_method(request)
     if request.method == 'POST':
-        if request.POST.get("sort-created"):
-            sort_by = '-created'
-        elif request.POST.get("sort-closed"):
-            sort_by = '-date_closed'
-        elif request.POST.get("sort-position"):
-            sort_by = 'position_title'
-        elif request.POST.get("position"):
+        sort_by = change_positions_sort_method(request, sort_by)
+        # User wants to view position detail
+        if request.POST.get("position"):
             return position(request, Position.objects.get(
                 id=request.POST.get("id")))
+        # User wants to delete position
         elif request.POST.get("delete"):
             Position.objects.get(
                 id=request.POST.get("id")).delete()
-
+    # Persists positions sorting
     request.session['position_sort'] = sort_by
+    # Displays list of positions
     return render(request, 'positions.html', {
         'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
     })
 
 
+# Position detail view
 @login_required(login_url='/login/', redirect_field_name=None)
 def position(request, position):
     return render(request, 'position.html', {
