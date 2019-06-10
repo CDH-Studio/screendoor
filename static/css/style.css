@@ -30,6 +30,10 @@
    width: 300px;
    } */
 
+[data-toggle="toggle"] {
+	display: none;
+}
+
 header, main, footer {
   padding-left: 300px;}
 

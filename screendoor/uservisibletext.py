@@ -25,7 +25,7 @@ class ErrorMessages():
     # Translators: When a user submits an invalid username and/or password.
     invalid_un_or_pw = _('Invalid username or password.')
     # Translators: When a user tries to upload a faulty pdf/
-    incorrect_mime_type = _('Please enter a valid pdf file.')
+    incorrect_mime_type = _('Please enter a valid PDF file.')
     # Translators: When a user tries to upload a url other than the jobs.gc.ca posters.
     invalid_url_domain = _('Please enter a jobs.gc.ca url.')
     # Translators: When a user tries to upload a pdf we cant parse.
@@ -127,7 +127,7 @@ class LoginFormText():
     # Translators: LoginForm
     login = _("Login")
     # Translators: LoginForm
-    password = _('Password')
+    password = _("Password")
     # Translators: LoginForm
     account_confirmed = _("Account %s confirmed. Please sign in below.")
     # Translators: LoginForm

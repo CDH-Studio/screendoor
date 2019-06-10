@@ -1,20 +1,6 @@
 {% extends 'base_logged_in.html' %}
 {% load static %}
 {% block content %}
-<script src="{% static 'js/materialize.js' %}"></script>
-<script src="{% static 'js/modal.js' %}"></script>
-<script type="text/javascript">
- document.addEventListener('DOMContentLoaded', function() {
-   var elems = document.querySelectorAll('.modal');
-   var instances = M.Modal.init(elems, {} /* options */ );
- });
- /* Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
- function handleDeletion(id) {
-   var positionTitle = "{{ position.position_title }}"
-   document.getElementById("delete-text").innerHTML = positionTitle;
-   document.getElementById("delete-confirm-id").value = id;
- }
-</script>
 <!-- Beginning of position display -->
 {% if position is not None %}
 <div class="container positions">
@@ -30,16 +16,15 @@
         <div class="row valign-wrapper">
           <h4 class="col s12 left position-header grey-text text-darken-3">{{ position.position_title }}</h4>
         </div>
-
+        <!-- Upload Applications and Delete buttons -->
         <div class="row left">
           <form action="" method="POST" class="position-view-buttons">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
             <input type="submit" class="btn-flat blue-text" name="upload-applications" value="{{ userVisibleText.upload_applications }}">
-            <a class="btn-flat blue-text modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">Delete</a>
+            <a class="btn-flat blue-text modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">{{ userVisibleText.delete }}</a>
           </form>
         </div>
-
         <!-- Position row 1 headers -->
         <table class="highlight">
           <thead>
@@ -67,7 +52,7 @@
             </tr>
           </thead>
           <!-- Position row 2 body -->
-          <tbody>
+          <tbody">
             <tr>
               <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
               <td colspan="1">{{ position.num_positions }}</td>
@@ -90,20 +75,24 @@
           <!-- Position education and experience rows -->
           <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
           {% for req in position.requirement_set.all %}
+          <!-- ifchanged executes only for distinct values without repetition -->
           {% ifchanged %}
           <thead>
             <tr>
+              <!-- Requirement type, e.g. education, experience, assets -->
               <th colspan="5">{{ req.requirement_type }}</th>
             </tr>
           </thead>
           {% endifchanged %}
           <tbody>
             <tr>
+              <!-- Requirement abbreviation, e.g. EX1, and description -->
               <td colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
             </tr>
           </tbody>
           {% endfor %}
         </table>
+        <!-- Date and time position was added -->
         <div class="row position-buttons right">
           <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
         </div>
@@ -112,11 +101,11 @@
   </div>
 </div>
 <br>
+<!-- Error message if position is invalid/cannot be displayed -->
 {% else %}
 <h5>{{ positionText.cannot_display_position }}</h5>
 <!-- End of position display -->
 {% endif %}
-
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
@@ -133,5 +122,16 @@
     </div>
   </form>
 </div>
-
+<!-- MaterializeCSS JS library  -->
+<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/position-delete.js' %}"></script>
+<!-- Script has to be inline to use Django variables -->
+<script>
+ /* For position detail view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
+ function handleDeletion(id) {
+   let positionTitle = "{{ position.position_title }}"
+   document.getElementById("delete-text").innerHTML = positionTitle;
+   document.getElementById("delete-confirm-id").value = id;
+ }
+</script>
 {% endblock %}

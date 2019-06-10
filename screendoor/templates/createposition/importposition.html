@@ -1,68 +1,6 @@
 {% extends '../base_logged_in.html' %}
 {% load static %}
 {% block content %}
-<script>
- /* Clears all local storage except sidebar open boolean */
- function clearExceptSidebar() {
-   let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
-   localStorage.clear();
-   localStorage.setItem('sidenavOpen', tempSidebarStatus);
- }
- /* Display persisted form information, or if none exists, hide PDF and URL forms */
- window.onload = function() {
-   if (localStorage.getItem('pdfRequired') === null) {
-     document.getElementById('pdf_upload_form').style.display = 'none';
-     document.getElementById('url_upload_form').style.display = 'none';
-     document.getElementById('position_submit_button').style.display = 'none';
-     document.getElementById('radio_pdf').checked = false;
-     document.getElementById('radio_url').checked = false;
-   } else {
-     document.getElementById('pdf_input').required = localStorage.getItem('pdfRequired');
-     document.getElementById('url_input').required = !localStorage.getItem('pdfRequired');
-     document.getElementById('pdf_path_input').value = localStorage.getItem('pdfText');
-     document.getElementById('pdf_input').value = null;
-     document.getElementById('url_input').value = localStorage.getItem('urlText');
-     document.getElementById('pdf_upload_form').style.display = localStorage.getItem('pdfDisplay');
-     document.getElementById('url_upload_form').style.display = localStorage.getItem('urlDisplay');
-     document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
-     document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
-     clearExceptSidebar();
-   }
- };
- /* Persist the form data to display alongside processed position */
- function persistUploaded() {
-   localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
-   localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
-   localStorage.setItem('urlText', document.getElementById('url_input').value);
-   localStorage.setItem('pdfDisplay', document.getElementById('pdf_upload_form').style.display);
-   localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').style.display);
-   localStorage.setItem('pdfChecked', document.getElementById('radio_pdf').checked);
-   localStorage.setItem('urlChecked', document.getElementById('radio_url').checked);
- }
- /* Show PDF form, hide and clear URL input form */
- function showPdf() {
-   document.getElementById('pdf_upload_form').style.display = 'block';
-   document.getElementById('pdf_input').required = true;
-   document.getElementById('url_upload_form').style.display = 'none';
-   document.getElementById('url_input').required = false;
-   document.getElementById('url_input').value = null;
-   document.getElementById('position_submit_button').style.display = 'block';
-   document.getElementById('position_submit_button').className = 'right btn';
-   document.getElementById('position_submit_button').value = 'Submit';
- }
- /* Show URL form, hide and clear PDF input form */
- function showUrl() {
-   document.getElementById('pdf_upload_form').style.display = 'none';
-   document.getElementById('pdf_input').required = false;
-   document.getElementById('pdf_input').value = null;
-   document.getElementById('pdf_path_input').value = null;
-   document.getElementById('url_upload_form').style.display = 'block';
-   document.getElementById('url_input').required = true;
-   document.getElementById('position_submit_button').style.display = 'block';
-   document.getElementById('position_submit_button').className = 'right btn disabled';
-   document.getElementById('position_submit_button').value = 'Coming soon';
- }
-</script>
 <div class="container valign-wrapper form-cards">
   <div class="row card-center">
     <!--Beginning of upload position card -->
@@ -72,7 +10,7 @@
         {% else %}
         <div class="col s12 card horizontal hoverable">
           {% endif %}
-          <!-- Beginning of form -->
+          <!-- Beginning of upload position form -->
           <form method="post" id="upload_position" enctype="multipart/form-data" action="">
             <div class="card-content col s12">
               <!-- Upload position title -->
@@ -137,7 +75,6 @@
         </div>
       </div>
     </div>
-
     <!-- Beginning of position display -->
     {% if position is not None %}
     <div class="row">
@@ -212,15 +149,18 @@
           <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
           <table class="highlight">
             {% for req in position.requirement_set.all %}
+            <!-- ifchanged executes only for distinct values without repetition -->
             {% ifchanged %}
             <thead>
               <tr>
+                <!-- Requirement type, e.g. education, experience, assets -->
                 <th colspan="5">{{ req.requirement_type }}</th>
               </tr>
             </thead>
             {% endifchanged %}
             <tbody>
               <tr>
+                <!-- Requirement abbreviation, e.g. EX1, and description -->
                 <td colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
               </tr>
             </tbody>
@@ -233,4 +173,6 @@
   </div>
 </div>
 <!-- End of position display -->
+<!-- Script for upload form values persistence -->
+<script src="{% static 'js/position-upload.js' %}"></script>
 {% endblock %}
