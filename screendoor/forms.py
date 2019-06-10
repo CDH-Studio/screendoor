@@ -1,18 +1,27 @@
+import magic
+import mimetypes
 from django import forms
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.utils.translation import gettext as _
-import magic, mimetypes
 
 from .models import ScreenDoorUser, Position, Applicant
 from .uservisibletext import ErrorMessages, CreatePositionFormText, \
-    CreateAccountFormText, StandardFormText, LoginFormText
+    CreateAccountFormText, StandardFormText, LoginFormText, \
+    ImportApplicationsText
 
-# For creating a new position
+
+# For uploading completed applications to a position
 class ImportApplicationsForm(forms.ModelForm):
+    title = ImportApplicationsText.title
+    description = ImportApplicationsText.description
+    upload = ImportApplicationsText.upload
+    browse = ImportApplicationsText.browse
+    choose_files = ImportApplicationsText.choose_files
+
     class Meta:
         model = Applicant
         fields = ('pdf', )
+
 
 # For creating a new position
 class CreatePositionForm(forms.ModelForm):
@@ -31,13 +40,13 @@ class CreatePositionForm(forms.ModelForm):
         fields = ('pdf', 'url_ref')
         widgets = {'url_ref': forms.TextInput(attrs={'disabled': 'disabled'})}
 
-
     def clean(self):
         pdf = self.cleaned_data.get('pdf')
         url = self.cleaned_data.get('url_ref')
         # Check for an empty form
         if not pdf and not url:
-            msg = forms.ValidationError(ErrorMessages.empty_create_position_form)
+            msg = forms.ValidationError(
+                ErrorMessages.empty_create_position_form)
             self.add_error('pdf', msg)
             return
         # Check for an overfilled form
@@ -59,13 +68,12 @@ class CreatePositionForm(forms.ModelForm):
 
         # Verify if the url matches the job.gc.ca domain
         if url:
-            ## Note: Below code is temporary, until url uploading is supported.
+            # Note: Below code is temporary, until url uploading is supported.
             msg = forms.ValidationError(
-                     ErrorMessages.url_upload_not_supported_yet)
+                ErrorMessages.url_upload_not_supported_yet)
             self.add_error('url_ref', msg)
 
-
-            ## Note: Desired code below.
+            # Note: Desired code below.
             # if not "https://emploisfp-psjobs.cfp-psc.gc.ca" in url:
             #     msg = forms.ValidationError(
             #         ErrorMessages.invalid_url_domain)
