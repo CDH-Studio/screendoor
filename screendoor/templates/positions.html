@@ -2,30 +2,12 @@
 {% load string_interpolation %}
 {% load static %}
 {% block content %}
-<script src="{% static 'js/materialize.js' %}"></script>
-<script src="{% static 'js/modal.js' %}"></script>
-<script type="text/javascript">
- document.addEventListener('DOMContentLoaded', function() {
-   var elems = document.querySelectorAll('.modal');
-   var instances = M.Modal.init(elems, {} /* options */ );
- });
- /* Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
- function handleDeletion(id) {
-   var positionTitle;
-   "{% for position in positions %}"
-   if (id == "{{ position.id }}"){
-     positionTitle = "{{ position.position_title }}"
-     document.getElementById("delete-text").innerHTML = positionTitle;
-     document.getElementById("delete-confirm-id").value = id;
-   }
-   "{% endfor %}"
- }
-</script>
 <div class="container positions">
-  <!-- Row for sorting options. If statements allow for highlighting currently selected sort -->
+  <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
   <form action="" method="POST" class="sort-positions">
     {% csrf_token %}
+    <!-- If statements determine if selected sort is in blue text -->
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
     {% if "created" in sort %}
     <input type="submit" name="sort-created" class="btn-flat blue-text" value="{{ userVisibleText.date_uploaded }}">
@@ -56,6 +38,7 @@
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
+            <!-- Link to position detail using POST request -->
             <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
           </form>
         </div>
@@ -95,21 +78,23 @@
             </tr>
           </tbody>
         </table>
-        <!-- Position row 3 / buttons -->
+        <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
             <input type="submit" class="btn-flat blue-text position-button" name="position" value="{{ userVisibleText.view }}">
-            <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">Delete</a>
+            <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
             <input type="submit" class="btn-flat blue-text position-button" name="upload-applications" value="{{ userVisibleText.upload_applications }}">
           </form>
         </div>
+        <!-- Date and time position was added -->
         <div class="row position-buttons right">
           <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
         </div>
       </div>
     </div>
+    <!-- Message displayed if user has no positions -->
     {% empty %}
     <h6>{{ userVisibleText.no_positions|interpolate:baseVisibleText.new_position }}</h6>
   </div>
@@ -118,7 +103,6 @@
   <!-- End of Positions view -->
   <br>
 </div>
-
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
@@ -126,6 +110,7 @@
     <p>{{ userVisibleText.confirm_delete }}</p>
     <h6 id="delete-text"></h6>
   </div>
+  <!-- Delete confirmation button sends post request with position ID -->
   <form action="" method="POST">
     <div class="modal-footer">
       {% csrf_token %}
@@ -135,4 +120,20 @@
     </div>
   </form>
 </div>
+<!-- MaterializeCSS JS library  -->
+<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/position-delete.js' %}"></script>
+<!-- Script has to be inline to use Django variables -->
+<script>
+ /* For position list view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
+ function handleDeletionList(id) {
+   "{% for position in positions %}"
+   if (id == "{{ position.id }}"){
+     let positionTitle = "{{ position.position_title }}"
+     document.getElementById("delete-text").innerHTML = positionTitle;
+     document.getElementById("delete-confirm-id").value = id;
+   }
+   "{% endfor %}"
+ }
+</script>
 {% endblock %}
