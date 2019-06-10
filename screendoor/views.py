@@ -222,8 +222,8 @@ def positions_list_data(request, sort_by):
     return {
         'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
     }
-
-
+  
+  
 # View of all positions associated with a user account
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
