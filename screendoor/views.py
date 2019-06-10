@@ -6,7 +6,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
 from .models import EmailAuthenticateToken, Position
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import parse_applications
@@ -217,6 +217,13 @@ def change_positions_sort_method(request, sort_by):
     return sort_by
 
 
+# Data and visible text to render with positions list view
+def positions_list_data(request, sort_by):
+    return {
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
+    }
+
+
 # View of all positions associated with a user account
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
@@ -232,20 +239,35 @@ def positions(request):
         elif request.POST.get("delete"):
             Position.objects.get(
                 id=request.POST.get("id")).delete()
+        # User wants to upload applications for a position
+        elif request.POST.get("upload-applications"):
+            upload_applications(request)
+            return position(request, Position.objects.get(
+                id=request.POST.get("id")))
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions
-    return render(request, 'positions.html', {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
-    })
+    return render(request, 'positions.html', positions_list_data(request, sort_by))
+
+
+# Data and visible text to render with positions
+def position_detail_data(request, position):
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position}
 
 
 # Position detail view
 @login_required(login_url='/login/', redirect_field_name=None)
 def position(request, position):
-    return render(request, 'position.html', {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position
-    })
+    return render(request, 'position.html', position_detail_data(request, position))
+
+
+def upload_applications(request):
+    position = Position.objects.get(
+        id=request.POST.get("id"))
+    # form = ImportApplicationsForm(request.POST, request.FILES)
+    # applications = import_applications(request)
+    # position.applications.add(applications)
+    # position.save()
 
 
 def import_applications(request):

@@ -1,4 +1,5 @@
 {% extends 'base_logged_in.html' %}
+{% load string_interpolation %}
 {% load static %}
 {% block content %}
 <!-- Beginning of position display -->
@@ -18,58 +19,64 @@
         </div>
         <!-- Upload Applications and Delete buttons -->
         <div class="row left">
-          <form action="" method="POST" class="position-view-buttons">
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ position.id }}">
-            <input type="submit" class="btn-flat blue-text" name="upload-applications" value="{{ userVisibleText.upload_applications }}">
-            <a class="btn-flat blue-text modal-trigger" href="#delete-modal" onclick="handleDeletion({{ position.id }});">{{ userVisibleText.delete }}</a>
-          </form>
+          <div class="position-view-buttons">
+            <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
+            <a class="btn-flat blue-text modal-trigger" href="#delete-modal">{{ userVisibleText.delete }}</a>
+            <button class="btn-flat" id="expand-all">{{ userVisibleText.expand_all }}</button>
+            <button class="btn-flat" id="collapse-all">{{ userVisibleText.collapse_all }}</button>
+          </div>
         </div>
         <!-- Position row 1 headers -->
         <table class="highlight">
-          <thead>
+          <thead class="collapse">
             <tr>
-              <th colspan="1">{{ positionText.classification }}</th>
-              <th colspan="2">{{ positionText.reference_number }}</th>
-              <th colspan="2">{{ positionText.selection_process_number }}</th>
+              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+              <th colspan="5">{{ positionText.classification }}</th>
+              <th colspan="10">{{ positionText.reference_number }}</th>
+              <th colspan="10">{{ positionText.selection_process_number }}</th>
             </tr>
           </thead>
           <!-- Position row 1 body -->
           <tbody>
             <tr>
-              <td colspan="1">{{ position.classification }}</td>
-              <td colspan="2">{{ position.reference_number }}</td>
-              <td colspan="2">{{ position.selection_process_number }}</td>
+              <td colspan="1"></td>
+              <td colspan="5">{{ position.classification }}</td>
+              <td colspan="10">{{ position.reference_number }}</td>
+              <td colspan="10">{{ position.selection_process_number }}</td>
             </tr>
           </tbody>
           <!-- Position row 2 headers -->
-          <thead>
+          <thead class="collapse">
             <tr>
-              <th colspan="1">{{ positionText.date_closed }}</th>
-              <th colspan="1">{{ positionText.number_of_positions }}</th>
-              <th colspan="1">{{ positionText.salary_range }}</th>
-              <th colspan="2">{{ positionText.open_to }}</th>
+              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+              <th colspan="5">{{ positionText.date_closed }}</th>
+              <th colspan="4">{{ positionText.number_of_positions }}</th>
+              <th colspan="6">{{ positionText.salary_range }}</th>
+              <th colspan="10">{{ positionText.open_to }}</th>
             </tr>
           </thead>
           <!-- Position row 2 body -->
-          <tbody">
+          <tbody>
             <tr>
-              <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
-              <td colspan="1">{{ position.num_positions }}</td>
-              <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
-              <td colspan="2">{{ position.open_to }}</td>
+              <td colspan="1"></td>
+              <td colspan="5">{{ position.date_closed|date:"M d, Y" }}</td>
+              <td colspan="4">{{ position.num_positions }}</td>
+              <td colspan="6">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+              <td colspan="10">{{ position.open_to }}</td>
             </tr>
           </tbody>
           <!-- Position row 3 header -->
-          <thead>
+          <thead class="collapse">
             <tr>
-              <th colspan="5">{{ positionText.position_information }}</th>
+              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+              <th colspan="25">{{ positionText.position_information }}</th>
             </tr>
           </thead>
           <!-- Position row 3 body -->
           <tbody>
             <tr>
-              <td colspan="5">{{ position.description }}</td>
+              <td colspan="1"></td>
+              <td colspan="25">{{ position.description }}</td>
             </tr>
           </tbody>
           <!-- Position education and experience rows -->
@@ -77,17 +84,19 @@
           {% for req in position.requirement_set.all %}
           <!-- ifchanged executes only for distinct values without repetition -->
           {% ifchanged %}
-          <thead>
+          <thead class="collapse">
             <tr>
               <!-- Requirement type, e.g. education, experience, assets -->
-              <th colspan="5">{{ req.requirement_type }}</th>
+              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+              <th colspan="25">{{ req.requirement_type }}</th>
             </tr>
           </thead>
           {% endifchanged %}
           <tbody>
             <tr>
               <!-- Requirement abbreviation, e.g. EX1, and description -->
-              <td colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
+              <td colspan="1"></td>
+              <td colspan="25">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
             </tr>
           </tbody>
           {% endfor %}
@@ -111,27 +120,51 @@
   <div class="modal-content">
     <h5>{{ userVisibleText.confirm_delete_header }}</h5>
     <p>{{ userVisibleText.confirm_delete }}</p>
-    <h6 id="delete-text"></h6>
+    <h6>{{ position.position_title }}</h6>
   </div>
   <form action="" method="POST">
+    {% csrf_token %}
     <div class="modal-footer">
-      {% csrf_token %}
-      <input type="hidden" id="delete-confirm-id" name="id" value="">
+      <input type="hidden" id="delete-confirm-id" name="id" value="{{ position.id }}">
       <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
     </div>
   </form>
 </div>
+
+<!-- Modal upload applications pop-up -->
+<div id="upload-applications-modal" class="modal">
+  <form action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-content">
+      <h5>{{ applicationsForm.title }}</h5>
+      <p id="upload-applications-text">{{ applicationsForm.description|interpolate:position.position_title }}</p>
+      <!-- PDF/File input -->
+      <div class="file-field input-field">
+        <div class="btn-small">
+          <span>{{ applicationsForm.browse }}</span>
+          <input type="hidden" name="id" value="{{ position.id }}">
+          <!-- Input accepts multiple PDF file -->
+          <input type="file" name="pdf" id="pdf_input" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
+        </div>
+        <div class="file-path-wrapper">
+          <input id="pdf_path_input" class="file-path validate" type="text"
+                 placeholder="{{ applicationsForm.choose_files }}" />
+        </div>
+      </div>
+    </div>
+    <!-- Upload and cancel buttons -->
+    <div class="modal-footer">
+      <input type="hidden" id="upload-applications-id" name="id" value="{{ position.id }}">
+      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
+      <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
+    </div>
+  </form>
+</div>
+
 <!-- MaterializeCSS JS library  -->
 <script src="{% static 'js/materialize.js' %}"></script>
 <script src="{% static 'js/position-delete.js' %}"></script>
-<!-- Script has to be inline to use Django variables -->
-<script>
- /* For position detail view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
- function handleDeletion(id) {
-   let positionTitle = "{{ position.position_title }}"
-   document.getElementById("delete-text").innerHTML = positionTitle;
-   document.getElementById("delete-confirm-id").value = id;
- }
-</script>
+<!-- Script for expanding and collapsing table rows -->
+<script src="{% static 'js/tables.js' %}"></script>
 {% endblock %}

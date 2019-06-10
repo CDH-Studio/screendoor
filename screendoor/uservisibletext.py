@@ -47,13 +47,27 @@ class InterfaceText():
     logout = _("Logout")
 
 
+class ImportApplicationsText():
+    # Translators: text for importing job applications for a position
+    title = _('Upload Completed Applications')
+    # Translators: text for importing job applications for a position
+    description = _(
+        'Click "Browse" and select one or more completed applications for position %s, then click "Upload." Note that PDFs are the only file format supported.')
+    # Translators: text for importing job applications for a position
+    upload = _('Upload')
+    # Translators: text for importing job applications for a position
+    browse = _('Browse')
+    # Translators: text for importing job applications for a position
+    choose_files = _('Choose one or more files')
+
+
 class PositionText():
     # Translators: Confirming Position Information
     we_think_this_is_correct = _(
         'We think this is the position. Can you take a look and make sure it is correct?')
     # Translators: Confirming Position Information
     classification = _('Classification')
-    # Translators: Confirming Position Information
+    # Translators: Confirming Position Inforation
     reference_number = _("Reference number")
     # Translators: Confirming Position Information
     selection_process_number = _("Selection process number")
@@ -163,7 +177,12 @@ class PositionsViewText():
     confirm_delete_header = _("Please Confirm Deletion")
     # Translators: Position View
     confirm_delete = _("Are you sure you want to delete this position?")
-
+    # Translators: Position View
+    cancel = _("Cancel")
+    # Translators: Position View
+    expand_all = _("Expand all")
+    # Translators: Position View
+    collapse_all = _("Collapse all")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
