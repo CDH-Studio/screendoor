@@ -1,4 +1,5 @@
 from string import digits
+from dateutil import parser as dateparser
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
@@ -7,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification
+from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import parse_applications
 
@@ -162,25 +163,38 @@ def save_position_to_user(request):
 
 
 def edit_position(request):
-    position = Position.objects.get(
-        id=request.session['position_id'])
-    position.position_title = request.POST.get("position-title")
-    position.classification = request.POST.get("position-classification")
-    position.reference_number = request.POST.get("position-reference")
-    position.selection_process_number = request.POST.get("position-selection")
-    position.date_closed = request.POST.get("position-date_closed")
-    position.num_positions = request.POST.get("position-num-positions")
-    position.salary_min = request.POST.get(
-        "position-salary-range").split("$")[1].split("-")[0]
-    position.salary_max = request.POST.get(
-        "position-salary-range").split("-")[1].split("$")[1]
-    position.open_to = request.POST.get("position-open-to")
-    position.description = request.POST.get("position-description")
-    counter = 1
-    for requirement in position.requirement:
-        requirement.description = request.POST.get(
-            "position-requirement" + counter).split(":")[1]
-    return position
+    try:
+        # Populate the fields with hidden input data from position template
+        position = Position.objects.get(
+            id=request.POST.get("position-id"))
+        position.position_title = request.POST.get("position-title")
+        position.classification = request.POST.get("position-classification")
+        position.reference_number = request.POST.get("position-reference")
+        position.selection_process_number = request.POST.get(
+            "position-selection")
+        position.date_closed = dateparser.parse(
+            request.POST.get("position-date-closed"))
+        position.num_positions = request.POST.get("position-num-positions")
+        position.salary_min = request.POST.get(
+            "position-salary-range").split("$")[1].split("-")[0]
+        position.salary_max = request.POST.get(
+            "position-salary-range").split("-")[1].split("$")[1]
+        position.open_to = request.POST.get("position-open-to")
+        position.description = request.POST.get("position-description")
+        counter = 1
+        requirements = Requirement.objects.filter(position=Position.objects.get(
+            id=request.session['position_id'])).reverse()
+        for requirement in requirements:
+            requirement.description = request.POST.get(
+                "position-requirement" + str(counter)).split(":")[1]
+            requirement.save()
+        position.save()
+        return position
+    except TypeError:
+        # In case of errors, return the current position with no edits
+        # TODO: implement validation for position editing and error messages
+        return Position.objects.get(
+            id=request.POST.get("position_id"))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
@@ -268,6 +282,9 @@ def positions(request):
             upload_applications(request)
             return position_detail(request, Position.objects.get(
                 id=request.POST.get("id")))
+        # User wants to edit a position
+        elif request.POST.get("edit-position"):
+            return position_detail(request, edit_position(request))
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions

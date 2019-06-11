@@ -10,104 +10,125 @@
     <input type="submit" class="btn-flat blue-text" value="←  {{ positionText.back_to_positions }}">
     <h6 class="btn-flat disabled"></h6>
   </form>
-  <div class="row">
-    <!--Beginning of confirm position card -->
-    <div class="col card white hoverable">
-      <div class="card-content col s12">
-        <div class="row valign-wrapper">
-          <h4 class="col s12 left position-header grey-text text-darken-3">{{ position.position_title }}</h4>
-        </div>
-        <!-- Upload Applications and Delete buttons -->
-        <div class="row left">
-          <div class="position-view-buttons">
-            <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
-            <a class="btn-flat blue-text modal-trigger" href="#delete-modal">{{ userVisibleText.delete }}</a>
-            <button class="btn-flat" id="expand-all">{{ userVisibleText.expand_all }}</button>
-            <button class="btn-flat" id="collapse-all">{{ userVisibleText.collapse_all }}</button>
+  <form method="post" id="save-position" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    <div class="row">
+      <!--Beginning of position card -->
+      <div class="col card white hoverable">
+        <div class="card-content col s12">
+          <div class="row valign-wrapper">
+            <input type="hidden" name="edit-position" value="true">
+            <input type="hidden" name="position-id" value="{{ position.id }}">
+            <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
+            <h4 name="position-title" id="title" class="col s8 left left-align position-header grey-text text-darken-3">{{ position.position_title }}</h4>
+            <div class="col s4 right">
+            </div>
           </div>
-        </div>
-        <!-- Position row 1 headers -->
-        <table class="highlight">
-          <thead class="collapse">
-            <tr>
-              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="5">{{ positionText.classification }}</th>
-              <th colspan="10">{{ positionText.reference_number }}</th>
-              <th colspan="10">{{ positionText.selection_process_number }}</th>
-            </tr>
-          </thead>
-          <!-- Position row 1 body -->
-          <tbody>
-            <tr>
-              <td colspan="1"></td>
-              <td colspan="5">{{ position.classification }}</td>
-              <td colspan="10">{{ position.reference_number }}</td>
-              <td colspan="10">{{ position.selection_process_number }}</td>
-            </tr>
-          </tbody>
-          <!-- Position row 2 headers -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="5">{{ positionText.date_closed }}</th>
-              <th colspan="4">{{ positionText.number_of_positions }}</th>
-              <th colspan="6">{{ positionText.salary_range }}</th>
-              <th colspan="10">{{ positionText.open_to }}</th>
-            </tr>
-          </thead>
-          <!-- Position row 2 body -->
-          <tbody>
-            <tr>
-              <td colspan="1"></td>
-              <td colspan="5">{{ position.date_closed|date:"M d, Y" }}</td>
-              <td colspan="4">{{ position.num_positions }}</td>
-              <td colspan="6">${{ position.salary_min }} - ${{ position.salary_max }}</td>
-              <td colspan="10">{{ position.open_to }}</td>
-            </tr>
-          </tbody>
-          <!-- Position row 3 header -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="25">{{ positionText.position_information }}</th>
-            </tr>
-          </thead>
-          <!-- Position row 3 body -->
-          <tbody>
-            <tr>
-              <td colspan="1"></td>
-              <td colspan="25">{{ position.description }}</td>
-            </tr>
-          </tbody>
-          <!-- Position education and experience rows -->
-          <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-          {% for req in position.requirement_set.all %}
-          <!-- ifchanged executes only for distinct values without repetition -->
-          {% ifchanged %}
-          <thead class="collapse">
-            <tr>
-              <!-- Requirement type, e.g. education, experience, assets -->
-              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="25">{{ req.requirement_type }}</th>
-            </tr>
-          </thead>
-          {% endifchanged %}
-          <tbody>
-            <tr>
-              <!-- Requirement abbreviation, e.g. EX1, and description -->
-              <td colspan="1"></td>
-              <td colspan="25">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
-            </tr>
-          </tbody>
-          {% endfor %}
-        </table>
-        <!-- Date and time position was added -->
-        <div class="row position-buttons right">
-          <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
+          <!-- Upload Applications and Delete buttons -->
+          <div class="row left">
+            <div class="position-view-buttons">
+              <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
+              <a class="btn-flat blue-text modal-trigger" href="#delete-modal">{{ userVisibleText.delete }}</a>
+              <input type="button" class="btn-flat" id="expand-all" value="{{ userVisibleText.expand_all }}">
+              <input type="button" class="btn-flat" id="collapse-all" value="{{ userVisibleText.collapse_all }}">
+            </div>
+          </div>
+          <!-- Position row 1 headers -->
+          <table class="highlight">
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="5">{{ positionText.classification }}</th>
+                <th colspan="10">{{ positionText.reference_number }}</th>
+                <th colspan="10">{{ positionText.selection_process_number }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 1 body -->
+            <tbody>
+              <tr>
+                <th colspan="1"></th>
+                <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
+                <td colspan="5" name="position-classification">{{ position.classification }}</td>
+                <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
+                <td colspan="10" name="position-reference">{{ position.reference_number }}</td>
+                <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
+                <td colspan="10" name="position-selection">{{ position.selection_process_number }}</td>
+              </tr>
+            </tbody>
+            <!-- Position row 2 headers -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="5">{{ positionText.date_closed }}</th>
+                <th colspan="4">{{ positionText.number_of_positions }}</th>
+                <th colspan="6">{{ positionText.salary_range }}</th>
+                <th colspan="10">{{ positionText.open_to }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 2 body -->
+            <tbody>
+              <tr>
+                <th colspan="1"></th>
+                <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:"M d, Y" }}'>
+                <td colspan="5" name="position-date-closed">{{ position.date_closed|date:"M d, Y" }}</td>
+                <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
+                <td colspan="4" name="position-num-positions">{{ position.num_positions }}</td>
+                <input type="hidden" class="hidden" name="position-salary-range" value='${{ position.salary_min }} - ${{ position.salary_max }}'>
+                <td colspan="6" name="position-salary-range">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+                <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
+                <td colspan="10" name="position-open-to">{{ position.open_to }}</td>
+              </tr>
+            </tbody>
+            <!-- Position row 3 header -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="25">{{ positionText.position_information }}</th>
+              </tr>
+            </thead>
+            <!-- Position row 3 body -->
+            <tbody>
+              <tr>
+                <th colspan="1"></th>
+                <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
+                <td colspan="25" name="position-description">{{ position.description }}</td>
+              </tr>
+            </tbody>
+            <!-- Position education and experience rows -->
+            <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
+            {% for req in position.requirement_set.all reversed %}
+            <!-- ifchanged executes only for distinct values without repetition -->
+            {% ifchanged %}
+            <thead class="collapse">
+              <tr>
+                <!-- Requirement type, e.g. education, experience, assets -->
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="25">{{ req.requirement_type }}</th>
+              </tr>
+            </thead>
+            {% endifchanged %}
+            <tbody>
+              <tr>
+                <!-- Requirement abbreviation, e.g. EX1, and description -->
+                <th colspan="1"></th>
+                <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.abbreviation }}: {{ req.description|linebreaksbr }}'>
+                <td colspan="25" name="position-requirement{{ forloop.counter }}">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+          <!-- Date and time position was added -->
+          <div class="row position-bottom-buttons">
+            <div class="col s6 left" id="import-position-buttons">
+              <input type="button" id="edit-button" name="edit" class="position-edit-btn btn-flat blue-text modal-trigger" value="{{ userVisibleText.edit }}">
+              <input type="button" id="save-button" name="save" class="btn-pad btn-flat blue-text modal-trigger hide" value="Save">
+            </div>
+            <h6 class="btn-flat right black-text">Position added: {{ position.created }}</h6>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </div>
 <br>
 <!-- Error message if position is invalid/cannot be displayed -->
@@ -164,7 +185,10 @@
 
 <!-- MaterializeCSS JS library  -->
 <script src="{% static 'js/materialize.js' %}"></script>
+<!-- Script for position delete confirmation -->
 <script src="{% static 'js/position-delete.js' %}"></script>
 <!-- Script for expanding and collapsing table rows -->
 <script src="{% static 'js/tables.js' %}"></script>
+<!-- Script for editing table values -->
+<script src="{% static 'js/position-detail-edit.js' %}"></script>
 {% endblock %}

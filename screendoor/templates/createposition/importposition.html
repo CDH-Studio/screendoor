@@ -82,97 +82,110 @@
         <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label><br>
       </div>
     </div>
-    <div class="row">
-      <!--Beginning of confirm position card -->
-      <div class="col card white hoverable">
-        <div class="card-content col s12">
-          <div class="row valign-wrapper">
-            <h4 class="col s8 left position-header">{{ position.position_title }}</h4>
-            <!-- Confirm/Edit button row -->
-            <div class="col s4 right right-align">
-              <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
+    <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
+      <div class="row">
+        <!--Beginning of confirm position card -->
+        <div class="col card white hoverable">
+          <div class="card-content col s12">
+            <div class="row valign-wrapper">
+              <input type="hidden" name="position-id" value="{{ position.id }}">
+              <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
+              <h4 name="position-title" id="title" class="col s8 left position-header">{{ position.position_title }}</h4>
+              <!-- Confirm/Edit button row -->
+              <div class="col s4 right right-align" id="import-position-buttons">
                 {% csrf_token %}
-                <input class="btn-small btn-left btn-pad" name="edit-position" type="submit" value="{{ userVisibleText.edit }}">
-                <input class="btn-small btn-left btn-pad" name="save-position" type="submit" value="{{ userVisibleText.save }}">
-              </form>
+                <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
+                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
+              </div>
             </div>
+            <!-- Position row 1 headers -->
+            <table class="highlight">
+              <thead>
+                <tr>
+                  <th colspan="1">{{ userVisibleText.classification }}</th>
+                  <th colspan="2">{{ userVisibleText.reference_number }}</th>
+                  <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
+                </tr>
+              </thead>
+              <!-- Position row 1 body -->
+              <tbody>
+                <tr>
+                  <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
+                  <td name="position-classification" colspan="1">{{ position.classification }}</td>
+                  <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
+                  <td name="position-reference" colspan="2">{{ position.reference_number }}</td>
+                  <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
+                  <td name="position-selection" colspan="2">{{ position.selection_process_number }}</td>
+                </tr>
+              </tbody>
+              <!-- Position row 2 headers -->
+              <thead>
+                <tr>
+                  <th colspan="1">{{ userVisibleText.date_closed }}</th>
+                  <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
+                  <th colspan="1">{{ userVisibleText.salary_range }}</th>
+                  <th colspan="2">{{ userVisibleText.open_to }}</th>
+                </tr>
+              </thead>
+              <!-- Position row 2 body -->
+              <tbody>
+                <tr>
+                  <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:"M d, Y" }}'>
+                  <td name="position-date-closed" colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
+                  <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
+                  <td name="position-num-positions" colspan="1">{{ position.num_positions }}</td>
+                  <input type="hidden" class="hidden" name="position-salary-range" value='${{ position.salary_min }} - ${{ position.salary_max }}'>
+                  <td name="position-salary-range" colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+                  <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
+                  <td name="position-open-to" colspan="2">{{ position.open_to }}</td>
+                </tr>
+              </tbody>
+              <!-- Position row 3 header -->
+              <thead>
+                <tr>
+                  <th colspan="5">{{ userVisibleText.position_information }}</th>
+                </tr>
+              </thead>
+              <!-- Position row 3 body -->
+              <tbody>
+                <tr>
+                  <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
+                  <td name="position-description" colspan="5">{{ position.description }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- Position education and experience rows -->
+            <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
+            <table class="highlight">
+              {% for req in position.requirement_set.all reversed %}
+              <!-- ifchanged executes only for distinct values without repetition -->
+              {% ifchanged %}
+              <thead>
+                <tr>
+                  <!-- Requirement type, e.g. education, experience, assets -->
+                  <th colspan="5">{{ req.requirement_type }}</th>
+                </tr>
+              </thead>
+              {% endifchanged %}
+              <tbody>
+                <tr>
+                  <!-- Requirement abbreviation, e.g. EX1, and description -->
+                  <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.abbreviation }}: {{ req.description|linebreaksbr }}'>
+                  <td name="position-requirement{{ forloop.counter }}" colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
+                </tr>
+              </tbody>
+              {% endfor %}
+            </table>
           </div>
-          <!-- Position row 1 headers -->
-          <table class="highlight">
-            <thead>
-              <tr>
-                <th colspan="1">{{ userVisibleText.classification }}</th>
-                <th colspan="2">{{ userVisibleText.reference_number }}</th>
-                <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
-              </tr>
-            </thead>
-            <!-- Position row 1 body -->
-            <tbody>
-              <tr>
-                <td colspan="1">{{ position.classification }}</td>
-                <td colspan="2">{{ position.reference_number }}</td>
-                <td colspan="2">{{ position.selection_process_number }}</td>
-              </tr>
-            </tbody>
-            <!-- Position row 2 headers -->
-            <thead>
-              <tr>
-                <th colspan="1">{{ userVisibleText.date_closed }}</th>
-                <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
-                <th colspan="1">{{ userVisibleText.salary_range }}</th>
-                <th colspan="2">{{ userVisibleText.open_to }}</th>
-              </tr>
-            </thead>
-            <!-- Position row 2 body -->
-            <tbody>
-              <tr>
-                <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
-                <td colspan="1">{{ position.num_positions }}</td>
-                <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
-                <td colspan="2">{{ position.open_to }}</td>
-              </tr>
-            </tbody>
-            <!-- Position row 3 header -->
-            <thead>
-              <tr>
-                <th colspan="5">{{ userVisibleText.position_information }}</th>
-              </tr>
-            </thead>
-            <!-- Position row 3 body -->
-            <tbody>
-              <tr>
-                <td colspan="5">{{ position.description }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <!-- Position education and experience rows -->
-          <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-          <table class="highlight">
-            {% for req in position.requirement_set.all %}
-            <!-- ifchanged executes only for distinct values without repetition -->
-            {% ifchanged %}
-            <thead>
-              <tr>
-                <!-- Requirement type, e.g. education, experience, assets -->
-                <th colspan="5">{{ req.requirement_type }}</th>
-              </tr>
-            </thead>
-            {% endifchanged %}
-            <tbody>
-              <tr>
-                <!-- Requirement abbreviation, e.g. EX1, and description -->
-                <td colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
-              </tr>
-            </tbody>
-            {% endfor %}
-          </table>
         </div>
       </div>
-    </div>
-    {% endif %}
+      {% endif %}
+    </form>
   </div>
 </div>
 <!-- End of position display -->
 <!-- Script for upload form values persistence -->
 <script src="{% static 'js/position-upload.js' %}"></script>
+<!-- Script for editing table values -->
+<script src="{% static 'js/position-edit.js' %}"></script>
 {% endblock %}
