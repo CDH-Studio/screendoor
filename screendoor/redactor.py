@@ -10,7 +10,7 @@ from weasyprint import HTML, CSS
 
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
     length = len(list_of_data_frames)
-    no_applicants_batch = 1
+    no_applicants_batch = 0
 
     # /////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +42,13 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                     "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):"] = "REDACTED"
 
                 list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
+            elif item[0].str.contains("Situation professionnelle / Employment status:").any():
+                series = item.set_index(0)[1]
+
+                series["Organisation du poste d'attache / Substantive organization:"] = "REDACTED"
+                series["Lieu de travail du poste d'attache / Substantive work location:"] = "REDACTED"
+                series["Lieu de travail actuel / Current work location:"] = "REDACTED"
+                series["Organisation actuelle / Current organization:"] = "REDACTED"
 
             elif item[0].str.contains("Courriel / E-mail:").any():
                 series = item.set_index(0)[1]
@@ -55,6 +62,7 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                 series["Téléphone / Telephone:"] = "REDACTED"
                 series["Autre Téléphone / Alternate Telephone:"] = "REDACTED"
                 list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
+
             elif item[0].str.contains("Adresse / Address:").any():
                 series = item.set_index(0)[1]
                 series["Adresse / Address:"] = "REDACTED"
@@ -66,7 +74,7 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
     print("Writing to html and appending to redacted pdf")
     print("This may take a while...")
     # //////////////////////// Li's html printing Thang ////////////////////////////////
-    no_applicants_total = 1
+    no_applicants_total = 0
 
     deletion = False
     for idx, item in enumerate(list_of_data_frames):
@@ -74,8 +82,8 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
         if str(item.shape) == "(1, 1)":
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
-                    print("Writing Applicant: " + str(no_applicants_total))
                     no_applicants_total = no_applicants_total + 1
+                    print("Writing Applicant: " + str(no_applicants_total))
                     print(item)
                     deletion = True
 
