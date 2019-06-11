@@ -3484,7 +3484,8 @@ small {
   border: 0px none;
   cursor: pointer;
   margin-top: 0px;
-  margin-bottom: 0px; }
+  margin-bottom: 0px;
+  margin-left: -7px; }
 
 input .position-title {
   cursor: pointer; }
@@ -3858,8 +3859,14 @@ input .position-title {
   transform-origin: 50% 0%;
   visibility: hidden; }
 
+.position-edit-btn {
+  margin-top: 10px; }
+
 .position-view-buttons {
   margin-bottom: 5px; }
+
+.position-bottom-buttons h6 {
+  margin-bottom: -5px; }
 
 .btn-margin {
   margin-top: 25px;

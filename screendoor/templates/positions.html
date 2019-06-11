@@ -34,14 +34,12 @@
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
       <div class="card-content col s12">
-        <div class="row valign-wrapper">
-          <form action="" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ position.id }}">
-            <!-- Link to position detail using POST request -->
-            <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
-          </form>
-        </div>
+        <form action="" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="id" value="{{ position.id }}">
+          <!-- Link to position detail using POST request -->
+          <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
+        </form>
         <!-- Position row 1 headers -->
         <table class="highlight">
           <thead>
