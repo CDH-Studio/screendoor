@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position
+from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import parse_applications
 
@@ -104,8 +104,8 @@ def authenticate_user(account_key):
         user.email_confirmed = True
         user.save()
         token.delete()
-        return True
-    return False
+        return user
+    return None
 
 
 # Displays form for user login and calls validation methods
@@ -126,7 +126,8 @@ def login_form(request):
                 return redirect('home')
         if request.GET.get('key') is not None:
             # Check if authentication key is valid
-            if (authenticate_user(request.GET.get('key'))):
+            user = authenticate_user(request.GET.get('key'))
+            if (user is not None):
                 # Display account confirmation message
                 return render(request, 'registration/login.html',
                               {'login_form': form,
@@ -160,6 +161,28 @@ def save_position_to_user(request):
         id=request.session['position_id']))
 
 
+def edit_position(request):
+    position = Position.objects.get(
+        id=request.session['position_id'])
+    position.position_title = request.POST.get("position-title")
+    position.classification = request.POST.get("position-classification")
+    position.reference_number = request.POST.get("position-reference")
+    position.selection_process_number = request.POST.get("position-selection")
+    position.date_closed = request.POST.get("position-date_closed")
+    position.num_positions = request.POST.get("position-num-positions")
+    position.salary_min = request.POST.get(
+        "position-salary-range").split("$")[1].split("-")[0]
+    position.salary_max = request.POST.get(
+        "position-salary-range").split("-")[1].split("$")[1]
+    position.open_to = request.POST.get("position-open-to")
+    position.description = request.POST.get("position-description")
+    counter = 1
+    for requirement in position.requirement:
+        requirement.description = request.POST.get(
+            "position-requirement" + counter).split(":")[1]
+    return position
+
+
 # Displays form allowing users to upload job posting PDF files and URLs
 @login_required(login_url='/login/', redirect_field_name=None)
 def import_position(request):
@@ -189,6 +212,7 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
+            edit_position(request)
             save_position_to_user(request)
             return redirect('home')
     # Default view for GET request
@@ -222,8 +246,8 @@ def positions_list_data(request, sort_by):
     return {
         'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
     }
-  
-  
+
+
 # View of all positions associated with a user account
 @login_required(login_url='/login/', redirect_field_name=None)
 def positions(request):
@@ -233,7 +257,7 @@ def positions(request):
         sort_by = change_positions_sort_method(request, sort_by)
         # User wants to view position detail
         if request.POST.get("position"):
-            return position(request, Position.objects.get(
+            return position_detail(request, Position.objects.get(
                 id=request.POST.get("id")))
         # User wants to delete position
         elif request.POST.get("delete"):
@@ -242,7 +266,7 @@ def positions(request):
         # User wants to upload applications for a position
         elif request.POST.get("upload-applications"):
             upload_applications(request)
-            return position(request, Position.objects.get(
+            return position_detail(request, Position.objects.get(
                 id=request.POST.get("id")))
     # Persists positions sorting
     request.session['position_sort'] = sort_by
@@ -252,12 +276,12 @@ def positions(request):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position):
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position, 'applications': position.applications}
 
 
 # Position detail view
 @login_required(login_url='/login/', redirect_field_name=None)
-def position(request, position):
+def position_detail(request, position):
     return render(request, 'position.html', position_detail_data(request, position))
 
 
