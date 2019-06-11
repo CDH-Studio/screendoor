@@ -14,7 +14,7 @@ urlpatterns = [
     path('confirm/', views.login_form, name='confirm_account'),
     path('createnewposition/', views.import_position, name='importposition'),
     path('positions/', views.positions, name='positions'),
-    path('position/', views.position, name='position'),
+    path('position/', views.position_detail, name='position'),
     path('importapplications/', views.import_applications,
          name='importapplications'),
 ]
