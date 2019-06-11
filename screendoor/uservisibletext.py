@@ -169,6 +169,8 @@ class PositionsViewText():
     # Translators: Position View
     delete = _("Delete")
     # Translators: Position View
+    edit = _("Edit")
+    # Translators: Position View
     upload_applications = _("Upload applications")
     # Translators: Position View
     no_positions = _(
