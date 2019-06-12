@@ -59,11 +59,7 @@ class Education(models.Model):
 
 
 class Applicant(models.Model):
-    name = models.CharField(max_length=200)
-    date_of_birth = models.CharField(max_length=200)
-    phone_number = models.CharField(max_length=200)
-    email = models.EmailField()
-    pri = models.PositiveIntegerField()
+    applicant_id = models.CharField(max_length=200)
     citizenship = models.CharField(max_length=200)
     priority = models.BooleanField()
     address = models.CharField(max_length=200)
@@ -71,7 +67,8 @@ class Applicant(models.Model):
 
     LANGUAGE_CHOICES = [
         ('FR', 'French'),
-        ('EN', 'English')
+        ('EN', 'English'),
+        ('FREN', 'French or English')
     ]
 
     LANGUAGE_PROFICIENCY_CHOICES = [
@@ -90,15 +87,17 @@ class Applicant(models.Model):
     correspondence = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
     interview = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
 
-    requirements_met = models.ManyToManyField(
-        RequirementMet, symmetrical=False)
-    streams_selected = models.ManyToManyField(Stream, symmetrical=False)
-    classifications_selected = models.ManyToManyField(
-        Classification, symmetrical=False)
-    educations = models.ManyToManyField(Education, symmetrical=False)
+    requirements_met = models.ForeignKey(
+        RequirementMet, on_delete=models.CASCADE, null=True)
+    streams_selected = models.ForeignKey(
+        Stream, on_delete=models.CASCADE, null=True)
+    classifications_selected = models.ForeignKey(
+        Classification, on_delete=models.CASCADE, null=True)
+    educations = models.ForeignKey(
+        Education, on_delete=models.CASCADE, null=True)
 
-    questions = models.ManyToManyField(
-        FormQuestion, symmetrical=False, blank=True)
+    questions = models.ForeignKey(
+        FormQuestion, on_delete=models.CASCADE, null=True)
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
                            blank=True)
@@ -109,8 +108,8 @@ class Applicant(models.Model):
 
 
 class Position(models.Model):
-    applications = models.ManyToManyField(
-        Applicant, symmetrical=False, blank=True)
+    applications = models.ForeignKey(
+        Applicant, on_delete=models.CASCADE, null=True)
     position_title = models.CharField(max_length=200, blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
