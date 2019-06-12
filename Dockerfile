@@ -6,7 +6,6 @@ COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 COPY . /code/
 RUN apt-get update && apt-get install -y gettext libgettextpo-dev
-RUN python -m nltk.downloader punkt
 
 # Install OpenJDK-8
 RUN apt-get update && \
@@ -19,3 +18,5 @@ RUN apt-get update && \
     apt-get install ca-certificates-java && \
     apt-get clean && \
     update-ca-certificates -f;
+
+RUN python -m spacy download en

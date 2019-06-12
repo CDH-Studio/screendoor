@@ -325,3 +325,25 @@ def import_applications(request):
     form = ImportApplicationsForm()
     return render(request, 'importapplications/applications.html', {
         'form': form})
+
+def nlp(request):
+    text = u"""During my employment at CRA as a permanent IT Project Leader from January 2010 until present, I provided strategic advice and
+recommendations on IM/IT risks or issues to my directors (EX1, EX3, and higher ) in relation to various legislated projects such as
+Foreign Account Tax Compliance Act (FATCA), Electronic Funds Transfer (EFT) and Charities Internet applications.
+For the Charities Internet application, I provided recommendations and briefings to senior management on how to protect CRA and
+minimize the risks of cyber-attacks by developing a pre-emption process. The goal was to minimize the effects of the attack on the
+Charities application.
+For the FATCA project, I developed corporate strategies and reccomendations to senior management resulted in new and improved
+services (e.g. in-house development tools for data compression and encryption, and in-house development tools for data conversion).
+I liaised with Technology Advisors, Architects and Security Specialists to produce architecture and security recommendations, for the
+FATCA project.
+For the FATCA and EFT projects, I prepared Solutions dashboards and Project Gating reports and hosted meetings to obtain approval
+from all gatekeepers and identified IM/IT issues and presented them to senior management (Ex01, EX02, and higher). I chaired IT
+strategic meetings with clients and various stakeholders and created cost/benefit analyses, business cases, briefing notes, memos for
+senior management (CS05, EX01). I presented at the Solutions Major Project Review Committee (MPRC) about the IM and IT issues
+that requires immediate attention (such as procurement of the Sterling software - tracking system to track outgoing and incoming XML
+file with ability of performing encryption and digital signature) with respect to FATCA project. I presented these recommendations to
+the DAC (EX5), DG (EX3), and directors (CS05)."""
+    from .NLP import test_spacy_functionality
+    test_spacy_functionality(text)
+    return redirect('positions')
