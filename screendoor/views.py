@@ -5,12 +5,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
+from screendoor.parseapplication import parse_application
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
 from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification
 from screendoor.parseposter import parse_upload
-from screendoor.redactor import parse_applications
-
+from screendoor.redactor import redact_applications
+import os
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
@@ -212,7 +213,7 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            edit_position(request)
+           #  edit_position(request)
             save_position_to_user(request)
             return redirect('home')
     # Default view for GET request
@@ -286,20 +287,33 @@ def position_detail(request, position):
 
 
 def upload_applications(request):
-    position = Position.objects.get(
+    pos = Position.objects.get(
         id=request.POST.get("id"))
-    # form = ImportApplicationsForm(request.POST, request.FILES)
-    # applications = import_applications(request)
-    # position.applications.add(applications)
-    # position.save()
+
+    pdf = request.FILES['pdf']
+    with open('/code/applications/' + pdf.name, 'wb+') as destination:
+        for chunk in pdf.chunks():
+            destination.write(chunk)
+
+    form = ImportApplicationsForm(request.POST, request.FILES)
+    if form.is_valid():
+        applications = parse_application(form.save(commit=False))
+        pos.save()
+        for applicant in applications:
+            pos.applications.add(applicant)
+
+        pos.save()
+        os.chdir("..")
+        os.remove("/code/applications/" + pdf.name)
 
 
 def import_applications(request):
     if request.method == 'POST':
+
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
             breakpoint()
-            parse_applications()
+            redact_applications()
             # Call application parser logic here##
 
             return render(request, 'importapplications/applications.html', {
