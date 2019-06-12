@@ -7,7 +7,109 @@ from django.core.validators import FileExtensionValidator
 from cryptography.fernet import Fernet
 
 
+class FormQuestion(models.Model):
+    question_text = models.CharField(max_length=200)
+    complementary_question_text = models.CharField(max_length=200)
+    applicant_answer = models.BooleanField()
+    applicant_complementary_response = models.CharField(
+        max_length=200, blank=True)
+    parsed_response = models.CharField(max_length=200, blank=True)
+    analysis = models.CharField(max_length=200, blank=True)
+    tabulation = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.question_text
+
+
+class RequirementMet(models.Model):
+    requirement_type = models.CharField(max_length=200)
+    abbreviation = models.CharField(max_length=200)
+    description = models.CharField(max_length=200)
+    met = models.BooleanField()
+
+    def __str__(self):
+        return self.abbreviation
+
+
+class Stream(models.Model):
+    stream_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.stream_name
+
+
+class Classification(models.Model):
+    classification_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.classification_name
+
+
+class Education(models.Model):
+    academic_level = models.CharField(max_length=200)
+    area_of_study = models.CharField(max_length=200)
+    specialization = models.CharField(max_length=200)
+    program_length = models.PositiveIntegerField()
+    num_years_completed = models.PositiveIntegerField()
+    institution = models.CharField(max_length=200)
+    graduation_date = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.area_of_study
+
+
+class Applicant(models.Model):
+    applicant_id = models.CharField(max_length=200)
+    citizenship = models.CharField(max_length=200)
+    priority = models.BooleanField()
+    address = models.CharField(max_length=200)
+    veteran_preference = models.BooleanField()
+
+    LANGUAGE_CHOICES = [
+        ('FR', 'French'),
+        ('EN', 'English'),
+        ('FREN', 'French or English')
+    ]
+
+    LANGUAGE_PROFICIENCY_CHOICES = [
+        ('NA', 'None'),
+        ('BEG', 'Beginner'),
+        ('INT', 'Intermediate'),
+        ('ADV', 'Advanced')
+    ]
+    french_working_ability = models.CharField(
+        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
+    english_working_ability = models.CharField(
+        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200)
+    first_official_language = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=200)
+    written_exam = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
+    correspondence = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
+    interview = models.CharField(choices=LANGUAGE_CHOICES, max_length=200)
+
+    requirements_met = models.ForeignKey(
+        RequirementMet, on_delete=models.CASCADE, null=True)
+    streams_selected = models.ForeignKey(
+        Stream, on_delete=models.CASCADE, null=True)
+    classifications_selected = models.ForeignKey(
+        Classification, on_delete=models.CASCADE, null=True)
+    educations = models.ForeignKey(
+        Education, on_delete=models.CASCADE, null=True)
+
+    questions = models.ForeignKey(
+        FormQuestion, on_delete=models.CASCADE, null=True)
+    pdf = models.FileField(upload_to="applications/", validators=[
+        FileExtensionValidator(allowed_extensions=['pdf'])],
+                           blank=True)
+    ranking = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
+
 class Position(models.Model):
+    applications = models.ForeignKey(
+        Applicant, on_delete=models.CASCADE, null=True)
     position_title = models.CharField(max_length=200, blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
@@ -28,108 +130,6 @@ class Position(models.Model):
 
     def __str__(self):
         return self.position_title
-
-
-class Applicant(models.Model):
-    parent_position = models.ForeignKey(
-        Position, on_delete=models.CASCADE, null=True)
-    applicant_id = models.CharField(max_length=200, null=True)
-    citizenship = models.CharField(max_length=200, null=True)
-    priority = models.BooleanField(null=True)
-    veteran_preference = models.BooleanField(null=True)
-
-    LANGUAGE_CHOICES = [
-        ('FR', 'French'),
-        ('EN', 'English'),
-        ('FREN', 'French or English')
-    ]
-
-    LANGUAGE_PROFICIENCY_CHOICES = [
-        ('NA', 'None'),
-        ('BEG', 'Beginner'),
-        ('INT', 'Intermediate'),
-        ('ADV', 'Advanced')
-    ]
-    french_working_ability = models.CharField(
-        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200, null=True)
-    english_working_ability = models.CharField(
-        choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200, null=True)
-    first_official_language = models.CharField(
-        choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    written_exam = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    correspondence = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    interview = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
-
-    pdf = models.FileField(upload_to="applications/", validators=[
-        FileExtensionValidator(allowed_extensions=['pdf'])],
-                           blank=True)
-    ranking = models.PositiveIntegerField(null=True)
-
-    def __str__(self):
-        return self.name
-
-
-class RequirementMet(models.Model):
-    parent_application = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='requirementsmet')
-    requirement_type = models.CharField(max_length=200)
-    abbreviation = models.CharField(max_length=200)
-    description = models.CharField(max_length=200)
-    met = models.BooleanField()
-
-    def __str__(self):
-        return self.abbreviation
-
-
-class Stream(models.Model):
-    parent_application = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
-    stream_name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.stream_name
-
-
-class Classification(models.Model):
-    parent_application = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
-
-    classification_name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.classification_name
-
-
-class Education(models.Model):
-    parent_application = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='educations')
-    academic_level = models.CharField(max_length=200)
-    area_of_study = models.CharField(max_length=200)
-    specialization = models.CharField(max_length=200)
-    program_length = models.PositiveIntegerField()
-    num_years_completed = models.PositiveIntegerField()
-    institution = models.CharField(max_length=200)
-    graduation_date = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.area_of_study
-
-
-class FormQuestion(models.Model):
-    parent_applicant = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='questions')
-
-    question_text = models.CharField(max_length=1000)
-    complementary_question_text = models.CharField(max_length=1000)
-    applicant_answer = models.BooleanField()
-    applicant_complementary_response = models.CharField(
-        max_length=200, blank=True, null=True)
-    parsed_response = models.CharField(max_length=1000, blank=True, null=True)
-    analysis = models.CharField(max_length=1000, blank=True, null=True)
-    tabulation = models.CharField(max_length=1000, null=True)
-
-    def __str__(self):
-        return self.question_text
 
 
 class Requirement(models.Model):
