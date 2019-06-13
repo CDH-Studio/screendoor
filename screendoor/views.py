@@ -182,11 +182,10 @@ def edit_position(request):
         position.open_to = request.POST.get("position-open-to")
         position.description = request.POST.get("position-description")
         counter = 1
-        requirements = Requirement.objects.filter(position=Position.objects.get(
-            id=request.session['position_id'])).reverse()
-        for requirement in requirements:
+        for requirement in position.requirement_set.all().reverse():
             requirement.description = request.POST.get(
                 "position-requirement" + str(counter)).split(":")[1]
+            counter += 1
             requirement.save()
         position.save()
         return position
@@ -325,6 +324,7 @@ def import_applications(request):
     form = ImportApplicationsForm()
     return render(request, 'importapplications/applications.html', {
         'form': form})
+
 
 def nlp(request):
     text = u"""During my employment at CRA as a permanent IT Project Leader from January 2010 until present, I provided strategic advice and
