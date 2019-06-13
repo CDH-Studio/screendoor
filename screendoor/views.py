@@ -323,7 +323,7 @@ def upload_applications(request):
         position.save()
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
-        return render(request, 'position.html', {'position': Position.objects.get(
+        return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
             id=request.POST.get("position-id")), 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'applicants': applicants})
 

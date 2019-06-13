@@ -1,0 +1,185 @@
+{% extends 'base_logged_in.html' %}
+{% load string_interpolation %}
+{% load static %}
+{% block content %}
+
+<!-- PLACEHOLDER -->
+<div class="container positions">
+  <form action="" method="POST" class="sort-positions" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+    <input type="submit" class="btn-flat blue-text" name="position" value="←  Back to Position: {{ position.position_title }}">
+    <h6 class="btn-flat disabled"></h6>
+  </form>
+  <form method="post" id="save-position" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    <div class="row">
+      <!--Beginning of application card -->
+      <div class="col card white hoverable">
+        <div class="card-content col s12 applicant-card">
+          <!-- Application row 1 headers -->
+          <table class="highlight">
+            <thead>
+              <tr>
+                <th colspan="21"><h6>Applicant Information</h6></th>
+                <!-- Upload Applications and Delete buttons -->
+                <th colspan="3"><input type="button" class="btn-flat right" id="expand-all" value="Expand all"></th>
+                <th colspan="3"><input type="button" class="btn-flat right" id="collapse-all" value="Collapse all"></th>
+              </tr>
+            </thead>
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="10">Application ID</th>
+                <th colspan="4">Citizenship</th>
+                <th colspan="4">Priority?</th>
+                <th colspan="4">Veteran Preference?</th>
+                <th colspan="4">Classifications</th>
+              </tr>
+            </thead>
+            <!-- Application row 1 body -->
+            <tbody>
+              <tr>
+                <th colspan="1"></th>
+                <td colspan="10">{{ applicant.applicant_id }}</td>
+                <td colspan="4">{{ applicant.citizenship }}</td>
+                <td colspan="4">{{ applicant.priority }}</td>
+                <td colspan="4">{{ applicant.veteran_preference }}</td>
+                <td colspan="4">{{ applicant.classification_set.all }}</td>
+              </tr>
+            </tbody>
+            <!-- Application row 2 headers -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="5">French Working Ability</th>
+                <th colspan="5">English Working Ability</th>
+                <th colspan="4">First Official Language</th>
+                <th colspan="4">Written Exam Language</th>
+                <th colspan="4">Correspondence Language</th>
+                <th colspan="4">Interview Language</th>
+              </tr>
+            </thead>
+            <!-- Application row 2 body -->
+            <tbody>
+              <tr>
+                <th colspan="1"></th>
+                <td colspan="5">{{ applicant.french_working_ability }}</td>
+                <td colspan="5">{{ applicant.english_working_ability }}</td>
+                <td colspan="4">{{ applicant.first_official_language }}</td>
+                <td colspan="4">{{ applicant.written_exam }}</td>
+                <td colspan="4">{{ applicant.correspondence }}</td>
+                <td colspan="4">{{ applicant.interview }}</td>
+              </tr>
+            </tbody>
+            <thead>
+              <tr>
+                <th><h6 class="center">Questions</h6></th>
+              </tr>
+            </thead>
+            {% for question in questions %}
+            <!-- Question -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <th colspan="25">{{ question.question_text }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="1" class="table-subhead"></td>
+                <td colspan="11" class="table-subhead">Question</td>
+                <td colspan="1" class="table-subhead"></td>
+                <td colspan="3" class="table-subhead">Response</td>
+                <td colspan="11" class="table-subhead">Complementary Question</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td colspan="1"></td>
+                <td colspan="11">{{ question.question_text }}</td>
+                <td colspan="1"></td>
+                <td colspan="3">{% if question.applicant_answer is True %}Yes{% else %}No{% endif %}</td>
+                <td colspan="11">{{ question.complementary_question_text }}</td>
+              </tr>
+            </tbody>
+            {% if question.applicant_answer == True and question.applicant_complementary_response != "" %}
+            <tbody>
+              <tr>
+                <td colspan="1"></td>
+                <td colspan="11" class="table-subhead">Complementary Response</td>
+                <td colspan="1"></td>
+                <td colspan="3" class="table-subhead">Score</td>
+                <td colspan="11" class="table-subhead">Analysis</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td colspan="1"></td>
+                <td colspan="11" name="position-classification">{{ question.applicant_complementary_response }}</td>
+                <td colspan="1"></td>
+                <td colspan="3" name="position-classification"></td>
+                <td colspan="11" name="position-classification"></td>
+              </tr>
+            </tbody>
+            {% endif %}
+            {% endfor %}
+
+            <!-- MOCK EDUCATION DATA UNTIL PARSING COMPLETE -->
+            <thead>
+              <tr>
+                <th><h6 class="center">Education</h6></th>
+              </tr>
+            </thead>
+            <thead class="collapse">
+              <tr>
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="4">Academic Level</th>
+                <th colspan="3">Institution</th>
+                <th colspan="5">Area of Study</th>
+                <th colspan="4">Specialization</th>
+                <th colspan="3">Program Length</th>
+                <th colspan="3">Years Completed</th>
+                <th colspan="4">Graduation Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="1">1.</td>
+                <td colspan="4" name="position-classification">Bachelor's Degree</td>
+                <td colspan="3" name="position-classification">Athabasca University</td>
+                <td colspan="5" name="position-classification">Arts, Languages and Literature</td>
+                <td colspan="4" name="position-reference">Project Management</td>
+                <td colspan="3" name="position-reference">3</td>
+                <td colspan="3" name="position-reference">3</td>
+                <td colspan="4" name="position-reference">Sept. 2015</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td colspan="1">2.</td>
+                <td colspan="4" name="position-classification">Bachelor's Degree</td>
+                <td colspan="3" name="position-classification">Athabasca University</td>
+                <td colspan="5" name="position-classification">Arts, Languages and Literature</td>
+                <td colspan="4" name="position-reference">Fine Arts</td>
+                <td colspan="3" name="position-reference">3</td>
+                <td colspan="3" name="position-reference">3</td>
+                <td colspan="4" name="position-reference">Sept. 2015</td>
+              </tr>
+            </tbody>
+            <!-- END OF MOCK EDUCATION DATA -->
+          </table>
+          <!-- Date and time position was added -->
+          <div class="row position-bottom-buttons">
+            <h6 class="btn-flat right black-text">Application added: 2019-06-12</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- MaterializeCSS JS library  -->
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <!-- Script for expanding and collapsing table rows -->
+  <script src="{% static 'js/tables.js' %}"></script>
+  {% endblock %}
