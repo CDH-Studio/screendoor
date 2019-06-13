@@ -34,7 +34,7 @@
             </div>
           </div>
           <!-- Position row 1 headers -->
-          <table class="highlight">
+          <table class="highlight editable">
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
@@ -134,8 +134,58 @@
   <h5>{{ positionText.cannot_display_position }}</h5>
   <!-- End of position display -->
   {% endif %}
-
-
+  <!-- Beginning of applicants display -->
+  {% if applicants  %}
+  <!-- Applications anchor -->
+  <a id="applications"></a>
+  <!-- Application sort by form -->
+  <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
+    {% csrf_token %}
+    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+    <input type="submit" class="btn-flat" value="ID">
+    <input type="submit" class="btn-flat blue-text" value="Score">
+  </form>
+  <!-- Application field headers -->
+  <div class="col">
+    <div class="col">
+      <div class="col s12">
+        <table class="applicant-table">
+          <thead>
+            <tr>
+              <th colspan="10">Applicant ID</th>
+              <th colspan="1">Score</th>
+              <th colspan="1">PDF</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% for applicant in applicants %}
+  <!-- Mock application 1 -->
+  <div class="col card white hoverable">
+    <div class="card-content col s12 application-preview">
+      <!-- Position row 1 body -->
+      <table class="highlight applicant-table">
+        <form method="post" id="save-position" enctype="multipart/form-data" action="">
+          {% csrf_token %}
+          <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+          <input type="hidden" class="hidden" name="applicant-id" value='{{ applicant.id }}'>
+          <tbody>
+            <tr>
+              <td colspan="10"><input type="submit" name="application" class="application-button modal-trigger blue-text sort-applications" value="{{ applicant.applicant_id }}"></td>
+              <td colspan="1"><i class="material-icons green-text">looks_{{ forloop.counter }}</i></td>
+              <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
+            </tr>
+          </tbody>
+        </form>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  <!-- End of applicants display -->
+</div>
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
@@ -146,7 +196,7 @@
   <form action="" method="POST">
     {% csrf_token %}
     <div class="modal-footer">
-      <input type="hidden" id="delete-confirm-id" name="id" value="{{ position.id }}">
+      <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
       <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
     </div>
@@ -164,9 +214,9 @@
       <div class="file-field input-field">
         <div class="btn-small">
           <span>{{ applicationsForm.browse }}</span>
-          <input type="hidden" name="id" value="{{ position.id }}">
+          <input type="hidden" name="position-id" value="{{ position.id }}">
           <!-- Input accepts multiple PDF file -->
-          <input type="file" name="pdf" id="pdf_input" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
+          <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>
         <div class="file-path-wrapper">
           <input id="pdf_path_input" class="file-path validate" type="text"
@@ -176,7 +226,7 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="id" value="{{ position.id }}">
+      <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
