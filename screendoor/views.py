@@ -7,11 +7,13 @@ from django.contrib.auth.decorators import login_required
 
 from screendoor.parseapplication import parse_application
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, \
+    ImportApplicationsText
+from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, FormQuestion
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
 import os
+
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
@@ -213,7 +215,7 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-           #  edit_position(request)
+            #  edit_position(request)
             save_position_to_user(request)
             return redirect('home')
     # Default view for GET request
@@ -245,7 +247,9 @@ def change_positions_sort_method(request, sort_by):
 # Data and visible text to render with positions list view
 def positions_list_data(request, sort_by):
     return {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
+        'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by),
+        'sort': request.session['position_sort']
     }
 
 
@@ -266,9 +270,9 @@ def positions(request):
                 id=request.POST.get("id")).delete()
         # User wants to upload applications for a position
         elif request.POST.get("upload-applications"):
-            upload_applications(request)
-            return position_detail(request, Position.objects.get(
-                id=request.POST.get("id")))
+            return upload_applications(request)
+            # return position_detail(request, Position.objects.get(
+            #     id=request.POST.get("id")))
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions
@@ -277,7 +281,8 @@ def positions(request):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position):
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position, 'applications': position.applications}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
+            'userVisibleText': PositionsViewText, 'position': position}
 
 
 # Position detail view
@@ -289,7 +294,6 @@ def position_detail(request, position):
 def upload_applications(request):
     pos = Position.objects.get(
         id=request.POST.get("id"))
-
     pdf = request.FILES['pdf']
     with open('/code/applications/' + pdf.name, 'wb+') as destination:
         for chunk in pdf.chunks():
@@ -297,14 +301,16 @@ def upload_applications(request):
 
     form = ImportApplicationsForm(request.POST, request.FILES)
     if form.is_valid():
-        applications = parse_application(form.save(commit=False))
-        pos.save()
-        for applicant in applications:
-            pos.applications.add(applicant)
+        applicants = parse_application(form.save(commit=False))
+        for item in applicants:
+            item.parent_position = pos
+            item.save()
 
         pos.save()
+
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
+        return render(request, 'demo_application_view.html', {'applicants': applicants})
 
 
 def import_applications(request):
@@ -312,7 +318,6 @@ def import_applications(request):
 
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
-            breakpoint()
             redact_applications()
             # Call application parser logic here##
 

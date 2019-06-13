@@ -23,7 +23,6 @@ def text_between(start_string, end_string, text):
     return extracted_text
 
 
-
 def extract_essential_block(text):
     essential_block = ""
 
@@ -188,6 +187,7 @@ def extract_closing_date(item):
 def scrub_extra_whitespace(item):
     return str(item).replace('\n', '').replace('  ', ' ')
 
+
 def scrub_entry(text):
     # Scrubs out useless text
     text = text.strip()
@@ -248,6 +248,7 @@ def scrub_raw_text(pdf_poster_text):
 
     return pdf_poster_text
 
+
 def generate_requirements(text, position, requirement_type,
                           requirement_abbreviation):
     text = scrub_entry(text)
@@ -267,6 +268,7 @@ def generate_requirements(text, position, requirement_type,
                                 description=item))
                 x = x + 1
     return requirement_list
+
 
 def save_requirement_lists(list1, list2, list3):
     # saves the lists of requirements
@@ -333,11 +335,11 @@ def find_essential_details(pdf_poster_text, position):
     position.save()
 
     education_reqs = generate_requirements(requirement_education, position,
-                                  "Education", "ED")
+                                           "Education", "ED")
     experience_reqs = generate_requirements(requirement_experience, position,
-                                  "Experience", "EXP")
+                                            "Experience", "EXP")
     asset_experience_reqs = generate_requirements(requirement_assets, position,
-                                  "Asset", "AEXP")
+                                                  "Asset", "AEXP")
     save_requirement_lists(education_reqs, experience_reqs,
                            asset_experience_reqs)
 
