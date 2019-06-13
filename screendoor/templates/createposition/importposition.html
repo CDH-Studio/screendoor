@@ -157,7 +157,7 @@
             <!-- Position education and experience rows -->
             <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
             <table class="highlight">
-              {% for req in position.requirement_set.all reversed %}
+              {% for req in position.requirement_set.all %}
               <!-- ifchanged executes only for distinct values without repetition -->
               {% ifchanged %}
               <thead>

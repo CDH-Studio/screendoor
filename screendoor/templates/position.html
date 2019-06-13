@@ -96,7 +96,7 @@
             </tbody>
             <!-- Position education and experience rows -->
             <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-            {% for req in position.requirement_set.all reversed %}
+            {% for req in position.requirement_set.all %}
             <!-- ifchanged executes only for distinct values without repetition -->
             {% ifchanged %}
             <thead class="collapse">
@@ -129,13 +129,13 @@
       </div>
     </div>
   </form>
-</div>
-<br>
-<!-- Error message if position is invalid/cannot be displayed -->
-{% else %}
-<h5>{{ positionText.cannot_display_position }}</h5>
-<!-- End of position display -->
-{% endif %}
+  <!-- Error message if position is invalid/cannot be displayed -->
+  {% else %}
+  <h5>{{ positionText.cannot_display_position }}</h5>
+  <!-- End of position display -->
+  {% endif %}
+
+
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
