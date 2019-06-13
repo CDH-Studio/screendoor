@@ -78,7 +78,7 @@
         </table>
         <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
-          <form action="" method="POST">
+          <form action="" method="POST" >
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ position.id }}">
             <input type="submit" class="btn-flat blue-text position-button" name="position" value="{{ userVisibleText.view }}">
@@ -122,7 +122,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="" method="POST">
+  <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -133,7 +133,7 @@
         <div class="btn-small">
           <span>{{ applicationsForm.browse }}</span>
           <!-- Input accepts multiple PDF file -->
-          <input type="file" name="pdf" id="pdf_input" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
+          <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>
         <div class="file-path-wrapper">
           <input id="pdf_path_input" class="file-path validate" type="text"

@@ -36,6 +36,11 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                 series["Prénom / First Name:"] = "REDACTED"
                 series["Initiales / Initials:"] = "REDACTED"
                 series["No SRFP / PSRS no:"] = "REDACTED"
+                series["Organisation du poste d'attache / Substantive organization:"] = "REDACTED"
+                series["Lieu de travail du poste d'attache / Substantive work location:"] = "REDACTED"
+                series[
+                    "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):"] = "REDACTED"
+
                 list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
 
             elif item[0].str.contains("Courriel / E-mail:").any():
@@ -45,7 +50,10 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                 forbidden.append(series["Téléphone / Telephone:"])
                 series["Adresse / Address:"] = "REDACTED"
                 series["Courriel / E-mail:"] = "REDACTED"
+                series["Autre courriel / Alternate E-mail:"] = "REDACTED"
+                series["Télécopieur / Facsimile:"] = "REDACTED"
                 series["Téléphone / Telephone:"] = "REDACTED"
+                series["Autre Téléphone / Alternate Telephone:"] = "REDACTED"
                 list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
             elif item[0].str.contains("Adresse / Address:").any():
                 series = item.set_index(0)[1]
@@ -66,7 +74,6 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
         if str(item.shape) == "(1, 1)":
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
-
                     print("Writing Applicant: " + str(no_applicants_total))
                     no_applicants_total = no_applicants_total + 1
                     print(item)
@@ -80,7 +87,8 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
         if not deletion:
             html = item.to_html(index=False, header=False)
             documents.append(
-                HTML(string=html).render(stylesheets=[CSS(string='table, tr, td {border: 1px solid black;}')]))
+                HTML(string=html).render(
+                    stylesheets=[CSS(string='table, th, td {border: 1px solid black;  border-collapse: collapse;}')]))
 
     pages = []
 
@@ -103,7 +111,6 @@ def get_resume_starter_string(pdf_file_path):
     array1 = text.split("Curriculum vitae / Résumé\n")
     string_array = []
     for idx, item in enumerate(array1):
-
         item = item.replace("\n", "")
         item = item.replace("\t", " ")
         item = item.strip()
@@ -116,9 +123,8 @@ def get_resume_starter_string(pdf_file_path):
     return string_array
 
 
-def parse_applications():
+def redact_applications():
     print("Starting Redactor...")
-
 
     pd.set_option('display.max_colwidth', -1)
     count = 0
@@ -138,4 +144,3 @@ def parse_applications():
             continue
 
     return count
-
