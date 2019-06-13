@@ -326,6 +326,10 @@ def import_applications(request):
         'form': form})
 
 
+def application(request):
+    return render(request, 'application.html', {'baseVisibleText': InterfaceText, })
+
+
 def nlp(request):
     text = u"""During my employment at CRA as a permanent IT Project Leader from January 2010 until present, I provided strategic advice and
 recommendations on IM/IT risks or issues to my directors (EX1, EX3, and higher ) in relation to various legislated projects such as

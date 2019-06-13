@@ -135,7 +135,88 @@
   <!-- End of position display -->
   {% endif %}
 
+  <!-- Beginning of applicants display -->
+  {% comment %}
+  {% if position.applications is not None %}
+  {% endcomment %}
 
+  <!-- Application sort by form -->
+  <form action="" method="POST" class="sort-applications right">
+    {% csrf_token %}
+    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+    <input type="submit" class="btn-flat" value="ID">
+    <input type="submit" class="btn-flat blue-text" value="Score">
+  </form>
+
+  <!-- Application field headers -->
+  <div class="col">
+    <div class="col">
+      <div class="col s12">
+        <table class="applicant-table">
+          <thead>
+            <tr>
+              <th colspan="10">Applicant ID</th>
+              <th colspan="1">Score</th>
+              <th colspan="1">PDF</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% comment %}
+  {% for application in position.applications %}
+  {% endcomment %}
+  <!-- Mock application 1 -->
+  <div class="col card white hoverable">
+    <div class="card-content col s12 application-preview">
+      <!-- Position row 1 body -->
+      <table class="highlight applicant-table">
+        <tbody>
+          <tr>
+            <td colspan="10"><a href="{% url 'application' %}">6d03104e-1027-48fa-9aaf-55371aa1b844</a></td>
+            <td colspan="1"><i class="material-icons green-text">looks_5</i></td>
+            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Mock application 2 -->
+  <div class="col card white hoverable">
+    <div class="card-content col s12 application-preview">
+      <!-- Position row 1 body -->
+      <table class="highlight applicant-table">
+        <tbody>
+          <tr>
+            <td colspan="10"><a href="{% url 'application' %}">b8d4091a-2b09-4660-a53e-81be699c847b</a></td>
+            <td colspan="1"><i class="material-icons light-green-text">looks_4</i></td>
+            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Mock application 3 -->
+  <div class="col card white hoverable">
+    <div class="card-content col s12 application-preview">
+      <!-- Position row 1 body -->
+      <table class="highlight applicant-table">
+        <tbody>
+          <tr>
+            <td colspan="10"><a href="{% url 'application' %}">b6c7032e-3f5f-44d8-a73a-a6b5d611232d</a></td>
+            <td colspan="1"><i class="material-icons
+                                      orange-text">looks_3</i></td>
+            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% comment %}
+  {% endfor %}
+  {% endif %}
+  {% endcomment %}
+  <!-- End of applicants display -->
+</div>
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
