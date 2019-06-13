@@ -34,7 +34,7 @@
             </div>
           </div>
           <!-- Position row 1 headers -->
-          <table class="highlight">
+          <table class="highlight editable">
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
@@ -196,7 +196,7 @@
   <form action="" method="POST">
     {% csrf_token %}
     <div class="modal-footer">
-      <input type="hidden" id="delete-confirm-id" name="id" value="{{ position.id }}">
+      <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
       <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
     </div>
@@ -214,7 +214,7 @@
       <div class="file-field input-field">
         <div class="btn-small">
           <span>{{ applicationsForm.browse }}</span>
-          <input type="hidden" name="id" value="{{ position.id }}">
+          <input type="hidden" name="position-id" value="{{ position.id }}">
           <!-- Input accepts multiple PDF file -->
           <input type="file" name="pdf" id="pdf_input" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>
@@ -226,7 +226,7 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="id" value="{{ position.id }}">
+      <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>

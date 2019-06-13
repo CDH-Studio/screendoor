@@ -16,7 +16,7 @@ class Position(models.Model):
     salary_max = models.DecimalField(
         decimal_places=2, max_digits=10, null=True, blank=True)
     classification = models.CharField(max_length=200, blank=True)
-    description = models.CharField(max_length=2000, blank=True)
+    description = models.TextField(blank=True)
     open_to = models.CharField(max_length=200, blank=True)
     reference_number = models.CharField(max_length=200, blank=True)
     selection_process_number = models.CharField(max_length=200, blank=True)
@@ -56,17 +56,20 @@ class Applicant(models.Model):
         choices=LANGUAGE_PROFICIENCY_CHOICES, max_length=200, null=True)
     first_official_language = models.CharField(
         choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    written_exam = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    correspondence = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
-    interview = models.CharField(choices=LANGUAGE_CHOICES, max_length=200, null=True)
+    written_exam = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=200, null=True)
+    correspondence = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=200, null=True)
+    interview = models.CharField(
+        choices=LANGUAGE_CHOICES, max_length=200, null=True)
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-                           blank=True)
+        blank=True)
     ranking = models.PositiveIntegerField(null=True)
 
     def __str__(self):
-        return self.name
+        return self.applicant_id
 
 
 class RequirementMet(models.Model):
@@ -119,11 +122,10 @@ class FormQuestion(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='questions')
 
-    question_text = models.CharField(max_length=1000)
-    complementary_question_text = models.CharField(max_length=1000)
+    question_text = models.TextField(blank=True)
+    complementary_question_text = models.TextField(blank=True)
     applicant_answer = models.BooleanField()
-    applicant_complementary_response = models.CharField(
-        max_length=200, blank=True, null=True)
+    applicant_complementary_response = models.TextField(blank=True, null=True)
     parsed_response = models.CharField(max_length=1000, blank=True, null=True)
     analysis = models.CharField(max_length=1000, blank=True, null=True)
     tabulation = models.CharField(max_length=1000, null=True)
@@ -137,7 +139,7 @@ class Requirement(models.Model):
         Position, on_delete=models.CASCADE, null=True)
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
-    description = models.CharField(max_length=5000)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.position.__str__() + " - " + self.abbreviation

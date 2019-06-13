@@ -193,9 +193,9 @@ def parse_applicant_complementary_response(item):
     if first_column.str.contains("Réponse Complémentaire: / Complementary Answer:").any():
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
-            (table[0].startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
+            (table[0].str.startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
         applicant_complementary_response = applicant_complementary_response.split(": ")[
-            1]
+            2]
         return applicant_complementary_response
     else:
         return ""

@@ -4,7 +4,7 @@ let okButton = editButton.cloneNode();
 let cancelButton = saveButton.cloneNode();
 let buttonRow = document.getElementById("import-position-buttons");
 let hiddenInputs = document.getElementsByClassName("hidden");
-let cells = Array.from(document.getElementsByTagName("td"));
+let cells = Array.from(document.getElementsByClassName("editable")[0].getElementsByTagName("td"));
 cells.unshift(document.getElementById("title"));
 let cellText = [];
 
@@ -32,7 +32,7 @@ editButton.addEventListener("click", function() {
 
   for (let i = 0; i < cells.length; i++) {
     cellText[i] = cells[i].innerText;
-    defineEditCells(cells[i], cells[i].name, false);
+    cells.className == "readonly" ? defineEditCells(cells[i], cells[i].name, true) : defineEditCells(cells[i], cells[i].name, false);
   }
 });
 
@@ -68,8 +68,10 @@ cancelButton.addEventListener("click", function() {
 function defineEditCells(cell, name, isReadOnly) {
   let input = createReturnTextInput(cell.innerText, name);
   input.readOnly = isReadOnly;
-  cell.innerText = null;
-  cell.appendChild(input);
+  if (!isReadOnly) {
+    cell.innerText = null;
+    cell.appendChild(input);
+  }
 }
 
 /* Returns an edit cell with the name and value of the table data element */
