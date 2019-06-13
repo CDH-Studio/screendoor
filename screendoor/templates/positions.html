@@ -36,7 +36,7 @@
       <div class="card-content col s12">
         <form action="" method="POST">
           {% csrf_token %}
-          <input type="hidden" name="id" value="{{ position.id }}">
+          <input type="hidden" name="position-id" value="{{ position.id }}">
           <!-- Link to position detail using POST request -->
           <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
         </form>
@@ -80,7 +80,7 @@
         <div class="row position-buttons left">
           <form action="" method="POST" >
             {% csrf_token %}
-            <input type="hidden" name="id" value="{{ position.id }}">
+            <input type="hidden" name="position-id" value="{{ position.id }}">
             <input type="submit" class="btn-flat blue-text position-button" name="position" value="{{ userVisibleText.view }}">
             <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
             <a class="btn-flat blue-text position-button modal-trigger" href="#upload-applications-modal" onclick="handleUploadApplicationsList({{ position.id }});">{{ userVisibleText.upload_applications }}</a>
@@ -113,7 +113,7 @@
   <form action="" method="POST">
     <div class="modal-footer">
       {% csrf_token %}
-      <input type="hidden" id="delete-confirm-id" name="id" value="">
+      <input type="hidden" id="delete-confirm-id" name="position-id" value="">
       <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
@@ -143,7 +143,7 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="id" value="">
+      <input type="hidden" id="upload-applications-id" name="position-id" value="">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>

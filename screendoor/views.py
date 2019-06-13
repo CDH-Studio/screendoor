@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from screendoor.parseapplication import parse_application
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement
+from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement, FormQuestion
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
 import os
@@ -274,17 +274,20 @@ def positions(request):
         # User wants to view position detail
         if request.POST.get("position"):
             return position_detail(request, Position.objects.get(
-                id=request.POST.get("id")))
+                id=request.POST.get("position-id")))
         # User wants to delete position
         elif request.POST.get("delete"):
             Position.objects.get(
-                id=request.POST.get("id")).delete()
+                id=request.POST.get("position-id")).delete()
         # User wants to upload applications for a position
         elif request.POST.get("upload-applications"):
             return upload_applications(request)
-            # User wants to edit a position
+        # User wants to edit a position
         elif request.POST.get("edit-position"):
             return position_detail(request, edit_position(request))
+        # User wants to view an applicant
+        elif request.POST.get("application"):
+            return application(request)
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions
@@ -294,7 +297,7 @@ def positions(request):
 # Data and visible text to render with positions
 def position_detail_data(request, position):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position}
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': Applicant.objects.filter(parent_position=position)}
 
 
 # Position detail view
@@ -306,7 +309,7 @@ def position_detail(request, position):
 @login_required(login_url='/login/', redirect_field_name=None)
 def upload_applications(request):
     position = Position.objects.get(
-        id=request.POST.get("id"))
+        id=request.POST.get("position-id"))
     pdf = request.FILES['pdf']
     with open('/code/applications/' + pdf.name, 'wb+') as destination:
         for chunk in pdf.chunks():
@@ -321,7 +324,8 @@ def upload_applications(request):
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
         return render(request, 'position.html', {'position': Position.objects.get(
-            id=request.POST.get("id")), 'applicants': applicants})
+            id=request.POST.get("position-id")), 'positionText': PositionText,
+            'userVisibleText': PositionsViewText, 'applicants': applicants})
 
 
 def import_applications_redact(request):
@@ -330,7 +334,7 @@ def import_applications_redact(request):
         if form.is_valid():
             redact_applications()
             # Call application parser logic here##
-            return render(request, 'importapplications/applications.html', {
+            return render(request, 'importapplications/applications.html#applications', {
                 'form': form})
     form = ImportApplicationsForm()
     return render(request, 'importapplications/applications.html', {
@@ -338,7 +342,9 @@ def import_applications_redact(request):
 
 
 def application(request):
-    return render(request, 'application.html', {'baseVisibleText': InterfaceText, })
+    return render(request, 'application.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
+        id=request.POST.get("position-id")), 'applicant': Applicant.objects.get(id=request.POST.get("applicant-id")),
+        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
 
 
 def nlp(request):

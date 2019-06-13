@@ -3577,6 +3577,11 @@ input .position-title {
   justify-content: center;
   /*transform: translateY(-50%);*/ }
 
+.applicant-card {
+  padding-top: 7px !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important; }
+
 .card-offset {
   margin-left: 500px; }
 

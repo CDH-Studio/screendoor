@@ -134,21 +134,17 @@
   <h5>{{ positionText.cannot_display_position }}</h5>
   <!-- End of position display -->
   {% endif %}
-
-<<<<<<< HEAD
   <!-- Beginning of applicants display -->
-  {% comment %}
-  {% if position.applications is not None %}
-  {% endcomment %}
-
+  {% if applicants  %}
+  <!-- Applications anchor -->
+  <a id="applications"></a>
   <!-- Application sort by form -->
-  <form action="" method="POST" class="sort-applications right">
+  <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
     {% csrf_token %}
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
     <input type="submit" class="btn-flat" value="ID">
     <input type="submit" class="btn-flat blue-text" value="Score">
   </form>
-
   <!-- Application field headers -->
   <div class="col">
     <div class="col">
@@ -165,57 +161,29 @@
       </div>
     </div>
   </div>
-  {% comment %}
-  {% for application in position.applications %}
-  {% endcomment %}
+  {% for applicant in applicants %}
   <!-- Mock application 1 -->
   <div class="col card white hoverable">
     <div class="card-content col s12 application-preview">
       <!-- Position row 1 body -->
       <table class="highlight applicant-table">
-        <tbody>
-          <tr>
-            <td colspan="10"><a href="{% url 'application' %}">6d03104e-1027-48fa-9aaf-55371aa1b844</a></td>
-            <td colspan="1"><i class="material-icons green-text">looks_5</i></td>
-            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
-          </tr>
-        </tbody>
+        <form method="post" id="save-position" enctype="multipart/form-data" action="">
+          {% csrf_token %}
+          <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+          <input type="hidden" class="hidden" name="applicant-id" value='{{ applicant.id }}'>
+          <tbody>
+            <tr>
+              <td colspan="10"><input type="submit" name="application" class="application-button modal-trigger blue-text sort-applications" value="{{ applicant.applicant_id }}"></td>
+              <td colspan="1"><i class="material-icons green-text">looks_{{ forloop.counter }}</i></td>
+              <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
+            </tr>
+          </tbody>
+        </form>
       </table>
     </div>
   </div>
-  <!-- Mock application 2 -->
-  <div class="col card white hoverable">
-    <div class="card-content col s12 application-preview">
-      <!-- Position row 1 body -->
-      <table class="highlight applicant-table">
-        <tbody>
-          <tr>
-            <td colspan="10"><a href="{% url 'application' %}">b8d4091a-2b09-4660-a53e-81be699c847b</a></td>
-            <td colspan="1"><i class="material-icons light-green-text">looks_4</i></td>
-            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <!-- Mock application 3 -->
-  <div class="col card white hoverable">
-    <div class="card-content col s12 application-preview">
-      <!-- Position row 1 body -->
-      <table class="highlight applicant-table">
-        <tbody>
-          <tr>
-            <td colspan="10"><a href="{% url 'application' %}">b6c7032e-3f5f-44d8-a73a-a6b5d611232d</a></td>
-            <td colspan="1"><i class="material-icons
-                                      orange-text">looks_3</i></td>
-            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  {% comment %}
   {% endfor %}
   {% endif %}
-  {% endcomment %}
   <!-- End of applicants display -->
 </div>
 <!-- Modal delete position confirmation pop-up -->

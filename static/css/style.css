@@ -1,3 +1,12 @@
+.application-button {
+  background-color: transparent;
+  border: 0px none;
+}
+
+.application-button:hover {
+  cursor: pointer;
+}
+
 td {
   vertical-align: top;
 }
