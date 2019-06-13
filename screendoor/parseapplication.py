@@ -1,4 +1,3 @@
-import os
 import random
 import string
 
@@ -6,7 +5,7 @@ import pandas as pd
 import tabula
 from pandas import options
 
-from screendoor.models import Applicant
+from screendoor.models import Applicant, FormQuestion
 from screendoor.uservisibletext import ErrorMessages
 
 
@@ -43,9 +42,9 @@ def parse_is_veteran(item):
     applicant_is_veteran = table.loc[
         (table[0] == "Préférence aux anciens combattants / Preference to veterans:").idxmax(), 1]
     if "No" in applicant_is_veteran:
-        applicant_has_priority = "False"
+        applicant_is_veteran = "False"
     else:
-        applicant_has_priority = "True"
+        applicant_is_veteran = "True"
     print("Veteran?: " + applicant_is_veteran)
     return applicant_is_veteran
 
@@ -141,20 +140,77 @@ def correct_split_item(idx, tables, item):
     return item
 
 
+def generate_questions(item):
+    question_list = []
+
+    if is_question(item):
+        question_list.append(
+            FormQuestion())
+
+    return question_list
+
+
+def parse_question_text(item):
+    table = item[[0, 1]]
+    question_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+    return question_text
+
+
+def parse_complementary_question_text(item):
+    table = item[[0, 1]]
+    complementary_question_text = table.loc[(table[0] == "Complementary Question - Anglais / English:").idxmax(), 1]
+    return complementary_question_text
+
+
+def parse_applicant_answer(item):
+    table = item[[0, 1]]
+    applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
+
+    if "No" in applicant_answer:
+        applicant_answer = "False"
+    else:
+        applicant_answer = "True"
+
+    return applicant_answer
+
+
+def parse_applicant_complementary_response(item):
+    first_column = item[item.columns[0]].astype(str)
+
+    if first_column.str.contains("Réponse Complémentaire: / Complementary Answer:").any():
+        table = item[[0, 1]]
+        applicant_complementary_response = table.loc[
+            (table[0].startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
+        applicant_complementary_response = applicant_complementary_response.split(": ")[1]
+        return applicant_complementary_response
+    else:
+        return ""
+
+
 def find_essential_details(tables):
-
-    applicant = Applicant
-
+    applicant = Applicant()
+    questions = []
     for idx, item in enumerate(tables):
 
         if item.empty:
             continue
-        # tables = merge_questions(tables, item, idx)
+        tables = merge_questions(tables, item, idx)
         item = correct_split_item(idx, tables, item)
+        if is_question(item):
+            questions.append(FormQuestion(question_text=parse_question_text(item),
+                                          complementary_question_text=parse_complementary_question_text(item),
+                                          applicant_answer=parse_applicant_answer(item),
+                                          applicant_complementary_response=1))
+
         applicant = fill_in_single_line_arguments(item, applicant)
 
-    applicant.applicant_id = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
+    applicant.applicant_id = ''.join(
+        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
 
+    applicant.save()
+    for item in questions:
+        item.parent_applicant = applicant
+        item.save()
 
     return applicant
 
@@ -207,10 +263,10 @@ def clean_and_parse(df, application):
     for x in range(len(array)):
         if x == (count - 1):
             print("Processing Applicant: " + str(x + 1))
-            find_essential_details(df[array[x]:])
+            application.append(find_essential_details(df[array[x]:]))
         else:
             print("Processing Applicant: " + str(x + 1))
-            find_essential_details(df[array[x]:array[x + 1]])
+            application.append(find_essential_details(df[array[x]:array[x + 1]]))
 
     return application
 
@@ -219,7 +275,8 @@ def parse_application(request):
     if request.pdf.name:
         application = []
         print(request.pdf.name)
-        df = tabula.read_pdf("/code/applications/" + request.pdf.name, options, pages="all", multiple_tables="true", lattice="true")
+        df = tabula.read_pdf("/code/applications/" + request.pdf.name, options, pages="all", multiple_tables="true",
+                             lattice="true")
         application = clean_and_parse(df, application)
         return application
     else:
