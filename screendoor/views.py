@@ -227,7 +227,7 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-           #  edit_position(request)
+            #  edit_position(request)
             save_position_to_user(request)
             return redirect('home')
     # Default view for GET request
@@ -259,7 +259,9 @@ def change_positions_sort_method(request, sort_by):
 # Data and visible text to render with positions list view
 def positions_list_data(request, sort_by):
     return {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by), 'sort': request.session['position_sort']
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
+        'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by),
+        'sort': request.session['position_sort']
     }
 
 
@@ -280,10 +282,8 @@ def positions(request):
                 id=request.POST.get("id")).delete()
         # User wants to upload applications for a position
         elif request.POST.get("upload-applications"):
-            upload_applications(request)
-            return position_detail(request, Position.objects.get(
-                id=request.POST.get("id")))
-        # User wants to edit a position
+            return upload_applications(request)
+            # User wants to edit a position
         elif request.POST.get("edit-position"):
             return position_detail(request, edit_position(request))
     # Persists positions sorting
@@ -294,7 +294,8 @@ def positions(request):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position):
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position, 'applications': position.applications}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
+            'userVisibleText': PositionsViewText, 'position': position}
 
 
 # Position detail view
@@ -306,7 +307,6 @@ def position_detail(request, position):
 def upload_applications(request):
     pos = Position.objects.get(
         id=request.POST.get("id"))
-
     pdf = request.FILES['pdf']
     with open('/code/applications/' + pdf.name, 'wb+') as destination:
         for chunk in pdf.chunks():
@@ -314,14 +314,16 @@ def upload_applications(request):
 
     form = ImportApplicationsForm(request.POST, request.FILES)
     if form.is_valid():
-        applications = parse_application(form.save(commit=False))
-        pos.save()
-        for applicant in applications:
-            pos.applications.add(applicant)
+        applicants = parse_application(form.save(commit=False))
+        for item in applicants:
+            item.parent_position = pos
+            item.save()
 
         pos.save()
+
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
+        return render(request, 'demo_application_view.html', {'applicants': applicants})
 
 
 def import_applications(request):
@@ -339,7 +341,6 @@ def import_applications(request):
     form = ImportApplicationsForm()
     return render(request, 'importapplications/applications.html', {
         'form': form})
-
 def nlp(request):
     text = u"""During my employment at CRA as a permanent IT Project Leader from January 2010 until present, I provided strategic advice and
 recommendations on IM/IT risks or issues to my directors (EX1, EX3, and higher ) in relation to various legislated projects such as

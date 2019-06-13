@@ -17,6 +17,8 @@ urlpatterns = [
     path('position/', views.position_detail, name='position'),
     path('importapplications/', views.import_applications,
          name='importapplications'),
+    path('importapplicants/', views.upload_applications,
+         name='importapplicants'),
     path('nlp/', views.nlp,
-         name='nlp'),
+         name='nlp')
 ]
