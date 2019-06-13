@@ -18,7 +18,8 @@ def text_between(start_string, end_string, text):
 
 def parse_citizenship(item):
     table = item[[0, 1]]
-    applicant_citizenship = table.loc[(table[0] == "Citoyenneté / Citizenship:").idxmax(), 1]
+    applicant_citizenship = table.loc[(
+        table[0] == "Citoyenneté / Citizenship:").idxmax(), 1]
     if "Canadian Citizen" in applicant_citizenship:
         applicant_citizenship = "Canadian Citizen"
     print("citizenship: " + applicant_citizenship)
@@ -52,7 +53,8 @@ def parse_is_veteran(item):
 def parse_first_official_language(item):
     table = item[[0, 1]]
     first_official_language = \
-        table.loc[(table[0] == "Première langue officielle / First official language:").idxmax(), 1]
+        table.loc[(
+            table[0] == "Première langue officielle / First official language:").idxmax(), 1]
     applicant_first_official_language = first_official_language.split(" / ")[1]
     print("First Official Language: " + applicant_first_official_language)
     return applicant_first_official_language
@@ -60,12 +62,14 @@ def parse_first_official_language(item):
 
 def parse_working_ability(item):
     table = item[[0, 1]]
-    working_ability = table.loc[(table[0] == "Connaissance pratique / Working ability:").idxmax(), 1]
+    working_ability = table.loc[(
+        table[0] == "Connaissance pratique / Working ability:").idxmax(), 1]
     return working_ability
 
 
 def parse_english_ability(working_ability):
-    english_working_ability = working_ability.split("Anglais / English:", 1)[1].split(" / ")[1]
+    english_working_ability = working_ability.split(
+        "Anglais / English:", 1)[1].split(" / ")[1]
     print("English Ability: " + english_working_ability)
 
     return english_working_ability
@@ -73,14 +77,16 @@ def parse_english_ability(working_ability):
 
 def parse_french_ability(working_ability):
     french_working_ability = \
-        text_between("Français / French :", "Anglais / English:", working_ability).split(" / ")[1]
+        text_between("Français / French :", "Anglais / English:",
+                     working_ability).split(" / ")[1]
     print("French Ability: " + french_working_ability)
     return french_working_ability
 
 
 def parse_written_exam_language(item):
     table = item[[0, 1]]
-    written_exam_language = table.loc[(table[0] == "Examen écrit / Written exam:").idxmax(), 1]
+    written_exam_language = table.loc[(
+        table[0] == "Examen écrit / Written exam:").idxmax(), 1]
     applicant_written_exam_language = written_exam_language.split(" / ")[1]
     print("Written Exam Language: " + applicant_written_exam_language)
     return applicant_written_exam_language
@@ -88,7 +94,8 @@ def parse_written_exam_language(item):
 
 def parse_corresponsence_language(item):
     table = item[[0, 1]]
-    correspondence_language = table.loc[(table[0] == "Correspondance: / Correspondence:").idxmax(), 1]
+    correspondence_language = table.loc[(
+        table[0] == "Correspondance: / Correspondence:").idxmax(), 1]
     applicant_correspondence_language = correspondence_language.split(" / ")[1]
     print("Correspondence Language: " + applicant_correspondence_language)
     return applicant_correspondence_language
@@ -96,7 +103,8 @@ def parse_corresponsence_language(item):
 
 def parse_interview_language(item):
     table = item[[0, 1]]
-    interview_language = table.loc[(table[0] == "Entrevue / Interview:").idxmax(), 1]
+    interview_language = table.loc[(
+        table[0] == "Entrevue / Interview:").idxmax(), 1]
     applicant_interview_language = interview_language.split(" / ")[1]
     print("Interview Language: " + applicant_interview_language)
     return applicant_interview_language
@@ -115,8 +123,10 @@ def fill_in_single_line_arguments(item, applicant):
         applicant.first_official_language = parse_first_official_language(item)
     if first_column.str.contains("Connaissance pratique / Working ability:").any():
         working_ability = parse_working_ability(item)
-        applicant.french_working_ability = parse_french_ability(working_ability)
-        applicant.english_working_ability = parse_english_ability(working_ability)
+        applicant.french_working_ability = parse_french_ability(
+            working_ability)
+        applicant.english_working_ability = parse_english_ability(
+            working_ability)
     if first_column.str.contains("Examen écrit / Written exam:").any():
         applicant.written_exam = parse_written_exam_language(item)
     if first_column.str.contains("Correspondance: / Correspondence:").any():
@@ -152,19 +162,22 @@ def generate_questions(item):
 
 def parse_question_text(item):
     table = item[[0, 1]]
-    question_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+    question_text = table.loc[(
+        table[0] == "Question - Anglais / English:").idxmax(), 1]
     return question_text
 
 
 def parse_complementary_question_text(item):
     table = item[[0, 1]]
-    complementary_question_text = table.loc[(table[0] == "Complementary Question - Anglais / English:").idxmax(), 1]
+    complementary_question_text = table.loc[(
+        table[0] == "Complementary Question - Anglais / English:").idxmax(), 1]
     return complementary_question_text
 
 
 def parse_applicant_answer(item):
     table = item[[0, 1]]
-    applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
+    applicant_answer = table.loc[(
+        table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
 
     if "No" in applicant_answer:
         applicant_answer = "False"
@@ -181,7 +194,8 @@ def parse_applicant_complementary_response(item):
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
             (table[0].startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
-        applicant_complementary_response = applicant_complementary_response.split(": ")[1]
+        applicant_complementary_response = applicant_complementary_response.split(": ")[
+            1]
         return applicant_complementary_response
     else:
         return ""
@@ -198,9 +212,11 @@ def find_essential_details(tables):
         item = correct_split_item(idx, tables, item)
         if is_question(item):
             questions.append(FormQuestion(question_text=parse_question_text(item),
-                                          complementary_question_text=parse_complementary_question_text(item),
-                                          applicant_answer=parse_applicant_answer(item),
-                                          applicant_complementary_response=1))
+                                          complementary_question_text=parse_complementary_question_text(
+                                              item),
+                                          applicant_answer=parse_applicant_answer(
+                                              item),
+                                          applicant_complementary_response=parse_applicant_complementary_response(item)))
 
         applicant = fill_in_single_line_arguments(item, applicant)
 
@@ -266,7 +282,8 @@ def clean_and_parse(df, application):
             application.append(find_essential_details(df[array[x]:]))
         else:
             print("Processing Applicant: " + str(x + 1))
-            application.append(find_essential_details(df[array[x]:array[x + 1]]))
+            application.append(find_essential_details(
+                df[array[x]:array[x + 1]]))
 
     return application
 
