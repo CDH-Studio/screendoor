@@ -104,7 +104,7 @@ class Classification(models.Model):
 
 
 class Education(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='educations')
     academic_level = models.TextField(null=True)
     area_of_study = models.TextField(null=True)
