@@ -106,25 +106,25 @@ class Classification(models.Model):
 class Education(models.Model):
     parent_application = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='educations')
-    academic_level = models.CharField(max_length=200)
-    area_of_study = models.CharField(max_length=200)
-    specialization = models.CharField(max_length=200)
-    program_length = models.PositiveIntegerField()
-    num_years_completed = models.PositiveIntegerField()
-    institution = models.CharField(max_length=200)
-    graduation_date = models.CharField(max_length=200)
+    academic_level = models.TextField(null=True)
+    area_of_study = models.TextField(null=True)
+    specialization = models.TextField(null=True)
+    program_length = models.TextField(null=True)
+    num_years_completed = models.TextField(null=True)
+    institution = models.TextField(null=True)
+    graduation_date = models.TextField(null=True)
 
     def __str__(self):
-        return self.area_of_study
+        return self.academic_level
 
 
 class FormQuestion(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='questions')
 
-    question_text = models.TextField(blank=True)
-    complementary_question_text = models.TextField(blank=True)
-    applicant_answer = models.BooleanField()
+    question_text = models.TextField(blank=True, null=True)
+    complementary_question_text = models.TextField(blank=True, null=True)
+    applicant_answer = models.BooleanField(null=True)
     applicant_complementary_response = models.TextField(blank=True, null=True)
     parsed_response = models.CharField(max_length=1000, blank=True, null=True)
     analysis = models.CharField(max_length=1000, blank=True, null=True)
