@@ -194,8 +194,8 @@ def parse_applicant_complementary_response(item):
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
             (table[0].str.startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
-        applicant_complementary_response = applicant_complementary_response.split(": ")[
-            2]
+        applicant_complementary_response = applicant_complementary_response.split("Complementary Answer:")[
+            1]
         return applicant_complementary_response
     else:
         return ""
