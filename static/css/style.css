@@ -9,6 +9,13 @@
 
 td {
   vertical-align: top;
+  line-height: 1.6rem;
+}
+
+th {
+  font-weight: 500;
+  font-size: 1.1rem;
+  line-height: 1.5rem;
 }
 
 .applicant-table tr {

@@ -143,7 +143,7 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="position-id" value="">
+      <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>

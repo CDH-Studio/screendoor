@@ -325,7 +325,7 @@ def upload_applications(request):
         os.remove("/code/applications/" + pdf.name)
         return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
             id=request.POST.get("position-id")), 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'applicants': applicants})
+            'userVisibleText': PositionsViewText, 'applicants': Applicant.objects.filter(parent_position=request.POST.get("position-id"))})
 
 
 def import_applications_redact(request):

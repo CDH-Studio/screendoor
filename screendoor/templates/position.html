@@ -139,12 +139,14 @@
   <!-- Applications anchor -->
   <a id="applications"></a>
   <!-- Application sort by form -->
-  <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
-    {% csrf_token %}
-    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
-    <input type="submit" class="btn-flat" value="ID">
-    <input type="submit" class="btn-flat blue-text" value="Score">
-  </form>
+  {% comment %}
+  <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
+       {% csrf_token %}
+       <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+       <input type="submit" class="btn-flat" value="ID">
+       <input type="submit" class="btn-flat blue-text" value="Score">
+       </form> -->
+  {% endcomment %}
   <!-- Application field headers -->
   <div class="col">
     <div class="col">
@@ -205,7 +207,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="" method="POST">
+  <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -214,7 +216,6 @@
       <div class="file-field input-field">
         <div class="btn-small">
           <span>{{ applicationsForm.browse }}</span>
-          <input type="hidden" name="position-id" value="{{ position.id }}">
           <!-- Input accepts multiple PDF file -->
           <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>

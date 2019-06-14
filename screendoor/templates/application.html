@@ -92,7 +92,7 @@
                 <td colspan="11" class="table-subhead">Question</td>
                 <td colspan="1" class="table-subhead"></td>
                 <td colspan="3" class="table-subhead">Response</td>
-                <td colspan="11" class="table-subhead">Complementary Question</td>
+                <td colspan="11" class="table-subhead">{% if question.applicant_answer is True and question.applicant_complementary_response != "" %}Complementary Question{% endif %}</td>
               </tr>
             </tbody>
             <tbody>
@@ -101,7 +101,7 @@
                 <td colspan="11">{{ question.question_text }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if question.applicant_answer is True %}Yes{% else %}No{% endif %}</td>
-                <td colspan="11">{{ question.complementary_question_text }}</td>
+                <td colspan="11">{% if question.applicant_answer is True and question.applicant_complementary_response != "" %}{{ question.complementary_question_text }}{% else %}{% endif %}</td>
               </tr>
             </tbody>
             {% if question.applicant_answer == True and question.applicant_complementary_response != "" %}
@@ -171,9 +171,9 @@
             <!-- END OF MOCK EDUCATION DATA -->
           </table>
           <!-- Date and time position was added -->
-          <div class="row position-bottom-buttons">
-            <h6 class="btn-flat right black-text">Application added: 2019-06-12</h6>
-          </div>
+          <!-- <div class="row position-bottom-buttons">
+               <h6 class="btn-flat right black-text">Application added: 2019-06-12</h6>
+               </div> -->
         </div>
       </div>
     </div>
