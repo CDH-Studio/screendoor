@@ -173,6 +173,7 @@ def is_final_answer(item):
     else:
         return False
 
+
 def parse_applicant_complementary_response(item):
     first_column = item[item.columns[0]].astype(str)
 
@@ -180,7 +181,7 @@ def parse_applicant_complementary_response(item):
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
             (table[0].str.startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
-        applicant_complementary_response = applicant_complementary_response.split(": ")[2]
+        applicant_complementary_response = applicant_complementary_response.split("Complementary Answer:")[1]
         return applicant_complementary_response
     elif is_final_answer(item):
         table = item[[0, 1]]
@@ -242,7 +243,7 @@ def parse_program_length(item):
 
     if first_column.str.contains("Longueur du programme (Années) / Program Length(Years):").any():
         table = item[[0, 1]]
-        program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length(Years):").idxmax(), 1]
+        program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length (Years):").idxmax(), 1]
         print("PROGRAM LENGTH:" + program_length)
 
         return program_length
