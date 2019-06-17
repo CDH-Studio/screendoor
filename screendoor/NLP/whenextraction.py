@@ -186,4 +186,4 @@ def extract_dates(text):
     doc = NLP_MODEL(text)
     squash_named_entities(doc)
 
-    iterate_through_dep_tree(doc)
+    print(iterate_through_dep_tree(doc))

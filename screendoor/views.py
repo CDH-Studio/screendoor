@@ -423,8 +423,6 @@ sessions, new acquisitions list, etc.)
 - Managed the physical move of the Library in March 2014."""
     from screendoor.NLP.whenextraction import extract_dates
     from screendoor.NLP.howextraction import extract_how
-    for i in range(100):
-        extract_dates(text)
-        extract_how(text)
-        print(i)
+    extract_dates(text)
+    extract_how(text)
     return redirect('positions')

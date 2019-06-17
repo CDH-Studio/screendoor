@@ -24,7 +24,7 @@ class UserRegistrationTests(TestCase):
     def test_logged_out_user_gets_redirected(self):
         response = self.c.get(reverse('home'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/login/")
+        self.assertRedirects(response, "/login")
 
     def test_logged_in_user_doesnt_get_redirected(self):
         self.c.login(username="good@canada.ca", password="password76")
@@ -86,7 +86,7 @@ class CreatePositionTests(TestCase):
     def test_logged_out_user_gets_redirected(self):
         response = self.c.get(reverse('importposition'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/login/")
+        self.assertRedirects(response, "/login")
 
     def test_logged_in_user_doesnt_get_redirected(self):
         self.c.login(username="good@canada.ca", password="password76")
