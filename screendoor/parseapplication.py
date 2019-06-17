@@ -442,7 +442,7 @@ def merge_educations(df, item, idx):
     return df
 
 
-def find_essential_details(tables):
+def find_essential_details(tables, position):
     applicant = Applicant()
     questions = []
     streams = []
@@ -483,7 +483,7 @@ def find_essential_details(tables):
     return applicant
 
 
-def clean_and_parse(df, application):
+def clean_and_parse(df, application, position):
     array = []
     count = 0
     for idx, item in enumerate(df):
@@ -505,21 +505,23 @@ def clean_and_parse(df, application):
     for x in range(len(array)):
         if x == (count - 1):
             print("Processing Applicant: " + str(x + 1))
-            application.append(find_essential_details(df[array[x]:]))
+            application.append(find_essential_details(df[array[x]:], position))
         else:
             print("Processing Applicant: " + str(x + 1))
-            application.append(find_essential_details(df[array[x]:array[x + 1]]))
+            application.append(find_essential_details(df[array[x]:array[x + 1]],position))
 
     return application
 
 
-def parse_application(request):
+def parse_application(request, position):
     if request.pdf.name:
         application = []
         print(request.pdf.name)
         df = tabula.read_pdf("/code/applications/" + request.pdf.name, options, pages="all", multiple_tables="true",
                              lattice="true")
-        application = clean_and_parse(df, application)
-        return application
-    else:
-        return {'errors': ErrorMessages.incorrect_pdf_file}
+        application = clean_and_parse(df, application, position)
+        for item in application:
+            item.parent_position = position
+            item.save()
+        position.save()
+        pass
