@@ -73,7 +73,7 @@ class Applicant(models.Model):
 
 
 class RequirementMet(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='requirementsmet')
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
@@ -85,16 +85,16 @@ class RequirementMet(models.Model):
 
 
 class Stream(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
-    stream_name = models.CharField(max_length=200)
+    stream_name = models.CharField(max_length=200,  null=True)
 
     def __str__(self):
         return self.stream_name
 
 
 class Classification(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
 
     classification_name = models.CharField(max_length=200)
