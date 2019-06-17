@@ -316,11 +316,8 @@ def upload_applications(request):
             destination.write(chunk)
     form = ImportApplicationsForm(request.POST, request.FILES)
     if form.is_valid():
-        applicants = parse_application(form.save(commit=False))
-        for item in applicants:
-            item.parent_position = position
-            item.save()
-        position.save()
+        parse_application(form.save(commit=False), position)
+
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
         return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
