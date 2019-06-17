@@ -5,11 +5,8 @@
 <!-- Beginning of position display -->
 {% if position is not None %}
 <div class="container positions">
-  <form action="" method="POST" class="sort-positions">
-    {% csrf_token %}
-    <input type="submit" class="btn-flat blue-text" value="←  {{ positionText.back_to_positions }}">
-    <h6 class="btn-flat disabled"></h6>
-  </form>
+  <a href="{% url 'positions' %}" class="btn-flat blue-text sort-positions">←  {{ positionText.back_to_positions }}</a>
+  <h6 class="btn-flat disabled"></h6>
   <form method="post" id="save-position" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div class="row">
@@ -169,18 +166,13 @@
     <div class="card-content col s12 application-preview">
       <!-- Position row 1 body -->
       <table class="highlight applicant-table">
-        <form method="post" id="save-position" enctype="multipart/form-data" action="">
-          {% csrf_token %}
-          <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
-          <input type="hidden" class="hidden" name="applicant-id" value='{{ applicant.id }}'>
-          <tbody>
-            <tr>
-              <td colspan="10"><input type="submit" name="application" class="application-button modal-trigger blue-text sort-applications" value="{{ applicant.applicant_id }}"></td>
-              <td colspan="1"><i class="material-icons green-text">looks_{{ forloop.counter }}</i></td>
-              <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
-            </tr>
-          </tbody>
-        </form>
+        <tbody>
+          <tr>
+            <td colspan="10"><a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">{{ applicant.applicant_id }}</a></td>
+            <td colspan="1"><i class="material-icons green-text">looks_{{ forloop.counter }}</i></td>
+            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>

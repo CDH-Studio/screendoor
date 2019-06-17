@@ -186,6 +186,43 @@ class PositionsViewText():
     # Translators: Position View
     collapse_all = _("Collapse all")
 
+
+class ApplicantViewText():
+    # Translators: Applicant View
+    back_to_position = _("Back to Position")
+    # Translators: Applicant View
+    applicant_information = _("Applicant Information")
+    # Translators: Applicant View
+    applicant_id = _("Application ID")
+    # Translators: Applicant View
+    citizenship = _("Citizenship")
+    # Translators: Applicant View
+    priority = _("Priority?")
+    # Translators: Applicant View
+    veteran_preference = _("Veteran Preference?")
+    # Translators: Applicant View
+    classifications = -("Classifications")
+    # Translators: Applicant View
+    streams_selected = _("Streams Selected")
+    # Translators: Applicant View
+    french_working_ability = _("French Working Ability")
+    # Translators: Applicant View
+    english_working_ability = _("English Working Ability")
+    # Translators: Applicant View
+    first_official_language = _("First Official Language")
+    # Translators: Applicant View
+    written_exam_language = _("Written Exam Language")
+    # Translators: Applicant View
+    correspondence_language = _("Correspondence Language")
+    # Translators: Applicant View
+    interview_language = _("Interview Language")
+    questions = _("Questions")
+    question = _("Question")
+    response = _("Response")
+    yes = _("Yes")
+    no = _("No")
+    complementary_question = _("Complementary Question")
+
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
 # dont omit it

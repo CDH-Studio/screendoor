@@ -7,7 +7,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
 from screendoor.parseapplication import parse_application
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
 from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement, FormQuestion
 from screendoor.parseposter import parse_upload
@@ -20,7 +20,7 @@ import os
 
 
 # Index currently redirects to the positions view if logged in
-@login_required(login_url='login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def index(request):
     return redirect('positions')
     # Returns main page
@@ -145,7 +145,7 @@ def login_form(request):
 
 
 # Logs out user
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -198,7 +198,7 @@ def edit_position(request):
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
         create_position_form = CreatePositionForm(
@@ -265,26 +265,19 @@ def positions_list_data(request, sort_by):
 
 
 # View of all positions associated with a user account
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def positions(request):
     # Order of positions display
     sort_by = get_positions_sort_method(request)
     if request.method == 'POST':
         sort_by = change_positions_sort_method(request, sort_by)
-        # User wants to view position detail
-        if request.POST.get("position"):
-            return position_detail(request, Position.objects.get(
-                id=request.POST.get("position-id")))
         # User wants to delete position
-        elif request.POST.get("delete"):
+        if request.POST.get("delete"):
             Position.objects.get(
                 id=request.POST.get("position-id")).delete()
         # User wants to upload applications for a position
         elif request.POST.get("upload-applications"):
             return upload_applications(request)
-        # User wants to edit a position
-        elif request.POST.get("edit-position"):
-            return position_detail(request, edit_position(request))
         # User wants to view an applicant
         elif request.POST.get("application"):
             return application(request)
@@ -294,6 +287,13 @@ def positions(request):
     return render(request, 'positions.html', positions_list_data(request, sort_by))
 
 
+# Return whether the position exists and the user has access to it
+def user_has_position(request, position_id, reference):
+    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(reference_number=reference).exists():
+        return request.user.positions.get(id=position_id)
+    return None
+
+
 # Data and visible text to render with positions
 def position_detail_data(request, position):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
@@ -301,12 +301,28 @@ def position_detail_data(request, position):
 
 
 # Position detail view
-@login_required(login_url='/login/', redirect_field_name=None)
-def position_detail(request, position):
-    return render(request, 'position.html', position_detail_data(request, position))
+@login_required(login_url='login', redirect_field_name=None)
+def position_detail(request, reference, position_id):
+    if request.method == 'POST':
+        # User wants to delete position
+        if request.POST.get("delete"):
+            Position.objects.get(
+                id=request.POST.get("position-id")).delete()
+            return redirect('home')
+        # User wants to edit a position
+        elif request.POST.get("edit-position"):
+            edit_position(request)
+        # User wants to upload applications for a position
+        elif request.POST.get("upload-applications"):
+            return upload_applications(request)
+    # GET request
+    position = user_has_position(request, position_id, reference)
+    if position is not None:
+        return render(request, 'position.html', position_detail_data(request, position))
+    return positions(request)
 
 
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
     position = Position.objects.get(
         id=request.POST.get("position-id"))
@@ -323,9 +339,7 @@ def upload_applications(request):
         position.save()
         os.chdir("..")
         os.remove("/code/applications/" + pdf.name)
-        return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
-            id=request.POST.get("position-id")), 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'applicants': Applicant.objects.filter(parent_position=request.POST.get("position-id"))})
+        return position_detail(request, position.reference_number, position.id)
 
 
 def import_applications_redact(request):
@@ -341,10 +355,23 @@ def import_applications_redact(request):
         'form': form})
 
 
-def application(request):
-    return render(request, 'application.html', {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': Position.objects.get(
-        id=request.POST.get("position-id")), 'applicant': Applicant.objects.get(id=request.POST.get("applicant-id")),
-        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
+# Verify that the applicant exists and belongs to position that user has access to
+def position_has_applicant(request, app_id):
+    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(applicant_id=app_id).parent_position.id, Applicant.objects.get(applicant_id=app_id).parent_position.reference_number):
+        return Applicant.objects.get(applicant_id=app_id)
+
+
+# Data for applicant view
+def applicant_detail_data(applicant, position):
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'applicantText': ApplicantViewText,
+            'questions': FormQuestion.objects.filter(parent_applicant=applicant)}
+
+
+# View an application
+def application(request, app_id):
+    applicant = position_has_applicant(request, app_id)
+    if applicant is not None:
+        return render(request, 'application.html', applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
 
 
 def nlp(request):

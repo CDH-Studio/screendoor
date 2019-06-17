@@ -33,14 +33,11 @@
   <div class="row">
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
-      <div class="card-content col s12">
-        <form action="" method="POST">
-          {% csrf_token %}
-          <input type="hidden" name="position-id" value="{{ position.id }}">
-          <!-- Link to position detail using POST request -->
-          <input type="submit" class="position-title grey-text text-darken-3" name="position" value="{{ position.position_title }}">
-        </form>
+      <div class="card-content col s12 positions-card">
+        <!-- Link to position detail using GET request -->
+        <a class="position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
         <!-- Position row 1 headers -->
+        <br>
         <table class="highlight">
           <thead>
             <tr>
@@ -78,10 +75,10 @@
         </table>
         <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
-          <form action="" method="POST" >
+          <form action="" method="GET">
             {% csrf_token %}
             <input type="hidden" name="position-id" value="{{ position.id }}">
-            <input type="submit" class="btn-flat blue-text position-button" name="position" value="{{ userVisibleText.view }}">
+            <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">{{ userVisibleText.view }}</a>
             <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
             <a class="btn-flat blue-text position-button modal-trigger" href="#upload-applications-modal" onclick="handleUploadApplicationsList({{ position.id }});">{{ userVisibleText.upload_applications }}</a>
           </form>

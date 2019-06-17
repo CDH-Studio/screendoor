@@ -3483,14 +3483,11 @@ small {
 
 .position-title {
   font-size: 1.64rem;
-  background: none;
   color: rgba(0, 0, 0, 0.87);
   font-weight: normal;
-  border: 0px none;
-  cursor: pointer;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-left: -7px; }
+  margin-left: -3px;
+  margin-bottom: -15px;
+  display: block; }
 
 input .position-title {
   cursor: pointer; }
@@ -3569,6 +3566,9 @@ input .position-title {
     transition: transform .2s !important; }
   .scale-transition.scale-in {
     transform: scale(1); }
+
+.positions-card {
+  margin-top: -5px; }
 
 .form-cards {
   margin-top: 75px;
