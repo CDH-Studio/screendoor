@@ -341,7 +341,7 @@ def import_applications_redact(request):
 def application(request):
     return render(request, 'application.html', {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': Position.objects.get(
         id=request.POST.get("position-id")), 'applicant': Applicant.objects.get(id=request.POST.get("applicant-id")),
-        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
+        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id"))), 'educations': Education.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
 
 
 def nlp(request):
