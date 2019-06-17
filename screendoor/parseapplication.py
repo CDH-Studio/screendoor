@@ -5,7 +5,7 @@ import pandas as pd
 import tabula
 from pandas import options
 
-from screendoor.models import Applicant, FormQuestion, Education, Stream
+from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification
 from screendoor.uservisibletext import ErrorMessages
 
 
@@ -191,16 +191,6 @@ def parse_applicant_complementary_response(item):
         return None
 
 
-def get_question(item, questions):
-    if is_question(item) and not is_stream(item):
-        questions.append(FormQuestion(question_text=parse_question_text(item),
-                                      complementary_question_text=parse_complementary_question_text(item),
-                                      applicant_answer=parse_applicant_answer(item),
-                                      applicant_complementary_response=parse_applicant_complementary_response(item)))
-
-    return questions
-
-
 def parse_academic_level(item):
     first_column = item[item.columns[0]].astype(str)
 
@@ -290,6 +280,16 @@ def parse_graduation_date(item):
         return None
 
 
+def get_question(item, questions):
+    if is_question(item) and not is_stream(item):
+        questions.append(FormQuestion(question_text=parse_question_text(item),
+                                      complementary_question_text=parse_complementary_question_text(item),
+                                      applicant_answer=parse_applicant_answer(item),
+                                      applicant_complementary_response=parse_applicant_complementary_response(item)))
+
+    return questions
+
+
 def get_education(item, educations):
     if is_education(item):
         educations.append(Education(academic_level=parse_academic_level(item),
@@ -300,6 +300,47 @@ def get_education(item, educations):
                                     institution=parse_institution(item),
                                     graduation_date=parse_graduation_date(item)))
     return educations
+
+
+def get_streams(item, streams):
+    if is_stream(item):
+        streams.append(Stream(stream_name=parse_stream(item)))
+    return streams
+
+
+def parse_current(item):
+    first_column = item[item.columns[0]].astype(str)
+
+    if first_column.str.contains("Groupe et niveau actuels / Current group and level:").any():
+        table = item[[0, 1]]
+        current_classification = table.loc[
+            (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
+        print(current_classification)
+
+        return current_classification
+    else:
+        return None
+
+
+def parse_substantive(item):
+    first_column = item[item.columns[0]].astype(str)
+
+    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
+        table = item[[0, 1]]
+        substantive_classification = table.loc[
+            (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
+        print(substantive_classification)
+
+        return substantive_classification
+    else:
+        return None
+
+
+def get_classifications(item, classifications):
+    if is_stream(item):
+        classifications.append(Classification(classification_substantive=parse_substantive(item),
+                                              classification_current=parse_current(item)))
+    return classifications
 
 
 def parse_stream(item):
@@ -322,12 +363,6 @@ def parse_stream(item):
         return None
 
 
-def get_streams(item, streams):
-    if is_stream(item):
-        streams.append(Stream(stream_name=parse_stream(item)))
-    return streams
-
-
 def is_question(item):
     first_column = item[item.columns[0]]
 
@@ -345,7 +380,6 @@ def is_qualification(item):
 
 
 def is_stream(item):
-
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
 
@@ -359,6 +393,13 @@ def is_education(item):
     first_column = item[item.columns[0]]
 
     if first_column.str.contains("Niveau d'études / Academic Level:").any():
+        return True
+    return False
+
+
+def is_classification(item):
+    first_column = item[item.columns[0]]
+    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
         return True
     return False
 
@@ -419,6 +460,7 @@ def find_essential_details(tables):
         questions = get_question(item, questions)
         educations = get_education(item, educations)
         streams = get_streams(item, streams)
+        classifications = get_classifications(item, classifications)
         applicant = fill_in_single_line_arguments(item, applicant)
 
     applicant.applicant_id = ''.join(
@@ -428,12 +470,13 @@ def find_essential_details(tables):
     for item in questions:
         item.parent_applicant = applicant
         item.save()
-
     for item in educations:
         item.parent_applicant = applicant
         item.save()
-
     for item in streams:
+        item.parent_applicant = applicant
+        item.save()
+    for item in classifications:
         item.parent_applicant = applicant
         item.save()
 
