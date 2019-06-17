@@ -65,7 +65,7 @@ class Applicant(models.Model):
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-        blank=True)
+                           blank=True)
     ranking = models.PositiveIntegerField(null=True)
 
     def __str__(self):
@@ -87,7 +87,7 @@ class RequirementMet(models.Model):
 class Stream(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
-    stream_name = models.CharField(max_length=200,  null=True)
+    stream_name = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name
@@ -97,10 +97,11 @@ class Classification(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
 
-    classification_name = models.CharField(max_length=200)
+    classification_substantive = models.CharField(max_length=200, null=True)
+    classification_current = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return self.classification_name
+        return self.classification_substantive
 
 
 class Education(models.Model):
