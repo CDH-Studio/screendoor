@@ -5,9 +5,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
 
 from screendoor.parseapplication import parse_application
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
 from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement, FormQuestion
 from screendoor.parseposter import parse_upload
@@ -20,7 +22,7 @@ import os
 
 
 # Index currently redirects to the positions view if logged in
-@login_required(login_url='login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def index(request):
     return redirect('positions')
     # Returns main page
@@ -145,7 +147,7 @@ def login_form(request):
 
 
 # Logs out user
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -163,42 +165,49 @@ def save_position_to_user(request):
         id=request.session['position_id']))
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def edit_position(request):
-    try:
-        # Populate the fields with hidden input data from position template
-        position = Position.objects.get(
-            id=request.POST.get("position-id"))
-        position.position_title = request.POST.get("position-title")
-        position.classification = request.POST.get("position-classification")
-        position.reference_number = request.POST.get("position-reference")
-        position.selection_process_number = request.POST.get(
-            "position-selection")
-        position.date_closed = dateparser.parse(
-            request.POST.get("position-date-closed"))
-        position.num_positions = request.POST.get("position-num-positions")
-        position.salary_min = request.POST.get(
-            "position-salary-range").split("$")[1].split("-")[0]
-        position.salary_max = request.POST.get(
-            "position-salary-range").split("-")[1].split("$")[1]
-        position.open_to = request.POST.get("position-open-to")
-        position.description = request.POST.get("position-description")
-        counter = 1
-        for requirement in position.requirement_set.all().reverse():
-            requirement.description = request.POST.get(
-                "position-requirement" + str(counter)).split(":")[1]
-            counter += 1
-            requirement.save()
-        position.save()
-        return position
-    except TypeError:
-        # In case of errors, return the current position with no edits
-        # TODO: implement validation for position editing and error messages
-        return Position.objects.get(
-            id=request.POST.get("position_id"))
+    if request.method == 'POST':
+        # User wants to edit a position
+        if request.POST.get("save-position"):
+            try:
+                # Populate the fields with hidden input data from position template
+                position = Position.objects.get(
+                    id=request.POST.get("position-id"))
+                position.position_title = request.POST.get("position-title")
+                position.classification = request.POST.get(
+                    "position-classification")
+                position.reference_number = request.POST.get(
+                    "position-reference")
+                position.selection_process_number = request.POST.get(
+                    "position-selection")
+                position.date_closed = dateparser.parse(
+                    request.POST.get("position-date-closed"))
+                position.num_positions = request.POST.get(
+                    "position-num-positions")
+                position.salary_min = request.POST.get(
+                    "position-salary-range").split("$")[1].split("-")[0]
+                position.salary_max = request.POST.get(
+                    "position-salary-range").split("-")[1].split("$")[1]
+                position.open_to = request.POST.get("position-open-to")
+                position.description = request.POST.get("position-description")
+                counter = 1
+                for requirement in position.requirement_set.all().reverse():
+                    requirement.description = request.POST.get(
+                        "position-requirement" + str(counter)).split(":")[1]
+                    counter += 1
+                    requirement.save()
+                    position.save()
+                    return redirect('position', position.reference_number, position.id)
+            except TypeError:
+                # In case of errors, return the current position with no edits
+                # TODO: implement validation for position editing and error messages
+                return Position.objects.get(
+                    id=request.POST.get("position_id"))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
         create_position_form = CreatePositionForm(
@@ -226,8 +235,8 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            edit_position(request)
             save_position_to_user(request)
+            edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
@@ -265,33 +274,23 @@ def positions_list_data(request, sort_by):
 
 
 # View of all positions associated with a user account
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def positions(request):
     # Order of positions display
     sort_by = get_positions_sort_method(request)
     if request.method == 'POST':
         sort_by = change_positions_sort_method(request, sort_by)
-        # User wants to view position detail
-        if request.POST.get("position"):
-            return position_detail(request, Position.objects.get(
-                id=request.POST.get("position-id")))
-        # User wants to delete position
-        elif request.POST.get("delete"):
-            Position.objects.get(
-                id=request.POST.get("position-id")).delete()
-        # User wants to upload applications for a position
-        elif request.POST.get("upload-applications"):
-            return upload_applications(request)
-        # User wants to edit a position
-        elif request.POST.get("edit-position"):
-            return position_detail(request, edit_position(request))
-        # User wants to view an applicant
-        elif request.POST.get("application"):
-            return application(request)
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions
     return render(request, 'positions.html', positions_list_data(request, sort_by))
+
+
+# Return whether the position exists and the user has access to it
+def user_has_position(request, reference, position_id):
+    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(reference_number=reference).exists():
+        return Position.objects.get(id=position_id)
+    return None
 
 
 # Data and visible text to render with positions
@@ -301,31 +300,49 @@ def position_detail_data(request, position):
 
 
 # Position detail view
-@login_required(login_url='/login/', redirect_field_name=None)
-def position_detail(request, position):
-    return render(request, 'position.html', position_detail_data(request, position))
+@login_required(login_url='login', redirect_field_name=None)
+def position_detail(request, reference, position_id):
+    # GET request
+    try:
+        position = user_has_position(request, reference, position_id)
+        if position is not None:
+            return render(request, 'position.html', position_detail_data(request, position))
+    except ObjectDoesNotExist:
+        # TODO: add error message that position cannot be retrieved
+        return redirect('home')
 
 
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
+def delete_position(request):
+    # User wants to delete position
+    if request.POST.get("delete"):
+        Position.objects.get(
+            id=request.POST.get("position-id")).delete()
+    # TODO: render error that position could not be deleted
+    return redirect('home')
+
+
+@login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    position = Position.objects.get(
-        id=request.POST.get("position-id"))
-    pdf = request.FILES['pdf']
-    with open('/code/applications/' + pdf.name, 'wb+') as destination:
-        for chunk in pdf.chunks():
-            destination.write(chunk)
-    form = ImportApplicationsForm(request.POST, request.FILES)
-    if form.is_valid():
-        applicants = parse_application(form.save(commit=False))
-        for item in applicants:
-            item.parent_position = position
-            item.save()
-        position.save()
-        os.chdir("..")
-        os.remove("/code/applications/" + pdf.name)
-        return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
-            id=request.POST.get("position-id")), 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'applicants': Applicant.objects.filter(parent_position=request.POST.get("position-id"))})
+    if request.POST.get("upload-applications"):
+        position = Position.objects.get(
+            id=request.POST.get("position-id"))
+        pdf = request.FILES['pdf']
+        with open('/code/applications/' + pdf.name, 'wb+') as destination:
+            for chunk in pdf.chunks():
+                destination.write(chunk)
+                form = ImportApplicationsForm(request.POST, request.FILES)
+                if form.is_valid():
+                    applicants = parse_application(form.save(commit=False))
+                    for item in applicants:
+                        item.parent_position = position
+                        item.save()
+                        position.save()
+                        os.chdir("..")
+                        os.remove("/code/applications/" + pdf.name)
+                        return redirect('position', position.reference_number, position.id)
+    # TODO: render error message that application could not be added
+    return redirect('home')
 
 
 def import_applications_redact(request):
@@ -341,10 +358,25 @@ def import_applications_redact(request):
         'form': form})
 
 
-def application(request):
-    return render(request, 'application.html', {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': Position.objects.get(
-        id=request.POST.get("position-id")), 'applicant': Applicant.objects.get(id=request.POST.get("applicant-id")),
-        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id"))), 'educations': Education.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
+# Verify that the applicant exists and belongs to position that user has access to
+def position_has_applicant(request, app_id):
+    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(applicant_id=app_id).parent_position.id):
+        return Applicant.objects.get(applicant_id=app_id)
+
+
+# Data for applicant view
+def applicant_detail_data(applicant, position):
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
+            'questions': FormQuestion.objects.filter(parent_applicant=applicant)}
+
+
+# View an application
+def application(request, app_id):
+    applicant = position_has_applicant(request, app_id)
+    if applicant is not None:
+        return render(request, 'application.html', applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
+    # TODO: render error message that the applicant trying to be access is unavailable/invalid
+    return redirect('home')
 
 
 def nlp(request):

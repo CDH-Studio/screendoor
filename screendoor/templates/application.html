@@ -5,12 +5,9 @@
 
 <!-- PLACEHOLDER -->
 <div class="container positions">
-  <form action="" method="POST" class="sort-positions" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
-    <input type="submit" class="btn-flat blue-text" name="position" value="←  Back to Position: {{ position.position_title }}">
-    <h6 class="btn-flat disabled"></h6>
-  </form>
+  <a href="{% url 'position' applicant.parent_position.reference_number applicant.parent_position.id %}" class="btn-flat blue-text sort-positions">←  {{ applicantText.back_to_position }}: {{ applicant.parent_position.position_title }}</a>
+  <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+  <h6 class="btn-flat disabled"></h6>
   <form method="post" id="save-position" enctype="multipart/form-data" action="">
     {% csrf_token %}
     <div class="row">
@@ -21,7 +18,7 @@
           <table class="highlight">
             <thead>
               <tr>
-                <th colspan="20"><h6>Applicant Information</h6></th>
+                <th colspan="21"><h6>{{ applicantText.applicant_information }}</h6></th>
                 <!-- Upload Applications and Delete buttons -->
                 <th colspan="3"><input type="button" class="btn-flat right" id="expand-all" value="Expand all"></th>
                 <th colspan="1"></th>
@@ -31,11 +28,11 @@
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-                <th colspan="10">Application ID</th>
-                <th colspan="4">Citizenship</th>
-                <th colspan="4">Priority?</th>
-                <th colspan="4">Veteran Preference?</th>
-                <th colspan="4">Classifications</th>
+                <th colspan="10">{{ applicantText.applicant_id }}</th>
+                <th colspan="4">{{ applicantText.citizenship }}</th>
+                <th colspan="4">{{ applicantText.priority }}</th>
+                <th colspan="4">{{ applicantText.veterans_preference }}</th>
+                <th colspan="4">{{ applicantText.classifications }}</th>
               </tr>
             </thead>
             <!-- Application row 1 body -->
@@ -53,12 +50,12 @@
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-                <th colspan="5">French Working Ability</th>
-                <th colspan="5">English Working Ability</th>
-                <th colspan="4">First Official Language</th>
-                <th colspan="4">Written Exam Language</th>
-                <th colspan="4">Correspondence Language</th>
-                <th colspan="4">Interview Language</th>
+                <th colspan="5">{{ applicantText.french_working_ability }}</th>
+                <th colspan="5">{{ applicantText.english_working_ability }}</th>
+                <th colspan="4">{{ applicantText.first_official_language }}</th>
+                <th colspan="4">{{ applicantText.written_exam_language }}</th>
+                <th colspan="4">{{ applicantText.correspondence_language }}</th>
+                <th colspan="4">{{ applicantText.interview_language }}</th>
               </tr>
             </thead>
             <!-- Application row 2 body -->
@@ -77,19 +74,20 @@
             {% if educations is not None %}
             <thead>
               <tr>
+                <th><h6 class="center">{{ applicantText.education }}</h6></th>
                 <th><h6 class="center">Education</h6></th>
               </tr>
             </thead>
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-                <th colspan="4">Academic Level</th>
-                <th colspan="3">Institution</th>
-                <th colspan="5">Area of Study</th>
-                <th colspan="4">Specialization</th>
-                <th colspan="3">Program Length</th>
-                <th colspan="3">Years Completed</th>
-                <th colspan="4">Graduation Date</th>
+                <th colspan="4">{{ applicantText.academic_level }}</th>
+                <th colspan="3">{{ applicantText.institution }}</th>
+                <th colspan="5">{{ applicantText.area_of_study }}</th>
+                <th colspan="4">{{ applicantText.specialization }}</th>
+                <th colspan="3">{{ applicantText.program_length }}</th>
+                <th colspan="3">{{ applicantText.years_completed }}</th>
+                <th colspan="4">{{ applicantText.graduation_date }}</th>
               </tr>
             </thead>
             {% for education in educations %}
@@ -110,7 +108,7 @@
             {% endif %}
             <thead>
               <tr>
-                <th><h6 class="center">Questions</h6></th>
+                <th><h6 class="center">{{ applicantText.questions }}</h6></th>
               </tr>
             </thead>
             {% for question in questions reversed %}
@@ -125,10 +123,10 @@
             <tbody>
               <tr>
                 <td colspan="1" class="table-subhead"></td>
-                <td colspan="11" class="table-subhead">Question</td>
+                <td colspan="11" class="table-subhead">{{ applicantText.question }}</td>
                 <td colspan="1" class="table-subhead"></td>
-                <td colspan="3" class="table-subhead">Response</td>
-                <td colspan="11" class="table-subhead">{% if question.applicant_answer is True and question.applicant_complementary_response is not None %}Complementary Question{% endif %}</td>
+                <td colspan="3" class="table-subhead">{{ applicantText.response }}</td>
+                <td colspan="11" class="table-subhead">{% if question.applicant_answer is True and question.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
               </tr>
             </tbody>
             <tbody>
@@ -136,18 +134,18 @@
                 <td colspan="1"></td>
                 <td colspan="11">{{ question.question_text }}</td>
                 <td colspan="1"></td>
-                <td colspan="3">{% if question.applicant_answer is True %}Yes{% else %}No{% endif %}</td>
+                <td colspan="3">{% if question.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="11">{% if question.applicant_answer is True and question.applicant_complementary_response is not None %}{{ question.complementary_question_text }}{% else %}{% endif %}</td>
               </tr>
             </tbody>
-            {% if question.applicant_answer == True and question.applicant_complementary_response is not None %}
+            {% if question.applicant_answer is True and question.applicant_complementary_response is not None %}
             <tbody>
               <tr>
                 <td colspan="1"></td>
-                <td colspan="11" class="table-subhead">Complementary Response</td>
+                <td colspan="11" class="table-subhead">{{ applicantText.complementary_response }}</td>
                 <td colspan="1"></td>
-                <td colspan="3" class="table-subhead">Score</td>
-                <td colspan="11" class="table-subhead">Analysis</td>
+                <td colspan="3" class="table-subhead">{{ applicantText.score }}</td>
+                <td colspan="11" class="table-subhead">{{ applicantText.analysis }}</td>
               </tr>
             </tbody>
             <tbody>
