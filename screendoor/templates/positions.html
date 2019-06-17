@@ -5,7 +5,7 @@
 <div class="container positions">
   <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
-  <form action="" method="POST" class="sort-positions">
+  <form method="POST" class="sort-positions">
     {% csrf_token %}
     <!-- If statements determine if selected sort is in blue text -->
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
@@ -75,13 +75,9 @@
         </table>
         <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
-          <form action="" method="GET">
-            {% csrf_token %}
-            <input type="hidden" name="position-id" value="{{ position.id }}">
-            <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">{{ userVisibleText.view }}</a>
-            <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
-            <a class="btn-flat blue-text position-button modal-trigger" href="#upload-applications-modal" onclick="handleUploadApplicationsList({{ position.id }});">{{ userVisibleText.upload_applications }}</a>
-          </form>
+          <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">{{ userVisibleText.view }}</a>
+          <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
+          <a class="btn-flat blue-text position-button modal-trigger" href="#upload-applications-modal" onclick="handleUploadApplicationsList({{ position.id }});">{{ userVisibleText.upload_applications }}</a>
         </div>
         <!-- Date and time position was added -->
         <div class="row position-buttons right">
@@ -107,7 +103,7 @@
     <h6 id="delete-text"></h6>
   </div>
   <!-- Delete confirmation button sends post request with position ID -->
-  <form action="" method="POST">
+  <form action="{% url 'delete' %}" method="POST">
     <div class="modal-footer">
       {% csrf_token %}
       <input type="hidden" id="delete-confirm-id" name="position-id" value="">
@@ -119,7 +115,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="" method="POST" enctype="multipart/form-data">
+  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>

@@ -185,6 +185,8 @@ class PositionsViewText():
     expand_all = _("Expand all")
     # Translators: Position View
     collapse_all = _("Collapse all")
+    # Translators: Position View
+    position_added = _("Position added")
 
 
 class ApplicantViewText():
@@ -201,7 +203,7 @@ class ApplicantViewText():
     # Translators: Applicant View
     veteran_preference = _("Veteran Preference?")
     # Translators: Applicant View
-    classifications = -("Classifications")
+    classifications = _("Classifications")
     # Translators: Applicant View
     streams_selected = _("Streams Selected")
     # Translators: Applicant View
@@ -216,12 +218,44 @@ class ApplicantViewText():
     correspondence_language = _("Correspondence Language")
     # Translators: Applicant View
     interview_language = _("Interview Language")
+    # Translators: Applicant View
     questions = _("Questions")
+    # Translators: Applicant View
     question = _("Question")
+    # Translators: Applicant View
     response = _("Response")
+    # Translators: Applicant View
     yes = _("Yes")
+    # Translators: Applicant View
     no = _("No")
+    # Translators: Applicant View
     complementary_question = _("Complementary Question")
+    # Translators: Applicant View
+    complementary_response = _("Complementary Response")
+    # Translators: Applicant View
+    education = _("Education")
+    # Translators: Applicant View
+    academic_level = _("Academic Level")
+    # Translators: Applicant View
+    institution = _("Institution")
+    # Translators: Applicant View
+    area_of_study = _("Area of Study")
+    # Translators: Applicant View
+    specialization = _("Specialization")
+    # Translators: Applicant View
+    program_length = _("Program Length")
+    # Translators: Applicant View
+    years_completed = _("Years Completed")
+    # Translators: Applicant View
+    graduation_date = _("Graduation Date")
+    # Translators: Applicant View
+    yes = _("Yes")
+    # Translators: Applicant View
+    no = _("No")
+    # Translators: Applicant View
+    score = _("Score")
+    # Translators: Applicant View
+    analysis = _("Analysis")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file

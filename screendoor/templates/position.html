@@ -7,14 +7,14 @@
 <div class="container positions">
   <a href="{% url 'positions' %}" class="btn-flat blue-text sort-positions">←  {{ positionText.back_to_positions }}</a>
   <h6 class="btn-flat disabled"></h6>
-  <form method="post" id="save-position" enctype="multipart/form-data" action="">
+  <form method="post" action="{% url 'edit' %}" id="save-position" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
       <!--Beginning of position card -->
       <div class="col card white hoverable">
         <div class="card-content col s12">
           <div class="row valign-wrapper">
-            <input type="hidden" name="edit-position" value="true">
+            <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
             <input type="hidden" name="position-id" value="{{ position.id }}">
             <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
             <h4 name="position-title" id="title" class="col s8 left left-align position-header grey-text text-darken-3">{{ position.position_title }}</h4>
@@ -120,7 +120,7 @@
               <input type="button" id="edit-button" name="edit" class="position-edit-btn btn-flat blue-text modal-trigger" value="{{ userVisibleText.edit }}">
               <input type="button" id="save-button" name="save" class="btn-pad btn-flat blue-text modal-trigger hide" value="Save">
             </div>
-            <h6 class="btn-flat right black-text">Position added: {{ position.created }}</h6>
+            <h6 class="btn-flat right black-text">{{ userVisibleText.position_added }}: {{ position.created }}</h6>
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@
     {% csrf_token %}
     <div class="modal-footer">
       <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
-      <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+      <input type="submit" formaction="{% url 'delete' %}" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">Cancel</a>
     </div>
   </form>
@@ -199,7 +199,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="" method="POST" enctype="multipart/form-data">
+  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>

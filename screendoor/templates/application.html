@@ -74,19 +74,19 @@
             {% if educations is not None %}
             <thead>
               <tr>
-                <th><h6 class="center">Education</h6></th>
+                <th><h6 class="center">{{ applicantText.education }}</h6></th>
               </tr>
             </thead>
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-                <th colspan="4">Academic Level</th>
-                <th colspan="3">Institution</th>
-                <th colspan="5">Area of Study</th>
-                <th colspan="4">Specialization</th>
-                <th colspan="3">Program Length</th>
-                <th colspan="3">Years Completed</th>
-                <th colspan="4">Graduation Date</th>
+                <th colspan="4">{{ applicantText.academic_level }}</th>
+                <th colspan="3">{{ applicantText.institution }}</th>
+                <th colspan="5">{{ applicantText.area_of_study }}</th>
+                <th colspan="4">{{ applicantText.specialization }}</th>
+                <th colspan="3">{{ applicantText.program_length }}</th>
+                <th colspan="3">{{ applicantText.years_completed }}</th>
+                <th colspan="4">{{ applicantText.graduation_date }}</th>
               </tr>
             </thead>
             {% for education in educations %}
@@ -133,18 +133,18 @@
                 <td colspan="1"></td>
                 <td colspan="11">{{ question.question_text }}</td>
                 <td colspan="1"></td>
-                <td colspan="3">{% if question.applicant_answer is True %}Yes{% else %}No{% endif %}</td>
+                <td colspan="3">{% if question.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="11">{% if question.applicant_answer is True and question.applicant_complementary_response is not None %}{{ question.complementary_question_text }}{% else %}{% endif %}</td>
               </tr>
             </tbody>
-            {% if question.applicant_answer == True and question.applicant_complementary_response is not None %}
+            {% if question.applicant_answer is True and question.applicant_complementary_response is not None %}
             <tbody>
               <tr>
                 <td colspan="1"></td>
-                <td colspan="11" class="table-subhead">Complementary Response</td>
+                <td colspan="11" class="table-subhead">{{ applicantText.complementary_response }}</td>
                 <td colspan="1"></td>
-                <td colspan="3" class="table-subhead">Score</td>
-                <td colspan="11" class="table-subhead">Analysis</td>
+                <td colspan="3" class="table-subhead">{{ applicantText.score }}</td>
+                <td colspan="11" class="table-subhead">{{ applicantText.analysis }}</td>
               </tr>
             </tbody>
             <tbody>
