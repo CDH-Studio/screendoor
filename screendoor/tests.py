@@ -186,16 +186,16 @@ class UploadApplicationTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors['pdf'], ErrorMessages.incorrect_mime_type)
 
-    # def test_upload_applications(self):
-    #     with open(
-    #             'tests/sample_app.pdf',
-    #             'rb') as file:
-    #         self.c.login(username="good@canada.ca", password="password76")
-    #         response = self.c.post('/position/upload-applications', {
-    #             'upload-applications': 'Upload Applications', 'position-id': self.position.id, 'pdf': file})
-    #         self.assertRedirects(
-    #             response, '/position/' + self.position.reference_number + '/' + str(self.position.id))
-    #         self.assertEqual(response.status_code, 302)
+    def test_upload_applications(self):
+        with open(
+                'tests/sample_app.pdf',
+                'rb') as file:
+            self.c.login(username="good@canada.ca", password="password76")
+            response = self.c.post('/position/upload-applications', {
+                'upload-applications': 'Upload Applications', 'position-id': self.position.id, 'pdf': file})
+            self.assertRedirects(
+                response, '/position/' + self.position.reference_number + '/' + str(self.position.id))
+            self.assertEqual(response.status_code, 302)
 
 
 class PositionDeleteTests(TestCase):
