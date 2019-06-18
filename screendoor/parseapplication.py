@@ -314,11 +314,23 @@ def parse_graduation_date(item):
         return None
 
 
+def create_short_question_text(long_text):
+
+    if "*" in long_text:
+        return long_text.split("*", 1)[0]
+    elif "." in long_text:
+        return long_text.split(".", 1)[0]
+    else:
+        return long_text[:200]
+
+
 def get_question(table, questions, position):
     if is_question(table) and not is_stream(table):
 
         question = FormQuestion(question_text=parse_question_text(table),
-                                complementary_question_text=parse_complementary_question_text(table))
+                                complementary_question_text=parse_complementary_question_text(table),
+                                short_question_text=create_short_question_text(parse_complementary_question_text(table))
+                                )
 
         all_questions = position.questions.all()
         for item in all_questions:

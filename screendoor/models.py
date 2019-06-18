@@ -123,7 +123,8 @@ class FormQuestion(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True, related_name='questions')
 
-    question_text = models.TextField(blank=True, null=True, unique=True)
+    question_text = models.TextField(blank=True, null=True)
+    short_question_text = models.TextField(blank=True, null=True)
     complementary_question_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
