@@ -7,6 +7,8 @@ from pandas import options
 
 from screendoor.models import Applicant, FormQuestion, Education
 from screendoor.uservisibletext import ErrorMessages
+from screendoor.NLP.howextraction import extract_how
+from screendoor.NLP.whenextraction import extract_dates
 
 
 def text_between(start_string, end_string, text):
@@ -193,10 +195,16 @@ def parse_applicant_complementary_response(item):
 
 def get_question(item, questions):
     if is_question(item):
+        response=parse_applicant_complementary_response(item)
+        experiences = []
+        if not (response is None):
+            dates = extract_dates(response)
+            experiences = extract_how(response)
         questions.append(FormQuestion(question_text=parse_question_text(item),
                                       complementary_question_text=parse_complementary_question_text(item),
                                       applicant_answer=parse_applicant_answer(item),
-                                      applicant_complementary_response=parse_applicant_complementary_response(item)))
+                                      applicant_complementary_response=response,
+                                      analysis="\n".join(experiences)))
 
     return questions
 

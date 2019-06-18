@@ -127,7 +127,7 @@ class FormQuestion(models.Model):
     applicant_answer = models.BooleanField(null=True)
     applicant_complementary_response = models.TextField(blank=True, null=True)
     parsed_response = models.CharField(max_length=1000, blank=True, null=True)
-    analysis = models.CharField(max_length=1000, blank=True, null=True)
+    analysis = models.TextField(blank=True, null=True)
     tabulation = models.CharField(max_length=1000, null=True)
 
     def __str__(self):
