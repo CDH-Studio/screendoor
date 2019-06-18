@@ -9,6 +9,8 @@ class StandardFormText():
 
 
 class ErrorMessages():
+    # Translators: When a user tries to upload a blank application
+    empty_application_form = _("Please attach a PDF file")
     # Translators: When a user tries to upload a blank position form.
     empty_create_position_form = _(
         'Please enter either a pdf file or a url link.')

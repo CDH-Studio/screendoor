@@ -6,12 +6,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
 
 from screendoor.parseapplication import parse_application
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement, FormQuestion
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion
+
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
 import os
@@ -197,13 +197,13 @@ def edit_position(request):
                         "position-requirement" + str(counter)).split(":")[1]
                     counter += 1
                     requirement.save()
-                    position.save()
-                    return redirect('position', position.reference_number, position.id)
+                position.save()
+                return redirect('position', position.reference_number, position.id)
             except TypeError:
                 # In case of errors, return the current position with no edits
                 # TODO: implement validation for position editing and error messages
                 return Position.objects.get(
-                    id=request.POST.get("position_id"))
+                    id=request.POST.get("position-id"))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
@@ -316,31 +316,29 @@ def position_detail(request, reference, position_id):
 def delete_position(request):
     # User wants to delete position
     if request.POST.get("delete"):
-        Position.objects.get(
-            id=request.POST.get("position-id")).delete()
+        Position.objects.get(id=request.POST.get("position-id")).delete()
     # TODO: render error that position could not be deleted
     return redirect('home')
 
 
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    if request.POST.get("upload-applications"):
-        position = Position.objects.get(
-            id=request.POST.get("position-id"))
-        pdf = request.FILES['pdf']
-        with open('/code/applications/' + pdf.name, 'wb+') as destination:
-            for chunk in pdf.chunks():
-                destination.write(chunk)
-                form = ImportApplicationsForm(request.POST, request.FILES)
-                if form.is_valid():
+    if request.method == 'POST':
+        form = ImportApplicationsForm(request.POST, request.FILES)
+        if form.is_valid():
+            position = Position.objects.get(
+                id=request.POST.get("position-id"))
+            pdf = request.FILES['pdf']
+            with open('/code/applications/' + pdf.name, 'wb+') as destination:
+                for chunk in pdf.chunks():
+                    destination.write(chunk)
                     applicants = parse_application(form.save(commit=False))
-                    for item in applicants:
-                        item.parent_position = position
-                        item.save()
-                        position.save()
-                        os.chdir("..")
-                        os.remove("/code/applications/" + pdf.name)
-                        return redirect('position', position.reference_number, position.id)
+                for item in applicants:
+                    item.parent_position = position
+                    item.save()
+                os.chdir("..")
+                os.remove("/code/applications/" + pdf.name)
+                return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
