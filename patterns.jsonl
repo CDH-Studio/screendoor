@@ -1,0 +1,7 @@
+{"label":"DATE1","pattern":[{"LOWER":{"REGEX":"from|between|starting|since"},"OP":"?"},{"ENT_TYPE":"DATE"},{"LOWER":{"REGEX":"[^a.);:\n]"},"OP":"*"},{"ENT_TYPE":"DATE"},{"LOWER":{"REGEX":"until|to"},"OP":"?"},{"LOWER":{"REGEX":"the"},"OP":"?"},{"LOWER":{"REGEX":"present|current|today|now"},"OP":"?"}]}
+{"label":"DATE2","pattern":[{"LOWER":{"REGEX":"from|between|starting"},"OP":"?"},{"ENT_TYPE":"DATE","OP":"+"},{"LOWER":{"REGEX":"until|to"}},{"LOWER":{"REGEX":"present|current|today|now"}}]}
+{"label":"DATE4","pattern":[{"LOWER":{"REGEX":"from"},"OP":"?"},{"POS":"NUM","SHAPE":"dddd"},{"LOWER":"-"},{"LOWER":{"REGEX":"present|current|today|now"}}]}
+{"label":"DATE3","pattern":[{"LOWER":"since"},{"ENT_TYPE":"DATE"}]}
+{"label":"DATE5","pattern":[{"OP":"?"},{"POS":"NUM","SHAPE":"dddd"},{"LOWER":"-"},{"OP":"?"},{"POS":"NUM","SHAPE":"dddd"}]}
+{"label":"DATE6","pattern":[{"LOWER":{"REGEX":"\\d*-year"}}]}
+{"label":"DATE7","pattern":[{"LOWER":{"REGEX":"\\d*\\/\\d*"}},{"LOWER":"-"},{"LOWER":{"REGEX":"\\d*\\/\\d*"}}]}
