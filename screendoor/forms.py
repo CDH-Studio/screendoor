@@ -10,6 +10,15 @@ from .uservisibletext import ErrorMessages, CreatePositionFormText, \
     ImportApplicationsText
 
 
+def check_filetype_for_pdf(self):
+    file_type = mimetypes.MimeTypes().types_map_inv[1][magic.from_buffer(
+        self.cleaned_data.get('pdf').read(), mime=True)][0]
+    if not (file_type == '.pdf'):
+        msg = forms.ValidationError(
+            ErrorMessages.incorrect_mime_type)
+        self.add_error('pdf', msg)
+
+
 # For uploading completed applications to a position
 class ImportApplicationsForm(forms.ModelForm):
     title = ImportApplicationsText.title
@@ -21,6 +30,18 @@ class ImportApplicationsForm(forms.ModelForm):
     class Meta:
         model = Applicant
         fields = ('pdf', )
+
+    def clean(self):
+        pdf = self.cleaned_data.get('pdf')
+        # Check for an empty form
+        if not pdf:
+            msg = forms.ValidationError(
+                ErrorMessages.empty_application_form)
+            self.add_error('pdf', msg)
+            return
+        # Currently causing crash
+        # check_filetype_for_pdf(self)
+        return self.cleaned_data
 
 
 # For creating a new position
@@ -58,15 +79,8 @@ class CreatePositionForm(forms.ModelForm):
 
         # Verify if the pdf upload has an correct mimetype (i.e. a pdf file)
         if pdf:
-            file_type = mimetypes.MimeTypes().types_map_inv[1][
-                magic.from_buffer(self.cleaned_data['pdf'].read(), mime=True)
-            ][0]
-            if not (file_type == '.pdf'):
-                msg = forms.ValidationError(
-                    ErrorMessages.incorrect_mime_type)
-                self.add_error('pdf', msg)
-
-        # Verify if the url matches the job.gc.ca domain
+            check_filetype_for_pdf(self)
+            # Verify if the url matches the job.gc.ca domain
         if url:
             # Note: Below code is temporary, until url uploading is supported.
             msg = forms.ValidationError(
