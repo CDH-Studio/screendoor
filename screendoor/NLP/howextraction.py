@@ -46,7 +46,7 @@ def iterate_through_dep_tree(sent):
                     experience += "..."
                     break
             # Helps in the formatting of spaces, but will need to be revisited.
-            if leaf.pos_ == 'PUNCT':
+            if leaf.text == '.' or leaf.pos_ == 'PUNCT' or prev_token.text == "(" or experience == '' or leaf.text == ')':
                 experience += leaf.text
             else:
                 experience += ' ' + leaf.text
@@ -63,4 +63,5 @@ def extract_how(text):
         experience = iterate_through_dep_tree(sent)
         if not experience == '':
             experience_list.append(experience)
-    print(experience_list)
+
+    return experience_list
