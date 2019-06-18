@@ -5,8 +5,7 @@ import pandas as pd
 import tabula
 from pandas import options
 
-from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification
-from screendoor.uservisibletext import ErrorMessages
+from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
 
 
 def text_between(start_string, end_string, text):
@@ -21,7 +20,6 @@ def parse_citizenship(item):
     applicant_citizenship = table.loc[(table[0] == "Citoyenneté / Citizenship:").idxmax(), 1]
     if "Canadian Citizen" in applicant_citizenship:
         applicant_citizenship = "Canadian Citizen"
-    print("citizenship: " + applicant_citizenship)
     return applicant_citizenship
 
 
@@ -33,7 +31,6 @@ def parse_priority(item):
         applicant_has_priority = "False"
     else:
         applicant_has_priority = "True"
-    print("Priority: " + applicant_has_priority)
     return applicant_has_priority
 
 
@@ -45,7 +42,6 @@ def parse_is_veteran(item):
         applicant_is_veteran = "False"
     else:
         applicant_is_veteran = "True"
-    print("Veteran?: " + applicant_is_veteran)
     return applicant_is_veteran
 
 
@@ -54,7 +50,6 @@ def parse_first_official_language(item):
     first_official_language = \
         table.loc[(table[0] == "Première langue officielle / First official language:").idxmax(), 1]
     applicant_first_official_language = first_official_language.split(" / ")[1]
-    print("First Official Language: " + applicant_first_official_language)
     return applicant_first_official_language
 
 
@@ -66,7 +61,6 @@ def parse_working_ability(item):
 
 def parse_english_ability(working_ability):
     english_working_ability = working_ability.split("Anglais / English:", 1)[1].split(" / ")[1]
-    print("English Ability: " + english_working_ability)
 
     return english_working_ability
 
@@ -74,7 +68,6 @@ def parse_english_ability(working_ability):
 def parse_french_ability(working_ability):
     french_working_ability = \
         text_between("Français / French :", "Anglais / English:", working_ability).split(" / ")[1]
-    print("French Ability: " + french_working_ability)
     return french_working_ability
 
 
@@ -82,7 +75,6 @@ def parse_written_exam_language(item):
     table = item[[0, 1]]
     written_exam_language = table.loc[(table[0] == "Examen écrit / Written exam:").idxmax(), 1]
     applicant_written_exam_language = written_exam_language.split(" / ")[1]
-    print("Written Exam Language: " + applicant_written_exam_language)
     return applicant_written_exam_language
 
 
@@ -90,7 +82,6 @@ def parse_corresponsence_language(item):
     table = item[[0, 1]]
     correspondence_language = table.loc[(table[0] == "Correspondance: / Correspondence:").idxmax(), 1]
     applicant_correspondence_language = correspondence_language.split(" / ")[1]
-    print("Correspondence Language: " + applicant_correspondence_language)
     return applicant_correspondence_language
 
 
@@ -98,7 +89,6 @@ def parse_interview_language(item):
     table = item[[0, 1]]
     interview_language = table.loc[(table[0] == "Entrevue / Interview:").idxmax(), 1]
     applicant_interview_language = interview_language.split(" / ")[1]
-    print("Interview Language: " + applicant_interview_language)
     return applicant_interview_language
 
 
@@ -128,16 +118,66 @@ def fill_in_single_line_arguments(item, applicant):
 
 
 def correct_split_item(idx, tables, item):
-    if ((idx + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
+    if ((idx + 1) < len(tables)) and not str(item.shape) == "(1, 1)":
         item2 = tables[idx + 1]
 
         if item2.empty:
             return item
-
-        if item2.iloc[0, 0] == "NaN":
+        if item2.ix[0, 0] == "NaN":
             item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
+            tables[idx] = item
 
-    return item
+
+            del tables[idx + 1]
+    return tables
+
+
+def check_if_table_valid(table):
+    if not isinstance(table, pd.DataFrame):
+        return False
+    if table.empty:
+        return False
+
+    return True
+
+
+def merge_questions(df, first_table, current_index):
+    if is_question(first_table):
+        for index, second_table in enumerate(df, current_index):
+
+            if check_if_table_valid(second_table):
+
+                first_column = second_table[second_table.columns[0]]
+                if first_column.str.contains("Question - Français / French:").any():
+                    break
+                elif first_column.str.contains("No SRFP / PSRS no:").any():
+                    break
+                elif first_column.str.contains("Poste disponible / Job Opportunity").any():
+                    break
+                else:
+                    first_table = pd.concat([first_table, second_table])
+                    del df[index]
+
+    return df
+
+
+def merge_educations(df, item, idx):
+    if is_education(item):
+        for index, item2 in enumerate(df, idx):
+            if check_if_table_valid(item2):
+
+                first_column = item2[item2.columns[0]]
+                if first_column.str.contains("Niveau d'études / Academic Level:").any():
+                    break
+                elif first_column.str.contains("Province").any():
+                    break
+                elif first_column.str.contains("Type d'emploi / Employment Type").any():
+                    break
+                else:
+                    item = pd.concat([item, item2])
+                    del df[index]
+
+    return df
 
 
 def parse_question_text(item):
@@ -185,7 +225,8 @@ def parse_applicant_complementary_response(item):
         return applicant_complementary_response
     elif is_final_answer(item):
         table = item[[0, 1]]
-        applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
+        applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 0].split(
+            "Réponse du postulant / Applicant Answer:", 1)[1]
         return applicant_answer
     else:
         return None
@@ -197,7 +238,6 @@ def parse_academic_level(item):
     if first_column.str.contains("Niveau d'études / Academic Level:").any():
         table = item[[0, 1]]
         academic_level = table.loc[(table[0] == "Niveau d'études / Academic Level:").idxmax(), 1]
-        print(academic_level)
         return academic_level
     else:
         return None
@@ -209,7 +249,6 @@ def parse_area_of_study(item):
     if first_column.str.contains("Domaine d'études / Area of Study:").any():
         table = item[[0, 1]]
         area_of_study = table.loc[(table[0] == "Domaine d'études / Area of Study:").idxmax(), 1]
-        print(area_of_study)
         return area_of_study
     else:
         return None
@@ -221,7 +260,6 @@ def parse_specialization(item):
     if first_column.str.contains("Domaine de spécialisation / Specialization:").any():
         table = item[[0, 1]]
         specialization = table.loc[(table[0] == "Domaine de spécialisation / Specialization:").idxmax(), 1]
-        print(specialization)
 
         return specialization
     else:
@@ -234,7 +272,6 @@ def parse_program_length(item):
     if first_column.str.contains("Longueur du programme (Années) / Program Length(Years):").any():
         table = item[[0, 1]]
         program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length (Years):").idxmax(), 1]
-        print("PROGRAM LENGTH:" + program_length)
 
         return program_length
     else:
@@ -247,7 +284,6 @@ def parse_num_years_completed(item):
     if first_column.str.contains("Années complétées / Nbr of Years Completed:").any():
         table = item[[0, 1]]
         num_years_completed = table.loc[(table[0] == "Années complétées / Nbr of Years Completed:").idxmax(), 1]
-        print("NUM YEARS COMPLETED:" + num_years_completed)
 
         return num_years_completed
     else:
@@ -260,7 +296,6 @@ def parse_institution(item):
     if first_column.str.contains("Établissement d'enseignement / Institution:").any():
         table = item[[0, 1]]
         institution = table.loc[(table[0] == "Établissement d'enseignement / Institution:").idxmax(), 1]
-        print(institution)
 
         return institution
     else:
@@ -273,21 +308,57 @@ def parse_graduation_date(item):
     if first_column.str.contains("Date de graduation / Graduation Date:").any():
         table = item[[0, 1]]
         graduation_date = table.loc[(table[0] == "Date de graduation / Graduation Date:").idxmax(), 1]
-        print(graduation_date)
 
         return graduation_date
     else:
         return None
 
 
-def get_question(item, questions):
-    if is_question(item) and not is_stream(item):
-        questions.append(FormQuestion(question_text=parse_question_text(item),
-                                      complementary_question_text=parse_complementary_question_text(item),
-                                      applicant_answer=parse_applicant_answer(item),
-                                      applicant_complementary_response=parse_applicant_complementary_response(item)))
+def get_question(table, questions, position):
+    if is_question(table) and not is_stream(table):
+
+        question = FormQuestion(question_text=parse_question_text(table),
+                                complementary_question_text=parse_complementary_question_text(table))
+
+        all_questions = position.questions.all()
+        for item in all_questions:
+            if item.question_text.replace(" ", "") == question.question_text.replace(" ", ""):
+                return questions
+
+        question.parent_position = position
+        question.save()
+        questions.append(question)
 
     return questions
+
+
+def retrieve_question(table, question_list):
+    if is_question(table):
+        for item in question_list:
+            if item.question_text == parse_question_text(table):
+                return item
+
+    return None
+
+
+def is_in_questions(table, question_list):
+    if is_question(table):
+        for item in question_list:
+            if item.question_text == parse_question_text(table):
+                return True
+
+    return False
+
+
+def get_answer(table, answers, position):
+    all_questions = position.questions.all()
+
+    if is_in_questions(table, all_questions) and not is_stream(table):
+        answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
+                                  applicant_complementary_response=parse_applicant_complementary_response(table),
+                                  parent_question=retrieve_question(table, all_questions)))
+
+    return answers
 
 
 def get_education(item, educations):
@@ -311,11 +382,10 @@ def get_streams(item, streams):
 def parse_current(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau actuels / Current group and level:").any():
+    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
         table = item[[0, 1]]
         current_classification = table.loc[
-            (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
-        print(current_classification)
+            (table[0] == "Groupe et niveau du poste d'attache").idxmax(), 1]
 
         return current_classification
     else:
@@ -325,11 +395,10 @@ def parse_current(item):
 def parse_substantive(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
+    if first_column.str.contains("Groupe et niveau actuels / Current group and level:").any():
         table = item[[0, 1]]
         substantive_classification = table.loc[
-            (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
-        print(substantive_classification)
+            (table[0] == "Groupe et niveau actuels").idxmax(), 1]
 
         return substantive_classification
     else:
@@ -337,7 +406,7 @@ def parse_substantive(item):
 
 
 def get_classifications(item, classifications):
-    if is_stream(item):
+    if is_classification(item):
         classifications.append(Classification(classification_substantive=parse_substantive(item),
                                               classification_current=parse_current(item)))
     return classifications
@@ -357,7 +426,6 @@ def parse_stream(item):
             response = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
 
             if "Yes" in response:
-                print("GOTTEM" + table)
                 return stream_text
     else:
         return None
@@ -404,70 +472,38 @@ def is_classification(item):
     return False
 
 
-def merge_questions(df, item, idx):
-    if is_question(item):
-        for index, item2 in enumerate(df, idx):
-            if item2.empty:
-                del df[index]
-                continue
-            first_column = item2[item2.columns[0]]
-            if first_column.str.contains("Question - Français / French:").any():
-                break
-            elif first_column.str.contains("No SRFP / PSRS no:").any():
-                break
-            else:
-                item = pd.concat([item, item2])
-                del df[index]
-
-    return df
-
-
-def merge_educations(df, item, idx):
-    if is_education(item):
-        for index, item2 in enumerate(df, idx):
-            if item2.empty:
-                del df[index]
-                continue
-            first_column = item2[item2.columns[0]]
-            if first_column.str.contains("Niveau d'études / Academic Level:").any():
-                break
-            elif first_column.str.contains("Province").any():
-                break
-            elif first_column.str.contains("Type d'emploi / Employment Type").any():
-                break
-            else:
-                item = pd.concat([item, item2])
-                del df[index]
-
-    return df
-
-
 def find_essential_details(tables, position):
     applicant = Applicant()
+    applicant.save()
+    position.save()
     questions = []
     streams = []
+    answers = []
     classifications = []
     educations = []
 
     for idx, item in enumerate(tables):
+        tables = correct_split_item(idx, tables, item)
 
-        if item.empty:
-            continue
-        tables = merge_questions(tables, item, idx)
-        tables = merge_educations(tables, item, idx)
+    for idx, item in enumerate(tables):
 
-        item = correct_split_item(idx, tables, item)
-        questions = get_question(item, questions)
-        educations = get_education(item, educations)
-        streams = get_streams(item, streams)
-        classifications = get_classifications(item, classifications)
-        applicant = fill_in_single_line_arguments(item, applicant)
+        if check_if_table_valid(item):
+
+            tables = merge_questions(tables, item, idx)
+            tables = merge_educations(tables, item, idx)
+            tables = correct_split_item(idx, tables, item)
+
+            questions = get_question(item, questions, position)
+            answers = get_answer(item, answers, position)
+            educations = get_education(item, educations)
+            streams = get_streams(item, streams)
+            classifications = get_classifications(item, classifications)
+            applicant = fill_in_single_line_arguments(item, applicant)
 
     applicant.applicant_id = ''.join(
         random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
 
-    applicant.save()
-    for item in questions:
+    for item in answers:
         item.parent_applicant = applicant
         item.save()
     for item in educations:
@@ -508,7 +544,7 @@ def clean_and_parse(df, application, position):
             application.append(find_essential_details(df[array[x]:], position))
         else:
             print("Processing Applicant: " + str(x + 1))
-            application.append(find_essential_details(df[array[x]:array[x + 1]],position))
+            application.append(find_essential_details(df[array[x]:array[x + 1]], position))
 
     return application
 
@@ -523,5 +559,4 @@ def parse_application(request, position):
         for item in application:
             item.parent_position = position
             item.save()
-        position.save()
         pass
