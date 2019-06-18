@@ -5,11 +5,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 from screendoor.parseapplication import parse_application
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText
-from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm, ImportApplicationsText
-from .models import EmailAuthenticateToken, Position, Applicant, Education, Classification, Requirement, FormQuestion
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
+from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion
+
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
 import os
@@ -20,7 +22,7 @@ import os
 
 
 # Index currently redirects to the positions view if logged in
-@login_required(login_url='login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def index(request):
     return redirect('positions')
     # Returns main page
@@ -145,7 +147,7 @@ def login_form(request):
 
 
 # Logs out user
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -163,42 +165,49 @@ def save_position_to_user(request):
         id=request.session['position_id']))
 
 
+@login_required(login_url='login', redirect_field_name=None)
 def edit_position(request):
-    try:
-        # Populate the fields with hidden input data from position template
-        position = Position.objects.get(
-            id=request.POST.get("position-id"))
-        position.position_title = request.POST.get("position-title")
-        position.classification = request.POST.get("position-classification")
-        position.reference_number = request.POST.get("position-reference")
-        position.selection_process_number = request.POST.get(
-            "position-selection")
-        position.date_closed = dateparser.parse(
-            request.POST.get("position-date-closed"))
-        position.num_positions = request.POST.get("position-num-positions")
-        position.salary_min = request.POST.get(
-            "position-salary-range").split("$")[1].split("-")[0]
-        position.salary_max = request.POST.get(
-            "position-salary-range").split("-")[1].split("$")[1]
-        position.open_to = request.POST.get("position-open-to")
-        position.description = request.POST.get("position-description")
-        counter = 1
-        for requirement in position.requirement_set.all().reverse():
-            requirement.description = request.POST.get(
-                "position-requirement" + str(counter)).split(":")[1]
-            counter += 1
-            requirement.save()
-        position.save()
-        return position
-    except TypeError:
-        # In case of errors, return the current position with no edits
-        # TODO: implement validation for position editing and error messages
-        return Position.objects.get(
-            id=request.POST.get("position_id"))
+    if request.method == 'POST':
+        # User wants to edit a position
+        if request.POST.get("save-position"):
+            try:
+                # Populate the fields with hidden input data from position template
+                position = Position.objects.get(
+                    id=request.POST.get("position-id"))
+                position.position_title = request.POST.get("position-title")
+                position.classification = request.POST.get(
+                    "position-classification")
+                position.reference_number = request.POST.get(
+                    "position-reference")
+                position.selection_process_number = request.POST.get(
+                    "position-selection")
+                position.date_closed = dateparser.parse(
+                    request.POST.get("position-date-closed"))
+                position.num_positions = request.POST.get(
+                    "position-num-positions")
+                position.salary_min = request.POST.get(
+                    "position-salary-range").split("$")[1].split("-")[0]
+                position.salary_max = request.POST.get(
+                    "position-salary-range").split("-")[1].split("$")[1]
+                position.open_to = request.POST.get("position-open-to")
+                position.description = request.POST.get("position-description")
+                counter = 1
+                for requirement in position.requirement_set.all().reverse():
+                    requirement.description = request.POST.get(
+                        "position-requirement" + str(counter)).split(":")[1]
+                    counter += 1
+                    requirement.save()
+                position.save()
+                return redirect('position', position.reference_number, position.id)
+            except TypeError:
+                # In case of errors, return the current position with no edits
+                # TODO: implement validation for position editing and error messages
+                return Position.objects.get(
+                    id=request.POST.get("position-id"))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
         create_position_form = CreatePositionForm(
@@ -226,8 +235,8 @@ def import_position(request):
                            'userVisibleText': PositionText})
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            edit_position(request)
             save_position_to_user(request)
+            edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
@@ -265,33 +274,23 @@ def positions_list_data(request, sort_by):
 
 
 # View of all positions associated with a user account
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
 def positions(request):
     # Order of positions display
     sort_by = get_positions_sort_method(request)
     if request.method == 'POST':
         sort_by = change_positions_sort_method(request, sort_by)
-        # User wants to view position detail
-        if request.POST.get("position"):
-            return position_detail(request, Position.objects.get(
-                id=request.POST.get("position-id")))
-        # User wants to delete position
-        elif request.POST.get("delete"):
-            Position.objects.get(
-                id=request.POST.get("position-id")).delete()
-        # User wants to upload applications for a position
-        elif request.POST.get("upload-applications"):
-            return upload_applications(request)
-        # User wants to edit a position
-        elif request.POST.get("edit-position"):
-            return position_detail(request, edit_position(request))
-        # User wants to view an applicant
-        elif request.POST.get("application"):
-            return application(request)
     # Persists positions sorting
     request.session['position_sort'] = sort_by
     # Displays list of positions
     return render(request, 'positions.html', positions_list_data(request, sort_by))
+
+
+# Return whether the position exists and the user has access to it
+def user_has_position(request, reference, position_id):
+    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(reference_number=reference).exists():
+        return Position.objects.get(id=position_id)
+    return None
 
 
 # Data and visible text to render with positions
@@ -301,28 +300,48 @@ def position_detail_data(request, position):
 
 
 # Position detail view
-@login_required(login_url='/login/', redirect_field_name=None)
-def position_detail(request, position):
-    return render(request, 'position.html', position_detail_data(request, position))
+@login_required(login_url='login', redirect_field_name=None)
+def position_detail(request, reference, position_id):
+    # GET request
+    try:
+        position = user_has_position(request, reference, position_id)
+        if position is not None:
+            return render(request, 'position.html', position_detail_data(request, position))
+    except ObjectDoesNotExist:
+        # TODO: add error message that position cannot be retrieved
+        return redirect('home')
 
 
-@login_required(login_url='/login/', redirect_field_name=None)
+@login_required(login_url='login', redirect_field_name=None)
+def delete_position(request):
+    # User wants to delete position
+    if request.POST.get("delete"):
+        Position.objects.get(id=request.POST.get("position-id")).delete()
+    # TODO: render error that position could not be deleted
+    return redirect('home')
+
+
+@login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    position = Position.objects.get(
-        id=request.POST.get("position-id"))
-    pdf = request.FILES['pdf']
-    with open('/code/applications/' + pdf.name, 'wb+') as destination:
-        for chunk in pdf.chunks():
-            destination.write(chunk)
-    form = ImportApplicationsForm(request.POST, request.FILES)
-    if form.is_valid():
-        parse_application(form.save(commit=False), position)
 
-        os.chdir("..")
-        os.remove("/code/applications/" + pdf.name)
-        return render(request, 'position.html', {'baseVisibleText': InterfaceText, 'position': Position.objects.get(
-            id=request.POST.get("position-id")), 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'applicants': Applicant.objects.filter(parent_position=request.POST.get("position-id"))})
+    if request.method == 'POST':
+        form = ImportApplicationsForm(request.POST, request.FILES)
+        if form.is_valid():
+            position = Position.objects.get(
+                id=request.POST.get("position-id"))
+            pdf = request.FILES['pdf']
+            with open('/code/applications/' + pdf.name, 'wb+') as destination:
+                for chunk in pdf.chunks():
+                    destination.write(chunk)
+                    applicants = parse_application(form.save(commit=False))
+                for item in applicants:
+                    item.parent_position = position
+                    item.save()
+                os.chdir("..")
+                os.remove("/code/applications/" + pdf.name)
+                return redirect('position', position.reference_number, position.id)
+    # TODO: render error message that application could not be added
+    return redirect('home')
 
 
 def import_applications_redact(request):
@@ -338,30 +357,71 @@ def import_applications_redact(request):
         'form': form})
 
 
-def application(request):
-    return render(request, 'application.html', {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': Position.objects.get(
-        id=request.POST.get("position-id")), 'applicant': Applicant.objects.get(id=request.POST.get("applicant-id")),
-        'questions': FormQuestion.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id"))), 'educations': Education.objects.filter(parent_applicant=Applicant.objects.get(id=request.POST.get("applicant-id")))})
+# Verify that the applicant exists and belongs to position that user has access to
+def position_has_applicant(request, app_id):
+    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(applicant_id=app_id).parent_position.id):
+        return Applicant.objects.get(applicant_id=app_id)
+
+
+# Data for applicant view
+def applicant_detail_data(applicant, position):
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
+            'questions': FormQuestion.objects.filter(parent_applicant=applicant)}
+
+
+# View an application
+def application(request, app_id):
+    applicant = position_has_applicant(request, app_id)
+    if applicant is not None:
+        return render(request, 'application.html', applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
+    # TODO: render error message that the applicant trying to be access is unavailable/invalid
+    return redirect('home')
 
 
 def nlp(request):
-    text = u"""During my employment at CRA as a permanent IT Project Leader from January 2010 until present, I provided strategic advice and
-recommendations on IM/IT risks or issues to my directors (EX1, EX3, and higher ) in relation to various legislated projects such as
-Foreign Account Tax Compliance Act (FATCA), Electronic Funds Transfer (EFT) and Charities Internet applications.
-For the Charities Internet application, I provided recommendations and briefings to senior management on how to protect CRA and
-minimize the risks of cyber-attacks by developing a pre-emption process. The goal was to minimize the effects of the attack on the
-Charities application.
-For the FATCA project, I developed corporate strategies and reccomendations to senior management resulted in new and improved
-services (e.g. in-house development tools for data compression and encryption, and in-house development tools for data conversion).
-I liaised with Technology Advisors, Architects and Security Specialists to produce architecture and security recommendations, for the
-FATCA project.
-For the FATCA and EFT projects, I prepared Solutions dashboards and Project Gating reports and hosted meetings to obtain approval
-from all gatekeepers and identified IM/IT issues and presented them to senior management (Ex01, EX02, and higher). I chaired IT
-strategic meetings with clients and various stakeholders and created cost/benefit analyses, business cases, briefing notes, memos for
-senior management (CS05, EX01). I presented at the Solutions Major Project Review Committee (MPRC) about the IM and IT issues
-that requires immediate attention (such as procurement of the Sterling software - tracking system to track outgoing and incoming XML
-file with ability of performing encryption and digital signature) with respect to FATCA project. I presented these recommendations to
-the DAC (EX5), DG (EX3), and directors (CS05)."""
-    from .NLP import test_spacy_functionality
-    test_spacy_functionality(text)
+    text = u"""Some of the IM/IT projects I have managed at PCO since June 2014:
+Project 1 - Upgrade of the department-wide Electronic Document Management System (eDOCS 5.3.1 software) on two corporate
+networks (825 users)
+As IM Systems lead, I managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all
+interactions with the information technology (IT) programmers for two networks (Protected B and Secret). I informed business group
+representatives (stakeholders) weekly of progress through conference calls and in person meetings when required.
+Project 2 - Remote deployment of the new eDOCS software package on the Protected network
+I oversaw the deployment of the software to 30 business groups, totalling close to 500 users via SCCM, managing the work of my staff
+and individuals in the IT directorate responsible for the packaging of the software and its remote deployment, I also engaged business
+unit representatives to ensure a transparent and easy process.
+Project 3 - Onboarding of two clients groups onto the EDMS (RDIMS)
+I managed the deployment of the EDMS (RDIMS/eDOCS) to two new client groups (150 users), directing the work of my staff for all
+onboarding activities (filing structure evaluation, access groups configurations, training, etc.) and engaging key personnel in the client
+and IM Policy groups, when needed.
+At OCOL between March 2010 and June 2014:
+Project 1 - Pilot of a new department-wide Electronic Document and Records Management System (EDRMS) to the Corporate
+Services Branch (50 users)
+As the IM Lead (stakeholder) on a major IM/IT Integrated Electronic Management Solution (IEMS) project, which included GCDOCS
+as our EDRMS base Module 1 (Module 2 - Case Management, Module 3 - Web Management), I managed the pilot deployment of the
+EDRMS (GCDOCS) to the Corporate Management Branch and managed the work of consultants and my staff, including presentations
+and training activities.
+Project 2 - Department-wide implementation of EDRMS - GCDOCS/Content Server 10
+As the IM Lead (stakeholder) on the same major IM/IT project, I also facilitated the department-wide implementation of the EDRMS
+(GCDOCS), including one-on-one meetings with business process owners (EX-01 level) to inform them of the implementation
+progress, organised and offered client training, negotiating with clients regarding system integration, configuration and access
+permissions, providing one-on-one coaching sessions, when needed.
+Project 3 - Department-wide training on the new EDRMS (GCDOCS/Content Server 10)
+I facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices
+throughout Canada, overseeing sessions given by consultants and my staff offering training and coaching myself on occasion.
+Project 4 - Information Frameworks
+As the IM Lead, I managed the validation of Information Frameworks for OCOL's 17 business processes, initiated consultations with
+business process owners and aligned the IM Framework within the architecture of the Electronic Document Management System
+(GCDOCS), as well as the filing scheme and retention periods.
+I also:
+- Managed the upgrade of the Library system, from Portfolio 6 to Portfolio 7 and Zones 2, including client testing.
+- Managed the implementation of e-copy software to facilitate ATIP processes.
+- Lead the development, revamp and implementation of Library services (ex. Catalogue upgrade, online subscriptions, orientation
+sessions, new acquisitions list, etc.)
+- Managed the weeding process of the Library's paper collection in view of a March 2014 physical move.
+- Managed the physical move of the Records Management office in March 2014.
+- Managed the physical move of the Library in March 2014."""
+    from screendoor.NLP.whenextraction import extract_dates
+    from screendoor.NLP.howextraction import extract_how
+    extract_dates(text)
+    extract_how(text)
     return redirect('positions')
