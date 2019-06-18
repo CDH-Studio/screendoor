@@ -323,23 +323,22 @@ def delete_position(request):
 
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    if request.POST.get("upload-applications"):
-        position = Position.objects.get(
-            id=request.POST.get("position-id"))
-        pdf = request.FILES['pdf']
-        with open('/code/applications/' + pdf.name, 'wb+') as destination:
-            for chunk in pdf.chunks():
-                destination.write(chunk)
-                form = ImportApplicationsForm(request.POST, request.FILES)
-                if form.is_valid():
+    if request.method == 'POST':
+        form = ImportApplicationsForm(request.POST, request.FILES)
+        if form.is_valid():
+            position = Position.objects.get(
+                id=request.POST.get("position-id"))
+            pdf = request.FILES['pdf']
+            with open('/code/applications/' + pdf.name, 'wb+') as destination:
+                for chunk in pdf.chunks():
+                    destination.write(chunk)
                     applicants = parse_application(form.save(commit=False))
-                    for item in applicants:
-                        item.parent_position = position
-                        item.save()
-                        position.save()
-                        os.chdir("..")
-                        os.remove("/code/applications/" + pdf.name)
-                        return redirect('position', position.reference_number, position.id)
+                for item in applicants:
+                    item.parent_position = position
+                    item.save()
+                os.chdir("..")
+                os.remove("/code/applications/" + pdf.name)
+                return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 

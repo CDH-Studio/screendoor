@@ -40,7 +40,7 @@ class ImportApplicationsForm(forms.ModelForm):
             self.add_error('pdf', msg)
             return
         # Currently causing crash
-        # check_filetype_for_pdf(self)
+        check_filetype_for_pdf(self)
         return self.cleaned_data
 
 
