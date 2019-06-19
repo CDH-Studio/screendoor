@@ -196,15 +196,18 @@ def parse_applicant_complementary_response(item):
 def get_question(item, questions):
     if is_question(item):
         response=parse_applicant_complementary_response(item)
-        experiences = []
+        analysis = []
         if not (response is None):
             dates = extract_dates(response)
+            dates = str(dates).replace('{', '').replace('}', '').replace("'", '').split(':')
             experiences = extract_how(response)
+            analysis = list(dict.fromkeys(dates + experiences))
+            print(analysis)
         questions.append(FormQuestion(question_text=parse_question_text(item),
                                       complementary_question_text=parse_complementary_question_text(item),
                                       applicant_answer=parse_applicant_answer(item),
                                       applicant_complementary_response=response,
-                                      analysis="\n".join(experiences)))
+                                      analysis='\n'.join(analysis)))
 
     return questions
 
