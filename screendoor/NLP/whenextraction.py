@@ -190,10 +190,20 @@ def squash_named_entities(doc):
             #if not (span.text in x.text for x in list(doc.ents)):
                 retokenizer.merge(span)
 
-
-
-def extract_dates(text):
+def determine_named_entities(text):
     doc = NLP_MODEL(text)
     squash_named_entities(doc)
     hard_identify_date_ents(doc)
+    return doc
+
+
+
+def extract_dates(text):
+    doc = determine_named_entities(text)
     return iterate_through_dep_tree(doc)
+
+
+def get_identified_dates(doc):
+    squash_named_entities(doc)
+    hard_identify_date_ents(doc)
+    return (x for x in doc.ents if 'DATE' in x.label_)

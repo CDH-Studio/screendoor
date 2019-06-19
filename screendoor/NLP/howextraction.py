@@ -1,12 +1,18 @@
 from screendoor_app.settings import NLP_MODEL
+from .whenextraction import get_identified_dates
 
 # takes in a sentence, and returns what the applicant claims to have done,
 # if anything.
-def iterate_through_dep_tree(sent):
+def iterate_through_dep_tree(sent, dates):
     experience = ''
     constructing_verb_phrase = False
     prev_token = sent[0] #initialize the previous token to the first token
     for leaf in sent:
+        # If we're looking at a date, we've overstepped into the when_extraction
+        # Break
+        if leaf in dates:
+            return ''
+
         # Only begin if the root is a verb
         if leaf.dep_ == 'ROOT' and leaf.pos_ == 'VERB':
             subject = None
@@ -57,10 +63,10 @@ def iterate_through_dep_tree(sent):
 
 def extract_how(text):
     doc = NLP_MODEL(text.replace('\n', ' '))
-
+    dates = get_identified_dates(doc)
     experience_list = []
     for sent in doc.sents:
-        experience = iterate_through_dep_tree(sent)
+        experience = iterate_through_dep_tree(sent, dates)
         if not experience == '':
             experience_list.append(experience)
 
