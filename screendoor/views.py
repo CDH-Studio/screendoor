@@ -333,10 +333,8 @@ def upload_applications(request):
             with open('/code/applications/' + pdf.name, 'wb+') as destination:
                 for chunk in pdf.chunks():
                     destination.write(chunk)
-                    applicants = parse_application(form.save(commit=False))
-                for item in applicants:
-                    item.parent_position = position
-                    item.save()
+                    parse_application(form.save(commit=False), position)
+
                 os.chdir("..")
                 os.remove("/code/applications/" + pdf.name)
                 return redirect('position', position.reference_number, position.id)
