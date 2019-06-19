@@ -1,3 +1,27 @@
+.yes-answer {
+  border-right: 5px #4CAF50 solid;
+}
+
+.yes-answer-light {
+  border-right: 5px #C8E6C9 solid;
+}
+
+.no-answer {
+  border-right: 5px #F44336 solid;
+}
+
+.no-answer-light {
+  border-right: 5px #FFCDD2 solid;
+}
+
+.education-header th {
+  font-weight: 400;
+}
+
+.question-header th {
+  font-weight: 400;
+}
+
 .application-button {
   background-color: transparent;
   border: 0px none;
