@@ -1,11 +1,10 @@
 from screendoor_app.settings import NLP_MODEL
-
+import re
 # fix any false positives of dates being identified as other named entities
 def hard_identify_date_ents(doc):
     # for now, only checks the 07/2015-05/2014 regex, but will be expanded
     # as needed
     recovered_dates = re.findall(r"\d*\/\d*-\d*\/\d*", doc.text)
-
     #creates a list of the dates' start/end positions in the doc
     recovered_dates_locations = []
     for date in recovered_dates:
@@ -17,7 +16,8 @@ def hard_identify_date_ents(doc):
 
     # Adds the identified dates to the list of new entities
     for date_location in recovered_dates_locations:
-        new_ent = doc.char_span(date_location[0], (date_location[1]),
+
+        new_ent = doc.char_span(date_location[0], date_location[1],
                                 label=u'DATEHACK')
         if not (new_ent is None):
             new_ents.append(new_ent)
@@ -44,7 +44,10 @@ def hard_identify_date_ents(doc):
 # the case doesnt return bad data. Cases where it does not return what is
 # expected need to be looked at further as either refinements or edge cases.
 # test suite to come
-def navigate_through_tree(root, context, dates):
+def navigate_through_tree(root, dates):
+    context = ''
+    if not (root.text in dates):
+        context = root.text + ' '
     # relations identified as having data we care about, and being paths we
     # want to iterate down
     accepted_relations = ['dobj', 'acomp', 'pcomp', 'npadvmod', 'appos',
@@ -91,7 +94,6 @@ def get_to_tree_root(leaf, dates):
     # from appearing in its own context
     base_leaf = leaf
     stem = leaf.head
-
     while not (stem.dep_ == 'ROOT'):
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
@@ -134,7 +136,8 @@ def iterate_through_dep_tree(dep_tree):
         if 'DATE' in ent.label_:
             dates.append(ent.text)
 
-    context_list = []
+    contexts = {}
+
 
     for leaf in dep_tree:
 
@@ -142,18 +145,10 @@ def iterate_through_dep_tree(dep_tree):
         if leaf.text in dates:
             # Get to the head of the dep_tree
             root = get_to_tree_root(leaf, dates)
-
-            # make sure the display looks correct
-            if not root == leaf:
-                context = (leaf.text + ': ' + root.text + ' ')
-            else:
-                context = (leaf.text + ': ')
-
             # now that we have the head of the date entity,
             # navigate through it for the context of the current date
-            context_list.append(navigate_through_tree(root, context, dates))
-
-    return context_list
+            contexts[leaf.text] = navigate_through_tree(root, dates)
+    return contexts
 
 
 # Prevents crash: retokenizer only works on disjoint sets
@@ -185,5 +180,5 @@ def squash_named_entities(doc):
 def extract_dates(text):
     doc = NLP_MODEL(text)
     squash_named_entities(doc)
-
-    print(iterate_through_dep_tree(doc))
+    hard_identify_date_ents(doc)
+    return iterate_through_dep_tree(doc)

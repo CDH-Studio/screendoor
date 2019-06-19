@@ -1,0 +1,146 @@
+Some of the IM/IT projects I have managed at PCO since June 2014:
+Project 1 - Upgrade of the department-wide Electronic Document Management System (eDOCS 5.3.1 software) on two corporate
+networks (825 users)
+As IM Systems lead, I managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all
+interactions with the information technology (IT) programmers for two networks (Protected B and Secret). I informed business group
+representatives (stakeholders) weekly of progress through conference calls and in person meetings when required.
+Project 2 - Remote deployment of the new eDOCS software package on the Protected network
+I oversaw the deployment of the software to 30 business groups, totalling close to 500 users via SCCM, managing the work of my staff
+and individuals in the IT directorate responsible for the packaging of the software and its remote deployment, I also engaged business
+unit representatives to ensure a transparent and easy process.
+Project 3 - Onboarding of two clients groups onto the EDMS (RDIMS)
+I managed the deployment of the EDMS (RDIMS/eDOCS) to two new client groups (150 users), directing the work of my staff for all
+onboarding activities (filing structure evaluation, access groups configurations, training, etc.) and engaging key personnel in the client
+and IM Policy groups, when needed.
+At OCOL between March 2010 and June 2014:
+Project 1 - Pilot of a new department-wide Electronic Document and Records Management System (EDRMS) to the Corporate
+Services Branch (50 users)
+As the IM Lead (stakeholder) on a major IM/IT Integrated Electronic Management Solution (IEMS) project, which included GCDOCS
+as our EDRMS base Module 1 (Module 2 - Case Management, Module 3 - Web Management), I managed the pilot deployment of the
+EDRMS (GCDOCS) to the Corporate Management Branch and managed the work of consultants and my staff, including presentations
+and training activities.
+Project 2 - Department-wide implementation of EDRMS - GCDOCS/Content Server 10
+As the IM Lead (stakeholder) on the same major IM/IT project, I also facilitated the department-wide implementation of the EDRMS
+(GCDOCS), including one-on-one meetings with business process owners (EX-01 level) to inform them of the implementation
+progress, organised and offered client training, negotiating with clients regarding system integration, configuration and access
+permissions, providing one-on-one coaching sessions, when needed.
+Project 3 - Department-wide training on the new EDRMS (GCDOCS/Content Server 10)
+I facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices
+throughout Canada, overseeing sessions given by consultants and my staff offering training and coaching myself on occasion.
+Project 4 - Information Frameworks
+As the IM Lead, I managed the validation of Information Frameworks for OCOL's 17 business processes, initiated consultations with
+business process owners and aligned the IM Framework within the architecture of the Electronic Document Management System
+(GCDOCS), as well as the filing scheme and retention periods.
+I also:
+- Managed the upgrade of the Library system, from Portfolio 6 to Portfolio 7 and Zones 2, including client testing.
+- Managed the implementation of e-copy software to facilitate ATIP processes.
+- Lead the development, revamp and implementation of Library services (ex. Catalogue upgrade, online subscriptions, orientation
+sessions, new acquisitions list, etc.)
+- Managed the weeding process of the Library's paper collection in view of a March 2014 physical move.
+- Managed the physical move of the Records Management office in March 2014.
+- Managed the physical move of the Library in March 2014.
+
+
+1.Statistics Canada: New Dissemination Model (NDM) Navigation Project - Project Leader (CS-03) 7/2013-4/2015
+The NDM Navigation was the front-end portal of the New Dissemination Model (NDM) project. It was a 3-year, complex project in
+terms of technology challenge and architecture. NDM Navigation is designed to modernize the methods and framework for coherent
+dissemination of data to public with a main focus on aggregated statistics and to provide a new efficient, fast way of navigating and
+searching for public information.
+My main responsibilities were to lead a team of 5 developers (including consultants) providing the NDM Navigation Website with
+Treasury Board Secretariat (TBS) Web Experience Toolkit (WET) Version 4.0 compliance using Drupal technology and communicate
+with SOLR/CKAN via web services. I led the team throughout the project lifecycle including organizing and leading requirements
+gathering in JAD sessions, analysis, developing project plan and schedules, identifying risk and providing mitigation strategies,
+managing developer workload, coordinating activities between team members for the best use of their technical strengths, monitoring
+and reporting on team progress to clients, the architectural team & senior management. I also ensured NDM Navigation portal was
+designed in such a way that it was flexible, scalable, and robust to client's frequent changes.
+2. Statistics Canada: Census CLF3 conversion - Project Leader (CS-03) 09/2012-01/2013
+Led a team of 4 developers in converting a CLF2 based website to be CLF3 compliant using ColdFusion, HTML5, CSS3 technologies.
+Duties included planning, requirements gathering in JAD sessions, managing and directing the implementation. Coordinated with SSC
+for deployment of releases. Created a support communication channel so clients/users knows who to contact when needed;
+The project was successfully delivered on time with high quality.
+
+
+Team Lead - Systems Maintenance at CNSC, December 2010 to October 2015. During my tenure at CNSC, I was responsible for all
+aspects relating to contracted resources, having at one time more than 12 contracted resources reporting to me. This included the
+creation of the TBIPS, the evaluation and results, and as necessary informal discussions on results with unsuccessful companies. In
+addition, I have worked closely with the contracting team here at CNSC, to look at opportunities to refine our contracting process, with
+improvements being made to the contracting template. I have also been involved in the contract review committee for the
+organization, looking for unfair practises and consistency.
+An example of my contracting experience, for the ACR project, I was required to hire 4 contracted programmer / analyst. I was
+required to provide the statement of work, review the proposals, conduct interview process and document the results. The success of
+the ACR project was directly associated to the success of the resources we were able to engage in a short time frame to respond to
+the need. This demonstrated my ability to engage quality professional services.
+
+
+My previous position at Courts administration services (operations manager, 2011-2014); involved providing technical advises and
+recommendations on a daily basis, I report to the Director of IT (cs-05) as being involved in 5 initiatives considered to be the
+department's Top priority. These initiatives are presented to the DCA (EX3) directly, where I presented plans for these initiatives to the
+EXCOM (Executive Committee, EX 01 and above). I worked very closely with the IT Director and DG developing and presenting these
+plans. , I presented a DECK to the DCA and EXCOM recommending and advising on the feasibilities of these initiatives/Projects. I
+presented my recommendations based on: Client requirements, Scope, Cost, Risk/ restraints, Timelines and PROS/CONS.
+I have been involved preparing the necessary business cases negotiating and seeking additional funding and approval from the DG of
+IM/IT and the Executive Committee to provide a more agile and efficient service to our clients especially with IT technology and trends
+being the focal point while the departmental budgets are decreasing.
+Example of 2 Recommendations:
+1. In 2012 , while working at CAS I recommended presented to the DG of IT the replacement a presentation on of all Network
+switches with more adequate, efficient and futuristic switches (layer 3 switches) that will help CAS monitor traffic / flows as well as
+adding advanced functionalities such as advanced monitoring of flow, traffic and QOS( quality of services). This project was approved
+and implemented in 2012.
+2. In 2013 in my current job as Infrastructure and operations manager, I presented recommendations to IT Director General to
+implement BES 10 server, the BES 5.0 server that currently manages the current Blackberry devices will eventually be out of support
+with the new platform availability as well the provider will cease selling devices that are supported by this management tool. Based on
+that I presented my recommendations/presentation (including the criteria listed above) to implement this new platform. (Project
+approved and in pilot mode to be fully operation in the production environment by February 2014)
+Note: many more are available upon request such as BYOD (Bring your own device) as part of the IT/ Telecom Trends/Initiatives,
+Axios Assyst and more.
+
+
+In my roles as a CS03 project leader and A/CS4 IT Manager at CBSA, since April 2008 until the present, I acquired over the years as
+listed below a broad range of experience in Human resource management such as planning, guiding, supervising, coordinating and
+evaluating the work of IT staff (employee and consultant).
+. From December 2012 until April 2013 as the acting manager for the Master data Management and the Enterprise Portal section
+. From June 2011 until November 2012 and from October 2014 until April 2015 and from October 2015 until the present as the BIRS
+infrastructure and production services Project Leader and BIRS acting Manager for the BIRS section for over 7 months cumulative
+. From March 2010 until May 2011 as the Titan production support and CSC Team Leader
+. From April 2008 until March 2010 as the AMPS project leader
+During those years I acquired an extensive experience in leading a technical teams, supervising personnel, overseeing the work of
+contract personnel, estimating work, tracking deliverables, assessing work performed by employees and contractors, monitoring
+project, completing analyses, feasibility studies and technical specifications; providing and facilitating the provision of technical advice;
+developing others, aligning, and integrating work plans and activities from various organizational areas and products with other CBSA
+initiatives; providing input to, and ensuring compliance with services such as project/release management, change management and
+quality assurance.
+As a project leader, I work with my employees to develop their learning plans and career development plans. I have experience
+developing employee's performance expectations and assessment.
+As acting Manager I managed the work performed by the section through subordinate staff. I assigned technical specialists to
+workgroups and projects and schedule their work by setting target dates and milestones. I provided technical guidance and direction to
+the work teams and projects. I evaluated their performance and recommended training, provided counselling on career paths and
+assisted in their career advancement. I analyzed human resource requirements to perform the work of the unit and made
+recommended human resource levels through input into business plans.
+I am experienced in staffing and HR relations. I acquired knowledge working with various HR specialties in government such as
+staffing boards, labor relations, occupational health and safety and official languages. In FY 11/12, I Handled an HR file that required
+tact and diplomacy and was successful in reaching its targeted state. I completed the CBSA staffing sub-delegation in March 2012.
+
+
+In my roles as a CS03 project/team leader and A/CS4 IT Manager at CBSA, since April 2008 until the present, I acquired a broad
+range of experiences in IT application development, Infrastructure support and COTS software maintenance and support:
+. From October 2015 until the present as the DW COTS infrastructure team leader, supporting the transition of additional various DW
+COTS and resources to my team as well as the planning for the roll out of the newly acquired COTS IBM OPTIM.
+. From October 2014 until April 2015, as the BIRS infrastructure and production support Team leader, responsible for a team of five
+resources supporting the Cognos 10.2 infrastructure and the production services for the all the BI Cognos solutions at CBSA.
+. From December 2013 until September 2014, as a team leader, I worked in a matrix resources set up in the enterprise common
+services: I led the work to research and identify opportunities exploiting the use of new technology "MOTIO" and advising clients and
+management on its optimum use to secure funding.
+. From December 2012 until June 2013 as the acting manager for the Master data Management and the Enterprise Portal section:
+o Completed a deep dive analysis of the Enterprise Portal project in order to bring clarity and accuracy in reporting the health of the
+project to senior management. This then trigger the needs to hire more resources as well as to re-baseline the project
+o Initiated the structuring and creation of the COTS Master Data Management (MDM) project artefacts ( such as project plan, project
+schedule and various technical artefacts) to ensure the project was well organized and that information was provided to senior
+management
+o Hired 4 consultants and 2 employees for the section
+. From June 2011 until November 2012, I managed the Business intelligence infrastructure Cognos upgrade project while also leading
+the production support and infrastructure services team of 8 resources to support the existing infrastructure and the production
+services for all the Business intelligence and reporting Solutions releases under various initiatives at CBSA.
+. From March 2010 until May 2011 as the Titan production support Team Leader, I was leading a multi-disciplinary technical team
+responsible for the maintenance and the production support the web based IT application Titan. The activities include corrective,
+preventative, adaptive and enhancement activities to support the products transition from development to production and ensure
+production stabilization of all commercial system development releases.

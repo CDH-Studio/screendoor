@@ -71,6 +71,7 @@ def init_spacy_module():
             {'LOWER': {'REGEX': '\d*\/\d*'}},
             {'LOWER': '-'},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
+
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER
