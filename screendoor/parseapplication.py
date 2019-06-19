@@ -263,7 +263,7 @@ def parse_specialization(item):
 def parse_program_length(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Longueur du programme (Années) / Program Length(Years):").any():
+    if first_column.str.contains("Longueur du programme").any():
         table = item[[0, 1]]
         program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length (Years):").idxmax(), 1]
 
