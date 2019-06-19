@@ -127,18 +127,12 @@ def correct_split_item(idx, tables, item):
             item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
             tables[idx] = item
 
-
             del tables[idx + 1]
     return tables
 
 
 def check_if_table_valid(table):
-    if not isinstance(table, pd.DataFrame):
-        return False
-    if table.empty:
-        return False
-
-    return True
+    return isinstance(table, pd.DataFrame) and not table.empty
 
 
 def merge_questions(df, first_table, current_index):
@@ -315,7 +309,6 @@ def parse_graduation_date(item):
 
 
 def create_short_question_text(long_text):
-
     if "*" in long_text:
         return long_text.split("*Recent", 1)[0]
     elif "." in long_text:
@@ -500,7 +493,6 @@ def find_essential_details(tables, position):
     for idx, item in enumerate(tables):
 
         if check_if_table_valid(item):
-
             tables = merge_questions(tables, item, idx)
             tables = merge_educations(tables, item, idx)
             tables = correct_split_item(idx, tables, item)
