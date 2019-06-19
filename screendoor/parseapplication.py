@@ -387,10 +387,10 @@ def get_streams(item, streams):
 def parse_current(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
+    if first_column.str.contains("Groupe et niveau actuels").any():
         table = item[[0, 1]]
         current_classification = table.loc[
-            (table[0] == "Groupe et niveau du poste d'attache").idxmax(), 1]
+            (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
 
         return current_classification
     else:
@@ -400,10 +400,10 @@ def parse_current(item):
 def parse_substantive(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau actuels / Current group and level:").any():
+    if first_column.str.contains("Groupe et niveau du poste d'attache").any():
         table = item[[0, 1]]
         substantive_classification = table.loc[
-            (table[0] == "Groupe et niveau actuels").idxmax(), 1]
+            (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
 
         return substantive_classification
     else:
