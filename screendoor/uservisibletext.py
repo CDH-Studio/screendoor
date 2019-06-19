@@ -258,6 +258,8 @@ class ApplicantViewText():
     score = _("Score")
     # Translators: Applicant View
     analysis = _("Analysis")
+    # Translators: Applicant View
+    streams = _("Streams")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file

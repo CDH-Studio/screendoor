@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from screendoor.parseapplication import parse_application
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion, FormAnswer, Stream, Classification
 
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
@@ -363,8 +363,7 @@ def position_has_applicant(request, app_id):
 
 # Data for applicant view
 def applicant_detail_data(applicant, position):
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'questions': FormQuestion.objects.filter(parent_applicant=applicant)}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': FormAnswer.objects.filter(parent_applicant=applicant)}
 
 
 # View an application
