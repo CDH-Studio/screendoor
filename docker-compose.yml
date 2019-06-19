@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: screendoor_db
   web:
     build: .
-    command: bash -c "sleep 5 && python3  manage.py runserver 0.0.0.0:8000 "
+    command: bash -c "sleep 5 && python3 manage.py runserver 0.0.0.0:8000"
     container_name: screendoor
     volumes:
       - .:/code
@@ -18,9 +18,43 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - rabbitmq
     stdin_open: true
     tty: true
   tika:
     image: logicalspark/docker-tikaserver
     command: docker run -d -p 9998:9998 docker-tikaserver
-
+  rabbitmq:
+    image: rabbitmq:3.7.5-management
+    hostname: app-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq/mnesia/rabbit@app-rabbitmq:cached
+    environment:
+      RABBITMQ_ERLANG_COOKIE: 6085e2412b6fa88647466c6a81c0cea0
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: /
+  celery:
+    build: .
+    command: bash -c "sleep 10 && celery -A screendoor_app worker -l info"
+    volumes:
+      - .:/code
+    depends_on:
+      - rabbitmq
+  celery-beat:
+    build: .
+    command: bash -c "sleep 10 && celery -A screendoor_app beat -l info"
+    volumes:
+      - .:/code
+    depends_on:
+      - rabbitmq
+  flower:
+    build: .
+    command: bash -c "sleep 15 && flower -A screendoor_app --address=127.0.0.1 --port=9000"
+    volumes:
+      - .:/code
+    depends_on:
+      - celery
