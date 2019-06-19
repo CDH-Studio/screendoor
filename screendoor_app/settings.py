@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from celery.schedules import crontab
 from screendoor.NLP.loadNLPmodel import init_spacy_module
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -149,6 +150,22 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1
 
 # Security
 
-#SECURE_SSL_REDIRECT = True
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+
+# Celery Settings
+
+CELERY_BROKER_URL = 'pyamqp://rabbitmq:rabbitmq@rabbitmq:5672'
+CELERY_RESULT_BACKEND = 'rpc://'
+
+CELERY_BEAT_SCHEDULE = {
+    'delete_authorization_tokens': {
+        'task': 'screendoor.tasks.delete_authorization_tokens',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'delete_orphaned_positions': {
+        'task': 'screendoor.tasks.delete_orphaned_positions',
+        'schedule': crontab(minute=0, hour=0),
+    }
+}

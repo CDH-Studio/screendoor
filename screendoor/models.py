@@ -65,7 +65,7 @@ class Applicant(models.Model):
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-        blank=True)
+                           blank=True)
     ranking = models.PositiveIntegerField(null=True)
 
     def __str__(self):
@@ -73,7 +73,7 @@ class Applicant(models.Model):
 
 
 class RequirementMet(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='requirementsmet')
     requirement_type = models.CharField(max_length=200)
     abbreviation = models.CharField(max_length=200)
@@ -85,22 +85,23 @@ class RequirementMet(models.Model):
 
 
 class Stream(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
-    stream_name = models.CharField(max_length=200)
+    stream_name = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name
 
 
 class Classification(models.Model):
-    parent_application = models.ForeignKey(
+    parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
 
-    classification_name = models.CharField(max_length=200)
+    classification_substantive = models.CharField(max_length=200, null=True)
+    classification_current = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return self.classification_name
+        return self.classification_substantive
 
 
 class Education(models.Model):
@@ -119,19 +120,31 @@ class Education(models.Model):
 
 
 class FormQuestion(models.Model):
-    parent_applicant = models.ForeignKey(
-        Applicant, on_delete=models.CASCADE, null=True, related_name='questions')
+    parent_position = models.ForeignKey(
+        Position, on_delete=models.CASCADE, null=True, related_name='questions')
 
     question_text = models.TextField(blank=True, null=True)
+    short_question_text = models.TextField(blank=True, null=True)
     complementary_question_text = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.question_text
+
+
+class FormAnswer(models.Model):
+    parent_question = models.ForeignKey(
+        FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
+    parent_applicant = models.ForeignKey(
+        Applicant, on_delete=models.CASCADE, null=True, related_name='answers')
+
     applicant_answer = models.BooleanField(null=True)
     applicant_complementary_response = models.TextField(blank=True, null=True)
     parsed_response = models.CharField(max_length=1000, blank=True, null=True)
     analysis = models.TextField(blank=True, null=True)
     tabulation = models.CharField(max_length=1000, null=True)
 
-    def __str__(self):
-        return self.question_text
+    def __bool__(self):
+        return self.applicant_answer
 
 
 class Requirement(models.Model):
@@ -157,6 +170,7 @@ class EmailAuthenticateToken(models.Model):
     user = models.OneToOneField(
         get_user_model(), on_delete=models.CASCADE, primary_key=False)
     key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def create_key(self):
         initial_key = Fernet.generate_key()
