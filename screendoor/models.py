@@ -170,6 +170,7 @@ class EmailAuthenticateToken(models.Model):
     user = models.OneToOneField(
         get_user_model(), on_delete=models.CASCADE, primary_key=False)
     key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def create_key(self):
         initial_key = Fernet.generate_key()
