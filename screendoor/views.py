@@ -323,6 +323,7 @@ def delete_position(request):
 
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
+
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
@@ -332,10 +333,8 @@ def upload_applications(request):
             with open('/code/applications/' + pdf.name, 'wb+') as destination:
                 for chunk in pdf.chunks():
                     destination.write(chunk)
-                    applicants = parse_application(form.save(commit=False))
-                for item in applicants:
-                    item.parent_position = position
-                    item.save()
+                    parse_application(form.save(commit=False), position)
+
                 os.chdir("..")
                 os.remove("/code/applications/" + pdf.name)
                 return redirect('position', position.reference_number, position.id)

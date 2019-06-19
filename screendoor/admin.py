@@ -12,7 +12,7 @@ class RequirementInline(admin.TabularInline):
 
 
 class QuestionInline(admin.StackedInline):
-    model = FormQuestion
+    model = FormAnswer
     extra = 0
 
 
@@ -25,6 +25,7 @@ class ApplicantAdmin(admin.ModelAdmin):
 
 
 admin.site.register(FormQuestion)
+admin.site.register(FormAnswer)
 admin.site.register(RequirementMet)
 admin.site.register(Stream)
 admin.site.register(Classification)
@@ -40,10 +41,10 @@ class PositionInline(admin.TabularInline):
     extra = 0
 
 
+
 class AccountTokenInline(admin.TabularInline):
     model = EmailAuthenticateToken
     extra = 0
-
 
 class ScreenDoorUserAdmin(UserAdmin):
     add_form = ScreenDoorUserCreationForm
