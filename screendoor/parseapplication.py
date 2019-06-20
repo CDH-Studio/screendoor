@@ -373,7 +373,6 @@ def get_answer(table, answers, position):
 
             # Combine the two lists, and make them a newline delimited str.
             if dates == [] and experiences == []:
-                breakpoint()
                 analysis = "No Analysis"
             else:
                 analysis = '\n'.join(list(dates + experiences))
