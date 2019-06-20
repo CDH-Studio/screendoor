@@ -83,48 +83,58 @@ let questionTruncated = [];
 let questionTruncatedAnalysis = [];
 let analysisSubheads = []
 
+/* Hide an HTML element */
 function hideElement(element) {
   element.classList.add("hide");
 }
 
+/* Show an HTML element */
 function showElement(element) {
   element.classList.remove("hide");
 }
 
+/* Truncate the text in an HTML element */
 function truncate(element) {
   element.classList.add("truncation");
   element.classList.remove("truncation-open");
 }
 
+/* Un-truncate the text in an HTML element */
 function unTruncate(element) {
   element.classList.remove("truncation");
   element.classList.add("truncation-open");
 }
 
+/* Indicate that an ellipsis has mouse over it */
 function growEllipsis(element) {
   element.classList.remove("ellipsis");
   element.classList.add("ellipsis-larger");
 }
 
+/* Restore ellipsis to default look */
 function shrinkEllipsis(element) {
   element.classList.remove("ellipsis-larger");
   element.classList.add("ellipsis");
 }
 
+/* Highlight element with off-white background */
 function backgroundOffWhite(element) {
   element.style.backgroundColor = "#fbfbfb";
 }
 
+/* Restore background to white */
 function backgroundWhite(element) {
   element.style.backgroundColor = "#ffffff";
 }
 
+/* Returns true if the text in an element is truncated */
 function isEllipsisActive(e) {
   if (e) {
     return (e.offsetWidth < e.scrollWidth);
   }
 }
 
+/* Initializes and adds listeners for truncated question text */
 for (let i = 0; i < questionEllipses.length; i++) {
   questionTruncated[i] = document.getElementById("truncated" + i);
   questionTruncatedAnalysis[i] = document.getElementById("truncated-analysis" + i);
@@ -134,6 +144,7 @@ for (let i = 0; i < questionEllipses.length; i++) {
     hideElement(questionEllipses[i]);
   }
 
+  /* User moves mouse over a question ellipsis */
   questionEllipses[i].addEventListener("mouseover", function() {
     backgroundOffWhite(questionHeaders[i]);
     showElement(questionSubheads[i]);
@@ -148,6 +159,7 @@ for (let i = 0; i < questionEllipses.length; i++) {
     }
   });
 
+  /* User moves mouse off a question ellipsis */
   questionEllipses[i].addEventListener("mouseleave", function() {
     backgroundWhite(questionHeaders[i]);
     hideElement(questionSubheads[i]);
@@ -169,6 +181,7 @@ let educationAcademicTruncated = [];
 let educationInstitutionTruncated = [];
 let educationAreaStudyTruncated = [];
 
+/* Initializes and creates listener for education header truncation */
 for (let i = 0; i < educationEllipses.length; i++) {
   educationAcademicTruncated[i] = document.getElementById("education-academic-truncated" + i);
   educationInstitutionTruncated[i] = document.getElementById("education-institution-truncated" + i);
@@ -180,6 +193,7 @@ for (let i = 0; i < educationEllipses.length; i++) {
     hideElement(educationEllipses[i]);
   }
 
+  /* User moves mouse over education ellipsis */
   educationEllipses[i].addEventListener("mouseover", function() {
     if (isEllipsisActive(educationAreaStudyTruncated[i])
         || isEllipsisActive(educationInstitutionTruncated[i])
@@ -192,6 +206,7 @@ for (let i = 0; i < educationEllipses.length; i++) {
     unTruncate(educationAreaStudyTruncated[i]);
   });
 
+  /* User moves mouse off education ellipsis */
   educationEllipses[i].addEventListener("mouseleave", function() {
     backgroundWhite(educationHeaders[i]);
     shrinkEllipsis(educationEllipses[i]);
@@ -201,6 +216,7 @@ for (let i = 0; i < educationEllipses.length; i++) {
   });
 }
 
+/* Handles window resizing and adding/removing ellipses based on browser window size */
 window.addEventListener('resize', function() {
   for (let i = 0; i < questionEllipses.length; i++) {
     !isEllipsisActive ? hideElement(questionEllipses[i]) : showElement(questionEllipses[i]);
