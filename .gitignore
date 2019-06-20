@@ -9,6 +9,10 @@ __pycache__/
 # IDE
 *.idea
 
+# Celery
+data/
+celerybeat.pid
+
 # Distribution / packaging
 .Python
 build/

@@ -50,8 +50,8 @@ def navigate_through_tree(root, dates):
         context = root.text + ' '
     # relations identified as having data we care about, and being paths we
     # want to iterate down
-    accepted_relations = ['dobj', 'acomp', 'pcomp', 'npadvmod', 'appos',
-                          'pobj', 'prep', 'conj', 'advcl', 'nsubj', 'xcomp', 'attr',
+    accepted_relations = ['dobj', 'acomp', 'prep', 'pcomp', 'npadvmod', 'appos',
+                          'pobj', 'conj', 'advcl', 'nsubj', 'xcomp', 'attr',
                           'relcl']
 
     # relations that contain supplemntary information we want, but not as the
@@ -65,9 +65,19 @@ def navigate_through_tree(root, dates):
     # tags that under no circumstance should be allowed to be treated as valid
     # paths.
     prohibited_pos_tags = ['SPACE', 'PRON', 'X']
-
+    subject = None
 
     children = list(root.children)
+
+    # checks for a split branch
+    prep_list = [x for x in children if x.dep_ == 'prep' and len(children) > 1]
+    additional_branch = None
+    # If one is found, grab it (will always be first+only element), and disallow
+    # if from being iterated through
+    if not prep_list == []:
+        additional_branch = prep_list[0]
+        children.remove(additional_branch)
+
     while not (children == []):
         for p in children:
             if ((p.dep_ in prohibited_left_relations) and p in root.lefts) and not list(p.children) == []:
@@ -79,13 +89,18 @@ def navigate_through_tree(root, dates):
 
             if (p.dep_ in accepted_relations and
                     not (p.pos_ in prohibited_pos_tags) and
-                    not (p.text in dates)):
+                    (not (p.text in dates) or p.dep_ == 'dobj')):
                 context += p.text + ' '
                 # resetting children and breaking allows the list to continue
                 # for as long as there are valid elements to iterate over
                 children = list(p.children)
                 break
             children = []
+
+    # Deals with split branch logic: if the sentence contains information in two
+    # trees, return both trees appended together left to right
+    if not (additional_branch == None):
+        context += navigate_through_tree(additional_branch, dates)
     return context
 
 
@@ -175,10 +190,20 @@ def squash_named_entities(doc):
             #if not (span.text in x.text for x in list(doc.ents)):
                 retokenizer.merge(span)
 
-
-
-def extract_dates(text):
+def determine_named_entities(text):
     doc = NLP_MODEL(text)
     squash_named_entities(doc)
     hard_identify_date_ents(doc)
+    return doc
+
+
+
+def extract_dates(text):
+    doc = determine_named_entities(text)
     return iterate_through_dep_tree(doc)
+
+
+def get_identified_dates(doc):
+    squash_named_entities(doc)
+    hard_identify_date_ents(doc)
+    return (x for x in doc.ents if 'DATE' in x.label_)

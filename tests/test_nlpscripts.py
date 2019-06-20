@@ -9,6 +9,9 @@ import re
 def format_text(text):
     return re.sub(r"\n(?=[A-Z])", ". ", text).replace("..", ".").replace("\n\n", ". ")
 
+debug_when_tests = False
+debug_how_tests = False
+
 class WhenExtractionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -23,6 +26,10 @@ class WhenExtractionTests(TestCase):
 
     def test_block_1(self):
         dates = extract_dates(self.block_1)
+        if debug_when_tests:
+            print(dates)
+            print ('\n\n')
+
         self.assertTrue(dates['since June 2014'],
                         'Some of the IM/IT projects managed at PCO ')
         self.assertTrue(dates['between March 2010 and June 2014'],
@@ -32,6 +39,10 @@ class WhenExtractionTests(TestCase):
 
     def test_block_2(self):
         dates = extract_dates(self.block_2)
+        if debug_when_tests:
+            print(dates)
+            print('\n\n')
+
         self.assertTrue(dates['7/2013-4/2015'],
                         '\n1.Statistics Canada New Dissemination Model (NDM) Navigation Project - Project Leader ')
         self.assertTrue(dates['09/2012-01/2013'],
@@ -39,16 +50,28 @@ class WhenExtractionTests(TestCase):
 
     def test_block_3(self):
         dates = extract_dates(self.block_3)
+        if debug_when_tests:
+            print(dates)
+            print('\n\n')
+
         self.assertTrue(dates['December 2010 to October 2015'],
                         'Team Lead - Systems Maintenance at CNSC ')
 
     def test_block_4(self):
         dates = extract_dates(self.block_4)
+        if debug_when_tests:
+            print(dates)
+            print('\n\n')
+
         self.assertTrue(dates[', 2011-2014'],
                         'My previous position at Courts administration services operations manager ')
 
     def test_block_5(self):
         dates = extract_dates(self.block_5)
+        if debug_when_tests:
+            print(dates)
+            print('\n\n')
+
         self.assertTrue(dates['From December 2012 until April 2013'],
                         'as the acting manager for the Master data Management the Enterprise Portal section')
         self.assertTrue(dates['From June 2011 until November 2012 and from October 2014 until April 2015 and from October 2015 until the present'],
@@ -86,23 +109,29 @@ class HowExtractionTests(TestCase):
 
     def test_block_1(self):
         experiences = extract_how(self.block_1)
-        self.assertTrue("managed my team 's functional testing and troubleshooting activities of the upgraded EDMS software and all interactions with the information technology(IT) programmers for two networks(Protected B and Secret)."
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
+        self.assertTrue("managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all interactions with the information technology(IT) programmers for two networks(Protected B and Secret)."
                     in experiences)
         self.assertTrue('informed business group representatives(stakeholders) weekly of progress through conference calls...'
-                        in experiences)
-        self.assertTrue('engaged business unit representatives to ensure a transparent and easy process.'
                         in experiences)
         self.assertTrue('managed the deployment of the EDMS(RDIMS / eDOCS) to two new client groups(150 users)...'
                         in experiences)
         self.assertTrue('engaging key personnel in the client and IM Policy groups...'
                         in experiences)
-        self.assertTrue('facilitated the department- wide implementation of the EDRMS(GCDOCS)...'
+        self.assertTrue('facilitated the department-wide implementation of the EDRMS(GCDOCS)...'
                         in experiences)
-        self.assertTrue('facilitated the department- wide implementation of the EDRMS by managing the department- wide training efforts to all our offices throughout Canada...'
+        self.assertTrue('facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices throughout Canada...'
                         in experiences)
 
     def test_block_2(self):
         experiences = extract_how(self.block_2)
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
         self.assertTrue(
             "led the team throughout the project lifecycle including organizing and leading requirements gathering in JAD sessions, analysis, developing project plan and schedules..."
             in experiences)
@@ -118,19 +147,27 @@ class HowExtractionTests(TestCase):
 
     def test_block_3(self):
         experiences = extract_how(self.block_3)
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
         self.assertTrue(
             "was responsible for all aspects relating to contracted resources..."
             in experiences)
         self.assertTrue(
-            ' have worked closely with the contracting team here at CNSC...'
+            'have worked closely with the contracting team here at CNSC...'
             in experiences)
         self.assertTrue(
-            'involved in the contract review committee for the organization...'
+            'have also been involved in the contract review committee for the organization...'
             in experiences)
 
 
     def test_block_4(self):
         experiences = extract_how(self.block_4)
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
         self.assertTrue(
             "presented a DECK to the DCA and EXCOM recommending and advising on the feasibilities of these initiatives / Projects."
             in experiences)
@@ -140,26 +177,31 @@ class HowExtractionTests(TestCase):
 
     def test_block_5(self):
         experiences = extract_how(self.block_5)
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
         self.assertTrue(
             "acquired an extensive experience in leading a technical teams..."
             in experiences)
         self.assertTrue(
-            'managed the work performed by the section through subordinate staff.'
+            'completed the CBSA staffing sub-delegation in March 2012.'
             in experiences)
         self.assertTrue(
             'assigned technical specialists to workgroups and projects...'
             in experiences)
-        self.assertTrue(
-            'completed the CBSA staffing sub- delegation in March 2012.'
-            in experiences)
 
     def test_block_6(self):
         experiences = extract_how(self.block_6)
+        if debug_how_tests:
+            print(experiences)
+            print('\n\n')
+
         self.assertTrue(
             "acquired a broad range of experiences in IT application development..."
             in experiences)
         self.assertTrue(
-            'led the work to research and identify opportunities exploiting the use of new technology" MOTIO"...'
+            ' was leading a multi-disciplinary technical team responsible for the maintenance and the production support the web based IT application Titan.'
             in experiences)
 
 #python manage.py test

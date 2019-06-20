@@ -6,6 +6,8 @@ import tabula
 from pandas import options
 
 from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
+from screendoor.NLP.whenextraction import extract_dates
+from screendoor.NLP.howextraction import extract_how
 
 
 def text_between(start_string, end_string, text):
@@ -421,9 +423,25 @@ def get_answer(table, answers, position):
     all_questions = position.questions.all()
 
     if is_in_questions(table, all_questions) and not is_stream(table):
+        analysis = None
+        comp_response = parse_applicant_complementary_response(table)
+        if not (comp_response is None):
+            # Extract dates, and convert the returned dict to a flat list
+            dates = [': '.join((k,v)) for k,v in
+                     extract_dates(comp_response).items()]
+
+            # Extract actions
+            experiences = extract_how(comp_response)
+
+            # Combine the two lists, and make them a newline delimited str.
+            if dates == [] and experiences == []:
+                analysis = "No Analysis"
+            else:
+                analysis = '\n'.join(list(dates + experiences))
         answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
-                                  applicant_complementary_response=parse_applicant_complementary_response(table),
-                                  parent_question=retrieve_question(table, all_questions)))
+                                  applicant_complementary_response=comp_response,
+                                  parent_question=retrieve_question(table, all_questions),
+                                  analysis=analysis))
 
     return answers
 

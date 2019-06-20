@@ -72,6 +72,13 @@ def init_spacy_module():
             {'LOWER': '-'},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
 
+        # Example catches:
+        #   07/2015 - 09/2016
+        {'label': 'DATE7', 'pattern': [
+            {'LOWER': 'as'},
+            {'LOWER': 'of'},
+            {'ENT_TYPE': 'DATE'}]},
+
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER
