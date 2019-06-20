@@ -117,72 +117,131 @@ def fill_in_single_line_arguments(item, applicant):
     return applicant
 
 
-def correct_split_item(idx, tables, item):
-    if ((idx + 1) < len(tables)) and not str(item.shape) == "(1, 1)":
-        item2 = tables[idx + 1]
+def check_if_table_valid(table):
+    return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
-        if item2.empty:
-            return item
-        if item2.ix[0, 0] == "NaN":
-            item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
-            tables[idx] = item
 
-            del tables[idx + 1]
+def check_if_append(table):
+    list_of_question_tags = ["Question - Anglais", "Réponse du postulant", "Question Complémentaire", "Complementary "
+                                                                                                      "Question",
+                             "Réponse Complémentaire"]
+    table_column = table[table.columns[0]]
+
+    for item in list_of_question_tags:
+        if table_column.str.startswith(item).any():
+            return True
+
+    return False
+
+
+def correct_split_item(tables):
+    for index, item in enumerate(tables):
+
+        if check_if_table_valid(item):
+
+            if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
+                item2 = tables[index + 1]
+
+                if item2.empty:
+                    if (index + 2) != len(tables):
+                        item2 = tables[index + 2]
+
+                if check_if_table_valid(item2):
+                    if "NaN" in item2.ix[0, 0]:
+                        item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
+                        # TODO DELETE ROW IN ITEM 2 AND THEN CONCATENATE!!!
+                        item2 = item2.iloc[1:, ]
+                        item = pd.concat([item, item2], ignore_index=True)
+                        tables[index] = item
+                        tables[index + 1] = None
+                    elif str(item2.shape) == "(1, 1)":
+                        if "AUCUNE / NONE" not in item2.iloc[0, 0]:
+                            item.iloc[-1, 0] = item.iloc[-1, 0] + item2.iloc[0, 0]
+                            tables[index] = item
+                            tables[index + 1] = None
+
     return tables
 
 
-def check_if_table_valid(table):
-    return isinstance(table, pd.DataFrame) and not table.empty
+def merge_questions(tables):
+    for index, item in enumerate(tables):
+
+        if check_if_table_valid(item) and is_question(item):
+
+            if (index + 1) != len(tables):
+
+                for second_index, second_table in enumerate(tables[index + 1:]):
+
+                    if second_table is None or second_table.empty:
+                        for idx, table in enumerate(tables[index + 1:], second_index):
+                            if check_if_table_valid(table):
+                                second_table = table
+                                break
+
+                    if check_if_table_valid(second_table):
+
+                        second_table_column = second_table[second_table.columns[0]]
+                        if second_table_column.str.startswith("Question - Français / French:").any():
+                            break
+                        elif second_table_column.str.startswith("No SRFP / PSRS no:").any():
+                            break
+                        elif second_table_column.str.startswith("Poste disponible / Job Opportunity:").any():
+                            break
+                        else:
+                            item = pd.concat([item, second_table], ignore_index=True)
+                            tables[index] = item
+                            tables[second_index] = None
+
+    return tables
 
 
-def merge_questions(df, first_table, current_index):
-    if is_question(first_table):
-        for index, second_table in enumerate(df, current_index):
+def merge_educations(tables):
+    for index, item in enumerate(tables):
 
-            if check_if_table_valid(second_table):
+        if check_if_table_valid(item)and is_education(item):
 
-                first_column = second_table[second_table.columns[0]]
-                if first_column.str.contains("Question - Français / French:").any():
-                    break
-                elif first_column.str.contains("No SRFP / PSRS no:").any():
-                    break
-                elif first_column.str.contains("Poste disponible / Job Opportunity").any():
-                    break
-                else:
-                    first_table = pd.concat([first_table, second_table])
-                    del df[index]
+            if (index + 1) != len(tables):
 
-    return df
+                for second_index, second_table in enumerate(tables[index + 1:]):
+                    if second_table is None or second_table.empty:
+                        for idx, table in enumerate(tables[index + 1:], second_index):
+                            if check_if_table_valid(table):
+                                second_table = table
+                                break
+                    if check_if_table_valid(second_table):
+                        second_table_column = second_table[second_table.columns[0]]
+                        if second_table_column.str.startswith("Niveau d'études").any():
+                            break
+                        elif second_table_column.str.startswith("Province").any():
+                            break
+                        elif second_table_column.str.startswith("Type d'emploi").any():
+                            break
+                        else:
+                            item = pd.concat([item, second_table], ignore_index=True)
+                            tables[index] = item
+                            tables[second_index] = None
+
+    return tables
 
 
-def merge_educations(df, item, idx):
-    if is_education(item):
-        for index, item2 in enumerate(df, idx):
-            if check_if_table_valid(item2):
+def cleanData(x):
+    if "Réponse Complémentaire: / Complementary Answer:" not in x:
+        x = x.replace(r'\r', ' ', regex=True)
+    return x
 
-                first_column = item2[item2.columns[0]]
-                if first_column.str.contains("Niveau d'études / Academic Level:").any():
-                    break
-                elif first_column.str.contains("Province").any():
-                    break
-                elif first_column.str.contains("Type d'emploi / Employment Type").any():
-                    break
-                else:
-                    item = pd.concat([item, item2])
-                    del df[index]
 
-    return df
 
 
 def parse_question_text(item):
     table = item[[0, 1]]
-    question_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+
+    question_text = table.loc[(table[0].str.startswith("Question - Anglais")).idxmax(), 1]
     return question_text
 
 
 def parse_complementary_question_text(item):
     table = item[[0, 1]]
-    complementary_question_text = table.loc[(table[0] == "Complementary Question - Anglais / English:").idxmax(), 1]
+    complementary_question_text = table.loc[(table[0].str.startswith("Complementary Question")).idxmax(), 1]
     return complementary_question_text
 
 
@@ -211,10 +270,10 @@ def is_final_answer(item):
 def parse_applicant_complementary_response(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Réponse Complémentaire: / Complementary Answer:").any():
+    if first_column.str.startswith("Réponse Complémentaire").any():
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
-            (table[0].str.startswith("Réponse Complémentaire: / Complementary Answer:")).idxmax(), 0]
+            (table[0].str.startswith("Réponse Complémentaire")).idxmax(), 0]
         applicant_complementary_response = applicant_complementary_response.split("Complementary Answer:")[1]
         return applicant_complementary_response
     elif is_final_answer(item):
@@ -263,7 +322,7 @@ def parse_specialization(item):
 def parse_program_length(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Longueur du programme (Années) / Program Length(Years):").any():
+    if first_column.str.contains("Longueur du programme").any():
         table = item[[0, 1]]
         program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length (Years):").idxmax(), 1]
 
@@ -309,9 +368,12 @@ def parse_graduation_date(item):
 
 
 def create_short_question_text(long_text):
-    if "*" in long_text:
+    if "*Recent" in long_text:
         return long_text.split("*Recent", 1)[0]
-    elif "." in long_text:
+    elif "**Significant" in long_text:
+        return long_text.split("*Significant", 1)[0]
+    elif "*Significant" in long_text:
+
         return long_text.split("*Significant", 1)[0]
     else:
         return long_text
@@ -387,10 +449,11 @@ def get_streams(item, streams):
 def parse_current(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
+    if first_column.str.contains("Groupe et niveau actuels").any():
         table = item[[0, 1]]
         current_classification = table.loc[
-            (table[0] == "Groupe et niveau du poste d'attache").idxmax(), 1]
+            (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
+
 
         return current_classification
     else:
@@ -400,10 +463,11 @@ def parse_current(item):
 def parse_substantive(item):
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Groupe et niveau actuels / Current group and level:").any():
+    if first_column.str.contains("Groupe et niveau du poste d'attache").any():
         table = item[[0, 1]]
         substantive_classification = table.loc[
-            (table[0] == "Groupe et niveau actuels").idxmax(), 1]
+            (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
+
 
         return substantive_classification
     else:
@@ -439,7 +503,7 @@ def parse_stream(item):
 def is_question(item):
     first_column = item[item.columns[0]]
 
-    if first_column.str.contains("Question - Français / French:").any():
+    if first_column.str.startswith("Question - Français").any():
         return True
     return False
 
@@ -455,6 +519,7 @@ def is_qualification(item):
 def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
+
 
         if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
             return True
@@ -487,15 +552,13 @@ def find_essential_details(tables, position):
     classifications = []
     educations = []
 
-    for idx, item in enumerate(tables):
-        tables = correct_split_item(idx, tables, item)
+    tables = correct_split_item(tables)
+    tables = merge_questions(tables)
+    tables = merge_educations(tables)
 
-    for idx, item in enumerate(tables):
+    for table_counter, item in enumerate(tables):
 
         if check_if_table_valid(item):
-            tables = merge_questions(tables, item, idx)
-            tables = merge_educations(tables, item, idx)
-            tables = correct_split_item(idx, tables, item)
 
             questions = get_question(item, questions, position)
             answers = get_answer(item, answers, position)
@@ -531,7 +594,7 @@ def clean_and_parse(df, application, position):
             del df[idx]
             continue
         else:
-            item = item.replace(r'\r', ' ', regex=True)
+            item = item.apply(cleanData)
             item.dropna(axis=1, how='all', inplace=True)
             item.reset_index(drop=True, inplace=True)
             df[idx] = item
