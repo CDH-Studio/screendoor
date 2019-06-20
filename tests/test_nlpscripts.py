@@ -86,7 +86,7 @@ class HowExtractionTests(TestCase):
 
     def test_block_1(self):
         experiences = extract_how(self.block_1)
-        self.assertTrue("managed my team 's functional testing and troubleshooting activities of the upgraded EDMS software and all interactions with the information technology(IT) programmers for two networks(Protected B and Secret)."
+        self.assertTrue("managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all interactions with the information technology(IT) programmers for two networks(Protected B and Secret)."
                     in experiences)
         self.assertTrue('informed business group representatives(stakeholders) weekly of progress through conference calls...'
                         in experiences)
@@ -96,9 +96,9 @@ class HowExtractionTests(TestCase):
                         in experiences)
         self.assertTrue('engaging key personnel in the client and IM Policy groups...'
                         in experiences)
-        self.assertTrue('facilitated the department- wide implementation of the EDRMS(GCDOCS)...'
+        self.assertTrue('facilitated the department-wide implementation of the EDRMS(GCDOCS)...'
                         in experiences)
-        self.assertTrue('facilitated the department- wide implementation of the EDRMS by managing the department- wide training efforts to all our offices throughout Canada...'
+        self.assertTrue('facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices throughout Canada...'
                         in experiences)
 
     def test_block_2(self):
@@ -148,9 +148,6 @@ class HowExtractionTests(TestCase):
             in experiences)
         self.assertTrue(
             'assigned technical specialists to workgroups and projects...'
-            in experiences)
-        self.assertTrue(
-            'completed the CBSA staffing sub- delegation in March 2012.'
             in experiences)
 
     def test_block_6(self):

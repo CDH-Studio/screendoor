@@ -361,17 +361,26 @@ def get_answer(table, answers, position):
     all_questions = position.questions.all()
 
     if is_in_questions(table, all_questions) and not is_stream(table):
-        analysis = []
+        analysis = None
         comp_response = parse_applicant_complementary_response(table)
         if not (comp_response is None):
-            dates = [': '.join((k,v)) for k,v in extract_dates(comp_response).items()]
-            dates = [': '.join((k,v)) for k,v in extract_dates(comp_response).items()]
+            # Extract dates, and convert the returned dict to a flat list
+            dates = [': '.join((k,v)) for k,v in
+                     extract_dates(comp_response).items()]
+
+            # Extract actions
             experiences = extract_how(comp_response)
-            analysis = list(dict.fromkeys(dates + experiences))
+
+            # Combine the two lists, and make them a newline delimited str.
+            if dates == [] and experiences == []:
+                breakpoint()
+                analysis = "No Analysis"
+            else:
+                analysis = '\n'.join(list(dates + experiences))
         answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
-                                  applicant_complementary_response=parse_applicant_complementary_response(table),
+                                  applicant_complementary_response=comp_response,
                                   parent_question=retrieve_question(table, all_questions),
-                                  analysis='\n'.join(analysis)))
+                                  analysis=analysis))
 
     return answers
 

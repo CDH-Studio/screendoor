@@ -10,8 +10,8 @@ def iterate_through_dep_tree(sent, dates):
     for leaf in sent:
         # If we're looking at a date, we've overstepped into the when_extraction
         # Break
-        if leaf in dates:
-            return ''
+        # if leaf in dates:
+        #     return ''
 
         # Only begin if the root is a verb
         if leaf.dep_ == 'ROOT' and leaf.pos_ == 'VERB':
