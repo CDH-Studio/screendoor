@@ -12,6 +12,7 @@ class RequirementInline(admin.TabularInline):
 
 
 class AnswerInLine(admin.StackedInline):
+
     model = FormAnswer
     extra = 0
 

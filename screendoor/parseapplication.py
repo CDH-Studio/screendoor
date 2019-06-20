@@ -231,6 +231,7 @@ def cleanData(x):
 
 
 
+
 def parse_question_text(item):
     table = item[[0, 1]]
 
@@ -372,6 +373,7 @@ def create_short_question_text(long_text):
     elif "**Significant" in long_text:
         return long_text.split("*Significant", 1)[0]
     elif "*Significant" in long_text:
+
         return long_text.split("*Significant", 1)[0]
     else:
         return long_text
@@ -452,6 +454,7 @@ def parse_current(item):
         current_classification = table.loc[
             (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
 
+
         return current_classification
     else:
         return None
@@ -464,6 +467,7 @@ def parse_substantive(item):
         table = item[[0, 1]]
         substantive_classification = table.loc[
             (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
+
 
         return substantive_classification
     else:
@@ -516,6 +520,7 @@ def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
 
+
         if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
             return True
 
@@ -554,6 +559,7 @@ def find_essential_details(tables, position):
     for table_counter, item in enumerate(tables):
 
         if check_if_table_valid(item):
+
             questions = get_question(item, questions, position)
             answers = get_answer(item, answers, position)
             educations = get_education(item, educations)
