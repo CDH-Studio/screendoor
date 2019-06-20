@@ -39,7 +39,7 @@
                 <th colspan="2"></th>
                 <td colspan="8">{{ applicant.applicant_id }}</td>
                 <td colspan="7">{{ applicant.citizenship }}</td>
-                <td colspan="9">{% for classification in classifications %}Substantive: {{ classification.classification_substantive }}<br>Current: {{ classification.classification_current }}{% endfor %}</td>
+                <td colspan="9">{% for classification in classifications %}{{ applicantText.substantive }}: {{ classification.classification_substantive }}<br>{{ applicantText.current }}: {{ classification.classification_current }}{% endfor %}</td>
               </tr>
             </tbody>
             <!-- Application row 2 head -->
@@ -104,13 +104,14 @@
             </thead>
             <!-- Education Headers -->
             {% for education in educations %}
-            <thead class="collapse">
+            <thead class="collapse blank-answer">
               <tr class="education-header">
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
                 <td colspan="1">{{ forloop.counter }}.</td>
-                <th colspan="8">{{ education.academic_level }}</th>
-                <th colspan="7">{% if education.institution is not None %}{{ education.institution }}{% endif %}</th>
-                <th colspan="9">{% if education.area_of_study is not None %}{{ education.area_of_study }}{% endif %}</th>
+                <th id="education-academic-truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if education.institution is None and education.area_of_study is None %}23{% else %}8{% endif %}">{{ education.academic_level }}</th>
+                {% if education.institution is not None %}<th id="education-institution-truncated{{ forloop.counter0 }}" class="truncation" colspan="7">{{ education.institution }}</th>{% endif %}
+                {% if education.area_of_study is not None %}<th id="education-areastudy-truncated{{ forloop.counter0 }}" class="truncation"  colspan="8">{{ education.area_of_study }}</th>{% endif %}
+                <th class="ellipsis education-ellipsis" colspan="1"><i class="material-icons">more_horiz</i></th>
               </tr>
             </thead>
             <tbody>
@@ -148,7 +149,7 @@
               </tr>
             </tbody>
             {% endfor %}
-            <!-- END OF MOCK EDUCATION DATA -->
+            <!-- END OF EDUCATION DATA -->
             {% endif %}
             <thead>
               <tr>
@@ -161,11 +162,12 @@
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
                 <td colspan="1">{{ forloop.counter }}.</td>
-                <th colspan="{% if answer.analysis is not None %}11{% else %}24{% endif %}">{{ answer.parent_question.short_question_text }}</th>
+                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if answer.analysis is not None %}10{% else %}23{% endif %}"><div class="question-subhead hide">Question</div>{{ answer.parent_question.short_question_text }}</th>
                 {% if answer.analysis is not None %}
                 <th colspan="1"></th>
-                <th colspan="12">{{ answer.analysis }}</th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div><span class="blue-text text-darken-2">{{ answer.analysis|capfirst }}</span></th>
                 {% endif %}
+                <th colspan="1"><span class="ellipsis question-ellipsis"><i class="material-icons">more_horiz</i></span></th>
               </tr>
             </thead>
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
@@ -175,7 +177,7 @@
                 <td colspan="1" class="table-subhead"></td>
                 <td colspan="3" class="table-subhead">{{ applicantText.response }}</td>
                 <td colspan="10" class="table-subhead">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
-                <td colspan="1" class="table-subhead"></td>
+                <td colspan="1"></td>
               </tr>
             </tbody>
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
@@ -185,7 +187,7 @@
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
-                <td colspan="1" class="table-subhead"></td>
+                <td colspan="1"></td>
               </tr>
             </tbody>
             {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
@@ -196,7 +198,7 @@
                 <td colspan="1"></td>
                 <td colspan="3" class="table-subhead">{{ applicantText.score }}</td>
                 <td colspan="10" class="table-subhead">{{ applicantText.analysis }}</td>
-                <td colspan="1" class="table-subhead"></td>
+                <td colspan="1"></td>
               </tr>
             </tbody>
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
@@ -205,8 +207,8 @@
                 <td colspan="9">{{ answer.applicant_complementary_response }}</td>
                 <td colspan="1"></td>
                 <td colspan="3"></td>
-                <td colspan="10">{{ answer.analysis }}</td>
-                <td colspan="1" class="table-subhead"></td>
+                <td colspan="10">{{ answer.analysis|capfirst }}</td>
+                <td colspan="1"></td>
               </tr>
             </tbody>
             {% endif %}
@@ -223,5 +225,5 @@
   <!-- MaterializeCSS JS library  -->
   <script src="{% static 'js/materialize.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
-  <script src="{% static 'js/tables.js' %}"></script>
+  <script src="{% static 'js/tables-applicant.js' %}"></script>
   {% endblock %}

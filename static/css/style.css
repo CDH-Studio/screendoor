@@ -1,17 +1,68 @@
+.truncation {
+  width: 100%;
+  text-overflow: ellipsis;
+
+  /* BOTH of the following are required for text-overflow */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.table-subhead {
+  font-weight: 500;
+}
+
+.question-subhead {
+  font-weight: 500;
+  margin-bottom: 10px;
+  text-decoration: underline;
+}
+
+.analysis-subhead {
+  font-weight: 500;
+  margin-bottom: 10px;
+  text-decoration: underline;
+}
+
+.ellipsis {
+  font-weight: 400 !important;
+  font-size: 1.2rem;
+  margin-left: -5px;
+}
+
+.ellipsis-larger {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2196F3;
+  margin-left: -5px;
+}
+
+.truncation-open {
+  overflow: visible;
+  white-space: initial;
+}
+
 .yes-answer {
-  border-right: 5px #4CAF50 solid;
+  border-left: 0px #4CAF50 solid;
+  border-right: 4px #4CAF50 solid;
 }
 
 .yes-answer-light {
-  border-right: 5px #C8E6C9 solid;
+  border-left: 0px #C8E6C9 solid;
+  border-right: 4px #C8E6C9 solid;
+}
+
+.blank-answer {
+  border-right: 4px #ffffff solid;
 }
 
 .no-answer {
-  border-right: 5px #F44336 solid;
+  border-left: 0px #F44336 solid;
+  border-right: 4px #F44336 solid;
 }
 
 .no-answer-light {
-  border-right: 5px #FFCDD2 solid;
+  border-left: 0px #FFCDD2 solid;
+  border-right: 4px #FFCDD2 solid;
 }
 
 .education-header th {
@@ -33,14 +84,15 @@
 
 td {
   vertical-align: top;
-  line-height: 1.6rem;
+  line-height: 1.4rem;
+  font-size: 1rem;
 }
 
 th {
   vertical-align: top;
   font-weight: 500;
-  font-size: 1.1rem;
-  line-height: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.4rem;
 }
 
 .applicant-table tr {
