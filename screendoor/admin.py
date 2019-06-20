@@ -11,7 +11,7 @@ class RequirementInline(admin.TabularInline):
     extra = 0
 
 
-class QuestionInline(admin.StackedInline):
+class AnswerInLine(admin.StackedInline):
     model = FormAnswer
     extra = 0
 
@@ -21,7 +21,7 @@ class PositionAdmin(admin.ModelAdmin):
 
 
 class ApplicantAdmin(admin.ModelAdmin):
-    inlines = [QuestionInline]
+    inlines = [AnswerInLine]
 
 
 admin.site.register(FormQuestion)
