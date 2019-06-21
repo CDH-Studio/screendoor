@@ -223,7 +223,7 @@ for (let i = 0; i < educationEllipses.length; i++) {
   });
 
   /* User moves mouse off education ellipsis */
-  educationEllipses[i].addEventListener("mouseleave", function() {
+  educationHeaders[i].addEventListener("mouseleave", function() {
     backgroundWhite(educationHeaders[i]);
     shrinkEllipsis(educationEllipses[i]);
     truncate(educationAcademicTruncated[i]);
