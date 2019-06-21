@@ -96,8 +96,8 @@ def parse_interview_language(item):
 
 
 def fill_in_single_line_arguments(item, applicant):
-    # fills in details if the column contains these specific strings
     first_column = item[item.columns[0]].astype(str)
+
     if first_column.str.contains("Citoyenneté / Citizenship:").any():
         applicant.citizenship = parse_citizenship(item)
     if first_column.str.contains("Droit de priorité / Priority entitlement:").any():
@@ -124,56 +124,58 @@ def check_if_table_valid(table):
     return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
+def check_if_append(table):
+    list_of_question_tags = ["Question - Anglais", "Réponse du postulant", "Question Complémentaire", "Complementary "
+                                                                                                      "Question",
+                             "Réponse Complémentaire"]
+    table_column = table[table.columns[0]]
+
+    for item in list_of_question_tags:
+        if table_column.str.startswith(item).any():
+            return True
+
+    return False
+
+
 def correct_split_item(tables):
-    # Iterate through tables. Keep track of index.
-    for index, current_table in enumerate(tables):
 
-        if check_if_table_valid(current_table):
-            # If there is another table after the current_table and the current table is not a one by one block.
-            if ((index + 1) != len(tables)) and not str(current_table.shape) == "(1, 1)":
-                next_table_idx = index + 1
-                next_table = tables[next_table_idx]
+    for index, item in enumerate(tables):
 
-                # Get the next table that is valid, if it does not have NaN in first cell, break.
-                for idx, table in enumerate(tables[next_table_idx:], next_table_idx):
-                    if check_if_table_valid(table):
-                        if not ("NaN" in table.ix[0, 0]):
-                            break
-                        next_table = table
-                        next_table_idx = idx
-                        break
+        if check_if_table_valid(item):
 
-                if check_if_table_valid(next_table):
-                    # Check if the next table contains NaN in the first cell, a sign that this is part of a split table.
-                    if "NaN" in next_table.ix[0, 0]:
-                        # Merge cell contents into the current_table
-                        current_table.iloc[-1, -1] = current_table.iloc[-1, -1] + next_table.iloc[0, 1]
-                        # Delete the partial row found in the next table
-                        next_table = next_table.iloc[1:, ]
-                        # Merge the two tables and assign it to the list of tables.
-                        current_table = pd.concat([current_table, next_table], ignore_index=True)
-                        tables[index] = current_table
-                        tables[next_table_idx] = None
-                    # If it is a one by one block, do the above but without merging the tables as there is no point.
-                    elif str(next_table.shape) == "(1, 1)":
-                        if "AUCUNE / NONE" not in next_table.iloc[0, 0]:
-                            current_table.iloc[-1, 0] = current_table.iloc[-1, 0] + next_table.iloc[0, 0]
-                            tables[index] = current_table
-                            tables[next_table_idx] = None
-                        elif "AUCUNE / NONE" in next_table.iloc[0, 0]:
-                            tables[next_table_idx] = None
+            if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
+                item2 = tables[index + 1]
+
+                if item2.empty:
+                    if (index + 2) != len(tables):
+                        item2 = tables[index + 2]
+
+                if check_if_table_valid(item2):
+                    if "NaN" in item2.ix[0, 0]:
+                        item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
+                        # TODO DELETE ROW IN ITEM 2 AND THEN CONCATENATE!!!
+                        item2 = item2.iloc[1:, ]
+                        item = pd.concat([item, item2], ignore_index=True)
+                        tables[index] = item
+                        tables[index + 1] = None
+                    elif str(item2.shape) == "(1, 1)":
+                        if "AUCUNE / NONE" not in item2.iloc[0, 0]:
+                            item.iloc[-1, 0] = item.iloc[-1, 0] + item2.iloc[0, 0]
+                            tables[index] = item
+                            tables[index + 1] = None
 
     return tables
 
 
 def merge_questions(tables):
+
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item) and is_question(item):
 
             if (index + 1) != len(tables):
 
-                for second_index, second_table in enumerate(tables[index + 1:], index + 1):
+                for second_index, second_table in enumerate(tables[index + 1:], index+1):
 
                     if second_table is None or second_table.empty:
                         for idx, table in enumerate(tables[index + 1:], second_index):
@@ -198,13 +200,14 @@ def merge_questions(tables):
 
 
 def merge_educations(tables):
+
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item) and is_education(item):
 
             if (index + 1) != len(tables):
 
-                for second_index, second_table in enumerate(tables[index + 1:], index + 1):
+                for second_index, second_table in enumerate(tables[index + 1:], index+1):
                     if second_table is None or second_table.empty:
                         for idx, table in enumerate(tables[index + 1:], second_index):
                             if check_if_table_valid(table):
@@ -565,6 +568,7 @@ def is_classification(item):
         found_string = item.iloc[index, 0]
         ratio = fuzz.partial_ratio("Situation professionnelle", found_string)
         if ratio > 90:
+
             return True
 
     return False
