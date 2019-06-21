@@ -4,6 +4,7 @@ import string
 import pandas as pd
 import tabula
 from fuzzywuzzy import fuzz, process
+
 from pandas import options
 
 from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
@@ -412,6 +413,7 @@ def is_in_questions(table, question_list):
     if is_question(table):
         for item in question_list:
             if fuzz.ratio(item.question_text, parse_question_text(table)) > 80:
+
                 return True
 
     return False
@@ -470,6 +472,7 @@ def parse_current(item):
     return None
 
 
+
 def parse_substantive(item):
     for index, row in item.iterrows():
         found_string = item.iloc[index, 0]
@@ -478,6 +481,7 @@ def parse_substantive(item):
             return substantive_classification
 
     return None
+
 
 
 def get_classifications(item, classifications):
@@ -490,6 +494,7 @@ def get_classifications(item, classifications):
 def get_column_value(search_string, table):
     for row_num, (key, val) in enumerate(table.iteritems()):
         if fuzz.partial_ratio(search_string, key) >= 80:
+
             return val
 
 
