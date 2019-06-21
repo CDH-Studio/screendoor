@@ -295,8 +295,21 @@ def user_has_position(request, reference, position_id):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position):
+    # Implement logic for viewing applicant "scores"
+    applicants = Applicant.objects.filter(parent_position=position)
+    for applicant in applicants:
+        applicant.number_questions = FormAnswer.objects.filter(
+            parent_applicant=applicant).count()
+        applicant.number_yes_responses = FormAnswer.objects.filter(
+            parent_applicant=applicant, applicant_answer=True).count()
+        applicant.percentage_correct = applicant.number_yes_responses * \
+            100 // applicant.number_questions
+        applicant.classifications_set = Classification.objects.filter(
+            parent_applicant=applicant)
+        applicant.streams_set = Stream.objects.filter(
+            parent_applicant=applicant)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': Applicant.objects.filter(parent_position=position)}
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, }
 
 
 # Position detail view
@@ -323,7 +336,6 @@ def delete_position(request):
 
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
@@ -334,7 +346,6 @@ def upload_applications(request):
                 for chunk in pdf.chunks():
                     destination.write(chunk)
                     parse_application(form.save(commit=False), position)
-
                 os.chdir("..")
                 os.remove("/code/applications/" + pdf.name)
                 return redirect('position', position.reference_number, position.id)
@@ -363,7 +374,14 @@ def position_has_applicant(request, app_id):
 
 # Data for applicant view
 def applicant_detail_data(applicant, position):
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': FormAnswer.objects.filter(parent_applicant=applicant)}
+    answers = FormAnswer.objects.filter(parent_applicant=applicant)
+    number_questions = len(answers)
+    number_yes_responses = FormAnswer.objects.filter(
+        parent_applicant=applicant, applicant_answer=True).count()
+    number_no_responses = FormAnswer.objects.filter(
+        parent_applicant=applicant, applicant_answer=False).count()
+    percentage_correct = number_yes_responses * 100 // number_questions
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': answers, 'number_questions': number_questions, 'number_yes_responses': number_yes_responses, 'number_no_responses': number_no_responses, 'percentage_correct': percentage_correct}
 
 
 # View an application

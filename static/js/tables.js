@@ -6,7 +6,7 @@ let expandAllButton = document.getElementById("expand-all")
 /* Initializes positions table with experience and assets collapsed */
 window.addEventListener('DOMContentLoaded', (event) => {
   for (let i = 0; i < collapseElements.length; i++) {
-    if (i > 3) {
+    if (i > 2) {
       collapseArrows[i].innerHTML = "keyboard_arrow_right";
       collapseRow(collapseElements[i].nextElementSibling);
     }

@@ -264,6 +264,10 @@ class ApplicantViewText():
     substantive = _("Substantive")
     # Translators: Applicant View
     current = _("Current")
+    # Translators: Applicant View
+    expand_all = _("Expand all")
+    # Translators: Applicant View
+    collapse_all = _("Collapse all")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
