@@ -3,7 +3,7 @@ import string
 
 import pandas as pd
 import tabula
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 from pandas import options
 
 from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
@@ -138,7 +138,6 @@ def check_if_append(table):
 
 
 def correct_split_item(tables):
-
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item):
@@ -168,14 +167,13 @@ def correct_split_item(tables):
 
 
 def merge_questions(tables):
-
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item) and is_question(item):
 
             if (index + 1) != len(tables):
 
-                for second_index, second_table in enumerate(tables[index + 1:], index+1):
+                for second_index, second_table in enumerate(tables[index + 1:]):
 
                     if second_table is None or second_table.empty:
                         for idx, table in enumerate(tables[index + 1:], second_index):
@@ -184,6 +182,7 @@ def merge_questions(tables):
                                 break
 
                     if check_if_table_valid(second_table):
+
                         second_table_column = second_table[second_table.columns[0]]
                         if second_table_column.str.startswith("Question - Français / French:").any():
                             break
@@ -200,14 +199,13 @@ def merge_questions(tables):
 
 
 def merge_educations(tables):
-
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item) and is_education(item):
 
             if (index + 1) != len(tables):
 
-                for second_index, second_table in enumerate(tables[index + 1:], index+1):
+                for second_index, second_table in enumerate(tables[index + 1:]):
                     if second_table is None or second_table.empty:
                         for idx, table in enumerate(tables[index + 1:], second_index):
                             if check_if_table_valid(table):
@@ -405,7 +403,7 @@ def get_question(table, questions, position):
 def retrieve_question(table, question_list):
     if is_question(table):
         for item in question_list:
-            if fuzz.ratio(item.question_text, parse_question_text(table)) > 80:
+            if item.question_text == parse_question_text(table):
                 return item
 
     return None
@@ -414,7 +412,7 @@ def retrieve_question(table, question_list):
 def is_in_questions(table, question_list):
     if is_question(table):
         for item in question_list:
-            if fuzz.ratio(item.question_text, parse_question_text(table)) > 80:
+            if item.question_text.replace(" ", "") == parse_question_text(table).replace(" ", ""):
                 return True
 
     return False
@@ -430,8 +428,10 @@ def get_answer(table, answers, position):
             # Extract dates, and convert the returned dict to a flat list
             dates = [': '.join((k, v)) for k, v in
                      extract_dates(comp_response).items()]
+
             # Extract actions
             experiences = extract_how(comp_response)
+
             # Combine the two lists, and make them a newline delimited str.
             if dates == [] and experiences == []:
                 analysis = "No Analysis"
@@ -464,23 +464,29 @@ def get_streams(item, streams):
 
 
 def parse_current(item):
-    for index, row in item.iterrows():
-        found_string = item.iloc[index, 0]
-        if fuzz.partial_ratio("Current group and level", found_string) > 90:
-            current_classification = item.iloc[index, 1]
-            return current_classification
+    first_column = item[item.columns[0]].astype(str)
 
-    return None
+    if first_column.str.contains("Groupe et niveau actuels").any():
+        table = item[[0, 1]]
+        current_classification = table.loc[
+            (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
+
+        return current_classification
+    else:
+        return None
 
 
 def parse_substantive(item):
-    for index, row in item.iterrows():
-        found_string = item.iloc[index, 0]
-        if fuzz.partial_ratio("Substantive group and level", found_string) > 90:
-            substantive_classification = item.iloc[index, 1]
-            return substantive_classification
+    first_column = item[item.columns[0]].astype(str)
 
-    return None
+    if first_column.str.contains("Groupe et niveau du poste d'attache").any():
+        table = item[[0, 1]]
+        substantive_classification = table.loc[
+            (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
+
+        return substantive_classification
+    else:
+        return None
 
 
 def get_classifications(item, classifications):
@@ -491,8 +497,9 @@ def get_classifications(item, classifications):
 
 
 def get_column_value(search_string, table):
+
     for row_num, (key, val) in enumerate(table.iteritems()):
-        if fuzz.partial_ratio(search_string, key) >= 80:
+        if fuzz.ratio(search_string, key) >= 80:
             return val
 
 
@@ -564,13 +571,8 @@ def is_education(item):
 
 def is_classification(item):
     first_column = item[item.columns[0]]
-    for index, row in item.iterrows():
-        found_string = item.iloc[index, 0]
-        ratio = fuzz.partial_ratio("Situation professionnelle", found_string)
-        if ratio > 90:
-
-            return True
-
+    if first_column.str.contains("Groupe et niveau du poste d'attache / Substantive group and level:").any():
+        return True
     return False
 
 
@@ -589,6 +591,7 @@ def find_essential_details(tables, position):
     tables = merge_educations(tables)
 
     for table_counter, item in enumerate(tables):
+
         if check_if_table_valid(item):
             questions = get_question(item, questions, position)
             answers = get_answer(item, answers, position)
