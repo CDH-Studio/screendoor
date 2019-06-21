@@ -367,6 +367,7 @@ def applicant_detail_data(applicant, position):
 
 
 # View an application
+@login_required(login_url='login', redirect_field_name=None)
 def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
