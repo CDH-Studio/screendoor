@@ -17,8 +17,8 @@
           <!-- Application row 1 headers -->
           <!-- Upload Applications and Delete buttons -->
           <div class="applicant-collapse-buttons">
-          <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
-          <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
+            <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
+            <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
           </div>
           <table class="highlight">
             <!-- Applicant Totals -->
@@ -161,6 +161,8 @@
               </tr>
             </thead>
             {% for answer in answers %}
+            <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}">
+            <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="• {{ answer.analysis|capfirst|display_first_line }}">
             <!-- Question -->
             <!-- Displays boolean as Yes/No -->
             <thead class="collapse question-header {% if answer.applicant_answer == True %}yes-answer{% else %}no-answer{% endif %}">
@@ -168,10 +170,13 @@
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
-                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if answer.analysis is not None %}10{% else %}23{% endif %}"><div class="question-subhead hide">Question</div>{{ answer.parent_question.short_question_text }}</th>
+                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if answer.analysis is not None %}10{% else %}23{% endif %}"><div class="question-subhead hide">Question</div><span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span></th>
                 {% if answer.analysis is not None %}
                 <th colspan="1"></th>
-                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div><span class="blue-text text-darken-2">{{ answer.analysis|capfirst }}</span></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div><span class="analysis-preview blue-text text-darken-3">• {{ answer.analysis|display_first_line|capfirst }}</span></th>
+                {% else %}
+                <th colspan="1" class="hide"></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">Analysis</div><span class="hide analysis-preview blue-text text-darken-2">{{ answer.analysis }}</span></th>
                 {% endif %}
                 <th colspan="1"><span class="ellipsis question-ellipsis"><i class="material-icons">more_horiz</i></span></th>
               </tr>
@@ -190,7 +195,7 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="9">{{ answer.parent_question.question_text }}</td>
+                <td colspan="9">{{ answer.parent_question.question_text|fix_single_asterix|fix_double_asterix|linebreaks }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
@@ -210,9 +215,9 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12">{{ answer.applicant_complementary_response|linebreaks }}</td>
+                <td colspan="12">{{ answer.applicant_complementary_response }}</td>
                 <td colspan="1"></td>
-                <td colspan="10">{{ answer.analysis|capfirst|linebreaks }}</td>
+                <td colspan="10">{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}</td>
                 <td colspan="1"></td>
               </tr>
             </tbody>
@@ -231,4 +236,8 @@
   <script src="{% static 'js/materialize.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
   <script src="{% static 'js/tables-applicant.js' %}"></script>
+  <!-- Inline JS for using Django variables -->
+  <script>
+
+  </script>
   {% endblock %}
