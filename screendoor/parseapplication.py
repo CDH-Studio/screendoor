@@ -3,6 +3,7 @@ import string
 
 import pandas as pd
 import tabula
+from fuzzywuzzy import fuzz
 from pandas import options
 
 from screendoor.models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
@@ -200,7 +201,7 @@ def merge_questions(tables):
 def merge_educations(tables):
     for index, item in enumerate(tables):
 
-        if check_if_table_valid(item)and is_education(item):
+        if check_if_table_valid(item) and is_education(item):
 
             if (index + 1) != len(tables):
 
@@ -230,8 +231,6 @@ def cleanData(x):
     if "Réponse Complémentaire: / Complementary Answer:" not in x:
         x = x.replace(r'\r', ' ', regex=True)
     return x
-
-
 
 
 def parse_question_text(item):
@@ -413,7 +412,7 @@ def retrieve_question(table, question_list):
 def is_in_questions(table, question_list):
     if is_question(table):
         for item in question_list:
-            if item.question_text == parse_question_text(table):
+            if item.question_text.replace(" ", "") == parse_question_text(table).replace(" ", ""):
                 return True
 
     return False
@@ -427,7 +426,7 @@ def get_answer(table, answers, position):
         comp_response = parse_applicant_complementary_response(table)
         if not (comp_response is None):
             # Extract dates, and convert the returned dict to a flat list
-            dates = [': '.join((k,v)) for k,v in
+            dates = [': '.join((k, v)) for k, v in
                      extract_dates(comp_response).items()]
 
             # Extract actions
@@ -472,7 +471,6 @@ def parse_current(item):
         current_classification = table.loc[
             (table[0] == "Groupe et niveau actuels / Current group and level:").idxmax(), 1]
 
-
         return current_classification
     else:
         return None
@@ -486,7 +484,6 @@ def parse_substantive(item):
         substantive_classification = table.loc[
             (table[0] == "Groupe et niveau du poste d'attache / Substantive group and level:").idxmax(), 1]
 
-
         return substantive_classification
     else:
         return None
@@ -499,14 +496,32 @@ def get_classifications(item, classifications):
     return classifications
 
 
+def get_column_value(search_string, table):
+
+    for row_num, (key, val) in enumerate(table.iteritems()):
+        if fuzz.ratio(search_string, key) >= 80:
+            return val
+
+
 def parse_stream(item):
     first_column = item[item.columns[0]].astype(str)
     value_column = item[item.columns[1]].astype(str)
-
     if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
         table = item[[0, 1]]
+
         stream_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
         stream_text = stream_text.split("Are you applying for")[1].split(",")[0]
+
+        if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
+            table = item[[0, 1]]
+            response = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
+
+            if "Yes" in response:
+                return stream_text
+    elif value_column.str.contains(r"^Are you applying to Stream \d", regex=True).any():
+        table = item[[0, 1]]
+        stream_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+        stream_text = stream_text.split("Are you applying to")[1].split("?")[0]
 
         if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
             table = item[[0, 1]]
@@ -538,8 +553,9 @@ def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
 
-
-        if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
+        if value_column.str.startswith("Are you applying for Stream").any():
+            return True
+        elif value_column.str.startswith("Are you applying to Stream").any():
             return True
 
     return False
@@ -577,7 +593,6 @@ def find_essential_details(tables, position):
     for table_counter, item in enumerate(tables):
 
         if check_if_table_valid(item):
-
             questions = get_question(item, questions, position)
             answers = get_answer(item, answers, position)
             educations = get_education(item, educations)
@@ -586,7 +601,7 @@ def find_essential_details(tables, position):
             applicant = fill_in_single_line_arguments(item, applicant)
 
     applicant.applicant_id = ''.join(
-        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20))
+        random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
     for item in answers:
         item.parent_applicant = applicant
