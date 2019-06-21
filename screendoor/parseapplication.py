@@ -456,7 +456,7 @@ def get_education(item, educations):
 
 
 def get_streams(item, streams):
-    if is_stream(item):
+    if is_stream(item) and parse_stream(item) is not None:
         streams.append(Stream(stream_name=parse_stream(item)))
     return streams
 
@@ -488,7 +488,7 @@ def parse_substantive(item):
 
 
 def get_classifications(item, classifications):
-    if is_classification(item):
+    if is_classification(item) and parse_substantive(item) is not None:
         classifications.append(Classification(classification_substantive=parse_substantive(item),
                                               classification_current=parse_current(item)))
     return classifications
