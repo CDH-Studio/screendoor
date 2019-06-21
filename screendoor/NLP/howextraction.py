@@ -80,6 +80,7 @@ def extract_how(text):
     experience_list = []
     for sent in doc.sents:
         experience = iterate_through_dep_tree(sent, dates)
+
         if not experience == '':
             experience_list.append(experience)
 

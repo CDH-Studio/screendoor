@@ -429,10 +429,8 @@ def get_answer(table, answers, position):
             # Extract dates, and convert the returned dict to a flat list
             dates = [': '.join((k,v)) for k,v in
                      extract_dates(comp_response).items()]
-
             # Extract actions
             experiences = extract_how(comp_response)
-
             # Combine the two lists, and make them a newline delimited str.
             if dates == [] and experiences == []:
                 analysis = "No Analysis"

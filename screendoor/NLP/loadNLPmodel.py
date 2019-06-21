@@ -17,7 +17,7 @@ def init_spacy_module():
         {'label': 'DATE1', 'pattern': [
             {'LOWER': {'REGEX': 'from|between|starting|since'}, 'OP': '?'},
             {'ENT_TYPE': 'DATE'},
-            {'LOWER': {'REGEX': '[^a.);:\n]'}, 'OP': '*'},
+            {'LOWER': {'REGEX': '[^,.);:\n]'}, 'OP': '*'},
             {'ENT_TYPE': 'DATE'},
             {'LOWER': {'REGEX': 'until|to'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'the'}, 'OP': '?'},
