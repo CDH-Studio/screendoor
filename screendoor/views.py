@@ -296,7 +296,7 @@ def user_has_position(request, reference, position_id):
 # Data and visible text to render with positions
 def position_detail_data(request, position):
     # Implement logic for viewing applicant "scores"
-    applicants = Applicant.objects.filter(parent_position=position)
+    applicants = list(Applicant.objects.filter(parent_position=position))
     for applicant in applicants:
         applicant.number_questions = FormAnswer.objects.filter(
             parent_applicant=applicant).count()
@@ -308,6 +308,9 @@ def position_detail_data(request, position):
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
+    # Default sorting: higher scores at the top
+    applicants.sort(
+        key=lambda applicant: applicant.number_yes_responses, reverse=True)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, }
 

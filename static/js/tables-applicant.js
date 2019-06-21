@@ -82,6 +82,9 @@ let questionSubheads = document.getElementsByClassName("question-subhead");
 let questionTruncated = [];
 let questionTruncatedAnalysis = [];
 let analysisSubheads = []
+let analysisFull = [];
+let analysisPreview = [];
+let analysisSpan = document.getElementsByClassName("analysis-preview");
 
 /* Hide an HTML element */
 function hideElement(element) {
@@ -140,12 +143,24 @@ for (let i = 0; i < questionEllipses.length; i++) {
   questionTruncatedAnalysis[i] = document.getElementById("truncated-analysis" + i);
   analysisSubheads[i] = document.getElementById("analysis-subhead" + i);
 
-  if (!isEllipsisActive(questionTruncated[i])) {
-    hideElement(questionEllipses[i]);
+  analysisFull[i] = document.getElementById("analysis-full" + i).value;
+  analysisPreview[i] = document.getElementById("analysis-short" + i).value;
+
+  !isEllipsisActive ? hideElement(questionEllipses[i])
+                     : showElement(questionEllipses[i])
+
+
+  function replaceAnalysisTextWithLinebreak(element, index) {
+    element.innerHTML = answersFull[index];
+  }
+
+  function restoreAnalysisTextNonLinebreak(element, index) {
+    element.innerHTML = answersShort[index];
   }
 
   /* User moves mouse over a question ellipsis */
   questionEllipses[i].addEventListener("mouseover", function() {
+    analysisSpan[i].innerHTML = analysisFull[i];
     backgroundOffWhite(questionHeaders[i]);
     showElement(questionSubheads[i]);
     unTruncate(questionTruncated[i]);
@@ -160,7 +175,8 @@ for (let i = 0; i < questionEllipses.length; i++) {
   });
 
   /* User moves mouse off a question ellipsis */
-  questionEllipses[i].addEventListener("mouseleave", function() {
+  questionHeaders[i].addEventListener("mouseleave", function() {
+    analysisSpan[i].innerHTML = analysisPreview[i];
     backgroundWhite(questionHeaders[i]);
     hideElement(questionSubheads[i]);
     shrinkEllipsis(questionEllipses[i]);
