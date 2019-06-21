@@ -1,3 +1,29 @@
+.applicant-icon {
+  display: inline-block;
+  margin-bottom: 5px;
+  padding-right: 10px;
+  margin-left: -5px;
+}
+
+.applicant-preview-icon {
+}
+
+.applicant-id {
+  margin-top: -15px;
+}
+
+.applicant-collapse-buttons {
+  margin-bottom: -25px;
+  display: inline-block;
+  position: static;
+  float: right;
+  margin-right: -15px;
+}
+
+.applicant-question-total {
+  padding-left: 5px;
+}
+
 .truncation {
   width: 100%;
   text-overflow: ellipsis;
@@ -82,6 +108,10 @@
   cursor: pointer;
 }
 
+.applicant-table td {
+  vertical-align: middle;
+}
+
 td {
   vertical-align: top;
   line-height: 1.4rem;
@@ -95,9 +125,14 @@ th {
   line-height: 1.4rem;
 }
 
+.applicant-table-header {
+  margin-left: 0x;
+}
+
 .applicant-table tr {
   border-style: none;
 }
+
 
 header, main, footer {
   padding-left: 300px;}
