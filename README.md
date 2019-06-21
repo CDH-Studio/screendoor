@@ -26,11 +26,11 @@ Steps:
 * The scheduled execution of those tasks is defined in screendoor_app/settings.py, under `CELERY_BEAT_SCHEDULE` using json formatting.
 * The scheduled tasks follow the format:
 ```
-    'name_of_task': {
+'name_of_task': {
         'task': 'screendoor.tasks.function_name',
         'schedule': 60
     }
-    ```
+```
 * The value for `'schedule'` can be seconds, or a `crontab()` value. For example, `crontab(minute=0, hour=0)` will carry out the task each day at midnight. Further documentation on crontab can be found at https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#crontab-schedules.
 * The application must be restarted if a new schedule is set or an existing schedule is changed.
 

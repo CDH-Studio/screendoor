@@ -68,7 +68,6 @@ def navigate_through_tree(root, dates):
     subject = None
 
     children = list(root.children)
-
     # checks for a split branch
     prep_list = [x for x in children if x.dep_ == 'prep' and len(children) > 1]
     additional_branch = None
@@ -80,16 +79,19 @@ def navigate_through_tree(root, dates):
 
     while not (children == []):
         for p in children:
-            if ((p.dep_ in prohibited_left_relations) and p in root.lefts) and not list(p.children) == []:
+            if (p.dep_ in prohibited_left_relations
+                    and p in root.lefts
+                    and not len(list(p.children)) <= 1):
                 continue
 
-            if (p.dep_ in look_ahead_relations) and not list(p.children) == []:
+            if ((p.dep_ in look_ahead_relations)
+                    and not len(list(p.children)) <= 1):
                 context += p.text + ' '
                 continue
 
             if (p.dep_ in accepted_relations and
                     not (p.pos_ in prohibited_pos_tags) and
-                    (not (p.text in dates) or p.dep_ == 'dobj')):
+                    (not p.text in dates or p.dep_ == 'dobj')):
                 context += p.text + ' '
                 # resetting children and breaking allows the list to continue
                 # for as long as there are valid elements to iterate over
@@ -190,12 +192,12 @@ def squash_named_entities(doc):
             #if not (span.text in x.text for x in list(doc.ents)):
                 retokenizer.merge(span)
 
+
 def determine_named_entities(text):
     doc = NLP_MODEL(text)
     squash_named_entities(doc)
     hard_identify_date_ents(doc)
     return doc
-
 
 
 def extract_dates(text):
