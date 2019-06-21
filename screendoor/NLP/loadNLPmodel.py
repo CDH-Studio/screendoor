@@ -1,6 +1,7 @@
 import spacy
 from spacy.pipeline import EntityRuler
 
+
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
     ruler = EntityRuler(nlp, overwrite_ents=True)
@@ -16,9 +17,10 @@ def init_spacy_module():
         #   since April 2011
         {'label': 'DATE1', 'pattern': [
             {'LOWER': {'REGEX': 'from|between|starting|since'}, 'OP': '?'},
-            {'ENT_TYPE': 'DATE'},
-            {'LOWER': {'REGEX': '[^,.);:\n]'}, 'OP': '*'},
-            {'ENT_TYPE': 'DATE'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'},
+            {'LOWER': {"NOT_IN": [',', '.', ')', ';', ':', '\n', 'and']},
+             'OP': '*'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'},
             {'LOWER': {'REGEX': 'until|to'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'the'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'present|current|today|now'}, 'OP': '?'}
@@ -71,14 +73,6 @@ def init_spacy_module():
             {'LOWER': {'REGEX': '\d*\/\d*'}},
             {'LOWER': '-'},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
-
-        # Example catches:
-        #   07/2015 - 09/2016
-        {'label': 'DATE7', 'pattern': [
-            {'LOWER': 'as'},
-            {'LOWER': 'of'},
-            {'ENT_TYPE': 'DATE'}]},
-
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER

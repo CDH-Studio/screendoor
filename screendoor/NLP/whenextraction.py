@@ -1,5 +1,15 @@
 from screendoor_app.settings import NLP_MODEL
 import re
+
+def ensure_valid_date(ents):
+    dates = []
+    for potential_date in [x for x in ents if 'DATE' in x.label_]:
+        if not bool(re.search(r'\d|January|Febuary|March|April|May|June|July|August|September|November|December|last|ago', potential_date.text)):
+            continue
+        dates.append(potential_date.text)
+    return dates
+
+
 # fix any false positives of dates being identified as other named entities
 def hard_identify_date_ents(doc):
     # for now, only checks the 07/2015-05/2014 regex, but will be expanded
@@ -148,10 +158,7 @@ def get_to_tree_root(leaf, dates):
 
 def iterate_through_dep_tree(dep_tree):
     # create a list of all the date entities tagged by the ner process
-    dates = []
-    for ent in dep_tree.ents:
-        if 'DATE' in ent.label_:
-            dates.append(ent.text)
+    dates = ensure_valid_date(dep_tree.ents)
 
     contexts = {}
 
