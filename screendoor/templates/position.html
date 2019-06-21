@@ -146,35 +146,62 @@
   {% endcomment %}
   <!-- Application field headers -->
   <div class="col">
-    <div class="col">
-      <div class="col s12">
-        <table class="applicant-table">
-          <thead>
-            <tr>
-              <th colspan="10">Applicant ID</th>
-              <th colspan="1">Score</th>
-              <th colspan="1">PDF</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-    </div>
+    <table class="applicant-table">
+      <thead class="applicant-table-header">
+        <tr>
+          <th colspan="2"></th>
+          <th colspan="16">Applicant ID</th>
+          <th colspan="12">Classifications</th>
+          <th colspan="14">Streams</th>
+          <th colspan="8">Score</th>
+          <th colspan="4">PDF</th>
+        </tr>
+      </thead>
+    </table>
   </div>
   {% for applicant in applicants %}
   <!-- Mock application 1 -->
-  <div class="col card white hoverable">
-    <div class="card-content col s12 application-preview">
-      <!-- Position row 1 body -->
-      <table class="highlight applicant-table">
-        <tbody>
-          <tr>
-            <td colspan="10"><a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">{{ applicant.applicant_id }}</a></td>
-            <td colspan="1"><i class="material-icons green-text">looks_{{ forloop.counter }}</i></td>
-            <td colspan="1"><i class="material-icons red-text">picture_as_pdf</i></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="col s12 application-preview card card-content white hoverable">
+    <!-- Position row 1 body -->
+    <table class="highlight applicant-table">
+      <tbody>
+        <tr>
+          <td colspan="2"><i class="applicant-icon applicant-preview-icon material-icons small
+                                    {% if applicant.percentage_correct <= 33 %}
+                                    red-text
+                                    {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                                    orange-text
+                                    {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                                    green-text
+                                    {% endif %}
+                                    text-darken-2">person</i></td>
+          <td colspan="16"><a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">{{ applicant.applicant_id }}</a></td>
+          <td colspan="12">
+            {% for classification in applicant.classifications_set %}
+            {{ classification.classification_substantive }}
+            {% if classification.classification_current is not None %},
+            {{ classification.classification_current }}
+            {% endif %}
+            {% endfor %}</td>
+          <td colspan="14">
+            {% for stream in applicant.streams_set %}
+            {% if stream.stream_name is not None %}
+            {{ stream.stream_name }}
+            {% endif %}
+            {% endfor %}</td>
+          <td colspan="8"><span class="applicant-id
+                                       {% if applicant.percentage_correct <= 33 %}
+                                       red-text
+                                       {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                                       orange-text
+                                       {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                                       green-text
+                                       {% endif %}
+                                       text-darken-2 applicant-question-total">{{ applicant.number_yes_responses }}</span><span class="">/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span></td>
+          <td colspan="4"><i class="material-icons red-text">picture_as_pdf</i></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   {% endfor %}
   {% endif %}
