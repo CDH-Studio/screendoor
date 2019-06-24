@@ -1,13 +1,8 @@
 # ////////////////////////////////////////START IMPORTS//////////////////////////////////
-import json
 import os
 import re
 
 import tika
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options
-from weasyprint import HTML
 
 tika.TikaClientOnly = True
 from dateutil import parser as dateparser
@@ -230,15 +225,13 @@ def separate_requirements(requirement_block_text):
 
     for idx, item in enumerate(requirement_list):
         item = item.strip()
-        if len(item) > 30 and ("or more of the following" in item.lower()) or (
-                "common to all streams" in item.lower()) or ("defined as:" in item.lower()):
-            if ":\n" in item:
-                requirement_list.append(item.split(":\n", 1)[1])
+        if len(item) > 30 and ("or more of the following" in item.lower() or "common to all streams") in item.lower():
+            if ":" in item:
+                requirement_list.append(item.split(":", 1)[1])
                 item = ""
                 requirement_list[idx] = item
                 continue
-        if item.startswith("or") or item.startswith("and") or item.startswith("-") or item.startswith(
-                "•") or item.startswith("o"):
+        if item.startswith("or") or item.startswith("and"):
             requirement_list[idx - 1] = requirement_list[idx - 1] + item
             item = ""
             requirement_list[idx] = item
@@ -359,30 +352,12 @@ def find_essential_details(pdf_poster_text, position):
     return dictionary
 
 
-def download_temp_pdf(url, download_path):
-    driver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
-                              desired_capabilities=DesiredCapabilities.CHROME)
-    driver.get(url)
-    HTML(string=driver.page_source).write_pdf(download_path)
-    driver.close()
-
-    pass
-
-
-def parse_poster_text(download_path):
-    file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
-    job_poster_text = file_data['content']
-    removal = job_poster_text.split("1. Home", 1)[1].rsplit("Share this page", 1)[0]
-    job_poster_text = "1. Home" + job_poster_text.split(removal, 1)[1]
-    job_poster_text = job_poster_text.replace("Share this page", "")
-    return job_poster_text
-
-
 def parse_upload(position):
     # checking for the existence of the pdf upload. If true, convert uploaded pdf into text
     # using tika and process using find_essential_details method. If false, process url.
 
     if position.pdf.name:
+        os.chdir("..")
         file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
         if "Selection process number:" in job_poster_text:
@@ -390,13 +365,39 @@ def parse_upload(position):
         else:
             return {'errors': ErrorMessages.incorrect_pdf_file}
     elif position.url_ref:
-        download_path = os.getcwd() + "/tempPDF.pdf"
 
-        download_temp_pdf(position.url_ref, download_path)
-        job_poster_text = parse_poster_text(download_path)
-        os.remove(download_path)
+        import json
+        from selenium import webdriver
 
-        if "Selection process number:" in job_poster_text:
-            return find_essential_details(job_poster_text, position)
-        else:
-            return {'errors': ErrorMessages.incorrect_pdf_file}
+        appState = {
+            "recentDestinations": [
+                {
+                    "id": "Save as PDF",
+                    "origin": "local"
+                }
+            ],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        }
+        downloadPath = "code/screendoor"
+
+        profile = {'printing.print_preview_sticky_settings.appState': json.dumps(appState),
+                   'savefile.default_directory': downloadPath}
+
+        chrome_options = webdriver.ChromeOptions()
+
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--window-size=1420,1080')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_experimental_option('prefs', profile)
+        chrome_options.add_argument('--kiosk-printing')
+
+        driver = webdriver.Chrome(chrome_options=chrome_options)
+
+        driver.get('https://www.google.com/')
+        driver.execute_script('window.print();')
+
+        driver.quit()
+
+        return {'errors': ErrorMessages.url_upload_not_supported_yet}
