@@ -112,20 +112,37 @@
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <!-- Displays academic level full width if no institution and area of study (i.e., for secondary school) -->
-                <th id="education-academic-truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if education.institution is None and education.area_of_study is None %}23{% else %}8{% endif %}">{{ education.academic_level }}</th>
-                {% if education.institution is not None %}<th id="education-institution-truncated{{ forloop.counter0 }}" class="truncation" colspan="7">{{ education.institution }}</th>{% endif %}
-                {% if education.area_of_study is not None %}<th id="education-areastudy-truncated{{ forloop.counter0 }}" class="truncation"  colspan="8">{{ education.area_of_study }}</th>{% endif %}
-                <th class="ellipsis education-ellipsis" colspan="1"><i class="material-icons">more_horiz</i></th>
+                <th id="education-academic-truncated{{ forloop.counter0 }}"
+                    class="truncation" colspan="
+                        {% if education.institution is None and education.area_of_study is None %}
+                        23
+                        {% else %}
+                        8
+                        {% endif %}">{{ education.academic_level }}</th>
+                {% if education.institution is not None %}
+                <th id="education-institution-truncated{{ forloop.counter0 }}" class="truncation" colspan="7">
+                  {{ education.institution }}
+                </th>
+                {% endif %}
+                {% if education.area_of_study is not None %}
+                <th id="education-areastudy-truncated{{ forloop.counter0 }}" class="truncation"  colspan="8">
+                  {{ education.area_of_study }}
+                </th>
+                {% endif %}
+                <th class="ellipsis education-ellipsis" colspan="1">
+                  <i class="material-icons">more_horiz</i>
+                </th>
               </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="2"></td>
+              <!-- Hidden education header revealed when clicked -->
+              <tr class="education-header-clicked hide">
+                <th colspan="1"><i class="material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <td colspan="1">{{ forloop.counter }}.</td>
                 <td colspan="8" class="table-subhead">{{ applicantText.academic_level }}</td>
                 <td colspan="7" class="table-subhead">{{ applicantText.institution }}</td>
                 <td colspan="9" class="table-subhead">{{ applicantText.area_of_study }}</td>
               </tr>
-            </tbody>
+            </thead>
+            <!-- END OF EDUCATION HEADER -->
             <tbody>
               <tr>
                 <td colspan="2"></td>
@@ -164,34 +181,81 @@
             <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}">
             <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="• {{ answer.analysis|capfirst|display_first_line }}">
             <!-- Question -->
-            <!-- Displays boolean as Yes/No -->
-            <thead class="collapse question-header {% if answer.applicant_answer == True %}yes-answer{% else %}no-answer{% endif %}">
-              <tr>
-                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+
+            <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
+
+            <!-- Displays green/red for Yes/No -->
+            <thead class="collapse question-header
+                          {% if answer.applicant_answer == True %}yes-answer
+                          {% else %}no-answer{% endif %}">
+              <tr id="previews-small{{ forloop.counter0 }}">
+                <th colspan="1">
+                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                </th>
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
-                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="{% if answer.analysis is not None %}10{% else %}23{% endif %}"><div class="question-subhead hide">Question</div><span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span></th>
+                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="
+                        {% if answer.analysis is not None %}10
+                        {% else %}23{% endif %}">
+                  <div class="question-subhead hide">Question</div>
+                  <span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                </th>
                 {% if answer.analysis is not None %}
                 <th colspan="1"></th>
-                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div><span class="analysis-preview blue-text text-darken-3">• {{ answer.analysis|display_first_line|capfirst }}</span></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div>
+                  <span class="analysis-preview blue-text text-darken-2">• {{ answer.analysis|display_first_line|capfirst }}</span>
+                </th>
                 {% else %}
                 <th colspan="1" class="hide"></th>
-                <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12"><div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">Analysis</div><span class="hide analysis-preview blue-text text-darken-2">{{ answer.analysis }}</span></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">Analysis</div>
+                  <span class="hide analysis-preview blue-text text-darken-2">{{ answer.analysis }}</span>
+                </th>
                 {% endif %}
-                <th colspan="1"><span class="ellipsis question-ellipsis"><i class="material-icons">more_horiz</i></span></th>
+                <th colspan="1">
+                  <span class="ellipsis question-ellipsis">
+                    <i class="material-icons">more_horiz</i>
+                  </span>
+                </th>
               </tr>
-            </thead>
-            <!-- Displays red or green if answer is yes or no -->
-            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
-              <tr>
-                <td colspan="2" class="table-subhead"></td>
-                <td colspan="9" class="table-subhead">{{ applicantText.question }}</td>
-                <td colspan="1" class="table-subhead"></td>
-                <td colspan="3" class="table-subhead">{{ applicantText.response }}</td>
-                <td colspan="10" class="table-subhead">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
+              <!-- Beginning of hidden full analysis preview -->
+              <tr class="question-full-header" id="previews-full{{ forloop.counter0 }}">
+                <td colspan="2"></td>
+                <td colspan="{% if answer.analysis is not None %}10
+                             {% else %}23{% endif %}">
+                  <span class="question-full">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                </td>
+                {% if answer.analysis is not None %}
+                <td colspan="1"></td>
+                <td colspan="12">
+                  <span class="analysis-full blue-text text-darken-2">{% if answer.analysis is not None %}
+                    {{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}{% endif %}</span>
+                </td>
+                {% else %}
+                <th colspan="1" class="hide"></th>
+                <th class="hide" colspan="12"></th>
+                {% endif %}
                 <td colspan="1"></td>
               </tr>
-            </tbody>
+              <!-- End of hidden full analysis preview -->
+              <!-- Hidden full clicked question/answer contents header -->
+              <tr class="clicked-question-header" id="clicked-header{{ forloop.counter0 }}">
+                <th colspan="1">
+                  <i class="material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                </th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <td class="table-subhead" colspan="9">{{ applicantText.question }}</td>
+                <th colspan="1"></th>
+                <td class="table-subhead" colspan="3">{{ applicantText.response }}</td>
+                <td class="table-subhead" colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
+                <th colspan="1"></th>
+              </tr>
+            </thead>
+
+            <!-- END OF QUESTION/ANALYSIS PREVIEWS -->
+
+            <!-- Displays red or green if answer is yes or no -->
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>

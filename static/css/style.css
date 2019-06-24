@@ -1,3 +1,23 @@
+@keyframes table-expand-collapse {
+
+
+}
+
+.tr {
+  transition: all 2s linear;
+  opacity: 1;
+}
+
+.hidden {
+  opacity: 0;
+  display: none;
+}
+
+.toggle-content.is-visible {
+	display: initial;
+	height: auto;
+}
+
 .applicant-icon {
   display: inline-block;
   margin-bottom: 5px;
@@ -40,13 +60,11 @@
 .question-subhead {
   font-weight: 500;
   margin-bottom: 10px;
-  text-decoration: underline;
 }
 
 .analysis-subhead {
   font-weight: 500;
   margin-bottom: 10px;
-  text-decoration: underline;
 }
 
 .ellipsis {
@@ -97,6 +115,7 @@
 
 .question-header th {
   font-weight: 400;
+  padding-bottom: 0px;
 }
 
 .application-button {
