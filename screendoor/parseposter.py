@@ -1,16 +1,13 @@
 # ////////////////////////////////////////START IMPORTS//////////////////////////////////
 import os
 import re
-import tempfile
 
-import pdfkit
 import tika
 from dateutil import parser as dateparser
 from tika import parser
-from .uservisibletext import ErrorMessages
 
-from screendoor_app.settings import BASE_DIR
 from .models import Requirement
+from .uservisibletext import ErrorMessages
 
 
 # ////////////////////////////////////////END IMPORTS////////////////////////////////////

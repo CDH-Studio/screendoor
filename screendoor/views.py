@@ -1,3 +1,5 @@
+import random
+import string
 from string import digits
 from dateutil import parser as dateparser
 from django.core.mail import send_mail
@@ -8,9 +10,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 from screendoor.parseapplication import parse_application
+from screendoor_app.settings import PROJECT_ROOT
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion, FormAnswer, Stream, Classification
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
 
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
@@ -345,13 +348,16 @@ def upload_applications(request):
             position = Position.objects.get(
                 id=request.POST.get("position-id"))
             pdf = request.FILES['pdf']
-            with open('/code/applications/' + pdf.name, 'wb+') as destination:
+            print(PROJECT_ROOT)
+            path = '/code/screendoor/applications/'
+            new_pdf_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
+            with open(path + new_pdf_name, 'wb+') as destination:
                 for chunk in pdf.chunks():
                     destination.write(chunk)
-                    parse_application(form.save(commit=False), position)
-                os.chdir("..")
-                os.remove("/code/applications/" + pdf.name)
-                return redirect('position', position.reference_number, position.id)
+            parse_application(form.save(commit=False), position, new_pdf_name)
+            os.chdir("..")
+            os.remove(path + new_pdf_name)
+            return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
