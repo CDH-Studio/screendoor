@@ -20,4 +20,3 @@ RUN apt-get update && \
     update-ca-certificates -f;
 
 RUN python -m spacy download en
-
