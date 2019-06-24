@@ -1,3 +1,4 @@
+import os
 import random
 import string
 
@@ -58,6 +59,7 @@ def parse_first_official_language(item):
 
 def parse_working_ability(item):
     table = item[[0, 1]]
+    print(table)
     working_ability = table.loc[(table[0] == "Connaissance pratique / Working ability:").idxmax(), 1]
     return working_ability
 
@@ -153,7 +155,6 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "NaN" in item2.ix[0, 0]:
                         item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
-                        # TODO DELETE ROW IN ITEM 2 AND THEN CONCATENATE!!!
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -563,7 +564,6 @@ def is_education(item):
 
 
 def is_classification(item):
-    first_column = item[item.columns[0]]
     for index, row in item.iterrows():
         found_string = item.iloc[index, 0]
         ratio = fuzz.partial_ratio("Situation professionnelle", found_string)
@@ -621,9 +621,9 @@ def clean_and_parse(df, application, position):
     count = 0
     for idx, item in enumerate(df):
         if item.empty:
-            del df[idx]
             continue
         else:
+            item = item.astype(str)
             item = item.apply(cleanData)
             item.dropna(axis=1, how='all', inplace=True)
             item.reset_index(drop=True, inplace=True)
@@ -634,7 +634,7 @@ def clean_and_parse(df, application, position):
                 count = count + 1
                 array.append(idx)
 
-    print("Applicants: " + str(count))
+    print("Total Applicants: " + str(count))
     for x in range(len(array)):
         if x == (count - 1):
             print("Processing Applicant: " + str(x + 1))
@@ -646,12 +646,16 @@ def clean_and_parse(df, application, position):
     return application
 
 
-def parse_application(request, position):
+def parse_application(request, position, new_pdf_name):
     if request.pdf.name:
         application = []
-        print(request.pdf.name)
-        df = tabula.read_pdf("/code/applications/" + request.pdf.name, options, pages="all", multiple_tables="true",
+        print("BEGINNING APPLICATION PARSING PROCEDURE")
+
+        df = tabula.read_pdf("/code/screendoor/applications/" + new_pdf_name, options, pages="all", multiple_tables="true",
                              lattice="true")
+
+        print("TABLES SUCCESSFULLY READ")
+
         application = clean_and_parse(df, application, position)
         for item in application:
             item.parent_position = position
