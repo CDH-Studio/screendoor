@@ -347,16 +347,17 @@ def upload_applications(request):
         if form.is_valid():
             position = Position.objects.get(
                 id=request.POST.get("position-id"))
-            pdf = request.FILES['pdf']
+            files = request.FILES.getlist('pdf')
             print(PROJECT_ROOT)
             path = '/code/screendoor/applications/'
-            new_pdf_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
-            with open(path + new_pdf_name, 'wb+') as destination:
-                for chunk in pdf.chunks():
-                    destination.write(chunk)
-            parse_application(form.save(commit=False), position, new_pdf_name)
-            os.chdir("..")
-            os.remove(path + new_pdf_name)
+            for f in files:
+                new_pdf_name = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
+                with open(path + new_pdf_name, 'wb+') as destination:
+                    for chunk in f.chunks():
+                        destination.write(chunk)
+                parse_application(form.save(commit=False), position, new_pdf_name)
+                os.chdir("..")
+                os.remove(path + new_pdf_name)
             return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
