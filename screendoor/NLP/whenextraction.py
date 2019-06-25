@@ -108,8 +108,7 @@ def navigate_through_tree(root, dates):
         possible_paths = [x for x in root.lefts if
                             x.dep_ in accepted_left_relations] + \
                          [x for x in root.rights if
-                            x.dep_ in accepted_right_relations and
-                                not x.i > root.i + 5]
+                            x.dep_ in accepted_right_relations]
 
         split_branches = [x for x in root.rights if
                             x.dep_ in split_branch_relations and
@@ -142,6 +141,11 @@ def navigate_through_tree(root, dates):
 
         if split_branches:
             additional_iterations = split_branches
+
+        # Edge case: relative clause as the only remaining valid option
+        punctuation_less = [x for x in root.children if x not in punctuation]
+        if ('relcl' in [x.dep_ for x in punctuation_less] and len(punctuation_less) <= 1):
+            possible_paths = punctuation_less
 
         # Iterate through the dep tree, on a first come first serve basis
         # on a left->right basis. Preference hierarchy usually not a concern.
@@ -199,7 +203,7 @@ def get_to_tree_root(leaf, dates):
     if stem.text in dates:
         return leaf
     while not (leaf.dep_ == 'ROOT'):
-        if leaf.head.i > leaf.i + 10:
+        if leaf.head.i > leaf.i + 7:
             return leaf
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
@@ -242,14 +246,14 @@ def iterate_through_dep_tree(dep_tree):
     contexts = []
 
     cur_sent = None
-    flag = False
+    flag = True
 
     for leaf in dep_tree:
         # If we've changed the sentence, check if the sentences subject is valid
         # If it is not, skip over the sentence, as it refers to something the
         # applicant did not do themselves (eg a project's duration)
-        if not leaf.sent == cur_sent:
-            flag = remove_bad_subjects(leaf.sent)
+        if not leaf.sent == cur_sent and not len(leaf.sent) == len(dep_tree):
+            flag = remove_bad_subjects(leaf.sent, len(dep_tree))
         if flag:
             # If we're currently looking at a date's context
             if leaf.text in dates:
@@ -265,7 +269,7 @@ def iterate_through_dep_tree(dep_tree):
 
 # Attempts to filter out any bad subjects (note: absence of a subject assumes
 # the applicant is referring to themselves
-def remove_bad_subjects(sent):
+def remove_bad_subjects(sent, len):
     test = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
     test2 = [x for x in sent if x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
     if test2:
