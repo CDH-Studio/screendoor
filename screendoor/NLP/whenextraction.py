@@ -43,6 +43,7 @@ def hard_identify_date_ents(doc):
     doc.ents = new_ents
     return doc
 
+
 # Overrides the date entity recognition, removing false positive dates
 # Examples include "over the years", "months", "recently", and other dates
 # That we can't extract meaningful information out of
@@ -54,6 +55,7 @@ def ensure_valid_date(ents):
         dates.append(potential_date.text)
     return dates
 
+
 # If there something to pre-append (ie have worked v worked), fix it from
 # being passed along as 'worked have', due to the ground-up constructive
 # nature of the context generation
@@ -64,12 +66,13 @@ def pre_append_to_output(str, preappends):
     else:
         return ' '.join([x.text for x in preappends]) + ' ' + str
 
+
 def navigate_through_tree(root, dates):
     # relations identified as having data we care about, and being paths we
     # want to iterate down, depending on the side that element is on
     accepted_right_relations = ['dobj', 'acomp', 'prep', 'pcomp', 'npadvmod',
                                 'appos', 'acl', 'pobj', 'advcl', 'xcomp',
-                                'attr', 'nusbj', 'relcl', 'conj', 'ccomp',
+                                'attr', 'nusbj', 'conj', 'ccomp',
                                 'advmod', 'agent']
     accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj']
 
@@ -79,11 +82,12 @@ def navigate_through_tree(root, dates):
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_ahead_relations = ['cc']
+    look_ahead_relations = ['cc', 'prt']
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'mark', 'advmod', 'amod']
+    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'mark', 'advmod',
+                             'amod', 'compound']
 
     # Initialize the return object (dates check to remove redundant printing)
     context = ''
@@ -117,7 +121,7 @@ def navigate_through_tree(root, dates):
 
         deappend_to_path = [x for x in root.lefts if
                             x.dep_ in look_behind_relations and
-                                not x.tag_ == 'XX']
+                                not x.tag_ == 'XX' and x.i > root.i-4]
 
         #Construct the context, without iterating down dep_tree
         # print(root)
@@ -157,21 +161,21 @@ def navigate_through_tree(root, dates):
         # split branch to traverse down
         if children == [] and additional_iterations:
             # Reset the root/children to allow for infinite iteration
-            children = additional_iterations
-            root = children[0]
+            if additional_iterations[0].text not in context:
+                children = additional_iterations
+                root = children[0]
 
-            # Hard catch: prevents weird cases
-            if root.tag_ == 'VBG':
-                break
-            if root.text not in dates:
-                context += ' ' + root.text
+                # Hard catch: prevents weird cases
+                if root.tag_ == 'VBG':
+                    break
+                if root.text not in dates:
+                    context += ' ' + root.text
 
             # Reset the split branch to prevent infinite looping
             additional_iterations = []
 
 
     return context
-
 
 # Remove faulty spacing, hanging punctuation, and other formatting issues
 def clean(context):
@@ -185,6 +189,7 @@ def clean(context):
     #context = context.replace('as ', '')
     return context
 
+
 def get_to_tree_root(leaf, dates):
     # note: need a better method to prevent the date
     # from appearing in its own context
@@ -194,7 +199,7 @@ def get_to_tree_root(leaf, dates):
     if stem.text in dates:
         return leaf
     while not (leaf.dep_ == 'ROOT'):
-        if leaf.head.i > leaf.i + 5 or leaf.head.i < leaf.i - 5:
+        if leaf.head.i > leaf.i + 10:
             return leaf
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
@@ -245,7 +250,6 @@ def iterate_through_dep_tree(dep_tree):
         # applicant did not do themselves (eg a project's duration)
         if not leaf.sent == cur_sent:
             flag = remove_bad_subjects(leaf.sent)
-
         if flag:
             # If we're currently looking at a date's context
             if leaf.text in dates:
@@ -263,6 +267,9 @@ def iterate_through_dep_tree(dep_tree):
 # the applicant is referring to themselves
 def remove_bad_subjects(sent):
     test = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
+    test2 = [x for x in sent if x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
+    if test2:
+        return False
     if test == []:
         return True
     else:
