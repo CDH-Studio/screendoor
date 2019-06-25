@@ -357,9 +357,10 @@ def upload_applications(request):
         if form.is_valid():
             position_id = int(request.POST.get("position-id"))
             files = request.FILES.getlist('pdf')
+            file_names = [FileSystemStorage().save(file.name, file)
+                          for file in files]
             file_paths = [FileSystemStorage().url(file_name)
-                          for file_name in [FileSystemStorage().save(file.name, file)
-                                            for file in files]]
+                          for file_name in file_names]
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
             # Logic for loading bar goes here
