@@ -154,6 +154,16 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
+# File Uploads
+
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+
+FILE_UPLOAD_TEMP_DIR = ("/code/screendoor/temp")
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o644
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+
 # Celery Settings
 
 CELERY_BROKER_URL = 'pyamqp://rabbitmq:rabbitmq@rabbitmq:5672'

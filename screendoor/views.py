@@ -1,11 +1,5 @@
-<<<<<<< Updated upstream
-import random
-import string
-=======
-import os
 import json
 
->>>>>>> Stashed changes
 from string import digits
 from dateutil import parser as dateparser
 
@@ -16,19 +10,17 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 from celery.result import AsyncResult
 
-from screendoor.parseapplication import parse_application
-from screendoor_app.settings import PROJECT_ROOT
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
     ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
-
-from screendoor.parseposter import parse_upload
-from screendoor.redactor import redact_applications
-import os
+from .tasks import process_applications
+from .parseposter import parse_upload
+from .redactor import redact_applications
 
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
@@ -319,7 +311,7 @@ def position_detail_data(request, position):
         applicant.number_yes_responses = FormAnswer.objects.filter(
             parent_applicant=applicant, applicant_answer=True).count()
         applicant.percentage_correct = applicant.number_yes_responses * \
-                                       100 // applicant.number_questions
+            100 // applicant.number_questions
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
@@ -353,31 +345,20 @@ def delete_position(request):
     return redirect('home')
 
 
+@csrf_exempt
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    if request.method == 'POST':
+    if request.POST.get("upload-applications"):
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
-            position = Position.objects.get(
-                id=request.POST.get("position-id"))
+            form.save()
+            position_id = int(request.POST.get("position-id"))
+            position = Position.objects.get(id=position_id)
             files = request.FILES.getlist('pdf')
-            print(PROJECT_ROOT)
-            path = '/code/screendoor/applications/'
-            applicant_counter = 0
-            batch_counter = 0
-            for f in files:
-                batch_counter += 1
-                new_pdf_name = ''.join(
-                    random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
-                with open(path + new_pdf_name, 'wb+') as destination:
-                    for chunk in f.chunks():
-                        destination.write(chunk)
-                applicant_counter = applicant_counter + parse_application(form.save(commit=False), position,
-                                                                          new_pdf_name,
-                                                                          applicant_counter, batch_counter)
-                os.chdir("..")
-                os.remove(path + new_pdf_name)
-            return redirect('position', position.reference_number, position.id)
+            file_paths = [str(file.temporary_file_path()) for file in files]
+            task_result = process_applications.run(
+                list(file_paths), position_id)
+        return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -398,8 +379,8 @@ def import_applications_redact(request):
 # Verify that the applicant exists and belongs to position that user has access to
 def position_has_applicant(request, app_id):
     if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(
-            applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
-        applicant_id=app_id).parent_position.id):
+        applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
+            applicant_id=app_id).parent_position.id):
         return Applicant.objects.get(applicant_id=app_id)
 
 
