@@ -58,14 +58,10 @@ function initializeRowListeners(i) {
 }
 
 /* Collapse All button listener */
-collapseAllButton.addEventListener("click", function() {
-  collapseAll();
-});
+collapseAllButton.addEventListener("click", collapseAll);
 
 /* Expand all button listener */
-expandAllButton.addEventListener("click", function() {
-  expandAll();
-});
+expandAllButton.addEventListener("click", expandAll);
 
 /* Initialize question listeners */
 function initializeQuestionListeners() {
@@ -80,31 +76,19 @@ function initializeQuestionListeners() {
     clickedHeaders[i] = document.getElementById("clicked-header" + i);
 
     hideElement(clickedHeaders[i], previewFull[i]);
-
-    !isEllipsisActive(questionTruncated[i])
-      && !isEllipsisActive(questionTruncatedAnalysis[i]) ? hideElement(questionEllipses[i]) :
-      showElement(questionEllipses[i])
+    displayEllipsesIfNeeded(i);
 
     /* User clicks question header */
-    questionHeaders[i].addEventListener("click", function() {
-      expandCollapseQuestionHeaders(i);
-    });
+    questionHeaders[i].addEventListener("click", () => { expandCollapseQuestionHeaders(i); });
 
     /* User moves mouse over a question ellipsis */
-    questionEllipses[i].addEventListener("mouseover", function() {
-      showQuestionPreview(i);
-    });
+    questionEllipses[i].addEventListener("mouseover", () => { showQuestionPreview(i); });
 
     /* User moves mouse off a question ellipsis */
-    questionHeaders[i].addEventListener("mouseleave", function() {
-      hideQuestionPreview(i);
-    });
+    questionHeaders[i].addEventListener("mouseleave", () => { hideQuestionPreview(i); });
 
     /* Resize adjustment for ellipses */
-    window.addEventListener('resize', function() {
-      !isEllipsisActive(questionTruncated[i])
-        && !isEllipsisActive(questionTruncatedAnalysis[i]) ? hideElement(questionEllipses[i]) : showElement(questionEllipses[i]);
-    });
+    window.addEventListener('resize', () => { displayEllipsesIfNeeded(i); });
   }
 }
 
@@ -121,32 +105,30 @@ function initializeEducationListeners() {
       hideElement(educationEllipses[i]);
     }
 
-    educationHeaders[i].addEventListener("click", function() {
-      showEducationFull(i);
-    });
+    /* User clicks to show education detail */
+    educationHeaders[i].addEventListener("click", () => { showEducationFull(i); });
 
-    educationHeadersClicked[i].addEventListener("click", function() {
-      hideEducationFull(i);
-    });
+    /* User clicks to hide education detail */
+    educationHeadersClicked[i].addEventListener("click", () => { hideEducationFull(i); });
 
     /* User moves mouse over education ellipsis */
-    educationEllipses[i].addEventListener("mouseover", function() {
-      showEducationPreview(i);
-    });
+    educationEllipses[i].addEventListener("mouseover", () => { showEducationPreview(i); });
 
     /* User moves mouse off education ellipsis */
-    educationHeaders[i].addEventListener("mouseleave", function() {
-      hideEducationPreview(i);
-    });
+    educationHeaders[i].addEventListener("mouseleave", () => { hideEducationPreview(i); });
 
     /* Handles window resizing and adding/removing ellipses based on browser window size */
-    window.addEventListener('resize', function() {
-      !isEllipsisActive(educationAreaStudyTruncated[i]) && !isEllipsisActive(educationInstitutionTruncated[i]) && !isEllipsisActive(educationAcademicTruncated[i]) ? hideElement(educationEllipses[i]) : showElement(educationEllipses[i]);
-    });
+    window.addEventListener('resize', () => { displayEllipsesIfNeeded(i); });
   }
 }
 
 /* HELPER FUNCTIONS */
+
+/* Display ellipses if there is truncated text on row */
+function displayEllipsesIfNeeded(i) {
+  !isEllipsisActive(questionTruncated[i])
+    && !isEllipsisActive(questionTruncatedAnalysis[i]) ? hideElement(questionEllipses[i]) : showElement(questionEllipses[i]);
+}
 
 /* Arrow indicates row is open or closed */
 function openCloseArrow(i) {
