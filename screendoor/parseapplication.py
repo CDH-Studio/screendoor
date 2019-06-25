@@ -1,5 +1,6 @@
 import random
 import random
+import re
 import string
 
 import pandas as pd
@@ -68,10 +69,8 @@ def is_classification(item):
 
 
 def is_final_answer(item):
-    table = item[[0, 1]]
-    applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
-
-    if applicant_answer == "NaN":
+    applicant_answer = get_column_value("Réponse du postulant / Applicant Answer:", item)
+    if applicant_answer.lower == "nan":
         return True
     else:
         return False
@@ -83,8 +82,9 @@ def check_if_table_valid(table):
 
 
 def clean_data(x):
-    if "Réponse Complémentaire: / Complementary Answer:" not in x:
-        x = x.replace(r'\r', ' ', regex=True)
+    x = re.sub(r'\r', ' ', x)
+    x = re.sub(r'\n', ' ', x)
+    x = re.sub(r'abcdefg', '\n', x)
     return x
 
 
@@ -95,10 +95,13 @@ def text_between(start_string, end_string, text):
     return extracted_text
 
 
-def get_column_value(search_string, table):
-    for row_num, (key, val) in enumerate(table.iteritems()):
-        if fuzz.partial_ratio(search_string, key) >= 80:
-            return val
+def get_column_value(search_string, item):
+    pairings = dict(zip(item[0], item[1]))
+
+    for key, value in pairings.items():
+        if fuzz.partial_ratio(search_string, key) >= 90:
+            return value
+    return "N/A"
 
 
 def retrieve_question(table, question_list):
@@ -111,17 +114,14 @@ def retrieve_question(table, question_list):
 
 
 def parse_citizenship(item):
-    table = item[[0, 1]]
-    applicant_citizenship = table.loc[(table[0] == "Citoyenneté / Citizenship:").idxmax(), 1]
+    applicant_citizenship = get_column_value("Citoyenneté / Citizenship:", item)
     if "Canadian Citizen" in applicant_citizenship:
         applicant_citizenship = "Canadian Citizen"
     return applicant_citizenship
 
 
 def parse_priority(item):
-    table = item[[0, 1]]
-    applicant_has_priority = \
-        table.loc[(table[0] == "Droit de priorité / Priority entitlement:").idxmax(), 1]
+    applicant_has_priority = get_column_value("Droit de priorité / Priority entitlement:", item)
     if "No" in applicant_has_priority:
         applicant_has_priority = "False"
     else:
@@ -130,9 +130,7 @@ def parse_priority(item):
 
 
 def parse_is_veteran(item):
-    table = item[[0, 1]]
-    applicant_is_veteran = table.loc[
-        (table[0] == "Préférence aux anciens combattants / Preference to veterans:").idxmax(), 1]
+    applicant_is_veteran = get_column_value("Préférence aux anciens combattants / Preference to veterans:", item)
     if "No" in applicant_is_veteran:
         applicant_is_veteran = "False"
     else:
@@ -141,16 +139,13 @@ def parse_is_veteran(item):
 
 
 def parse_first_official_language(item):
-    table = item[[0, 1]]
-    first_official_language = \
-        table.loc[(table[0] == "Première langue officielle / First official language:").idxmax(), 1]
+    first_official_language = get_column_value("Première langue officielle / First official language:", item)
     applicant_first_official_language = first_official_language.split(" / ")[1]
     return applicant_first_official_language
 
 
 def parse_working_ability(item):
-    table = item[[0, 1]]
-    working_ability = table.loc[(table[0] == "Connaissance pratique / Working ability:").idxmax(), 1]
+    working_ability = get_column_value("Connaissance pratique / Working ability:", item)
     return working_ability
 
 
@@ -167,42 +162,35 @@ def parse_french_ability(working_ability):
 
 
 def parse_written_exam_language(item):
-    table = item[[0, 1]]
-    written_exam_language = table.loc[(table[0] == "Examen écrit / Written exam:").idxmax(), 1]
+    written_exam_language = get_column_value("Examen écrit / Written exam:", item)
     applicant_written_exam_language = written_exam_language.split(" / ")[1]
     return applicant_written_exam_language
 
 
 def parse_corresponsence_language(item):
-    table = item[[0, 1]]
-    correspondence_language = table.loc[(table[0] == "Correspondance: / Correspondence:").idxmax(), 1]
+    correspondence_language = get_column_value("Correspondance: / Correspondence:", item)
     applicant_correspondence_language = correspondence_language.split(" / ")[1]
     return applicant_correspondence_language
 
 
 def parse_interview_language(item):
-    table = item[[0, 1]]
-    interview_language = table.loc[(table[0] == "Entrevue / Interview:").idxmax(), 1]
+    interview_language = get_column_value("Entrevue / Interview:", item)
     applicant_interview_language = interview_language.split(" / ")[1]
     return applicant_interview_language
 
 
 def parse_question_text(item):
-    table = item[[0, 1]]
-
-    question_text = table.loc[(table[0].str.startswith("Question - Anglais")).idxmax(), 1]
+    question_text = get_column_value("Question - Anglais", item)
     return question_text
 
 
 def parse_complementary_question_text(item):
-    table = item[[0, 1]]
-    complementary_question_text = table.loc[(table[0].str.startswith("Complementary Question")).idxmax(), 1]
+    complementary_question_text = get_column_value("Complementary Question", item)
     return complementary_question_text
 
 
 def parse_applicant_answer(item):
-    table = item[[0, 1]]
-    applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
+    applicant_answer = get_column_value("Réponse du postulant / Applicant Answer:", item)
 
     if "No" in applicant_answer:
         applicant_answer = "False"
@@ -219,12 +207,13 @@ def parse_applicant_complementary_response(item):
         table = item[[0, 1]]
         applicant_complementary_response = table.loc[
             (table[0].str.startswith("Réponse Complémentaire")).idxmax(), 0]
-        applicant_complementary_response = applicant_complementary_response.split("Complementary Answer:")[1]
+        applicant_complementary_response = applicant_complementary_response.split("Answer:", 1)[1]
+        applicant_complementary_response = re.sub(r'\\r', '\n', applicant_complementary_response)
+
         return applicant_complementary_response
     elif is_final_answer(item):
-        table = item[[0, 1]]
-        applicant_answer = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 0].split(
-            "Réponse du postulant / Applicant Answer:", 1)[1]
+        applicant_answer = get_column_value("Réponse du postulant / Applicant Answer:", item)
+
         return applicant_answer
     else:
         return None
@@ -234,8 +223,7 @@ def parse_academic_level(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Niveau d'études / Academic Level:").any():
-        table = item[[0, 1]]
-        academic_level = table.loc[(table[0] == "Niveau d'études / Academic Level:").idxmax(), 1]
+        academic_level = get_column_value("Niveau d'études / Academic Level:", item)
         return academic_level
     else:
         return None
@@ -245,8 +233,7 @@ def parse_area_of_study(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Domaine d'études / Area of Study:").any():
-        table = item[[0, 1]]
-        area_of_study = table.loc[(table[0] == "Domaine d'études / Area of Study:").idxmax(), 1]
+        area_of_study = get_column_value("Domaine d'études / Area of Study:", item)
         return area_of_study
     else:
         return None
@@ -256,9 +243,7 @@ def parse_specialization(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Domaine de spécialisation / Specialization:").any():
-        table = item[[0, 1]]
-        specialization = table.loc[(table[0] == "Domaine de spécialisation / Specialization:").idxmax(), 1]
-
+        specialization = get_column_value("Domaine de spécialisation / Specialization:", item)
         return specialization
     else:
         return None
@@ -268,9 +253,7 @@ def parse_program_length(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Longueur du programme").any():
-        table = item[[0, 1]]
-        program_length = table.loc[(table[0] == "Longueur du programme (Années) / Program Length (Years):").idxmax(), 1]
-
+        program_length = get_column_value("Longueur du programme (Années) / Program Length (Years):", item)
         return program_length
     else:
         return None
@@ -280,9 +263,7 @@ def parse_num_years_completed(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Années complétées / Nbr of Years Completed:").any():
-        table = item[[0, 1]]
-        num_years_completed = table.loc[(table[0] == "Années complétées / Nbr of Years Completed:").idxmax(), 1]
-
+        num_years_completed = get_column_value("Années complétées / Nbr of Years Completed:", item)
         return num_years_completed
     else:
         return None
@@ -292,9 +273,7 @@ def parse_institution(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Établissement d'enseignement / Institution:").any():
-        table = item[[0, 1]]
-        institution = table.loc[(table[0] == "Établissement d'enseignement / Institution:").idxmax(), 1]
-
+        institution = get_column_value("Établissement d'enseignement / Institution:", item)
         return institution
     else:
         return None
@@ -304,9 +283,7 @@ def parse_graduation_date(item):
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.contains("Date de graduation / Graduation Date:").any():
-        table = item[[0, 1]]
-        graduation_date = table.loc[(table[0] == "Date de graduation / Graduation Date:").idxmax(), 1]
-
+        graduation_date = get_column_value("Date de graduation / Graduation Date:", item)
         return graduation_date
     else:
         return None
@@ -336,26 +313,19 @@ def parse_stream(item):
     first_column = item[item.columns[0]].astype(str)
     value_column = item[item.columns[1]].astype(str)
     if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
-        table = item[[0, 1]]
-
-        stream_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+        stream_text = get_column_value("Question - Anglais / English:", item)
         stream_text = stream_text.split("Are you applying for")[1].split(",")[0]
 
         if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
-            table = item[[0, 1]]
-            response = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
-
+            response = get_column_value("Réponse du postulant / Applicant Answer:", item)
             if "Yes" in response:
                 return stream_text
     elif value_column.str.contains(r"^Are you applying to Stream \d", regex=True).any():
-        table = item[[0, 1]]
-        stream_text = table.loc[(table[0] == "Question - Anglais / English:").idxmax(), 1]
+        stream_text = get_column_value("Question - Anglais / English:", item)
         stream_text = stream_text.split("Are you applying to")[1].split("?")[0]
 
         if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
-            table = item[[0, 1]]
-            response = table.loc[(table[0] == "Réponse du postulant / Applicant Answer:").idxmax(), 1]
-
+            response = get_column_value("Réponse du postulant / Applicant Answer:", item)
             if "Yes" in response:
                 return stream_text
     else:
@@ -402,7 +372,7 @@ def correct_split_item(tables):
                         item2 = tables[index + 2]
 
                 if check_if_table_valid(item2):
-                    if "NaN" in item2.ix[0, 0]:
+                    if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
@@ -615,11 +585,10 @@ def clean_and_parse(df, application, position, applicant_counter):
     count = 0
 
     for idx, item in enumerate(df):
-        if item.empty:
-            continue
-        else:
+
+        if not item.empty:
             item = item.astype(str)
-            item = item.apply(clean_data)
+            item = item.applymap(clean_data)
             item.dropna(axis=1, how='all', inplace=True)
             item.reset_index(drop=True, inplace=True)
             df[idx] = item
