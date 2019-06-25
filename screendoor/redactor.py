@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import tabula
+from fuzzywuzzy import fuzz
 from pandas import options
 from tika import parser
 from weasyprint import HTML, CSS
@@ -16,13 +17,19 @@ def redact_table(table, forbidden):
     return series
 
 
+def cleanData(x):
+    if "Réponse Complémentaire: / Complementary Answer:" not in x:
+        x = x.replace(r'\r', ' ', regex=True)
+    return x
+
+
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
     length = len(list_of_data_frames)
     no_applicants_batch = 1
 
     # /////////////////////////////////////////////////////////////////////////
 
-    list_of_data_frames = [item.replace(r'\r', ' ', regex=True) for item in list_of_data_frames]
+    list_of_data_frames = [item.apply(cleanData) for item in list_of_data_frames]
 
     print("Reading file: " + filename)
 
@@ -52,7 +59,6 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                     "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):"] = "REDACTED"
                 item = pd.DataFrame({0: series.index, 1: series.values})
 
-            print(item)
             list_of_data_frames[idx] = item
 
     # /////////////////////////////////////////////////////////////////////////
@@ -81,7 +87,8 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
         if not deletion:
             html = item.to_html(index=False, header=False)
             documents.append(
-                HTML(string=html).render(stylesheets=[CSS(string='table, th, td {border: 1px solid black; border-collapse: collapse;}')]))
+                HTML(string=html).render(
+                    stylesheets=[CSS(string='table, th, td {border: 1px solid black; border-collapse: collapse;}')]))
 
     pages = []
 
@@ -137,4 +144,5 @@ def redact_applications():
             continue
 
     return count
+
 

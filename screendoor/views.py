@@ -1,3 +1,5 @@
+import random
+import string
 from string import digits
 from dateutil import parser as dateparser
 from django.core.mail import send_mail
@@ -8,13 +10,16 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 from screendoor.parseapplication import parse_application
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
+from screendoor_app.settings import PROJECT_ROOT
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
+    ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken, Position, Applicant, Education, FormQuestion, FormAnswer, Stream, Classification
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
 
 from screendoor.parseposter import parse_upload
 from screendoor.redactor import redact_applications
 import os
+
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
@@ -288,7 +293,8 @@ def positions(request):
 
 # Return whether the position exists and the user has access to it
 def user_has_position(request, reference, position_id):
-    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(reference_number=reference).exists():
+    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(
+            reference_number=reference).exists():
         return Position.objects.get(id=position_id)
     return None
 
@@ -303,7 +309,7 @@ def position_detail_data(request, position):
         applicant.number_yes_responses = FormAnswer.objects.filter(
             parent_applicant=applicant, applicant_answer=True).count()
         applicant.percentage_correct = applicant.number_yes_responses * \
-            100 // applicant.number_questions
+                                       100 // applicant.number_questions
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
@@ -344,14 +350,24 @@ def upload_applications(request):
         if form.is_valid():
             position = Position.objects.get(
                 id=request.POST.get("position-id"))
-            pdf = request.FILES['pdf']
-            with open('/code/applications/' + pdf.name, 'wb+') as destination:
-                for chunk in pdf.chunks():
-                    destination.write(chunk)
-                    parse_application(form.save(commit=False), position)
+            files = request.FILES.getlist('pdf')
+            print(PROJECT_ROOT)
+            path = '/code/screendoor/applications/'
+            applicant_counter = 0
+            batch_counter = 0
+            for f in files:
+                batch_counter += 1
+                new_pdf_name = ''.join(
+                    random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
+                with open(path + new_pdf_name, 'wb+') as destination:
+                    for chunk in f.chunks():
+                        destination.write(chunk)
+                applicant_counter = applicant_counter + parse_application(form.save(commit=False), position,
+                                                                          new_pdf_name,
+                                                                          applicant_counter, batch_counter)
                 os.chdir("..")
-                os.remove("/code/applications/" + pdf.name)
-                return redirect('position', position.reference_number, position.id)
+                os.remove(path + new_pdf_name)
+            return redirect('position', position.reference_number, position.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -371,7 +387,9 @@ def import_applications_redact(request):
 
 # Verify that the applicant exists and belongs to position that user has access to
 def position_has_applicant(request, app_id):
-    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(applicant_id=app_id).parent_position.id):
+    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(
+            applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
+        applicant_id=app_id).parent_position.id):
         return Applicant.objects.get(applicant_id=app_id)
 
 
@@ -384,7 +402,12 @@ def applicant_detail_data(applicant, position):
     number_no_responses = FormAnswer.objects.filter(
         parent_applicant=applicant, applicant_answer=False).count()
     percentage_correct = number_yes_responses * 100 // number_questions
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': answers, 'number_questions': number_questions, 'number_yes_responses': number_yes_responses, 'number_no_responses': number_no_responses, 'percentage_correct': percentage_correct}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position,
+            'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
+            'classifications': Classification.objects.filter(parent_applicant=applicant),
+            'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
+            'answers': answers, 'number_questions': number_questions, 'number_yes_responses': number_yes_responses,
+            'number_no_responses': number_no_responses, 'percentage_correct': percentage_correct}
 
 
 # View an application
@@ -392,7 +415,8 @@ def applicant_detail_data(applicant, position):
 def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
-        return render(request, 'application.html', applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
+        return render(request, 'application.html',
+                      applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
 
