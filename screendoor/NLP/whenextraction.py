@@ -236,16 +236,39 @@ def iterate_through_dep_tree(dep_tree):
 
     contexts = []
 
-    for leaf in dep_tree:
+    cur_sent = None
+    flag = False
 
-        # If we're currently looking at a date's context
-        if leaf.text in dates:
-            # Get to the head of the dep_tree
-            root = get_to_tree_root(leaf, dates)
-            # now that we have the head of the date entity,
-            # navigate through it for the context of the current date
-            contexts.append(clean(leaf.text + ": " + navigate_through_tree(root, dates)))
+    for leaf in dep_tree:
+        # If we've changed the sentence, check if the sentences subject is valid
+        # If it is not, skip over the sentence, as it refers to something the
+        # applicant did not do themselves (eg a project's duration)
+        if not leaf.sent == cur_sent:
+            flag = remove_bad_subjects(leaf.sent)
+
+        if flag:
+            # If we're currently looking at a date's context
+            if leaf.text in dates:
+                # Get to the head of the dep_tree
+                root = get_to_tree_root(leaf, dates)
+                # now that we have the head of the date entity,
+                # navigate through it for the context of the current date
+                contexts.append(clean(
+                    leaf.text + ": " + navigate_through_tree(root, dates)))
+        cur_sent = leaf.sent
     return contexts
+
+
+# Attempts to filter out any bad subjects (note: absence of a subject assumes
+# the applicant is referring to themselves
+def remove_bad_subjects(sent):
+    test = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
+    if test == []:
+        return True
+    else:
+        if test[0].text == 'I' or 'my' in test[0].text or 'My' in test[0].text:
+            return True
+    return False
 
 
 # Prevents crash: retokenizer only works on disjoint sets
