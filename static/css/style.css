@@ -1,18 +1,3 @@
-@keyframes table-expand-collapse {
-
-
-}
-
-.tr {
-  transition: all 2s linear;
-  opacity: 1;
-}
-
-.hidden {
-  opacity: 0;
-  display: none;
-}
-
 .toggle-content.is-visible {
 	display: initial;
 	height: auto;
