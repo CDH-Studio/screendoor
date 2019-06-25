@@ -1,13 +1,3 @@
-.tr {
-  transition: all .25s linear;
-  opacity: 1;
-}
-
-.hide {
-  opacity: 0;
-  display: none;
-}
-
 .toggle-content.is-visible {
 	display: initial;
 	height: auto;
