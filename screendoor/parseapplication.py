@@ -521,11 +521,10 @@ def get_answer(table, answers, position):
         analysis = None
         comp_response = parse_applicant_complementary_response(table)
         if not (comp_response is None):
-            # Extract dates, and convert the returned dict to a flat list
-            dates = [': '.join((k, v)) for k, v in
-                     extract_dates(comp_response).items()]
+            # Extract dates
+            dates = extract_dates(str.strip(comp_response))
             # Extract actions
-            experiences = extract_how(comp_response)
+            experiences = extract_how(str.strip(comp_response))
             # Combine the two lists, and make them a newline delimited str.
             if dates == [] and experiences == []:
                 analysis = "No Analysis"
