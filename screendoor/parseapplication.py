@@ -150,7 +150,6 @@ def parse_first_official_language(item):
 
 def parse_working_ability(item):
     table = item[[0, 1]]
-    print(table)
     working_ability = table.loc[(table[0] == "Connaissance pratique / Working ability:").idxmax(), 1]
     return working_ability
 
@@ -611,10 +610,11 @@ def find_essential_details(tables, position):
     return applicant
 
 
-def clean_and_parse(df, application, position):
+def clean_and_parse(df, application, position, applicant_counter):
     # Pre-processing of the tables to insure for easy processing and string matching.
     array = []
     count = 0
+
     for idx, item in enumerate(df):
         if item.empty:
             continue
@@ -630,32 +630,31 @@ def clean_and_parse(df, application, position):
                 count = count + 1
                 array.append(idx)
 
-    print("Total Applicants: " + str(count))
     for x in range(len(array)):
         if x == (count - 1):
-            print("Processing Applicant: " + str(x + 1))
+            print("Processing Applicant: " + str(x + 1 + applicant_counter))
             application.append(find_essential_details(df[array[x]:], position))
         else:
-            print("Processing Applicant: " + str(x + 1))
+            print("Processing Applicant: " + str(x + 1 + applicant_counter))
             application.append(find_essential_details(df[array[x]:array[x + 1]], position))
 
     return application
 
 
-def parse_application(request, position, new_pdf_name):
+def parse_application(request, position, new_pdf_name, applicant_counter, batch_counter):
     # Parse an application batch.
     if request.pdf.name:
         application = []
-        print("BEGINNING APPLICATION PARSING PROCEDURE")
+        print("BATCH " + str(batch_counter) + ": READING TABLES")
 
         df = tabula.read_pdf("/code/screendoor/applications/" + new_pdf_name, options, pages="all",
                              multiple_tables="true",
                              lattice="true")
 
-        print("TABLES SUCCESSFULLY READ")
+        print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
 
-        application = clean_and_parse(df, application, position)
+        application = clean_and_parse(df, application, position, applicant_counter)
         for item in application:
             item.parent_position = position
             item.save()
-        pass
+        return len(application)
