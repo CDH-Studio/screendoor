@@ -24,7 +24,7 @@
             <!-- Applicant Totals -->
             <thead>
               <tr>
-                <th colspan="26"><h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ number_yes_responses}}</span><span class="">/{{ number_questions }} {{ applicantText.questions|lower }} ({% widthratio number_yes_responses number_questions 100 %}%)</span></h6></th>
+                <th colspan="26"><h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ number_yes_responses}}</span><span class="">/{{ number_questions }} {{ applicantText.questions|lower }} ({% percentage_correct %}%)</span></h6></th>
               </tr>
             </thead>
             <thead class="collapse">

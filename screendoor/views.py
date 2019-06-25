@@ -11,6 +11,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.core.files.storage import FileSystemStorage
 
 from celery.result import AsyncResult
 
@@ -351,14 +352,15 @@ def upload_applications(request):
     if request.POST.get("upload-applications"):
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
             position_id = int(request.POST.get("position-id"))
-            position = Position.objects.get(id=position_id)
             files = request.FILES.getlist('pdf')
-            file_paths = [str(file.temporary_file_path()) for file in files]
-            task_result = process_applications.run(
-                list(file_paths), position_id)
-        return redirect('position', position.reference_number, position.id)
+            file_paths = [FileSystemStorage().url(file_name)
+                          for file_name in [FileSystemStorage().save(file.name, file)
+                                            for file in files]]
+            # Call process applications task to execute in Celery
+            task_result = process_applications.delay(file_paths, position_id)
+            # Logic for loading bar goes here
+        return redirect('position', Position.objects.get(id=position_id).reference_number, position_id)
     # TODO: render error message that application could not be added
     return redirect('home')
 

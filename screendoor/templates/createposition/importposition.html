@@ -59,6 +59,9 @@
                   </div>
                 </div>
               </div>
+              <div id="loading-bar" class="progress">
+                <div class="indeterminate"></div>
+              </div>
               <!-- URL input -->
               <div class="row" id="url_upload_form">
                 <div class="input-field col s12">
@@ -67,7 +70,7 @@
                 </div>
               </div>
               <!-- Submit button -->
-              <input class="right btn" onclick="persistUploaded();" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+              <input class="right btn" onclick="displayLoading(); persistUploaded();" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
             </div>
             <!-- End of form -->
           </form>
@@ -95,7 +98,7 @@
               <div class="col s4 right right-align" id="import-position-buttons">
                 {% csrf_token %}
                 <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
-                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
+                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" onclick="displayLoading();" value="{{ userVisibleText.save }}">
               </div>
             </div>
             <!-- Position row 1 headers -->
@@ -188,4 +191,11 @@
 <script src="{% static 'js/position-upload.js' %}"></script>
 <!-- Script for editing table values -->
 <script src="{% static 'js/position-edit.js' %}"></script>
+<script>
+ let bar = document.getElementById("loading-bar");
+ bar.classList.add("hide");
+ function displayLoading() {
+   bar.classList.remove("hide");
+ }
+</script>
 {% endblock %}

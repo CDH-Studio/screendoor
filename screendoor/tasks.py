@@ -30,11 +30,6 @@ from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, Im
 # Triggered tasks
 
 @shared_task(bind=True)
-def process_position(self):
-    pass
-
-
-@shared_task(bind=True)
 def process_applications(self, file_paths, position_id):
     applicant_counter = 0
     batch_counter = 0
