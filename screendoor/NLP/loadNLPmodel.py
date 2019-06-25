@@ -1,6 +1,7 @@
 import spacy
 from spacy.pipeline import EntityRuler
 
+# Loads in the spacy model and sets all its settings/patterns
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
     ruler = EntityRuler(nlp, overwrite_ents=True)
@@ -15,13 +16,20 @@ def init_spacy_module():
         #   from 2014, lasting 5 years
         #   since April 2011
         {'label': 'DATE1', 'pattern': [
-            {'LOWER': {'REGEX': 'from|between|starting|since'}, 'OP': '?'},
-            {'ENT_TYPE': 'DATE'},
-            {'LOWER': {'REGEX': '[^,.);:\n]'}, 'OP': '*'},
-            {'ENT_TYPE': 'DATE'},
+            {'LOWER': {'REGEX': 'from|starting|since'}, 'OP': '?'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'},
+            {'LOWER': {"NOT_IN": [',', '.', ')', '(', ';', ':', '\n', 'and']}, 'OP': '*'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'},
             {'LOWER': {'REGEX': 'until|to'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'the'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'present|current|today|now'}, 'OP': '?'}
+        ]},
+
+        {'label': 'DATE1A', 'pattern': [
+            {'LOWER': {'REGEX': 'between'}, 'OP': '?'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'},
+            {'LOWER': 'and'},
+            {'ENT_TYPE': 'DATE', 'OP': '+'}
         ]},
 
         # Example catches:
@@ -52,9 +60,10 @@ def init_spacy_module():
             {'ENT_TYPE': 'DATE'}]},
 
         # Example catches:
-        #   2011-2015
+        #   from 2011-2015
+        #   between March 2011 - April 2015
         {'label': 'DATE5', 'pattern': [
-            {'OP': '?'},
+            {'LOWER': {'REGEX': 'from|between|starting'}, 'OP': '?'},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
             {'LOWER': '-'},
             {'OP': '?'},
@@ -71,14 +80,6 @@ def init_spacy_module():
             {'LOWER': {'REGEX': '\d*\/\d*'}},
             {'LOWER': '-'},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
-
-        # Example catches:
-        #   07/2015 - 09/2016
-        {'label': 'DATE7', 'pattern': [
-            {'LOWER': 'as'},
-            {'LOWER': 'of'},
-            {'ENT_TYPE': 'DATE'}]},
-
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER

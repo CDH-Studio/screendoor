@@ -24,7 +24,8 @@ def analysis_linebreaks(string):
     string_list = string.split('\n')
     new_string = []
     for string in string_list:
-        new_string.append("• " + string[0].upper() +
+        if not string == '':
+            new_string.append("• " + string[0].upper() +
                           string[1:len(string)] + "\n \n")
     return "".join(new_string)
 

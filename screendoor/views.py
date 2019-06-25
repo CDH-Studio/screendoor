@@ -15,6 +15,9 @@ from django.core.files.storage import FileSystemStorage
 
 from celery.result import AsyncResult
 
+from screendoor.parseapplication import parse_application
+from screendoor_app.settings import PROJECT_ROOT
+
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
     ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm

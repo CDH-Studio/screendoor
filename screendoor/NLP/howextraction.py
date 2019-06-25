@@ -1,12 +1,15 @@
 from screendoor_app.settings import NLP_MODEL
 from .whenextraction import get_identified_dates
 
-def iterate_through_dep_tree(sent, dates):
+def iterate_through_dep_tree(sent):
     experience = ''
     constructing_verb_phrase = False
     prev_token = sent[0] #initialize the previous token to the first token
     next_token_index = 1
+    next_token = None
     for leaf in sent:
+        if leaf.dep_ == 'nsubj' and (leaf.pos_ == 'NOUN' or leaf.pos_ == 'PROPN'):
+            return ''
         # Only begin if the root is a verb
         # If we're looking at a date, we've overstepped into the when_extraction
         # Break
@@ -16,8 +19,12 @@ def iterate_through_dep_tree(sent, dates):
         # Find the subject the root verb is referring to
         subject = None
 
+        if (next_token_index) < len(sent):
+            next_token = sent[next_token_index]
+
         subject_list = [x for x in leaf.children if x.dep_ == 'nsubj'
                             or x.dep_ == 'nsubjpass']
+
 
         # If one is found, grab it (will always be first+only element)
         if not subject_list == []:
@@ -30,7 +37,7 @@ def iterate_through_dep_tree(sent, dates):
                 constructing_verb_phrase = True
 
 
-        if (leaf.pos_ == 'VERB' and not leaf.text == 'was' and not (leaf.dep_ == 'relcl' or leaf.dep_ =='xcomp')):
+        if (leaf.pos_ == 'VERB' and not leaf.text == 'was' or leaf.text == 'has' and not (leaf.dep_ == 'relcl' or leaf.dep_ =='xcomp')):
             if not subject is None:
                 # Ensure that the subject is referring to the applicant or
                 # a suitable alternative (NEEDS ITERATION)
@@ -39,7 +46,9 @@ def iterate_through_dep_tree(sent, dates):
             # Note: if no subject is found, it is implied that the applicant
             # refers to themselves anyway (ie. bullet points)
             else:
-                constructing_verb_phrase= True
+                head_list = [x for x in leaf.head.children if x.dep_ == 'det']
+                if head_list == []:
+                    constructing_verb_phrase= True
 
         # Once a valid start to a verb phrase (representing an applicants
         # explanation of their experience, the rest of the phrase should be
@@ -53,11 +62,12 @@ def iterate_through_dep_tree(sent, dates):
 
             # Checks if the sentence should trail off (gone too long),
             # by checking for commas and ands under specific circumstances
-            if leaf.text == ',' or leaf.text == 'and' or leaf.text == ';':
+            if leaf.text == ',' or leaf.text == ';':
                 if (not leaf.head == prev_token and
-                        not len(list(leaf.head.children)) <= 1):
-                    experience += "..."
-                    break
+                        not len(list(leaf.head.children)) <= 1) and(not leaf.dep_ == 'prep' or next_token.dep_ == 'conj'):
+                    experience += "...¿"
+                    constructing_verb_phrase = False
+                    continue
 
             # if (leaf.text == 'that'):
             #     experience += "..."
@@ -70,7 +80,7 @@ def iterate_through_dep_tree(sent, dates):
                 experience += ' ' + leaf.text
         prev_token = leaf
         next_token_index+=1
-    return experience
+    return experience.split('¿')
 
 
 
@@ -79,9 +89,10 @@ def extract_how(text):
     dates = get_identified_dates(doc)
     experience_list = []
     for sent in doc.sents:
-        experience = iterate_through_dep_tree(sent, dates)
+        experience = iterate_through_dep_tree(sent)
 
-        if not experience == '':
-            experience_list.append(experience)
+        if not experience == []:
+            for exp in experience:
+                experience_list.append(exp)
 
     return experience_list
