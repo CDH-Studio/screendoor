@@ -263,7 +263,12 @@ function collapseAll() {
     let row = collapseElements[i].nextElementSibling;
     collapseArrows[i].innerHTML = "keyboard_arrow_right";
     collapseRow(row);
-    collapseQuestionHeaders(i);
+    for (let i = 0; i < questionHeaders.length; i++) {
+      collapseQuestionHeaders(i);
+    }
+    for (let i = 0; i < educationHeaders.length; i++) {
+      hideEducationFull(i);
+    }
   }
 }
 
@@ -273,7 +278,12 @@ function expandAll() {
     let rowToExpand = collapseElements[i].nextElementSibling;
     collapseArrows[i].innerHTML = "keyboard_arrow_down";
     expandRow(rowToExpand);
+  }
+  for (let i = 0; i < questionHeaders.length; i++) {
     expandQuestionHeaders(i);
+  }
+  for (let i = 0; i < educationHeaders.length; i++) {
+    showEducationFull(i);
   }
 }
 
