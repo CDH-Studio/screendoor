@@ -1,13 +1,23 @@
+<<<<<<< Updated upstream
 import random
 import string
+=======
+import os
+import json
+
+>>>>>>> Stashed changes
 from string import digits
 from dateutil import parser as dateparser
+
 from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
+
+from celery.result import AsyncResult
 
 from screendoor.parseapplication import parse_application
 from screendoor_app.settings import PROJECT_ROOT
@@ -401,6 +411,15 @@ def application(request, app_id):
         return render(request, 'application.html', applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
+
+
+def get_task_status(request, task_id):
+    task = AsyncResult(task_id)
+    response_data = {
+        'state': task.state,
+        'details': task.info,
+    }
+    return HttpResponse(json.dumps(response_data), content_type='application/json')
 
 
 def nlp(request):
