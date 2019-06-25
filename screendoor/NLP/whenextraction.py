@@ -1,20 +1,12 @@
 from screendoor_app.settings import NLP_MODEL
 import re
 
-def ensure_valid_date(ents):
-    dates = []
-    for potential_date in [x for x in ents if 'DATE' in x.label_]:
-        if not bool(re.search(r'\d|January|Febuary|March|April|May|June|July|August|September|November|December|last|ago', potential_date.text)):
-            continue
-        dates.append(potential_date.text)
-    return dates
-
-
 # fix any false positives of dates being identified as other named entities
 def hard_identify_date_ents(doc):
     # for now, only checks the 07/2015-05/2014 regex, but will be expanded
     # as needed
     recovered_dates = re.findall(r"\d*\/\d*-\d*\/\d*", doc.text)
+
     #creates a list of the dates' start/end positions in the doc
     recovered_dates_locations = []
     for date in recovered_dates:
@@ -26,11 +18,12 @@ def hard_identify_date_ents(doc):
 
     # Adds the identified dates to the list of new entities
     for date_location in recovered_dates_locations:
-
-        new_ent = doc.char_span(date_location[0], date_location[1],
+        new_ent = doc.char_span(date_location[0], (date_location[1]),
                                 label=u'DATEHACK')
         if not (new_ent is None):
             new_ents.append(new_ent)
+        else:
+            print("ERROR: span not found. help")
 
     # Loops through the existing entities, leaving them out of the new list
     # if they are contained within the identified date entities
@@ -50,82 +43,163 @@ def hard_identify_date_ents(doc):
     doc.ents = new_ents
     return doc
 
-# NOTE: each relation has been identified has having 2 or more instances where
-# the case doesnt return bad data. Cases where it does not return what is
-# expected need to be looked at further as either refinements or edge cases.
-# test suite to come
+# Overrides the date entity recognition, removing false positive dates
+# Examples include "over the years", "months", "recently", and other dates
+# That we can't extract meaningful information out of
+def ensure_valid_date(ents):
+    dates = []
+    for potential_date in [x for x in ents if 'DATE' in x.label_]:
+        if not bool(re.search(r'[0-9]{4}|January|Febuary|March|April|May|June|July|August|September|November|December|last|ago', potential_date.text)):
+            continue
+        dates.append(potential_date.text)
+    return dates
+
+# If there something to pre-append (ie have worked v worked), fix it from
+# being passed along as 'worked have', due to the ground-up constructive
+# nature of the context generation
+def pre_append_to_output(str, preappends):
+    if len(str.split()) > 1:
+        first, *middle, last = str.split()
+        return first + ' ' + ' '.join(middle) + ' ' + ' '.join([x.text for x in preappends]) + ' ' + last
+    else:
+        return ' '.join([x.text for x in preappends]) + ' ' + str
+
 def navigate_through_tree(root, dates):
-    context = ''
-    if not (root.text in dates):
-        context = root.text + ' '
     # relations identified as having data we care about, and being paths we
-    # want to iterate down
-    accepted_relations = ['dobj', 'acomp', 'prep', 'pcomp', 'npadvmod', 'appos',
-                          'pobj', 'conj', 'advcl', 'nsubj', 'xcomp', 'attr',
-                          'relcl']
+    # want to iterate down, depending on the side that element is on
+    accepted_right_relations = ['dobj', 'acomp', 'prep', 'pcomp', 'npadvmod',
+                                'appos', 'acl', 'pobj', 'advcl', 'xcomp',
+                                'attr', 'nusbj', 'relcl', 'conj', 'ccomp',
+                                'advmod', 'agent']
+    accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj']
 
-    # relations that contain supplemntary information we want, but not as the
+    # relations identified as containing needed information, that has no
+    # relation to the immediate element
+    split_branch_relations = ['advcl']
+
+    # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_ahead_relations = ['cc', 'conj', 'punct']
+    look_ahead_relations = ['cc']
 
-    # relations that return bad data if they are found to the left of the root
-    # mainly prevents badly formatted data
-    prohibited_left_relations = ['prep', 'advcl']
+    # relations that contain supplementary information we want, but not as the
+    # path we want to create. Mostly for content like "and" and "to".
+    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'mark', 'advmod', 'amod']
 
-    # tags that under no circumstance should be allowed to be treated as valid
-    # paths.
-    prohibited_pos_tags = ['SPACE', 'PRON', 'X']
-    subject = None
+    # Initialize the return object (dates check to remove redundant printing)
+    context = ''
+    if root.text not in dates:
+        context = root.text
 
+    # Note: .children, .lefts, and .rights return generators, not lists
     children = list(root.children)
-    # checks for a split branch
-    prep_list = [x for x in children if x.dep_ == 'prep' and len(children) > 1]
-    additional_branch = None
-    # If one is found, grab it (will always be first+only element), and disallow
-    # if from being iterated through
-    if not prep_list == []:
-        additional_branch = prep_list[0]
-        children.remove(additional_branch)
 
-    while not (children == []):
-        for p in children:
-            if (p.dep_ in prohibited_left_relations
-                    and p in root.lefts
-                    and not len(list(p.children)) <= 1):
-                continue
+    additional_iterations = []
 
-            if ((p.dep_ in look_ahead_relations)
-                    and not len(list(p.children)) <= 1):
-                context += p.text + ' '
-                continue
+    while not (list(children) == []):
+        # Initialize list sets of all the identified types, with any needed
+        # restrictions to prevent faulty identification (ie, punctuation
+        # needing to be directly next to the parent element)
+        punctuation = [x for x in root.children if x.dep_ == 'punct' and
+                            x.i == root.nbor().i]
+        possible_paths = [x for x in root.lefts if
+                            x.dep_ in accepted_left_relations] + \
+                         [x for x in root.rights if
+                            x.dep_ in accepted_right_relations and
+                                not x.i > root.i + 5]
 
-            if (p.dep_ in accepted_relations and
-                    not (p.pos_ in prohibited_pos_tags) and
-                    (not p.text in dates or p.dep_ == 'dobj')):
-                context += p.text + ' '
-                # resetting children and breaking allows the list to continue
-                # for as long as there are valid elements to iterate over
-                children = list(p.children)
-                break
+        split_branches = [x for x in root.rights if
+                            x.dep_ in split_branch_relations and
+                                not x.i > root.i + 5]
+
+        append_to_path = [x for x in root.children if
+                            x.dep_ in look_ahead_relations and
+                                x == root.nbor()]
+
+        deappend_to_path = [x for x in root.lefts if
+                            x.dep_ in look_behind_relations and
+                                not x.tag_ == 'XX']
+
+        #Construct the context, without iterating down dep_tree
+        # print(root)
+        # print(punctuation)
+        # print(possible_paths)
+        # print(split_branches)
+        # print(append_to_path)
+        # print(deappend_to_path)
+        # print('\n\n')
+        if deappend_to_path:
+            context = pre_append_to_output(context, deappend_to_path)
+
+        if punctuation:
+            context += ' ' + ' '.join([x.text for x in punctuation])
+
+        if append_to_path:
+            context += ' ' + ' '.join([x.text for x in append_to_path])
+
+        if split_branches:
+            additional_iterations = split_branches
+
+        # Iterate through the dep tree, on a first come first serve basis
+        # on a left->right basis. Preference hierarchy usually not a concern.
+        if possible_paths:
+
+            # Reset the root/children to allow for infinite iteration
+            root = possible_paths[0]
+            children = list(root.children)
+
+            # Prevents redundant printing
+            if root.text not in dates:
+                context += ' ' + root.text
+        else:
             children = []
 
-    # Deals with split branch logic: if the sentence contains information in two
-    # trees, return both trees appended together left to right
-    if not (additional_branch == None):
-        context += navigate_through_tree(additional_branch, dates)
+        # If we've exhausted our options, we need to check if there's a valid
+        # split branch to traverse down
+        if children == [] and additional_iterations:
+            # Reset the root/children to allow for infinite iteration
+            children = additional_iterations
+            root = children[0]
+
+            # Hard catch: prevents weird cases
+            if root.tag_ == 'VBG':
+                break
+            if root.text not in dates:
+                context += ' ' + root.text
+
+            # Reset the split branch to prevent infinite looping
+            additional_iterations = []
+
+
     return context
 
+
+# Remove faulty spacing, hanging punctuation, and other formatting issues
+def clean(context):
+    if context.endswith(' ,'):
+        context = context.replace(' ,', '')
+    if context.endswith('('):
+        context = context[0:len(context)-1]
+    context = context.replace('( ', '(')
+    if context.count('(') > context.count(')'):
+        context += ')'
+    #context = context.replace('as ', '')
+    return context
 
 def get_to_tree_root(leaf, dates):
     # note: need a better method to prevent the date
     # from appearing in its own context
     base_leaf = leaf
     stem = leaf.head
-    while not (stem.dep_ == 'ROOT'):
+
+    if stem.text in dates:
+        return leaf
+    while not (leaf.dep_ == 'ROOT'):
+        if leaf.head.i > leaf.i + 5 or leaf.head.i < leaf.i - 5:
+            return leaf
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
         # other nlp functions
-        if leaf.text == 'as' or leaf.text == 'As':
+        if leaf.text == 'as' or leaf.text == 'As' or  leaf.text == 'at' or leaf.text == 'At':
             return leaf
 
         # edge case: stem is the highest root element, and only has one child,
@@ -160,8 +234,7 @@ def iterate_through_dep_tree(dep_tree):
     # create a list of all the date entities tagged by the ner process
     dates = ensure_valid_date(dep_tree.ents)
 
-    contexts = {}
-
+    contexts = []
 
     for leaf in dep_tree:
 
@@ -171,7 +244,7 @@ def iterate_through_dep_tree(dep_tree):
             root = get_to_tree_root(leaf, dates)
             # now that we have the head of the date entity,
             # navigate through it for the context of the current date
-            contexts[leaf.text] = navigate_through_tree(root, dates)
+            contexts.append(clean(leaf.text + ": " + navigate_through_tree(root, dates)))
     return contexts
 
 
@@ -190,14 +263,16 @@ def filter_spans(spans):
 
 
 # combine named entities into single tokens
-# (ie 'April 2015 to present', rather than 'April' '2015' 'to' 'present')
+# (eg 'Statistics Canada', rather than 'Statistics' 'Canada' (as can happen))
 def squash_named_entities(doc):
     spans = list(doc.noun_chunks) + list(doc.ents)
     spans = filter_spans(spans)
+    filtered_dates = [x for x in doc.noun_chunks for y in doc.ents if
+            y.text in x.text and 'DATE' in y.label_]
+    spans = [x for x in spans if x not in filtered_dates]
     with doc.retokenize() as retokenizer:
         for span in spans:
-            #if not (span.text in x.text for x in list(doc.ents)):
-                retokenizer.merge(span)
+            retokenizer.merge(span)
 
 
 def determine_named_entities(text):
