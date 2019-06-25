@@ -1,14 +1,9 @@
-@keyframes table-expand-collapse {
-
-
-}
-
 .tr {
-  transition: all 2s linear;
+  transition: all .25s linear;
   opacity: 1;
 }
 
-.hidden {
+.hide {
   opacity: 0;
   display: none;
 }
