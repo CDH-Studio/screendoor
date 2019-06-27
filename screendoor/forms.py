@@ -27,6 +27,10 @@ class ImportApplicationsForm(forms.ModelForm):
     upload = ImportApplicationsText.upload
     browse = ImportApplicationsText.browse
     choose_files = ImportApplicationsText.choose_files
+    processing_applicant = ImportApplicationsText.processing_applicant
+    of = ImportApplicationsText.of
+    calculating_number_applicants = ImportApplicationsText.calculating_number_applicants
+    upload_error = ImportApplicationsText.upload_error
 
     class Meta:
         model = Applicant

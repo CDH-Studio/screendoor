@@ -3109,6 +3109,62 @@ $jscomp.polyfill = function (e, r, p, m) {
         }
       }
 
+    }, {
+      key: "_animateInstant",
+      value: function _animateInstant() {
+        var _this14 = this;
+
+        // Set initial styles
+        $.extend(this.el.style, {
+          display: 'block',
+          opacity: 0
+        });
+        $.extend(this.$overlay[0].style, {
+          display: 'block',
+          opacity: 0
+        });
+
+        // Animate overlay
+        anim({
+          targets: this.$overlay[0],
+          opacity: this.options.opacity,
+          duration: 0,
+          easing: 'easeOutQuad'
+        });
+
+        // Define modal animation options
+        var enterAnimOptions = {
+          targets: this.el,
+          duration: 0,
+          easing: 'easeOutCubic',
+          // Handle modal onOpenEnd callback
+          complete: function () {
+            if (typeof _this14.options.onOpenEnd === 'function') {
+              _this14.options.onOpenEnd.call(_this14, _this14.el, _this14._openingTrigger);
+            }
+          }
+        };
+
+        // Bottom sheet animation
+        if (this.el.classList.contains('bottom-sheet')) {
+          $.extend(enterAnimOptions, {
+            bottom: 0,
+            opacity: 1
+          });
+          anim(enterAnimOptions);
+
+          // Normal modal animation
+        } else {
+          $.extend(enterAnimOptions, {
+            top: [this.options.startingTop, this.options.endingTop],
+            opacity: 1,
+            scaleX: [1, 1],
+            scaleY: [1, 1]
+          });
+          anim(enterAnimOptions);
+        }
+      }
+
       /**
        * Animate out modal
        */
@@ -3208,6 +3264,57 @@ $jscomp.polyfill = function (e, r, p, m) {
         anim.remove(this.el);
         anim.remove(this.$overlay[0]);
         this._animateIn();
+
+        // Focus modal
+        this.el.focus();
+
+        return this;
+      }
+
+      /**
+       * Open instant
+       */
+
+          }, {
+      key: "openInstant",
+      value: function openInstant($trigger) {
+        if (this.isOpen) {
+          return;
+        }
+
+        this.isOpen = true;
+        Modal._modalsOpen++;
+        this._nthModalOpened = Modal._modalsOpen;
+
+        // Set Z-Index based on number of currently open modals
+        this.$overlay[0].style.zIndex = 1000 + Modal._modalsOpen * 2;
+        this.el.style.zIndex = 1000 + Modal._modalsOpen * 2 + 1;
+
+        // Set opening trigger, undefined indicates modal was opened by javascript
+        this._openingTrigger = !!$trigger ? $trigger[0] : undefined;
+
+        // onOpenStart callback
+        if (typeof this.options.onOpenStart === 'function') {
+          this.options.onOpenStart.call(this, this.el, this._openingTrigger);
+        }
+
+        if (this.options.preventScrolling) {
+          document.body.style.overflow = 'hidden';
+        }
+
+        this.el.classList.add('open');
+        this.el.insertAdjacentElement('afterend', this.$overlay[0]);
+
+        if (this.options.dismissible) {
+          this._handleKeydownBound = this._handleKeydown.bind(this);
+          this._handleFocusBound = this._handleFocus.bind(this);
+          document.addEventListener('keydown', this._handleKeydownBound);
+          document.addEventListener('focus', this._handleFocusBound, true);
+        }
+
+        anim.remove(this.el);
+        anim.remove(this.$overlay[0]);
+        this._animateInstant();
 
         // Focus modal
         this.el.focus();
@@ -4679,6 +4786,21 @@ $jscomp.polyfill = function (e, r, p, m) {
           translateX: this.xMovement,
           translateY: this.yMovement,
           duration: this.options.inDuration,
+          easing: 'easeOutCubic'
+        });
+      }
+    }, {
+      key: "_animateInstant",
+      value: function _animateInstant() {
+        this._positionTooltip();
+        this.tooltipEl.style.visibility = 'visible';
+        anim.remove(this.tooltipEl);
+        anim({
+          targets: this.tooltipEl,
+          opacity: 1,
+          translateX: this.xMovement,
+          translateY: this.yMovement,
+          duration: 0,
           easing: 'easeOutCubic'
         });
       }

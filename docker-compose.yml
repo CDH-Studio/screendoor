@@ -54,6 +54,8 @@ services:
   flower:
     build: .
     container_name: flower
+    ports:
+      - 5555:5555
     command: bash -c "sleep 15 && flower -A screendoor_app --address=0.0.0.0 --port=5555"
     volumes:
       - .:/code

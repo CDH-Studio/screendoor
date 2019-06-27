@@ -12,10 +12,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
 
 from celery.result import AsyncResult
 
-from screendoor.parseapplication import parse_application
 from screendoor_app.settings import PROJECT_ROOT
 
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
@@ -306,8 +306,9 @@ def user_has_position(request, reference, position_id):
 
 
 # Data and visible text to render with positions
-def position_detail_data(request, position):
+def position_detail_data(request, position_id, task_id):
     # Implement logic for viewing applicant "scores"
+    position = Position.objects.get(id=position_id)
     applicants = list(Applicant.objects.filter(parent_position=position))
     for applicant in applicants:
         applicant.number_questions = FormAnswer.objects.filter(
@@ -324,17 +325,17 @@ def position_detail_data(request, position):
     applicants.sort(
         key=lambda applicant: applicant.number_yes_responses, reverse=True)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, }
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id}
 
 
 # Position detail view
 @login_required(login_url='login', redirect_field_name=None)
-def position_detail(request, reference, position_id):
+def position_detail(request, reference, position_id, task_id=None):
     # GET request
     try:
         position = user_has_position(request, reference, position_id)
         if position is not None:
-            return render(request, 'position.html', position_detail_data(request, position))
+            return render(request, 'position.html', position_detail_data(request, position.id, task_id))
     except ObjectDoesNotExist:
         # TODO: add error message that position cannot be retrieved
         return redirect('home')
@@ -363,8 +364,7 @@ def upload_applications(request):
                           for file_name in file_names]
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
-            # Logic for loading bar goes here
-        return redirect('position', Position.objects.get(id=position_id).reference_number, position_id)
+        return redirect('position', Position.objects.get(id=position_id).reference_number, position_id, task_result.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -391,7 +391,9 @@ def position_has_applicant(request, app_id):
 
 
 # Data for applicant view
-def applicant_detail_data(applicant, position):
+def applicant_detail_data(request, applicant_id, position_id):
+    applicant = Applicant.objects.get(id=applicant_id)
+    position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(parent_applicant=applicant)
     number_questions = len(answers)
     number_yes_responses = FormAnswer.objects.filter(
@@ -413,18 +415,27 @@ def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
         return render(request, 'application.html',
-                      applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
+                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
 
 
-def get_task_status(request, task_id):
-    task = AsyncResult(task_id)
-    response_data = {
-        'state': task.state,
-        'details': task.info,
-    }
-    return HttpResponse(json.dumps(response_data), content_type='application/json')
+def task_status(request, task_id):
+    if task_id is not None:
+        task = AsyncResult(task_id)
+        if task is not None:
+            try:
+                response_data = {
+                    'state': task.state,
+                    'meta': task.info,
+                }
+            except TypeError:
+                response_data = {
+                    'state': "SUCCESS",
+                    'meta': None,
+                }
+            return JsonResponse(response_data)
+    return None
 
 
 def nlp(request):

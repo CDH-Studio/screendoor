@@ -247,18 +247,158 @@
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
       <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
-      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
+      <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
+      <input type="hidden" id="task-id" value="{{ task_id }}">
+      <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
+      <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
+      <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
+      <input type="submit" onclick="persistUploaded();" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
   </form>
 </div>
 
-<!-- MaterializeCSS JS library  -->
-<script src="{% static 'js/materialize.js' %}"></script>
-<!-- Script for position delete confirmation -->
-<script src="{% static 'js/position-delete.js' %}"></script>
-<!-- Script for expanding and collapsing table rows -->
-<script src="{% static 'js/tables.js' %}"></script>
-<!-- Script for editing table values -->
-<script src="{% static 'js/position-detail-edit.js' %}"></script>
-{% endblock %}
+<!-- Application processing modal -->
+<!-- Modal Structure -->
+<div id="processing-modal" class="modal">
+  <div class="modal-content">
+    <div class="row">
+      <h5>{{ positionText.processing_applications }}</h5>
+      <div id="upload-applications-text">
+        <p>{{ positionText.processing_detail_1 }}</p>
+        <p id="files-processing"></p>
+        <p>{{ positionText.processing_detail_2 }}</p>
+        <br>
+      </div>
+      <!-- Hidden loading bar div -->
+      <div id="progress-div" class="container">
+        <div class="row">
+          <div class="progress center">
+            <div id="progress-bar" class="determinate" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="progress-indicator">
+            <h6 class="col s9 progress-text"><span id="progress-text"></span></h6>
+            <h6 class="col s3 loading"></h6>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="modal-footer"> -->
+      <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a> -->
+      <!-- </div> -->
+    </div>
+  </div>
+  <!-- End of Application Processing Modal -->
+
+  <!-- MaterializeCSS JS library  -->
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <!-- Script for position delete confirmation -->
+  <script src="{% static 'js/position-delete.js' %}"></script>
+  <!-- Script for expanding and collapsing table rows -->
+  <script src="{% static 'js/tables.js' %}"></script>
+  <!-- Script for editing table values -->
+  <script src="{% static 'js/position-detail-edit.js' %}"></script>
+  <script>
+   let uploadCard = document.getElementById("upload-applications-modal");
+   let progressBlock = document.getElementById("progress-div");
+   let currentNumberSpan = document.getElementById("current-number");
+   let totalNumberSpan = document.getElementById("total-number");
+   let progressBar = document.getElementById("progress-bar");
+   let progressText = document.getElementById("progress-text");
+   let loadingEllipses = document.getElementById("loading-ellipses")
+   let queryUrl = new URL("{% url 'task_status' task_id %}", "http://localhost:8000");
+   let reloadUrl = document.getElementById("reload-url").value;
+   let taskId = document.getElementById("task-id").value;
+   let updateTimer = null;
+   document.getElementById('files-processing').innerHTML = localStorage.getItem('pdfText');
+   clearExceptSidebar();
+
+   function clearExceptSidebar() {
+     let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
+     localStorage.clear();
+     localStorage.setItem('sidenavOpen', tempSidebarStatus);
+   }
+
+   {% if task_id is not none %}
+   uploadModal.openInstant();
+   try {
+     displayProgress(queryUrl.href);
+     updateTimer = setInterval(function() {
+       displayProgress(queryUrl.href);
+     }, 1000);
+   } catch (e) {
+     clearInterval(updateTimer);
+   }
+   {% else %}
+   hideProgressBar();
+   {% endif %}
+
+   function updateProgressText(total, current) {
+     progressText.innerHTML = "{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>"
+     document.getElementById("current-number").innerHTML = current;
+     document.getElementById("total-number").innerHTML = total;
+   }
+
+   function updateLoadingBarProgress(total, current) {
+     progressBar.style.width = Math.floor(current * 100 / total) + "%"
+   }
+
+   function showEllipses() {
+     loadingEllipses.classList.add("loading");
+   }
+
+   function hideEllipses() {
+     loadingEllipses.classList.remove("loading");
+   }
+
+   function showProgressBar() {
+     progressBlock.classList.remove("hide");
+   }
+
+   function hideProgressBar() {
+     progressBlock.classList.add("hide");
+   }
+
+   function displayProgress(queryUrl) {
+     fetch(queryUrl).then(function(response) {
+       /* data being the json object returned from Django function */
+
+       response.json().then(function(data) {
+         if (data.state == "PENDING") {
+           progressText.innerHTML = document.getElementById("calculating-applicants-text").value + ": " + data.meta.total;
+         } else if (data.state == "PROGRESS") {
+           showProgressBar();
+           updateProgress(data.state, data.meta);
+         } else if (data.state == "SUCCESS") {
+           clearInterval(updateTimer);
+           uploadModal.close();
+           window.location.assign(reloadUrl);
+         } else if (data.state == "FAILURE") {
+           displayError();
+         } else {
+           progressText.innerHTML = "Processing";
+         }
+       }).catch(error => console.error());
+     });
+   }
+
+   function displayError() {
+     console.error();
+     clearInterval(updateTimer);
+     progressText.innerHTML = document.getElementById("upload-error-text").value;
+   }
+
+   function updateProgress(state, meta) {
+     let total = meta.total;
+     let current = meta.current;
+     updateLoadingBarProgress(total, current);
+     updateProgressText(total, current);
+   }
+
+   /* Persist the form data to display alongside processed position */
+   function persistUploaded() {
+     localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
+   }
+  </script>
+  {% endblock %}

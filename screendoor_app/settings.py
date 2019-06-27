@@ -23,7 +23,7 @@ LOCALE_PATHS = (
 
 NLP_MODEL = init_spacy_module()
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+# See https://docs.d3jangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-t&#b2-=l%o=+a0-87weme6d&4pnn&$8a3x)v(my=yx7g5rp^s'
@@ -171,6 +171,7 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o644
 
 CELERY_BROKER_URL = 'pyamqp://rabbitmq:rabbitmq@rabbitmq:5672'
 CELERY_RESULT_BACKEND = 'rpc://'
+CELERYD_STATE_DB = '/tmp/celery_state'
 
 CELERY_BEAT_SCHEDULE = {
     'delete_authorization_tokens': {

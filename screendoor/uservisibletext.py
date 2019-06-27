@@ -61,6 +61,12 @@ class ImportApplicationsText():
     browse = _('Browse')
     # Translators: text for importing job applications for a position
     choose_files = _('Choose one or more files')
+    # Translators: text for importing job applications for a position
+    processing_applicant = _('Processing applicant')
+    # Translators: text for importing job applications for a position
+    of = _('of')
+    calculating_number_applicants = _("Calculating number of applicants")
+    upload_error = _("Error displaying upload progress")
 
 
 class PositionText():
@@ -99,6 +105,11 @@ class PositionText():
     back_to_positions = _("Back to Positions")
     # Translators: Confirming Position Informatino
     cannot_display_position = _("Error: Position cannot be displayed")
+    processing_applications = _("Processing Applications...")
+    processing_detail_1 = _(
+        "ScreenDoor is processing the following applications:")
+    processing_detail_2 = _(
+        "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
 
 
 class CreatePositionFormText():

@@ -1,43 +1,48 @@
-import random
 import string
+import time
 import os
-from celery import shared_task
+from celery import shared_task, current_task
 from celery.contrib import rdb
+from celery.result import AsyncResult
+
 from datetime import datetime, timedelta
 from django.core.files import File
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 
 from screendoor_app.settings import PROJECT_ROOT
 
 from .models import EmailAuthenticateToken, Position
-from .parseapplication import parse_application
+from .parseapplication import tabula_read_pdf, clean_and_parse, get_total_applicants
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-
-
-# Notes
-# Backends use resources to store and transmit results. To ensure that resources are released, you must
-# eventually call get() or forget() on EVERY AsyncResult instance returned after calling a task.
-# Information about currently executing task can be accessed like:
-# function_name.request.
-# e.g.
-# function_name.request.id
-# or, if the function is annotated with (bind=True), use self.
-# You should pass self into the function in this case.
-# Get ID in the view when you call a task function, and then pass it to the
-# template so it can be a accessed via the JS function to poll for results.
-
 
 # Triggered tasks
 
+
 @shared_task(bind=True)
 def process_applications(self, file_paths, position_id):
+    task_id = self.request.id
     applicant_counter = 0
     batch_counter = 0
+    self.update_state(state='PENDING', meta={
+        'total': 0})
+    total_applicants = int(get_total_applicants(file_paths, task_id))
+    position = Position.objects.get(id=position_id)
+    applications = []
     for file_path in file_paths:
         batch_counter += 1
-        applicant_counter += parse_application(
-            position_id, file_path, applicant_counter, batch_counter)
+        print("BATCH " + str(batch_counter) + ": READING TABLES")
+        data_frame_list = tabula_read_pdf(file_path)
+        applications = clean_and_parse(
+            data_frame_list, position, task_id, total_applicants, applicant_counter)
+        applicant_counter += len(applications)
         os.remove(file_path)
+        for application in applications:
+            print("APPLICANT COUNTER: " + str(applicant_counter))
+            application.parent_position = position
+            application.save()
+        print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
+
 
 # Scheduled tasks
 

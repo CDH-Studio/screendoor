@@ -6,6 +6,7 @@ import pandas as pd
 import tabula
 from fuzzywuzzy import fuzz
 from pandas import options
+from celery import current_task
 
 from .NLP.howextraction import extract_how
 from .NLP.whenextraction import extract_dates
@@ -644,52 +645,57 @@ def find_essential_details(tables, position):
     return applicant
 
 
-def clean_and_parse(df, application, position, applicant_counter):
+def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_counter):
     # Pre-processing of the tables to insure for easy processing and string matching.
-    array = []
-    count = 0
+    applications = []
+    applicant_page_numbers = []
+    applicant_count = 0
 
-    for idx, item in enumerate(df):
-        if item.empty:
+    for index, data_frame in enumerate(data_frames):
+        if data_frame.empty:
             continue
         else:
-            item = item.astype(str)
-            item = item.apply(clean_data)
-            item.dropna(axis=1, how='all', inplace=True)
-            item.reset_index(drop=True, inplace=True)
-            df[idx] = item
-
-            first_column = item[item.columns[0]]
+            data_frame = data_frame.astype(str)
+            data_frame = data_frame.apply(clean_data)
+            data_frame.dropna(axis=1, how='all', inplace=True)
+            data_frame.reset_index(drop=True, inplace=True)
+            data_frames[index] = data_frame
+            first_column = data_frame[data_frame.columns[0]]
             if first_column.str.contains("Citoyenneté / Citizenship:").any():
-                count = count + 1
-                array.append(idx)
+                applicant_count += 1
+                applicant_page_numbers.append(index)
 
-    for x in range(len(array)):
-        if x == (count - 1):
-            print("Processing Applicant: " + str(x + 1 + applicant_counter))
-            application.append(find_essential_details(df[array[x]:], position))
+    for current_applicant in range(len(applicant_page_numbers)):
+        current_task.update_state(task_id=task_id, state='PROGRESS', meta={
+            'current': applicant_counter + current_applicant + 1, 'total': total_applicants})
+        if current_applicant == (applicant_count - 1):
+            print("Processing Applicant: " + str(current_applicant + 1))
+            applications.append(find_essential_details(
+                data_frames[applicant_page_numbers[current_applicant]:], position))
         else:
-            print("Processing Applicant: " + str(x + 1 + applicant_counter))
-            application.append(find_essential_details(
-                df[array[x]:array[x + 1]], position))
+            print("Processing Applicant: " + str(current_applicant + 1))
+            applications.append(find_essential_details(
+                data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]], position))
+    return applications
 
-    return application
+
+def get_total_applicants(filepaths, task_id):
+    count = 0
+    for filepath in filepaths:
+        df = tabula.read_pdf(filepath, options, pages="all",
+                             multiple_tables="true",
+                             lattice="true")
+        for idx, item in enumerate(df):
+            if not item.empty:
+                first_column = item[item.columns[0]]
+                if first_column.str.contains("Citoyenneté / Citizenship:").any():
+                    count += 1
+                    current_task.update_state(task_id=task_id, state='PENDING', meta={
+                        'total': count})
+    return count
 
 
-def parse_application(position_id, file_path, applicant_counter, batch_counter):
-    # Parse an application batch.
-    position = Position.objects.get(id=position_id)
-    application = []
-    print("BATCH " + str(batch_counter) + ": READING TABLES")
-    data_frame_list = tabula.read_pdf(file_path, options, pages="all",
-                                      multiple_tables="true",
-                                      lattice="true")
-
-    print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
-
-    application = clean_and_parse(
-        data_frame_list, application, position, applicant_counter)
-    for item in application:
-        item.parent_position = position
-        item.save()
-    return len(application)
+def tabula_read_pdf(file_path):
+    return tabula.read_pdf(file_path, options, pages="all",
+                           multiple_tables="true",
+                           lattice="true")
