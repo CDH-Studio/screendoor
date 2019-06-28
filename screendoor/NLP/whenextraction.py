@@ -198,7 +198,8 @@ def get_to_tree_root(leaf, dates):
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
         # other nlp functions
-        if re.match(r'[a|A][s|t]', leaf.text):
+        if re.match(r'[a|A][s|t]', leaf.text) \
+                and 'prep' not in [x.dep_ for x in leaf.children]:
             return leaf
 
         # edge case: stem is the highest root element, and only has one child,
