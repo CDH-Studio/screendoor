@@ -1,7 +1,7 @@
 from screendoor_app.settings import NLP_MODEL
 from .NLPhelperfunctions import format_text, clean_output, remove_bad_subjects
 
-# Checks the subject tied directly to the verb
+# Checks the subject tied directly to the verb.
 def is_valid_subject(verb):
     if 'nsubj' in [x.dep_ for x in verb.children if not x.pos_ == 'NOUN']:
         return True
@@ -13,7 +13,7 @@ def get_first_elem_or_none(list):
         return list[0]
     return None
 
-# Makes sure information such as "have worked" isn't lost
+# Makes sure information such as "have worked" isn't lost.
 def grab_verb_phrase(doc, i):
     if i > 0:
         if doc[i-1].dep_ == 'aux':
@@ -60,7 +60,7 @@ def iterate_through_dep_tree(sent):
     for token in phrase:
 
         # Attempts to "atomize" the verb phrase, by removing unneeded details,
-        # or other ideas being explored in the same sentence
+        # or other ideas being explored in the same sentence.
         if token.text == ',':
             if 'conj' not in [x.dep_ for x in token.head.children] \
                     or token.nbor().dep_ == 'appos':
