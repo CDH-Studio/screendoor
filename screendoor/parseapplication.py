@@ -316,26 +316,18 @@ def parse_substantive(item):
 
 
 def parse_stream(item):
-    first_column = item[item.columns[0]].astype(str)
-    value_column = item[item.columns[1]].astype(str)
-    if value_column.str.contains(r"^Are you applying for Stream \d", regex=True).any():
-        stream_text = get_column_value("Question - Anglais / English:", item)
-        stream_text = stream_text.split("Are you applying for")[1].split(",")[0]
+    for index, row in item.iterrows():
+        key = item.iloc[index, 0]
+        value = item.iloc[index, 1]
 
-        if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
-            response = get_column_value("Réponse du postulant / Applicant Answer:", item)
+        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+            stream_text = re.findall(r'Stream \d+', value)[0]
+        if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
+            response = value
             if "Yes" in response:
                 return stream_text
-    elif value_column.str.contains(r"^Are you applying to Stream \d", regex=True).any():
-        stream_text = get_column_value("Question - Anglais / English:", item)
-        stream_text = stream_text.split("Are you applying to")[1].split("?")[0]
 
-        if first_column.str.contains("Réponse du postulant / Applicant Answer:").any():
-            response = get_column_value("Réponse du postulant / Applicant Answer:", item)
-            if "Yes" in response:
-                return stream_text
-    else:
-        return None
+    return None
 
 
 def fill_in_single_line_arguments(item, applicant):
