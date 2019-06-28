@@ -7,7 +7,7 @@ from screendoor.NLP.howextraction import extract_how
 import re
 
 def format_text(text):
-    return re.sub(r"\n(?=[A-Z])", ". ", text).replace("..", ".").replace("\n\n", ". ")
+    return re.sub(r"\n(?=[A-Z])", ". ", text).replace("..", ".").replace("\n\n", ". ").replace(' - ', '-').replace('-', ' - ')
 
 debug_when_tests = False
 debug_how_tests = False

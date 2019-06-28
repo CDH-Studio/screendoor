@@ -1,24 +1,30 @@
-import random
-import string
+import json
+
 from string import digits
 from dateutil import parser as dateparser
+
 from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
 
-from screendoor.parseapplication import parse_application
+from celery.result import AsyncResult
+
 from screendoor_app.settings import PROJECT_ROOT
+
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
     ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
-
-from screendoor.parseposter import parse_upload
-from screendoor.redactor import redact_applications
-import os
+from .tasks import process_applications
+from .parseposter import parse_upload
+from .redactor import redact_applications
 
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
@@ -300,8 +306,9 @@ def user_has_position(request, reference, position_id):
 
 
 # Data and visible text to render with positions
-def position_detail_data(request, position):
+def position_detail_data(request, position_id, task_id):
     # Implement logic for viewing applicant "scores"
+    position = Position.objects.get(id=position_id)
     applicants = list(Applicant.objects.filter(parent_position=position))
     for applicant in applicants:
         applicant.number_questions = FormAnswer.objects.filter(
@@ -309,7 +316,7 @@ def position_detail_data(request, position):
         applicant.number_yes_responses = FormAnswer.objects.filter(
             parent_applicant=applicant, applicant_answer=True).count()
         applicant.percentage_correct = applicant.number_yes_responses * \
-                                       100 // applicant.number_questions
+            100 // applicant.number_questions
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
@@ -318,17 +325,17 @@ def position_detail_data(request, position):
     applicants.sort(
         key=lambda applicant: applicant.number_yes_responses, reverse=True)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, }
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id}
 
 
 # Position detail view
 @login_required(login_url='login', redirect_field_name=None)
-def position_detail(request, reference, position_id):
+def position_detail(request, reference, position_id, task_id=None):
     # GET request
     try:
         position = user_has_position(request, reference, position_id)
         if position is not None:
-            return render(request, 'position.html', position_detail_data(request, position))
+            return render(request, 'position.html', position_detail_data(request, position.id, task_id))
     except ObjectDoesNotExist:
         # TODO: add error message that position cannot be retrieved
         return redirect('home')
@@ -343,31 +350,21 @@ def delete_position(request):
     return redirect('home')
 
 
+@csrf_exempt
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
-    if request.method == 'POST':
+    if request.POST.get("upload-applications"):
         form = ImportApplicationsForm(request.POST, request.FILES)
         if form.is_valid():
-            position = Position.objects.get(
-                id=request.POST.get("position-id"))
+            position_id = int(request.POST.get("position-id"))
             files = request.FILES.getlist('pdf')
-            print(PROJECT_ROOT)
-            path = '/code/screendoor/applications/'
-            applicant_counter = 0
-            batch_counter = 0
-            for f in files:
-                batch_counter += 1
-                new_pdf_name = ''.join(
-                    random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8)) + ".pdf"
-                with open(path + new_pdf_name, 'wb+') as destination:
-                    for chunk in f.chunks():
-                        destination.write(chunk)
-                applicant_counter = applicant_counter + parse_application(form.save(commit=False), position,
-                                                                          new_pdf_name,
-                                                                          applicant_counter, batch_counter)
-                os.chdir("..")
-                os.remove(path + new_pdf_name)
-            return redirect('position', position.reference_number, position.id)
+            file_names = [FileSystemStorage().save(file.name, file)
+                          for file in files]
+            file_paths = [FileSystemStorage().url(file_name)
+                          for file_name in file_names]
+            # Call process applications task to execute in Celery
+            task_result = process_applications.delay(file_paths, position_id)
+        return redirect('position', Position.objects.get(id=position_id).reference_number, position_id, task_result.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -388,13 +385,15 @@ def import_applications_redact(request):
 # Verify that the applicant exists and belongs to position that user has access to
 def position_has_applicant(request, app_id):
     if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(
-            applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
-        applicant_id=app_id).parent_position.id):
+        applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
+            applicant_id=app_id).parent_position.id):
         return Applicant.objects.get(applicant_id=app_id)
 
 
 # Data for applicant view
-def applicant_detail_data(applicant, position):
+def applicant_detail_data(request, applicant_id, position_id):
+    applicant = Applicant.objects.get(id=applicant_id)
+    position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(parent_applicant=applicant)
     number_questions = len(answers)
     number_yes_responses = FormAnswer.objects.filter(
@@ -416,55 +415,31 @@ def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
         return render(request, 'application.html',
-                      applicant_detail_data(applicant, Applicant.objects.get(applicant_id=app_id).parent_position))
+                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
 
 
+def task_status(request, task_id):
+    if task_id is not None:
+        task = AsyncResult(task_id)
+        if task is not None:
+            try:
+                response_data = {
+                    'state': task.state,
+                    'meta': task.info,
+                }
+            except TypeError:
+                response_data = {
+                    'state': "FAILURE",
+                    'meta': None,
+                }
+            return JsonResponse(response_data)
+    return None
+
+
 def nlp(request):
-    text = u"""Some of the IM/IT projects I have managed at PCO since June 2014:
-Project 1 - Upgrade of the department-wide Electronic Document Management System (eDOCS 5.3.1 software) on two corporate
-networks (825 users)
-As IM Systems lead, I managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all
-interactions with the information technology (IT) programmers for two networks (Protected B and Secret). I informed business group
-representatives (stakeholders) weekly of progress through conference calls and in person meetings when required.
-Project 2 - Remote deployment of the new eDOCS software package on the Protected network
-I oversaw the deployment of the software to 30 business groups, totalling close to 500 users via SCCM, managing the work of my staff
-and individuals in the IT directorate responsible for the packaging of the software and its remote deployment, I also engaged business
-unit representatives to ensure a transparent and easy process.
-Project 3 - Onboarding of two clients groups onto the EDMS (RDIMS)
-I managed the deployment of the EDMS (RDIMS/eDOCS) to two new client groups (150 users), directing the work of my staff for all
-onboarding activities (filing structure evaluation, access groups configurations, training, etc.) and engaging key personnel in the client
-and IM Policy groups, when needed.
-At OCOL between March 2010 and June 2014:
-Project 1 - Pilot of a new department-wide Electronic Document and Records Management System (EDRMS) to the Corporate
-Services Branch (50 users)
-As the IM Lead (stakeholder) on a major IM/IT Integrated Electronic Management Solution (IEMS) project, which included GCDOCS
-as our EDRMS base Module 1 (Module 2 - Case Management, Module 3 - Web Management), I managed the pilot deployment of the
-EDRMS (GCDOCS) to the Corporate Management Branch and managed the work of consultants and my staff, including presentations
-and training activities.
-Project 2 - Department-wide implementation of EDRMS - GCDOCS/Content Server 10
-As the IM Lead (stakeholder) on the same major IM/IT project, I also facilitated the department-wide implementation of the EDRMS
-(GCDOCS), including one-on-one meetings with business process owners (EX-01 level) to inform them of the implementation
-progress, organised and offered client training, negotiating with clients regarding system integration, configuration and access
-permissions, providing one-on-one coaching sessions, when needed.
-Project 3 - Department-wide training on the new EDRMS (GCDOCS/Content Server 10)
-I facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices
-throughout Canada, overseeing sessions given by consultants and my staff offering training and coaching myself on occasion.
-Project 4 - Information Frameworks
-As the IM Lead, I managed the validation of Information Frameworks for OCOL's 17 business processes, initiated consultations with
-business process owners and aligned the IM Framework within the architecture of the Electronic Document Management System
-(GCDOCS), as well as the filing scheme and retention periods.
-I also:
-- Managed the upgrade of the Library system, from Portfolio 6 to Portfolio 7 and Zones 2, including client testing.
-- Managed the implementation of e-copy software to facilitate ATIP processes.
-- Lead the development, revamp and implementation of Library services (ex. Catalogue upgrade, online subscriptions, orientation
-sessions, new acquisitions list, etc.)
-- Managed the weeding process of the Library's paper collection in view of a March 2014 physical move.
-- Managed the physical move of the Records Management office in March 2014.
-- Managed the physical move of the Library in March 2014."""
-    from screendoor.NLP.whenextraction import extract_dates
+    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
     from screendoor.NLP.howextraction import extract_how
-    extract_dates(text)
     extract_how(text)
     return redirect('positions')

@@ -1,98 +1,83 @@
 from screendoor_app.settings import NLP_MODEL
-from .whenextraction import get_identified_dates
+from .NLPhelperfunctions import format_text, clean_output, remove_bad_subjects
+
+# Checks the subject tied directly to the verb.
+def is_valid_subject(verb):
+    if 'nsubj' in [x.dep_ for x in verb.children if not x.pos_ == 'NOUN']:
+        return True
+    return False
+
+
+def get_first_elem_or_none(list):
+    if not list == []:
+        return list[0]
+    return None
+
+# Makes sure information such as "have worked" isn't lost.
+def grab_verb_phrase(doc, i):
+    if i > 0:
+        if doc[i-1].dep_ == 'aux':
+            return doc[i-1:]
+    return doc[i:]
 
 def iterate_through_dep_tree(sent):
-    experience = ''
-    constructing_verb_phrase = False
-    prev_token = sent[0] #initialize the previous token to the first token
-    next_token_index = 1
-    next_token = None
-    for leaf in sent:
-        if leaf.dep_ == 'nsubj' and (leaf.pos_ == 'NOUN' or leaf.pos_ == 'PROPN'):
-            return ''
-        # Only begin if the root is a verb
-        # If we're looking at a date, we've overstepped into the when_extraction
-        # Break
-        # if leaf in dates:
-        #     return ''
+    # Filter out sentences without valid subjects.
+    if not remove_bad_subjects(sent):
+        return None
 
-        # Find the subject the root verb is referring to
-        subject = None
+    # Span objects do not care about sentence boundaries, so a new doc is
+    # created off the sentence to stop any boundary crossing in the looping.
+    doc = sent.as_doc()
 
-        if (next_token_index) < len(sent):
-            next_token = sent[next_token_index]
+    # Find all the verbs.
+    verbs = [x for x in doc if x.pos_ == 'VERB']
 
-        subject_list = [x for x in leaf.children if x.dep_ == 'nsubj'
-                            or x.dep_ == 'nsubjpass']
+    # Pull out two types of verbs from the verb list: sentence roots, or
+    # relative clause modifiers.
+    root = get_first_elem_or_none([x for x in verbs if x.dep_ == 'ROOT'])
+    relcl = get_first_elem_or_none([x for x in verbs if x.dep_ == 'relcl'])
 
+    phrase = None
+    context = ''
 
-        # If one is found, grab it (will always be first+only element)
-        if not subject_list == []:
-            subject = subject_list[0]
+    # Hierarchy: If there is a verb acting as the root, take it, else take the
+    # first available relative clause instead.
+    if root:
+        if is_valid_subject(root):
+            phrase = grab_verb_phrase(doc, root.i)
+        else:
+            return None
+    elif relcl:
+        if is_valid_subject(relcl):
+            phrase = grab_verb_phrase(doc, relcl.i)
+        else:
+            return None
 
-        # ensures that any verb referring to themselves is taken, no matter
-        # what else (I was..., I did..., I created....)
-        if not subject is None:
-            if subject.text == 'I':
-                constructing_verb_phrase = True
+    # If no valid verb phrase was found, skip.
+    if not phrase:
+        return None
 
+    for token in phrase:
 
-        if (leaf.pos_ == 'VERB' and not leaf.text == 'was' or leaf.text == 'has' and not (leaf.dep_ == 'relcl' or leaf.dep_ =='xcomp')):
-            if not subject is None:
-                # Ensure that the subject is referring to the applicant or
-                # a suitable alternative (NEEDS ITERATION)
-                if subject.pos_ == 'PRON' and not subject.text == 'It':
-                    constructing_verb_phrase = True
-            # Note: if no subject is found, it is implied that the applicant
-            # refers to themselves anyway (ie. bullet points)
-            else:
-                head_list = [x for x in leaf.head.children if x.dep_ == 'det']
-                if head_list == []:
-                    constructing_verb_phrase= True
+        # Attempts to "atomize" the verb phrase, by removing unneeded details,
+        # or other ideas being explored in the same sentence.
+        if token.text == ',':
+            if 'conj' not in [x.dep_ for x in token.head.children] \
+                    or token.nbor().dep_ == 'appos':
+                context+= '---'
+                break
 
-        # Once a valid start to a verb phrase (representing an applicants
-        # explanation of their experience, the rest of the phrase should be
-        # taken, ending either when the answer extends too long, or goes to
-        # another idea.
-        if constructing_verb_phrase:
-            # Ensures that any composite verb is not lost (ie. was teaching)
-            if ((prev_token.dep_ == 'aux' or prev_token.dep_ == 'auxpass')
-                    and not prev_token.text in experience):
-                experience += ' ' + prev_token.text
-
-            # Checks if the sentence should trail off (gone too long),
-            # by checking for commas and ands under specific circumstances
-            if leaf.text == ',' or leaf.text == ';':
-                if (not leaf.head == prev_token and
-                        not len(list(leaf.head.children)) <= 1) and(not leaf.dep_ == 'prep' or next_token.dep_ == 'conj'):
-                    experience += "...¿"
-                    constructing_verb_phrase = False
-                    continue
-
-            # if (leaf.text == 'that'):
-            #     experience += "..."
-            #     break
-
-            # Helps in the formatting of spaces, but will need to be revisited.
-            if leaf.text == '.' or leaf.pos_ == 'PUNCT' or prev_token.text == "(" or experience == '' or leaf.text == ')':
-                experience += leaf.text
-            else:
-                experience += ' ' + leaf.text
-        prev_token = leaf
-        next_token_index+=1
-    return experience.split('¿')
-
+        context += ' ' + token.text
+    return context
 
 
 def extract_how(text):
-    doc = NLP_MODEL(text.replace('\n', ' '))
-    dates = get_identified_dates(doc)
-    experience_list = []
-    for sent in doc.sents:
-        experience = iterate_through_dep_tree(sent)
+    doc = NLP_MODEL(format_text(text))
 
-        if not experience == []:
-            for exp in experience:
-                experience_list.append(exp)
+    experience_list = {}
+    for idx, sent in enumerate(doc.sents):
+        experience = clean_output(iterate_through_dep_tree(sent))
+        if experience:
+            experience_list[experience] = idx
 
     return experience_list

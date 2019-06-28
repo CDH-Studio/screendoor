@@ -1,82 +1,96 @@
-let editButton = document.getElementById("edit-button");
-let saveButton = document.getElementById("save-button");
-let okButton = editButton.cloneNode();
-let cancelButton = saveButton.cloneNode();
-let buttonRow = document.getElementById("import-position-buttons");
-let hiddenInputs = document.getElementsByClassName("hidden");
-let cells = Array.from(document.getElementsByTagName("td"));
+/* CONSTANTS AND VARIABLES */
+
+const editButton = document.getElementById("edit-button");
+const saveButton = document.getElementById("save-button");
+const okButton = editButton.cloneNode();
+const cancelButton = saveButton.cloneNode();
+const hiddenInputs = document.getElementsByClassName("hidden");
+const cells = window.location.pathname.includes("/createnewposition") ? Array.from(document.getElementsByTagName("td")) : Array.from(document.getElementsByClassName("editable")[0].getElementsByTagName("td"));
 cells.unshift(document.getElementById("title"));
+let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
 
-/* Defines additional buttons that do not appear on page load */
-window.addEventListener('DOMContentLoaded', (event) => {
-  okButton.value = "OK";
-  okButton.id = "ok-button";
-  okButton.name = "save-edits";
-  okButton.type = "button";
-  okButton.style.display = "none";
-  cancelButton.value = "Cancel";
-  cancelButton.id = "cancel-button";
-  cancelButton.name = "cancel-edits";
-  cancelButton.type = "button";
-  cancelButton.style.display = "none";
-  buttonRow.append(okButton, cancelButton);
-});
-
-/* User presses the edit button to change position information */
-editButton.addEventListener("click", function() {
-  okButton.style.display = "inline";
-  cancelButton.style.display = "inline";
-  editButton.style.display = "none";
-  saveButton.style.display = "none";
-
-  for (let i = 0; i < cells.length; i++) {
-    cellText[i] = cells[i].innerText;
-    defineEditCells(cells[i], cells[i].name, false);
-  }
-});
-
-/* User presses the OK button to confirm editing changes */
-okButton.addEventListener("click", function() {
-  editButton.style.display = "inline";
-  saveButton.style.display = "inline";
-  okButton.style.display = "none";
-  cancelButton.style.display = "none";
-
-  for (let i = 0; i < cells.length; i++) {
-    cells[i].lastChild.value != null ?
-    hiddenInputs[i].value = cells[i].lastChild.value :
-                            hiddenInputs[i].value = cells[i].value;
-    cells[i].lastChild.value != null ? cells[i].innerText = cells[i].lastChild.value : cells[i].innerText = cells[i].value;
-  }
-});
-
-/* User presses the cancel button to cancel editing changes and revert to original */
-cancelButton.addEventListener("click", function() {
-  editButton.style.display = "inline";
-  saveButton.style.display = "inline";
-  okButton.style.display = "none";
-  cancelButton.style.display = "none";
-
-  for (let i = 0; i < cells.length; i++) {
-    cells[i].innerText = cellText[i];
-  }
-});
+/* HELPER FUNCTIONS */
 
 /* Appends edit cells containing existing position data */
-function defineEditCells(cell, name, isReadOnly) {
+const defineEditCells = function(cell, name, isReadOnly) {
   let input = createReturnTextInput(cell.innerText, name);
   input.readOnly = isReadOnly;
-  cell.innerText = null;
-  cell.appendChild(input);
-}
+  if (!isReadOnly) {
+    cell.innerText = null;
+    cell.appendChild(input);
+  }
+};
 
 /* Returns an edit cell with the name and value of the table data element */
-function createReturnTextInput(text, name) {
+const createReturnTextInput = function(text, name) {
   let editableNode = document.createElement("input");
   editableNode.name = name;
   editableNode.className = "editable";
   editableNode.type = "text";
   editableNode.value = text;
   return editableNode;
-}
+};
+
+
+const defineAdditionalButtons = function() {
+  okButton.value = document.getElementById("ok-button-text").value;
+  okButton.id = "ok-button";
+  okButton.name = "save-edits";
+  okButton.type = "button";
+  okButton.classList.add("hide");
+  cancelButton.value = document.getElementById("cancel-button-text").value;
+  cancelButton.id = "cancel-button";
+  cancelButton.name = "cancel-edits";
+  cancelButton.type = "button";
+  cancelButton.classList.add("hide");
+  buttonRow.append(okButton, cancelButton);
+};
+
+const startEditing = function() {
+  showElements(okButton, cancelButton);
+  hideElements(editButton, saveButton);
+
+  cells.forEach(function(cell, i) {
+    cellText[i] = cells[i].innerText;
+    cell.className == "readonly" ? defineEditCells(cell, cell.name, true) : defineEditCells(cell, cell.name, false);
+  });
+};
+
+const confirmEditChanges = function() {
+  showElements(editButton, saveButton);
+  hideElements(okButton, cancelButton);
+
+  cells.forEach(function(cell, i) {
+    cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
+      hiddenInputs[i].value = cell.value;
+    cell.lastChild.value != null ? cell.innerText = cell.lastChild.value : cell.innerText = cell.value;
+  });
+  if (window.location.pathname.includes("/position")) {
+    document.getElementById("save-position").submit();
+  }
+};
+
+const cancelEditChanges = function() {
+  showElements(editButton, saveButton);
+  hideElements(okButton, cancelButton);
+
+  cells.forEach(function(cell, i) {
+    cell.innerText = cellText[i];
+  });
+};
+
+/* LISTENERS */
+window.addEventListener('DOMContentLoaded', (event) => {
+  /* Defines additional buttons that do not appear on page load */
+  defineAdditionalButtons();
+
+  /* User presses the edit button to change position information */
+  editButton.addEventListener("click", startEditing);
+
+  /* User presses the OK button to confirm editing changes */
+  okButton.addEventListener("click", confirmEditChanges);
+
+  /* User presses the cancel button to cancel editing changes and revert to original */
+  cancelButton.addEventListener("click", cancelEditChanges);
+});

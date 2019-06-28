@@ -1,6 +1,7 @@
 import magic
 import mimetypes
 from django import forms
+from django.db import models
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.forms import UserCreationForm
 
@@ -26,6 +27,10 @@ class ImportApplicationsForm(forms.ModelForm):
     upload = ImportApplicationsText.upload
     browse = ImportApplicationsText.browse
     choose_files = ImportApplicationsText.choose_files
+    processing_applicant = ImportApplicationsText.processing_applicant
+    of = ImportApplicationsText.of
+    calculating_number_applicants = ImportApplicationsText.calculating_number_applicants
+    upload_error = ImportApplicationsText.upload_error
 
     class Meta:
         model = Applicant
@@ -55,6 +60,8 @@ class CreatePositionForm(forms.ModelForm):
     upload_text = CreatePositionFormText.choose_a_file
     browse_text = CreatePositionFormText.browse
     submit_text = CreatePositionFormText.submit
+    ok_text = CreatePositionFormText.ok
+    cancel_text = CreatePositionFormText.cancel
 
     class Meta:
         model = Position
