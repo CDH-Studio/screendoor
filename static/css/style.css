@@ -1,3 +1,44 @@
+.progress-indicator {
+  /* display: flex;
+     align-items: center; */
+  /* align-content: center; */
+  /* align-self: center; */
+  /* justify-content: center; */
+}
+
+.progress-text {
+  text-align: right;
+  margin-right: -5px;
+}
+
+.loading {
+  margin-left: -15px;
+  text-align: left;
+  font-size: 1.3rem;
+}
+
+.loading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0em;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}
+
 .toggle-content.is-visible {
 	display: initial;
 	height: auto;

@@ -1,11 +1,12 @@
-/* Clears all local storage except sidebar open boolean */
-function clearExceptSidebar() {
+/* Clears local storage except the current sidebar status */
+const clearExceptSidebar = function() {
   let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
   localStorage.clear();
   localStorage.setItem('sidenavOpen', tempSidebarStatus);
-}
+};
+
 /* Display persisted form information, or if none exists, hide PDF and URL forms */
-window.onload = function() {
+const initializePositionImportVariables = function() {
   if (localStorage.getItem('pdfRequired') === null) {
     document.getElementById('pdf_upload_form').style.display = 'none';
     document.getElementById('url_upload_form').style.display = 'none';
@@ -25,8 +26,14 @@ window.onload = function() {
     clearExceptSidebar();
   }
 };
+
+/* Persist uploaded file names to display alongside applicant processing bar */
+const persistPdfNames = function() {
+  localStorage.setItem('applicationFiles', document.getElementById('pdf_path_input').value);
+};
+
 /* Persist the form data to display alongside processed position */
-function persistUploaded() {
+const persistUploadForm = function() {
   localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
   localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
   localStorage.setItem('urlText', document.getElementById('url_input').value);
@@ -34,20 +41,10 @@ function persistUploaded() {
   localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').style.display);
   localStorage.setItem('pdfChecked', document.getElementById('radio_pdf').checked);
   localStorage.setItem('urlChecked', document.getElementById('radio_url').checked);
-}
-/* Show PDF form, hide and clear URL input form */
-function showPdf() {
-  document.getElementById('pdf_upload_form').style.display = 'block';
-  document.getElementById('pdf_input').required = true;
-  document.getElementById('url_upload_form').style.display = 'none';
-  document.getElementById('url_input').required = false;
-  document.getElementById('url_input').value = null;
-  document.getElementById('position_submit_button').style.display = 'block';
-  document.getElementById('position_submit_button').className = 'right btn';
-  document.getElementById('position_submit_button').value = 'Submit';
-}
+};
+
 /* Show URL form, hide and clear PDF input form */
-function showUrl() {
+const showUrl = function() {
   document.getElementById('pdf_upload_form').style.display = 'none';
   document.getElementById('pdf_input').required = false;
   document.getElementById('pdf_input').value = null;
@@ -57,4 +54,40 @@ function showUrl() {
   document.getElementById('position_submit_button').style.display = 'block';
   document.getElementById('position_submit_button').className = 'right btn disabled';
   document.getElementById('position_submit_button').value = 'Coming soon';
-}
+};
+
+/* Show PDF form, hide and clear URL input form */
+const showPdf = function() {
+  document.getElementById('pdf_upload_form').style.display = 'block';
+  document.getElementById('pdf_input').required = true;
+  document.getElementById('url_upload_form').style.display = 'none';
+  document.getElementById('url_input').required = false;
+  document.getElementById('url_input').value = null;
+  document.getElementById('position_submit_button').style.display = 'block';
+  document.getElementById('position_submit_button').className = 'right btn';
+  document.getElementById('position_submit_button').value = 'Submit';
+};
+
+/* Displays loading bar for position upload */
+const displayLoadingBar = function() {
+  document.getElementById("loading-bar").classList.remove("hide");
+};
+
+/* Checks for current page and initializes listeners */
+window.addEventListener("load", function() {
+  if (window.location.pathname.includes("/position") || window.location.pathname.includes("/positions")) {
+    document.getElementById("upload-applications-form").addEventListener("submit", persistPdfNames);
+  } else if (window.location.pathname.includes("/createnewposition")) {
+    initializePositionImportVariables();
+    document.getElementById("radio_pdf").addEventListener("click", showPdf);
+    document.getElementById("radio_url").addEventListener("click", showUrl);
+    document.getElementById("position_submit_button").addEventListener("click", function() {
+      displayLoadingBar();
+      persistUploadForm();
+    });
+    if (document.getElementById("save-button")) {
+      document.getElementById("save-button").addEventListener("clock", displayLoadingBar);
+    }
+    document.getElementById("loading-bar").classList.add("hide");
+  }
+});
