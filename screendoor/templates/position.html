@@ -226,7 +226,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -247,18 +247,64 @@
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
       <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
+      <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
+      <input type="hidden" id="task-id" value="{{ task_id }}">
+      <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
+      <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
+      <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
+      <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
   </form>
 </div>
 
-<!-- MaterializeCSS JS library  -->
-<script src="{% static 'js/materialize.js' %}"></script>
-<!-- Script for position delete confirmation -->
-<script src="{% static 'js/position-delete.js' %}"></script>
-<!-- Script for expanding and collapsing table rows -->
-<script src="{% static 'js/tables.js' %}"></script>
-<!-- Script for editing table values -->
-<script src="{% static 'js/position-detail-edit.js' %}"></script>
-{% endblock %}
+<!-- Application processing modal -->
+<!-- Modal Structure -->
+<div id="processing-modal" class="modal">
+  <div class="modal-content">
+    <div class="row">
+      <h5>{{ positionText.processing_applications }}</h5>
+      <div id="upload-applications-text">
+        <p>{{ positionText.processing_detail_1 }}</p>
+        <p id="files-processing"></p>
+        <p>{{ positionText.processing_detail_2 }}</p>
+        <br>
+      </div>
+      <!-- Hidden inputs with values for JavaScript -->
+      <input type="hidden" id="task-id" value="{{ task_id }}">
+      <!-- Hidden loading bar div -->
+      <div id="progress-div" class="container">
+        <div class="row">
+          <div class="progress center">
+            <div id="progress-bar" class="determinate" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="progress-indicator">
+            <h6 class="col s9 progress-text"><span id="progress-text"></span></h6>
+            <h6 class="col s3 loading"></h6>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="modal-footer"> -->
+      <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a> -->
+      <!-- </div> -->
+    </div>
+  </div>
+  <!-- MaterializeCSS JS library  -->
+  <script src="{% static 'js/materialize.js' %}"></script>
+  <!-- Misc helper functions -->
+  <script src="{% static 'js/helper-functions.js' %}"></script>
+  <!-- Script for initializing modal pop-ups -->
+  <script src="{% static 'js/modal.js' %}"></script>
+  <!-- Script for local storage items -->
+  <script src="{% static 'js/localstorage.js' %}"></script>
+  <!-- Script for applicant upload loading screen -->
+  <script src="{% static 'js/applicant-upload.js' %}"></script>
+  <!-- Script for expanding and collapsing table rows -->
+  <script src="{% static 'js/tables.js' %}"></script>
+  <!-- Script for editing table values -->
+  <script src="{% static 'js/position-edit.js' %}"></script>
+  <!-- Inline script requiring Django variables -->
+  {% endblock %}

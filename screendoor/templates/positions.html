@@ -76,8 +76,8 @@
         <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
           <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">{{ userVisibleText.view }}</a>
-          <a class="btn-flat blue-text position-button modal-trigger" href="#delete-modal" onclick="handleDeletionList({{ position.id }});">{{ userVisibleText.delete }}</a>
-          <a class="btn-flat blue-text position-button modal-trigger" href="#upload-applications-modal" onclick="handleUploadApplicationsList({{ position.id }});">{{ userVisibleText.upload_applications }}</a>
+          <a class="btn-flat blue-text position-button modal-trigger delete-button" href="#delete-modal">{{ userVisibleText.delete }}</a>
+          <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
         </div>
         <!-- Date and time position was added -->
         <div class="row position-buttons right">
@@ -85,6 +85,10 @@
         </div>
       </div>
     </div>
+    <input type="hidden" class="position-id-list" value="{{ position.id }}">
+    <input type="hidden" class="position-reference-list" value="{{ position.reference }}">
+    <input type="hidden" class="position-applicant-text" value="{{ applicationsForm.description|interpolate:position.position_title }}">
+    <input type="hidden" class="position-title-list" value="{{ position.position_title }}">
     <!-- Message displayed if user has no positions -->
     {% empty %}
     <h6>{{ userVisibleText.no_positions|interpolate:baseVisibleText.new_position }}</h6>
@@ -136,7 +140,7 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
+      <input type="hidden" id="upload-applications-id" name="position-id" value="">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
@@ -145,28 +149,11 @@
 
 <!-- MaterializeCSS JS library  -->
 <script src="{% static 'js/materialize.js' %}"></script>
-<script src="{% static 'js/position-delete.js' %}"></script>
+<!-- Initialize modal pop ups -->
+<script src="{% static 'js/modal.js' %}"></script>
+<!-- Misc helper functions -->
+<script src="{% static 'js/helper-functions.js' %}"></script>
+<!-- Script for positions list-specific functions -->
+<script src="{% static 'js/positions-list-functions.js' %}"></script>
 <!-- Script has to be inline to use Django variables -->
-<script>
- /* For position list view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
- function handleDeletionList(id) {
-   "{% for position in positions %}"
-   if (id == "{{ position.id }}"){
-     let positionTitle = "{{ position.position_title }}"
-     document.getElementById("delete-text").innerHTML = positionTitle;
-     document.getElementById("delete-confirm-id").value = id;
-   }
-   "{% endfor %}"
- }
- /* For position list view: Gets position ID to correctly displa upload applications pop-up, and to set position ID to associate the positions */
- function handleUploadApplicationsList(id) {
-   "{% for position in positions %}"
-   if (id == "{{ position.id }}"){
-     let positionTitle = "{{ position.position_title }}"
-     document.getElementById("upload-applications-text").innerHTML = "{{ applicationsForm.description|interpolate:position.position_title }}";
-     document.getElementById("upload-applications-id").value = id;
-   }
-   "{% endfor %}"
- }
-</script>
 {% endblock %}
