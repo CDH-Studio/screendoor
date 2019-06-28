@@ -1,4 +1,5 @@
 import os
+import re
 
 import numpy as np
 import pandas as pd
@@ -8,87 +9,112 @@ from pandas import options
 from tika import parser
 from weasyprint import HTML, CSS
 
+forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales / Initials:", "No SRFP / PSRS no:",
+             "Organisation du poste d'attache / Substantive organization:",
+             "Organisation actuelle / Current organization:",
+             "Lieu de travail actuel / Current work location:",
+             "Lieu de travail du poste d'attache / Substantive work location:",
+             "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
+             "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
+             "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
 
-def redact_table(table, forbidden):
-    for field in forbidden:
-        if table[0].str.contains(field).any():
-            series = table.set_index(0)[1]
-            series[field] = "REDACTED"
-    return series
+
+def check_if_table_valid(table):
+    # Checks if the table is a dataframe, not empty, and isn't None.
+    return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
-def cleanData(x):
-    if "Réponse Complémentaire: / Complementary Answer:" not in x:
-        x = x.replace(r'\r', ' ', regex=True)
+def correct_split_item(tables):
+    # Corrects splits between tables. (Not including splits between questions or educations)
+    for index, item in enumerate(tables):
+
+        if check_if_table_valid(item):
+            item = item.applymap(str)
+
+            if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
+                item2 = tables[index + 1]
+                item2 = item2.applymap(str)
+
+                if item2.empty:
+                    if (index + 2) != len(tables):
+                        item2 = tables[index + 2]
+
+                if check_if_table_valid(item2):
+                    if "NaN" in item2.iloc[0, 0]:
+                        item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
+                        item2 = item2.iloc[1:, ]
+                        item = pd.concat([item, item2], ignore_index=True)
+                        tables[index] = item
+                        tables[index + 1] = None
+                    elif str(item2.shape) == "(1, 1)":
+                        if "AUCUNE / NONE" not in item2.iloc[0, 0]:
+                            item.iloc[-1, 0] = item.iloc[-1, 0] + item2.iloc[0, 0]
+                            tables[index] = item
+                            tables[index + 1] = None
+
+    return tables
+
+
+def clean_data(x):
+
+
+    x = re.sub(r'\r', 'abcdefg', x)
+    x = re.sub(r'\n', ' ', x)
     return x
 
 
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
-    length = len(list_of_data_frames)
     no_applicants_batch = 1
-
-    # /////////////////////////////////////////////////////////////////////////
-
-    list_of_data_frames = [item.apply(cleanData) for item in list_of_data_frames]
+    list_of_data_frames = correct_split_item(list_of_data_frames)
 
     print("Reading file: " + filename)
 
-    forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales / Initials:", "No SRFP / PSRS no:",
-                 "Organisation du poste d'attache / Substantive organization:",
-                 "Organisation actuelle / Current organization:",
-                 "Lieu de travail actuel / Current work location:",
-                 "Lieu de travail du poste d'attache / Substantive work location:",
-                 "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
-                 "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
-                 "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
-
-    save = False
     for idx, item in enumerate(list_of_data_frames):
-        if item[0].dtype == np.float64 or item[0].dtype == np.int64:
+        if item is None or item[0].dtype == np.float64 or item[0].dtype == np.int64:
             continue
         else:
-            for field in forbidden:
-                if item[0].str.contains(field).any():
-                    series = item.set_index(0)[1]
-                    series[field] = "REDACTED"
-                    item = pd.DataFrame({0: series.index, 1: series.values})
+            item = item.applymap(str)
+            item = item.applymap(clean_data)
 
-            if item[0].str.contains("Nom de famille / Last Name:").any():
-                series = item.set_index(0)[1]
-                series[
-                    "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):"] = "REDACTED"
-                item = pd.DataFrame({0: series.index, 1: series.values})
+            for field in forbidden:
+                for index, row in item.iterrows():
+                    found_string = item.iloc[index, 0]
+                    ratio = fuzz.ratio(field, found_string)
+                    if ratio > 70:
+                        item.iloc[index, 1] = "REDACTED"
 
             list_of_data_frames[idx] = item
-
-    # /////////////////////////////////////////////////////////////////////////
 
     documents = []
     print("Writing to html and appending to redacted pdf")
     print("This may take a while...")
-    # //////////////////////// Li's html printing Thang ////////////////////////////////
+
     no_applicants_total = 1
 
-    deletion = False
+    ignore = False
     for idx, item in enumerate(list_of_data_frames):
-
+        if item is None or item[0].dtype == np.float64 or item[0].dtype == np.int64:
+            continue
         if str(item.shape) == "(1, 1)":
+
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
+                    ignore = True
+
+        if item is not None:
+            if not (item[0].dtype == np.float64 or item[0].dtype == np.int64):
+                if item[0].str.contains("Nom de famille / Last Name:").any():
                     print("Writing Applicant: " + str(no_applicants_total))
                     no_applicants_total = no_applicants_total + 1
-                    deletion = True
+                    ignore = False
 
-        if not (item[0].dtype == np.float64 or item[0].dtype == np.int64):
-
-            if item[0].str.contains("Nom de famille / Last Name:").any():
-                deletion = False
-
-        if not deletion:
-            html = item.to_html(index=False, header=False)
-            documents.append(
-                HTML(string=html).render(
-                    stylesheets=[CSS(string='table, th, td {border: 1px solid black; border-collapse: collapse;}')]))
+            if not ignore:
+                html = item.to_html(index=False, header=False)
+                documents.append(
+                    HTML(string=html).render(
+                        stylesheets=[
+                            CSS(
+                                string='table, th, td {border: 1px solid black; border-collapse: collapse;  vertical-align: middle;}')]))
 
     pages = []
 
@@ -104,8 +130,6 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
 
 
 def get_resume_starter_string(pdf_file_path):
-    string_array = []
-
     fileData = parser.from_file(pdf_file_path)
     text = fileData['content']
     array1 = text.split("Curriculum vitae / Résumé\n")
@@ -116,10 +140,8 @@ def get_resume_starter_string(pdf_file_path):
         item = item.strip()
         item = " ".join(item.split(" ", 2)[:2])
         item = item.replace(" ", "")
-
         string_array.append(item)
 
-    print(*string_array, sep='\n')
     return string_array
 
 
@@ -136,7 +158,8 @@ def redact_applications():
     for filename in os.listdir(directory):
         if filename.endswith(".pdf"):
             pdf_file_path = os.path.join(directory, filename)
-            df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true", lattice="true")
+            df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true",
+                                 lattice="true")
             string_array = get_resume_starter_string(pdf_file_path)
             count = find_essential_details(df, filename, count, pdf_file_path, string_array)
             continue
@@ -146,3 +169,4 @@ def redact_applications():
     return count
 
 
+redact_applications()

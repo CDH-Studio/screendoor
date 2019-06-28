@@ -431,7 +431,7 @@ def task_status(request, task_id):
                 }
             except TypeError:
                 response_data = {
-                    'state': "SUCCESS",
+                    'state': "FAILURE",
                     'meta': None,
                 }
             return JsonResponse(response_data)
