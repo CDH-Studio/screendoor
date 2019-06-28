@@ -1,4 +1,5 @@
 from screendoor_app.settings import NLP_MODEL
+from .NLPhelperfunctions import format_text, clean_output, remove_bad_subjects
 import re
 
 # fix any false positives of dates being identified as other named entities
@@ -50,13 +51,17 @@ def hard_identify_date_ents(doc):
 def ensure_valid_date(ents):
     dates = []
     for potential_date in [x for x in ents if 'DATE' in x.label_]:
-        if not bool(re.search(r'[0-9]{4}|January|Febuary|March|April|May|June|July|August|September|November|December|last|ago', potential_date.text)):
+        if not bool(re.search(r'[0-9]{4}|'
+                              r'January|Febuary|March|April|May|June|'
+                              r'July|August|September|November|December|'
+                              r'Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Nov|Dec|'
+                              r'last|ago', potential_date.text)):
             continue
         dates.append(potential_date.text)
     return dates
 
 
-# If there something to pre-append (ie have worked v worked), fix it from
+# If there something to pre-append (ie 'have worked'), fix it from
 # being passed along as 'worked have', due to the ground-up constructive
 # nature of the context generation
 def pre_append_to_output(str, preappends):
@@ -74,7 +79,7 @@ def navigate_through_tree(root, dates):
                                 'appos', 'acl', 'pobj', 'advcl', 'xcomp',
                                 'attr', 'nusbj', 'conj', 'ccomp',
                                 'advmod', 'agent']
-    accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj']
+    accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj', 'advcl']
 
     # relations identified as containing needed information, that has no
     # relation to the immediate element
@@ -82,12 +87,12 @@ def navigate_through_tree(root, dates):
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_ahead_relations = ['cc', 'prt']
+    look_ahead_relations = ['cc', 'prt', 'case', 'nummod']
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'mark', 'advmod',
-                             'amod', 'compound']
+    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'nsubjpass', 'mark', 'advmod',
+                             'amod', 'compound', 'poss', 'nmod', 'compound']
 
     # Initialize the return object (dates check to remove redundant printing)
     context = ''
@@ -104,32 +109,25 @@ def navigate_through_tree(root, dates):
         # restrictions to prevent faulty identification (ie, punctuation
         # needing to be directly next to the parent element)
         punctuation = [x for x in root.children if x.dep_ == 'punct' and
-                            x.i == root.nbor().i]
+                            x.i == root.nbor().i and x.text not in dates]
         possible_paths = [x for x in root.lefts if
-                            x.dep_ in accepted_left_relations] + \
+                            x.dep_ in accepted_left_relations and x.text not in dates] + \
                          [x for x in root.rights if
-                            x.dep_ in accepted_right_relations]
+                            x.dep_ in accepted_right_relations and x.text not in dates]
 
         split_branches = [x for x in root.rights if
                             x.dep_ in split_branch_relations and
-                                not x.i > root.i + 5]
+                                not x.i > root.i + 5 and x.text not in dates]
 
         append_to_path = [x for x in root.children if
                             x.dep_ in look_ahead_relations and
-                                x == root.nbor()]
+                                x == root.nbor() and x.text not in dates]
 
         deappend_to_path = [x for x in root.lefts if
                             x.dep_ in look_behind_relations and
-                                not x.tag_ == 'XX' and x.i > root.i-4]
+                                not x.tag_ == 'XX' and x.i > root.i-4 and x.text not in dates]
 
         #Construct the context, without iterating down dep_tree
-        # print(root)
-        # print(punctuation)
-        # print(possible_paths)
-        # print(split_branches)
-        # print(append_to_path)
-        # print(deappend_to_path)
-        # print('\n\n')
         if deappend_to_path:
             context = pre_append_to_output(context, deappend_to_path)
 
@@ -181,34 +179,26 @@ def navigate_through_tree(root, dates):
 
     return context
 
-# Remove faulty spacing, hanging punctuation, and other formatting issues
-def clean(context):
-    if context.endswith(' ,'):
-        context = context.replace(' ,', '')
-    if context.endswith('('):
-        context = context[0:len(context)-1]
-    context = context.replace('( ', '(')
-    if context.count('(') > context.count(')'):
-        context += ')'
-    #context = context.replace('as ', '')
-    return context
-
-
+# moves up the tree up to the best logical root to being iterating down
+# note: simply finding 'ROOT' of the sent is insufficent, as rarely is the
+# true root of the sentence the desired starting point, and iterating up a
+# tree is multiplefold easier than iterating down
 def get_to_tree_root(leaf, dates):
-    # note: need a better method to prevent the date
-    # from appearing in its own context
     base_leaf = leaf
     stem = leaf.head
 
     if stem.text in dates:
         return leaf
     while not (leaf.dep_ == 'ROOT'):
-        if leaf.head.i > leaf.i + 7:
+        # Prevents heads that are too far to be semantically linked
+        if leaf.i - 7 > leaf.head.i > leaf.i + 7 and \
+                not leaf.dep_ in ['prep', 'advcl']:
             return leaf
+
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
         # other nlp functions
-        if leaf.text == 'as' or leaf.text == 'As' or  leaf.text == 'at' or leaf.text == 'At':
+        if re.match(r'[a|A][s|t]', leaf.text):
             return leaf
 
         # edge case: stem is the highest root element, and only has one child,
@@ -216,13 +206,14 @@ def get_to_tree_root(leaf, dates):
         # return the leaf
         children = [x for x in list(stem.children) if not x.pos_== 'PUNCT']
         if (len(children) == 1 and
-                stem.text == stem.head.text and not (stem.pos_ == 'NOUN' or stem.pos_ == 'PROPN' )):
+                stem.text == stem.head.text and
+                not (stem.pos_ in ['NOUN','PROPN'])):
             if children[0].text == base_leaf.text:
                 return leaf
 
         # edge case: preventative measure of navigating too far up the tree
         # we want to return where we are currently
-        if stem.dep_ == 'nsubj' or stem.dep_ == 'conj' or stem.dep_ == 'npadvmod':
+        if stem.dep_ in ['nsubj', 'npadvmod', 'nsubjpass']:
             return stem
 
         # edge case: navigating too far up the tree
@@ -243,43 +234,33 @@ def iterate_through_dep_tree(dep_tree):
     # create a list of all the date entities tagged by the ner process
     dates = ensure_valid_date(dep_tree.ents)
 
-    contexts = []
+    contexts = {}
 
     cur_sent = None
+    sentence_index = -1
     flag = True
 
     for leaf in dep_tree:
         # If we've changed the sentence, check if the sentences subject is valid
         # If it is not, skip over the sentence, as it refers to something the
         # applicant did not do themselves (eg a project's duration)
+        if not leaf.sent == cur_sent:
+            sentence_index += 1
+
         if not leaf.sent == cur_sent and not len(leaf.sent) == len(dep_tree):
-            flag = remove_bad_subjects(leaf.sent, len(dep_tree))
+            flag = remove_bad_subjects(leaf.sent)
         if flag:
             # If we're currently looking at a date's context
             if leaf.text in dates:
                 # Get to the head of the dep_tree
                 root = get_to_tree_root(leaf, dates)
+
                 # now that we have the head of the date entity,
                 # navigate through it for the context of the current date
-                contexts.append(clean(
-                    leaf.text + ": " + navigate_through_tree(root, dates)))
+                contexts[(clean_output(
+                    leaf.text + ": " + navigate_through_tree(root, dates)))] = sentence_index
         cur_sent = leaf.sent
     return contexts
-
-
-# Attempts to filter out any bad subjects (note: absence of a subject assumes
-# the applicant is referring to themselves
-def remove_bad_subjects(sent, len):
-    test = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
-    test2 = [x for x in sent if x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
-    if test2:
-        return False
-    if test == []:
-        return True
-    else:
-        if test[0].text == 'I' or 'my' in test[0].text or 'My' in test[0].text:
-            return True
-    return False
 
 
 # Prevents crash: retokenizer only works on disjoint sets
@@ -317,7 +298,7 @@ def determine_named_entities(text):
 
 
 def extract_dates(text):
-    doc = determine_named_entities(text)
+    doc = determine_named_entities(format_text(text))
     return iterate_through_dep_tree(doc)
 
 

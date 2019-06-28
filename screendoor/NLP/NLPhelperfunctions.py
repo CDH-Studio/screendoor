@@ -1,9 +1,14 @@
 import spacy
 from spacy.pipeline import EntityRuler
+import re
 
-# Loads in the spacy model and sets all its settings/patterns
+
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
+    months_regex = '\bJanuary\b|\bFebruary\b|\bMarch\b|\bApril\b|' \
+                   '\bMay\b|\bJune\b|\bJuly\b|\bAugust\b|\bSeptember\b|' \
+                   '\bNovember\b|\bDecember\b|\bJan\b|\bFeb\b|\bMar\b|' \
+                   '\bApr\b|\bJun\b|\bJul\b|\bAug\b|\bSept\b|\bNov\b|\bDec\b|'
     ruler = EntityRuler(nlp, overwrite_ents=True)
     sentencizer = nlp.create_pipe("sentencizer")
     nlp.add_pipe(sentencizer, first=True)
@@ -18,7 +23,7 @@ def init_spacy_module():
         {'label': 'DATE1', 'pattern': [
             {'LOWER': {'REGEX': 'from|starting|since'}, 'OP': '?'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
-            {'LOWER': {"NOT_IN": [',', '.', ')', '(', ';', ':', '\n', 'and']}, 'OP': '*'},
+            {'LOWER': {"NOT_IN": [',', '.', '(', ')', ';', ':', '\n', 'and']}, 'OP': '*'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
             {'LOWER': {'REGEX': 'until|to'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'the'}, 'OP': '?'},
@@ -80,6 +85,16 @@ def init_spacy_module():
             {'LOWER': {'REGEX': '\d*\/\d*'}},
             {'LOWER': '-'},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
+
+        # Example catches:
+        #   07/2015 - 09/2016
+        {'label': 'DATE8', 'pattern': [
+            {'LOWER': {'REGEX': months_regex}},
+            {'POS': 'NUM', 'SHAPE': 'dd'},
+            {'LOWER': '-'},
+            {'LOWER': {'REGEX': months_regex}},
+            {'POS': 'NUM', 'SHAPE': 'dd'}]},
+
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER
@@ -91,3 +106,56 @@ def init_spacy_module():
     merge_ents = nlp.create_pipe('merge_entities')
     nlp.add_pipe(merge_ents, last=True)
     return nlp
+
+
+# Remove faulty spacing, hanging punctuation, and other formatting issues
+# so the return value displays all nice
+def clean_output(context):
+    if context is None:
+        return None
+    if context.endswith(' ,'):
+        context = context.replace(' ,', '')
+    if context.endswith('('):
+        context = context[0:len(context)-1]
+    if context.endswith(' :'):
+        context = context[0:len(context)-2]
+    if context.startswith(' '):
+         context = context[1:len(context)]
+    context = context.replace('( ', '(')
+    context = context.replace(' )', ')')
+    context = context.replace(" '", "'")
+    context = context.replace(" , ", ", ")
+    context = context.replace(" - ", "-")
+    context = context.replace(" .", ".")
+    context = context.replace("..", ".")
+    if context.count('(') > context.count(')'):
+        context += ')'
+    return context
+
+# Attempts to filter out any bad subjects (note: absence of a subject assumes
+# the applicant is referring to themselves
+def remove_bad_subjects(sent):
+    test2 = [x.text for x in sent if x.dep_ == 'ROOT'
+             and x.pos_ in ['NOUN', 'DET']]
+    if test2:
+        return False
+
+    test = [x.text for x in sent if x.dep_ == 'nsubj'
+            or x.dep_ == 'nsubjpass']
+    if test == []:
+        return True
+    else:
+        pronoun_check = [item for sublist in
+                         [re.findall(r'\bI\b|\bwe\b|\bWe\b', x) for x in test]
+                         for item in sublist]
+        possessive_check = [item for sublist in
+                         [re.findall(r'\b[a|A|m|M][y|s]\b', x) for x in test]
+                         for item in sublist]
+        if not (pronoun_check + possessive_check == []):
+            return True
+    return False
+
+def format_text(text):
+    return re.sub(r"\n(?=[A-Z])", ". ", text).replace(". ", ".")\
+        .replace(".", ". ").replace("\n\n", ". ").replace(' - ', '-')\
+        .replace('-', ' - ').replace("..", ".")
