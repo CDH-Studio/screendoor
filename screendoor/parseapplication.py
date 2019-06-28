@@ -1,5 +1,4 @@
 import random
-import random
 import re
 import string
 
@@ -82,9 +81,16 @@ def check_if_table_valid(table):
 
 
 def clean_data(x):
-    x = re.sub(r'\r', ' ', x)
-    x = re.sub(r'\n', ' ', x)
-    x = re.sub(r'abcdefg', '\n', x)
+    if "jJio" in x:
+        x = re.sub(r'\r', '\n', x)
+        x = re.sub(r'\n', ' ', x)
+        x = re.sub(r'jJio', '\n', x)
+        x = x.strip()
+    else:
+        x = re.sub(r'\r', '\n', x)
+        x = re.sub(r'\n', ' ', x)
+        x = x.strip()
+
     return x
 
 
@@ -363,7 +369,6 @@ def correct_split_item(tables):
     for index, item in enumerate(tables):
 
         if check_if_table_valid(item):
-
             if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
                 item2 = tables[index + 1]
 
@@ -592,7 +597,6 @@ def clean_and_parse(df, application, position, applicant_counter):
             item.dropna(axis=1, how='all', inplace=True)
             item.reset_index(drop=True, inplace=True)
             df[idx] = item
-
             first_column = item[item.columns[0]]
             if first_column.str.contains("Citoyenneté / Citizenship:").any():
                 count = count + 1
@@ -609,7 +613,7 @@ def clean_and_parse(df, application, position, applicant_counter):
     return application
 
 
-def parse_application(request, position, new_pdf_name, applicant_counter, batch_counter):
+def parse_application(request, position, new_pdf_name, applicants_processed, batch_counter):
     # Parse an application batch.
     if request.pdf.name:
         application = []
@@ -621,7 +625,7 @@ def parse_application(request, position, new_pdf_name, applicant_counter, batch_
 
         print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
 
-        application = clean_and_parse(df, application, position, applicant_counter)
+        application = clean_and_parse(df, application, position, applicants_processed)
         for item in application:
             item.parent_position = position
             item.save()
