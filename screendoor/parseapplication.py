@@ -560,10 +560,10 @@ def get_answer(table, answers, position):
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
             # Combine the two lists, and make them a newline delimited str.
-            if dates == [] and experiences == []:
+            if dates == {} and experiences == {}:
                 analysis = "No Analysis"
             else:
-                analysis = '\n'.join(list(dates + experiences))
+                analysis = '\n'.join(list(dates) + list(experiences))
         answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
                                   applicant_complementary_response=comp_response,
                                   parent_question=retrieve_question(

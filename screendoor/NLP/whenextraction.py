@@ -1,13 +1,14 @@
 from screendoor_app.settings import NLP_MODEL
+from .NLPhelperfunctions import format_text, clean_output, remove_bad_subjects
 import re
 
-# fix any false positives of dates being identified as other named entities
+# fix any false positives of dates being identified as other named entities.
 def hard_identify_date_ents(doc):
     # for now, only checks the 07/2015-05/2014 regex, but will be expanded
-    # as needed
+    # as needed.
     recovered_dates = re.findall(r"\d*\/\d*-\d*\/\d*", doc.text)
 
-    #creates a list of the dates' start/end positions in the doc
+    # creates a list of the dates' start/end positions in the doc.
     recovered_dates_locations = []
     for date in recovered_dates:
         start = doc.text.find(date)
@@ -16,18 +17,16 @@ def hard_identify_date_ents(doc):
 
     new_ents = []
 
-    # Adds the identified dates to the list of new entities
+    # Adds the identified dates to the list of new entities.
     for date_location in recovered_dates_locations:
         new_ent = doc.char_span(date_location[0], (date_location[1]),
                                 label=u'DATEHACK')
         if not (new_ent is None):
             new_ents.append(new_ent)
-        else:
-            print("ERROR: span not found. help")
 
     # Loops through the existing entities, leaving them out of the new list
     # if they are contained within the identified date entities
-    # thus overriding any faulty NER done on dates
+    # thus overriding any faulty NER done on dates.
     for ent in doc.ents:
         start = doc.text.find(ent.text)
         end = start + len(ent.text)
@@ -46,19 +45,23 @@ def hard_identify_date_ents(doc):
 
 # Overrides the date entity recognition, removing false positive dates
 # Examples include "over the years", "months", "recently", and other dates
-# That we can't extract meaningful information out of
+# That we can't extract meaningful information out of.
 def ensure_valid_date(ents):
     dates = []
     for potential_date in [x for x in ents if 'DATE' in x.label_]:
-        if not bool(re.search(r'[0-9]{4}|January|Febuary|March|April|May|June|July|August|September|November|December|last|ago', potential_date.text)):
+        if not bool(re.search(r'[0-9]{4}|'
+                              r'January|Febuary|March|April|May|June|'
+                              r'July|August|September|November|December|'
+                              r'Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Nov|Dec|'
+                              r'last|ago', potential_date.text)):
             continue
         dates.append(potential_date.text)
     return dates
 
 
-# If there something to pre-append (ie have worked v worked), fix it from
+# If there something to pre-append (ie 'have worked'), fix it from
 # being passed along as 'worked have', due to the ground-up constructive
-# nature of the context generation
+# nature of the context generation.
 def pre_append_to_output(str, preappends):
     if len(str.split()) > 1:
         first, *middle, last = str.split()
@@ -69,32 +72,32 @@ def pre_append_to_output(str, preappends):
 
 def navigate_through_tree(root, dates):
     # relations identified as having data we care about, and being paths we
-    # want to iterate down, depending on the side that element is on
+    # want to iterate down, depending on the side that element is on.
     accepted_right_relations = ['dobj', 'acomp', 'prep', 'pcomp', 'npadvmod',
                                 'appos', 'acl', 'pobj', 'advcl', 'xcomp',
                                 'attr', 'nusbj', 'conj', 'ccomp',
                                 'advmod', 'agent']
-    accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj']
+    accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj', 'advcl']
 
     # relations identified as containing needed information, that has no
-    # relation to the immediate element
+    # relation to the immediate element.
     split_branch_relations = ['advcl']
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_ahead_relations = ['cc', 'prt']
+    look_ahead_relations = ['cc', 'prt', 'case', 'nummod']
 
     # relations that contain supplementary information we want, but not as the
     # path we want to create. Mostly for content like "and" and "to".
-    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'mark', 'advmod',
-                             'amod', 'compound']
+    look_behind_relations = ['aux', 'auxpass', 'nsubj', 'nsubjpass', 'mark', 'advmod',
+                             'amod', 'compound', 'poss', 'nmod', 'compound']
 
-    # Initialize the return object (dates check to remove redundant printing)
+    # Initialize the return object (dates check to remove redundant printing).
     context = ''
     if root.text not in dates:
         context = root.text
 
-    # Note: .children, .lefts, and .rights return generators, not lists
+    # Note: .children, .lefts, and .rights return generators, not lists.
     children = list(root.children)
 
     additional_iterations = []
@@ -102,34 +105,27 @@ def navigate_through_tree(root, dates):
     while not (list(children) == []):
         # Initialize list sets of all the identified types, with any needed
         # restrictions to prevent faulty identification (ie, punctuation
-        # needing to be directly next to the parent element)
+        # needing to be directly next to the parent element).
         punctuation = [x for x in root.children if x.dep_ == 'punct' and
-                            x.i == root.nbor().i]
+                            x.i == root.nbor().i and x.text not in dates]
         possible_paths = [x for x in root.lefts if
-                            x.dep_ in accepted_left_relations] + \
+                            x.dep_ in accepted_left_relations and x.text not in dates] + \
                          [x for x in root.rights if
-                            x.dep_ in accepted_right_relations]
+                            x.dep_ in accepted_right_relations and x.text not in dates]
 
         split_branches = [x for x in root.rights if
                             x.dep_ in split_branch_relations and
-                                not x.i > root.i + 5]
+                                not x.i > root.i + 5 and x.text not in dates]
 
         append_to_path = [x for x in root.children if
                             x.dep_ in look_ahead_relations and
-                                x == root.nbor()]
+                                x == root.nbor() and x.text not in dates]
 
         deappend_to_path = [x for x in root.lefts if
                             x.dep_ in look_behind_relations and
-                                not x.tag_ == 'XX' and x.i > root.i-4]
+                                not x.tag_ == 'XX' and x.i > root.i-4 and x.text not in dates]
 
-        #Construct the context, without iterating down dep_tree
-        # print(root)
-        # print(punctuation)
-        # print(possible_paths)
-        # print(split_branches)
-        # print(append_to_path)
-        # print(deappend_to_path)
-        # print('\n\n')
+        #Construct the context, without iterating down dep_tree.
         if deappend_to_path:
             context = pre_append_to_output(context, deappend_to_path)
 
@@ -151,140 +147,123 @@ def navigate_through_tree(root, dates):
         # on a left->right basis. Preference hierarchy usually not a concern.
         if possible_paths:
 
-            # Reset the root/children to allow for infinite iteration
+            # Reset the root/children to allow for infinite iteration.
             root = possible_paths[0]
             children = list(root.children)
 
-            # Prevents redundant printing
+            # Prevents redundant printing.
             if root.text not in dates:
                 context += ' ' + root.text
         else:
             children = []
 
         # If we've exhausted our options, we need to check if there's a valid
-        # split branch to traverse down
+        # split branch to traverse down.
         if children == [] and additional_iterations:
-            # Reset the root/children to allow for infinite iteration
+            # Reset the root/children to allow for infinite iteration.
             if additional_iterations[0].text not in context:
                 children = additional_iterations
                 root = children[0]
 
-                # Hard catch: prevents weird cases
+                # Hard catch: prevents weird cases.
                 if root.tag_ == 'VBG':
                     break
                 if root.text not in dates:
                     context += ' ' + root.text
 
-            # Reset the split branch to prevent infinite looping
+            # Reset the split branch to prevent infinite looping.
             additional_iterations = []
 
 
     return context
 
-# Remove faulty spacing, hanging punctuation, and other formatting issues
-def clean(context):
-    if context.endswith(' ,'):
-        context = context.replace(' ,', '')
-    if context.endswith('('):
-        context = context[0:len(context)-1]
-    context = context.replace('( ', '(')
-    if context.count('(') > context.count(')'):
-        context += ')'
-    #context = context.replace('as ', '')
-    return context
-
-
+# moves up the tree up to the best logical root to begin iterating down.
+# note: simply finding 'ROOT' of the sent is insufficent, as rarely is the
+# true root of the sentence the desired starting point, and iterating up a
+# tree is multiplefold easier than iterating down.
 def get_to_tree_root(leaf, dates):
-    # note: need a better method to prevent the date
-    # from appearing in its own context
     base_leaf = leaf
     stem = leaf.head
 
     if stem.text in dates:
         return leaf
     while not (leaf.dep_ == 'ROOT'):
-        if leaf.head.i > leaf.i + 7:
+        # Prevents heads that are too far to be semantically linked.
+        if leaf.i - 7 > leaf.head.i > leaf.i + 7 and \
+                not leaf.dep_ in ['prep', 'advcl']:
             return leaf
+
         # edge case: 'as' identifies somebody introducing their position,
         # which we prefer over their duties, as that will be covered in
-        # other nlp functions
-        if leaf.text == 'as' or leaf.text == 'As' or  leaf.text == 'at' or leaf.text == 'At':
+        # other nlp functions.
+        if re.match(r'[a|A][s|t]', leaf.text) \
+                and 'prep' not in [x.dep_ for x in leaf.children]:
             return leaf
 
         # edge case: stem is the highest root element, and only has one child,
         # being the leaf element, and that head contains no usable data.
-        # return the leaf
         children = [x for x in list(stem.children) if not x.pos_== 'PUNCT']
         if (len(children) == 1 and
-                stem.text == stem.head.text and not (stem.pos_ == 'NOUN' or stem.pos_ == 'PROPN' )):
+                stem.text == stem.head.text and
+                not (stem.pos_ in ['NOUN','PROPN'])):
             if children[0].text == base_leaf.text:
                 return leaf
 
         # edge case: preventative measure of navigating too far up the tree
-        # we want to return where we are currently
-        if stem.dep_ == 'nsubj' or stem.dep_ == 'conj' or stem.dep_ == 'npadvmod':
+        # we want to return where we are currently.
+        if stem.dep_ in ['nsubj', 'npadvmod', 'nsubjpass']:
             return stem
 
-        # edge case: navigating too far up the tree
+        # edge case: navigating too far up the tree.
         if leaf.dep_ == 'ccomp':
             return leaf
 
-        # edge case: prevents retread of already supplied data
+        # edge case: prevents retread of already supplied data.
         if stem.text in dates:
             return leaf
 
-        # If all is good, move 'up' one level and continue going
+        # If all is good, move 'up' one level and continue going.
         leaf = stem
         stem = stem.head
     return stem
 
 
 def iterate_through_dep_tree(dep_tree):
-    # create a list of all the date entities tagged by the ner process
+    # create a list of all the date entities tagged by the ner process.
     dates = ensure_valid_date(dep_tree.ents)
 
-    contexts = []
+    contexts = {}
 
     cur_sent = None
+    sentence_index = -1
     flag = True
 
     for leaf in dep_tree:
         # If we've changed the sentence, check if the sentences subject is valid
         # If it is not, skip over the sentence, as it refers to something the
-        # applicant did not do themselves (eg a project's duration)
+        # applicant did not do themselves (eg a project's duration).
+        if not leaf.sent == cur_sent:
+            sentence_index += 1
+
         if not leaf.sent == cur_sent and not len(leaf.sent) == len(dep_tree):
-            flag = remove_bad_subjects(leaf.sent, len(dep_tree))
+            flag = remove_bad_subjects(leaf.sent)
         if flag:
-            # If we're currently looking at a date's context
+            # If we're currently looking at a date's context.
             if leaf.text in dates:
-                # Get to the head of the dep_tree
+                # Get to the head of the dep_tree.
                 root = get_to_tree_root(leaf, dates)
+
                 # now that we have the head of the date entity,
-                # navigate through it for the context of the current date
-                contexts.append(clean(
-                    leaf.text + ": " + navigate_through_tree(root, dates)))
+                # navigate through it for the context of the current date.
+                contexts[(clean_output(
+                    leaf.text + ": " + navigate_through_tree(root, dates)))] = sentence_index
         cur_sent = leaf.sent
     return contexts
 
 
-# Attempts to filter out any bad subjects (note: absence of a subject assumes
-# the applicant is referring to themselves
-def remove_bad_subjects(sent, len):
-    test = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
-    test2 = [x for x in sent if x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
-    if test2:
-        return False
-    if test == []:
-        return True
-    else:
-        if test[0].text == 'I' or 'my' in test[0].text or 'My' in test[0].text:
-            return True
-    return False
-
-
-# Prevents crash: retokenizer only works on disjoint sets
+# Prevents crash: retokenizer only works on disjoint sets.
 def filter_spans(spans):
-    # Filters a sequence of spans so they don't contain overlaps
+    # Filters a sequence of spans so they don't contain overlaps.
     get_sort_key = lambda span: (span.end - span.start, span.start)
     sorted_spans = sorted(spans, key=get_sort_key, reverse=True)
     result = []
@@ -297,7 +276,7 @@ def filter_spans(spans):
 
 
 # combine named entities into single tokens
-# (eg 'Statistics Canada', rather than 'Statistics' 'Canada' (as can happen))
+# (eg 'Statistics Canada', rather than 'Statistics' 'Canada' (as can happen)).
 def squash_named_entities(doc):
     spans = list(doc.noun_chunks) + list(doc.ents)
     spans = filter_spans(spans)
@@ -317,7 +296,7 @@ def determine_named_entities(text):
 
 
 def extract_dates(text):
-    doc = determine_named_entities(text)
+    doc = determine_named_entities(format_text(text))
     return iterate_through_dep_tree(doc)
 
 

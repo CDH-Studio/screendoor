@@ -439,49 +439,7 @@ def task_status(request, task_id):
 
 
 def nlp(request):
-    text = u"""Some of the IM/IT projects I have managed at PCO since June 2014:
-Project 1 - Upgrade of the department-wide Electronic Document Management System (eDOCS 5.3.1 software) on two corporate
-networks (825 users)
-As IM Systems lead, I managed my team's functional testing and troubleshooting activities of the upgraded EDMS software and all
-interactions with the information technology (IT) programmers for two networks (Protected B and Secret). I informed business group
-representatives (stakeholders) weekly of progress through conference calls and in person meetings when required.
-Project 2 - Remote deployment of the new eDOCS software package on the Protected network
-I oversaw the deployment of the software to 30 business groups, totalling close to 500 users via SCCM, managing the work of my staff
-and individuals in the IT directorate responsible for the packaging of the software and its remote deployment, I also engaged business
-unit representatives to ensure a transparent and easy process.
-Project 3 - Onboarding of two clients groups onto the EDMS (RDIMS)
-I managed the deployment of the EDMS (RDIMS/eDOCS) to two new client groups (150 users), directing the work of my staff for all
-onboarding activities (filing structure evaluation, access groups configurations, training, etc.) and engaging key personnel in the client
-and IM Policy groups, when needed.
-At OCOL between March 2010 and June 2014:
-Project 1 - Pilot of a new department-wide Electronic Document and Records Management System (EDRMS) to the Corporate
-Services Branch (50 users)
-As the IM Lead (stakeholder) on a major IM/IT Integrated Electronic Management Solution (IEMS) project, which included GCDOCS
-as our EDRMS base Module 1 (Module 2 - Case Management, Module 3 - Web Management), I managed the pilot deployment of the
-EDRMS (GCDOCS) to the Corporate Management Branch and managed the work of consultants and my staff, including presentations
-and training activities.
-Project 2 - Department-wide implementation of EDRMS - GCDOCS/Content Server 10
-As the IM Lead (stakeholder) on the same major IM/IT project, I also facilitated the department-wide implementation of the EDRMS
-(GCDOCS), including one-on-one meetings with business process owners (EX-01 level) to inform them of the implementation
-progress, organised and offered client training, negotiating with clients regarding system integration, configuration and access
-permissions, providing one-on-one coaching sessions, when needed.
-Project 3 - Department-wide training on the new EDRMS (GCDOCS/Content Server 10)
-I facilitated the department-wide implementation of the EDRMS by managing the department-wide training efforts to all our offices
-throughout Canada, overseeing sessions given by consultants and my staff offering training and coaching myself on occasion.
-Project 4 - Information Frameworks
-As the IM Lead, I managed the validation of Information Frameworks for OCOL's 17 business processes, initiated consultations with
-business process owners and aligned the IM Framework within the architecture of the Electronic Document Management System
-(GCDOCS), as well as the filing scheme and retention periods.
-I also:
-- Managed the upgrade of the Library system, from Portfolio 6 to Portfolio 7 and Zones 2, including client testing.
-- Managed the implementation of e-copy software to facilitate ATIP processes.
-- Lead the development, revamp and implementation of Library services (ex. Catalogue upgrade, online subscriptions, orientation
-sessions, new acquisitions list, etc.)
-- Managed the weeding process of the Library's paper collection in view of a March 2014 physical move.
-- Managed the physical move of the Records Management office in March 2014.
-- Managed the physical move of the Library in March 2014."""
-    from screendoor.NLP.whenextraction import extract_dates
+    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
     from screendoor.NLP.howextraction import extract_how
-    extract_dates(text)
     extract_how(text)
     return redirect('positions')
