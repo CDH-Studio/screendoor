@@ -9,14 +9,61 @@ from pandas import options
 from tika import parser
 from weasyprint import HTML, CSS
 
-forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales / Initials:", "No SRFP / PSRS no:",
-             "Organisation du poste d'attache / Substantive organization:",
-             "Organisation actuelle / Current organization:",
-             "Lieu de travail actuel / Current work location:",
-             "Lieu de travail du poste d'attache / Substantive work location:",
-             "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
-             "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
-             "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
+fields_to_be_redacted = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales / Initials:",
+                         "No SRFP / PSRS no:",
+                         "Organisation du poste d'attache / Substantive organization:",
+                         "Organisation actuelle / Current organization:",
+                         "Lieu de travail actuel / Current work location:",
+                         "Lieu de travail du poste d'attache / Substantive work location:",
+                         "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
+                         "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
+                         "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
+
+
+def to_html_pretty(df, title='REDACTED DATA'):
+    ht = ''
+    if title != '':
+        ht += '<h2> %s </h2>\n' % title
+    ht += df.to_html(classes='wide', escape=False, index=False, header=False)
+
+    return HTML_TEMPLATE1 + ht + HTML_TEMPLATE2
+
+
+HTML_TEMPLATE1 = '''
+<html>
+<head>
+<style>
+  h2 {
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  table { 
+    table-layout: auto;
+  }
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 5px;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  table tbody tr:hover {
+    background-color: #dddddd;
+  }
+  .wide {
+    width: 90%; 
+  }
+</style>
+</head>
+<body>
+'''
+
+HTML_TEMPLATE2 = '''
+</body>
+</html>
+'''
 
 
 def check_if_table_valid(table):
@@ -24,59 +71,47 @@ def check_if_table_valid(table):
     return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
-def correct_split_item(tables):
-    # Corrects splits between tables. (Not including splits between questions or educations)
-    for index, item in enumerate(tables):
-
-        if check_if_table_valid(item):
-            item = item.applymap(str)
-
-            if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
-                item2 = tables[index + 1]
-                item2 = item2.applymap(str)
-
-                if item2.empty:
-                    if (index + 2) != len(tables):
-                        item2 = tables[index + 2]
-
-                if check_if_table_valid(item2):
-                    if "NaN" in item2.iloc[0, 0]:
-                        item.iloc[-1, -1] = item.iloc[-1, -1] + item2.iloc[0, 1]
-                        item2 = item2.iloc[1:, ]
-                        item = pd.concat([item, item2], ignore_index=True)
-                        tables[index] = item
-                        tables[index + 1] = None
-                    elif str(item2.shape) == "(1, 1)":
-                        if "AUCUNE / NONE" not in item2.iloc[0, 0]:
-                            item.iloc[-1, 0] = item.iloc[-1, 0] + item2.iloc[0, 0]
-                            tables[index] = item
-                            tables[index + 1] = None
-
+def split_complementary_answer(tables):
     return tables
 
 
-def clean_data(x):
+def is_valid_cell(string):
+    return (string is not None) and (string != "")
 
 
-    x = re.sub(r'\r', 'abcdefg', x)
-    x = re.sub(r'\n', ' ', x)
+def clean_question_data(x, spacing_array):
+    if is_valid_cell(x):
+        x = re.sub(r"\r", "\n", x)
+
+        for item in spacing_array:
+            if item[0] in x:
+                x = x.replace(item[0], item[1] + "\n\n")
+
+        x = re.sub(r'\n', 'jJio', x)
+
     return x
 
 
-def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
+def is_question(item):
+    first_column = item[item.columns[0]]
+
+    if first_column.str.startswith("Question - Français").any():
+        return True
+    return False
+
+
+def find_essential_details(list_of_data_frames, filename, count, string_array, spacing_array):
     no_applicants_batch = 1
-    list_of_data_frames = correct_split_item(list_of_data_frames)
-
-    print("Reading file: " + filename)
-
+    list_of_data_frames = split_complementary_answer(list_of_data_frames)
+    print("Entering Loop")
     for idx, item in enumerate(list_of_data_frames):
         if item is None or item[0].dtype == np.float64 or item[0].dtype == np.int64:
             continue
         else:
             item = item.applymap(str)
-            item = item.applymap(clean_data)
+            item = item.applymap(lambda x: clean_question_data(x, spacing_array))
 
-            for field in forbidden:
+            for field in fields_to_be_redacted:
                 for index, row in item.iterrows():
                     found_string = item.iloc[index, 0]
                     ratio = fuzz.ratio(field, found_string)
@@ -114,10 +149,10 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
                     HTML(string=html).render(
                         stylesheets=[
                             CSS(
-                                string='table, th, td {border: 1px solid black; border-collapse: collapse;  vertical-align: middle;}')]))
+                                string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: '
+                                       '7px; vertical-align: middle;}')]))
 
     pages = []
-
     for document in documents:
         for page in document.pages:
             pages.append(page)
@@ -130,8 +165,9 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
 
 
 def get_resume_starter_string(pdf_file_path):
-    fileData = parser.from_file(pdf_file_path)
-    text = fileData['content']
+    file_data = parser.from_file(pdf_file_path)
+    text = file_data['content']
+    spacing_array = get_spacing_array_of_tuples(text)
     array1 = text.split("Curriculum vitae / Résumé\n")
     string_array = []
     for idx, item in enumerate(array1):
@@ -142,11 +178,61 @@ def get_resume_starter_string(pdf_file_path):
         item = item.replace(" ", "")
         string_array.append(item)
 
-    return string_array
+    return string_array, spacing_array
+
+
+def get_spacing_array_of_tuples(text):
+    # Page numbers cleaned out
+    text = re.sub(r"\s+Page: [0-9]+ / [0-9]+\s+", "\n", text)
+    text = re.sub(r"\s+Qualifications essentielles / Essential Qualifications\s+", "\n", text)
+    text = re.sub(r"\s+Qualifications constituant un atout / Asset Qualifications\s+", "\n", text)
+    text = re.sub(r"\n\n+", "\n\n", text)
+
+    answer_text = ""
+    ignore_question = False
+    answer_text_array = []
+    question_text_array = []
+    x = 0
+    while "Question - Anglais / English:" in text:
+        x += 1
+        question_text = text.split("Question - Anglais / English:", 1)[1].split("Réponse du postulant", 1)[0]
+        if "Complementary Answer:" in text:
+            answer_text = text.split("Complementary Answer:", 1)[1].split("Question - Français", 1)[0]
+            answer_text_array.append(answer_text)
+        for item in question_text_array:
+            if fuzz.ratio(question_text, item) > 90:
+                ignore_question = True
+        if not ignore_question:
+            question_text_array.append(question_text)
+            ignore_question = False
+
+        text = text.replace("Question - Anglais / English:" + question_text + "Réponse du postulant", "", 1)
+        text = text.replace("Complementary Answer:" + answer_text + "Question - Français", "", 1)
+
+    spacing_array = []
+
+    for idx, question in enumerate(question_text_array):
+        question_copy = question.strip()
+        while "\n\n" in question_copy:
+            after_space_comparison = question_copy.split("\n\n", 1)[1].replace("\n\n", "\n")
+            after_space_actual = question_copy.split("\n\n", 1)[1]
+            question_copy = question_copy.replace("\n\n", "", 1)
+            spacing_array.append((after_space_comparison, after_space_actual))
+
+    for idx, answer in enumerate(answer_text_array):
+        answer_copy = answer.strip()
+        while "\n\n" in answer_copy:
+            after_space_comparison = answer_copy.split("\n\n", 1)[1].replace("\n\n", "\n")
+            after_space_actual = answer_copy.split("\n\n", 1)[1]
+
+            answer_copy = answer_copy.replace("\n\n", "", 1)
+            spacing_array.append((after_space_comparison, after_space_actual))
+
+    return spacing_array
 
 
 def redact_applications():
-    print("Starting Redactor...")
+    print("Starting redactor")
 
     pd.set_option('display.max_colwidth', -1)
     count = 0
@@ -158,15 +244,19 @@ def redact_applications():
     for filename in os.listdir(directory):
         if filename.endswith(".pdf"):
             pdf_file_path = os.path.join(directory, filename)
-            df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true",
+            print("Reading document...")
+            df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true", guess=False,
                                  lattice="true")
-            string_array = get_resume_starter_string(pdf_file_path)
-            count = find_essential_details(df, filename, count, pdf_file_path, string_array)
+            print("Document read")
+            arrays = get_resume_starter_string(pdf_file_path)
+            print("Resume and Spacing Strings Identified")
+
+            string_array = arrays[0]
+            spacing_array = arrays[1]
+            print("Beginning Analysis")
+            count = find_essential_details(df, filename, count, string_array, spacing_array)
             continue
         else:
             continue
 
     return count
-
-
-redact_applications()
