@@ -32,14 +32,14 @@
                 <!-- PDF upload radio button -->
                 <div class="col s4">
                   <label>
-                    <input name="upload_method" id="radio_pdf" type="radio" onclick="showPdf();" />
+                    <input name="upload_method" id="radio_pdf" type="radio" />
                     <span>{{ form.pdf_name }}</span>
                   </label>
                 </div>
                 <!-- URL submit radio button -->
                 <div class="col s4">
                   <label>
-                    <input name="upload_method" id="radio_url" type="radio" onclick="showUrl();" />
+                    <input name="upload_method" id="radio_url" type="radio" />
                     <span>{{ form.url_name }}</span>
                   </label>
                 </div>
@@ -70,7 +70,7 @@
                 </div>
               </div>
               <!-- Submit button -->
-              <input class="right btn" onclick="displayLoading(); persistUploaded();" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+              <input class="right btn" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
             </div>
             <!-- End of form -->
           </form>
@@ -98,7 +98,7 @@
               <div class="col s4 right right-align" id="import-position-buttons">
                 {% csrf_token %}
                 <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
-                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" onclick="displayLoading();" value="{{ userVisibleText.save }}">
+                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
               </div>
             </div>
             <!-- Position row 1 headers -->
@@ -186,16 +186,13 @@
     </form>
   </div>
 </div>
+<data id="ok-button-text" value="{{ form.ok_text }}"></data>
+<data id="cancel-button-text" value="{{ form.cancel_text }}"></data>
 <!-- End of position display -->
-<!-- Script for upload form values persistence -->
-<script src="{% static 'js/position-upload.js' %}"></script>
+<!-- Misc helper functions -->
+<script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for editing table values -->
 <script src="{% static 'js/position-edit.js' %}"></script>
-<script>
- let bar = document.getElementById("loading-bar");
- bar.classList.add("hide");
- function displayLoading() {
-   bar.classList.remove("hide");
- }
-</script>
+<!-- Script for local storage items -->
+<script src="{% static 'js/localstorage.js' %}"></script>
 {% endblock %}

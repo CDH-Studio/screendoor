@@ -60,6 +60,8 @@ class CreatePositionForm(forms.ModelForm):
     upload_text = CreatePositionFormText.choose_a_file
     browse_text = CreatePositionFormText.browse
     submit_text = CreatePositionFormText.submit
+    ok_text = CreatePositionFormText.ok
+    cancel_text = CreatePositionFormText.cancel
 
     class Meta:
         model = Position

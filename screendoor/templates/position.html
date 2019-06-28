@@ -226,7 +226,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -252,7 +252,8 @@
       <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
       <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
       <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
-      <input type="submit" onclick="persistUploaded();" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
+      <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
+      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
     </div>
   </form>
@@ -270,6 +271,8 @@
         <p>{{ positionText.processing_detail_2 }}</p>
         <br>
       </div>
+      <!-- Hidden inputs with values for JavaScript -->
+      <input type="hidden" id="task-id" value="{{ task_id }}">
       <!-- Hidden loading bar div -->
       <div id="progress-div" class="container">
         <div class="row">
@@ -289,116 +292,19 @@
       <!-- </div> -->
     </div>
   </div>
-  <!-- End of Application Processing Modal -->
-
   <!-- MaterializeCSS JS library  -->
   <script src="{% static 'js/materialize.js' %}"></script>
-  <!-- Script for position delete confirmation -->
-  <script src="{% static 'js/position-delete.js' %}"></script>
+  <!-- Misc helper functions -->
+  <script src="{% static 'js/helper-functions.js' %}"></script>
+  <!-- Script for initializing modal pop-ups -->
+  <script src="{% static 'js/modal.js' %}"></script>
+  <!-- Script for local storage items -->
+  <script src="{% static 'js/localstorage.js' %}"></script>
+  <!-- Script for applicant upload loading screen -->
+  <script src="{% static 'js/applicant-upload.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
   <script src="{% static 'js/tables.js' %}"></script>
   <!-- Script for editing table values -->
-  <script src="{% static 'js/position-detail-edit.js' %}"></script>
-  <script>
-   let uploadCard = document.getElementById("upload-applications-modal");
-   let progressBlock = document.getElementById("progress-div");
-   let currentNumberSpan = document.getElementById("current-number");
-   let totalNumberSpan = document.getElementById("total-number");
-   let progressBar = document.getElementById("progress-bar");
-   let progressText = document.getElementById("progress-text");
-   let loadingEllipses = document.getElementById("loading-ellipses")
-   let queryUrl = new URL("{% url 'task_status' task_id %}", "http://localhost:8000");
-   let reloadUrl = document.getElementById("reload-url").value;
-   let taskId = document.getElementById("task-id").value;
-   let updateTimer = null;
-   document.getElementById('files-processing').innerHTML = localStorage.getItem('pdfText');
-   clearExceptSidebar();
-
-   function clearExceptSidebar() {
-     let tempSidebarStatus = JSON.parse(localStorage.getItem('sidenavOpen'));
-     localStorage.clear();
-     localStorage.setItem('sidenavOpen', tempSidebarStatus);
-   }
-
-   {% if task_id is not none %}
-   uploadModal.openInstant();
-   try {
-     displayProgress(queryUrl.href);
-     updateTimer = setInterval(function() {
-       displayProgress(queryUrl.href);
-     }, 1000);
-   } catch (e) {
-     clearInterval(updateTimer);
-   }
-   {% else %}
-   hideProgressBar();
-   {% endif %}
-
-   function updateProgressText(total, current) {
-     progressText.innerHTML = "{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>"
-     document.getElementById("current-number").innerHTML = current;
-     document.getElementById("total-number").innerHTML = total;
-   }
-
-   function updateLoadingBarProgress(total, current) {
-     progressBar.style.width = Math.floor(current * 100 / total) + "%"
-   }
-
-   function showEllipses() {
-     loadingEllipses.classList.add("loading");
-   }
-
-   function hideEllipses() {
-     loadingEllipses.classList.remove("loading");
-   }
-
-   function showProgressBar() {
-     progressBlock.classList.remove("hide");
-   }
-
-   function hideProgressBar() {
-     progressBlock.classList.add("hide");
-   }
-
-   function displayProgress(queryUrl) {
-     fetch(queryUrl).then(function(response) {
-       /* data being the json object returned from Django function */
-
-       response.json().then(function(data) {
-         if (data.state == "PENDING") {
-           progressText.innerHTML = document.getElementById("calculating-applicants-text").value + ": " + data.meta.total;
-         } else if (data.state == "PROGRESS") {
-           showProgressBar();
-           updateProgress(data.state, data.meta);
-         } else if (data.state == "SUCCESS") {
-           clearInterval(updateTimer);
-           uploadModal.close();
-           window.location.assign(reloadUrl);
-         } else if (data.state == "FAILURE") {
-           displayError();
-         } else {
-           progressText.innerHTML = "Processing";
-         }
-       }).catch(error => console.error());
-     });
-   }
-
-   function displayError() {
-     console.error();
-     clearInterval(updateTimer);
-     progressText.innerHTML = document.getElementById("upload-error-text").value;
-   }
-
-   function updateProgress(state, meta) {
-     let total = meta.total;
-     let current = meta.current;
-     updateLoadingBarProgress(total, current);
-     updateProgressText(total, current);
-   }
-
-   /* Persist the form data to display alongside processed position */
-   function persistUploaded() {
-     localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
-   }
-  </script>
+  <script src="{% static 'js/position-edit.js' %}"></script>
+  <!-- Inline script requiring Django variables -->
   {% endblock %}

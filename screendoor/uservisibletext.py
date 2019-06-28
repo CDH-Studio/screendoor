@@ -132,6 +132,8 @@ class CreatePositionFormText():
     browse = _("Browse")
     # Translators: CreatePositionForm
     submit = _("Submit")
+    ok = _("OK")
+    cancel = _("Cancel")
 
 
 class CreateAccountFormText():
