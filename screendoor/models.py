@@ -119,10 +119,22 @@ class Education(models.Model):
         return self.academic_level
 
 
+class Requirement(models.Model):
+    position = models.ForeignKey(
+        Position, on_delete=models.CASCADE, null=True)
+    requirement_type = models.CharField(max_length=200)
+    abbreviation = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.position.__str__() + " - " + self.abbreviation
+
+
 class FormQuestion(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True, related_name='questions')
-
+    parent_requirement = models.ForeignKey(
+        Requirement, on_delete=models.CASCADE, null=True, related_name='parent_req')
     question_text = models.TextField(blank=True, null=True)
     short_question_text = models.TextField(blank=True, null=True)
     complementary_question_text = models.TextField(blank=True, null=True)
@@ -146,17 +158,6 @@ class FormAnswer(models.Model):
 
     def __bool__(self):
         return self.applicant_answer
-
-
-class Requirement(models.Model):
-    position = models.ForeignKey(
-        Position, on_delete=models.CASCADE, null=True)
-    requirement_type = models.CharField(max_length=200)
-    abbreviation = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.position.__str__() + " - " + self.abbreviation
 
 
 class ScreenDoorUser(AbstractUser):

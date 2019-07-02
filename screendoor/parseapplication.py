@@ -398,7 +398,7 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + \
-                            item2.iloc[0, 1]
+                                            item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -406,7 +406,7 @@ def correct_split_item(tables):
                     elif str(item2.shape) == "(1, 1)":
                         if "AUCUNE / NONE" not in item2.iloc[0, 0]:
                             item.iloc[-1, 0] = item.iloc[-1, 0] + \
-                                item2.iloc[0, 0]
+                                               item2.iloc[0, 0]
                             tables[index] = item
                             tables[index + 1] = None
 
@@ -490,20 +490,28 @@ def create_short_question_text(long_text):
         return long_text
 
 
+def find_and_get_req(position, question_text):
+
+    for requirement in position.requirement_set.all():
+        print("FOUND" + str(requirement))
+        if fuzz.partial_ratio(requirement.description, question_text) > 70:
+            return requirement
+    return None
+
+
 def get_question(table, questions, position):
     # Creates a list of questions cross checked for redundancy against previously made questions.
     if is_question(table) and not is_stream(table):
-
-        question = FormQuestion(question_text=parse_question_text(table),
-                                complementary_question_text=parse_complementary_question_text(
-                                    table),
-                                short_question_text=create_short_question_text(
-                                    parse_question_text(table))
+        question_text = parse_question_text(table)
+        question = FormQuestion(question_text=question_text,
+                                complementary_question_text=parse_complementary_question_text(table),
+                                short_question_text=create_short_question_text(question_text),
+                                parent_requirement=find_and_get_req(position, question_text)
                                 )
 
         all_questions = position.questions.all()
         for item in all_questions:
-            if item.question_text.replace(" ", "") == question.question_text.replace(" ", ""):
+            if fuzz.ratio(item.question_text, question.question_text) > 80:
                 return questions
 
         question.parent_position = position
@@ -639,7 +647,8 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
         else:
             print("Processing Applicant: " + str(current_applicant + 1))
             applications.append(find_essential_details(
-                data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]], position))
+                data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
+                position))
     return applications
 
 
