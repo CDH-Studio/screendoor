@@ -13,6 +13,45 @@ from .NLP.howextraction import extract_how
 from .NLP.whenextraction import extract_dates
 from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
 
+# Given an element at i, get the element at i+1 if it doesn't cause an index
+# out of bounds error.
+def get_next_index_or_blank(idx, list):
+    if idx < len(list)-1:
+        return list[idx+1]
+    return ''
+
+
+# Takes a block of line breaks, and attempts to cut out the pdf-imposed style
+# line breaks, leaving only the line breaks the applicants added.
+def reprocess_line_breaks(text_block):
+    if text_block is not None:
+        line_split_blocks = text_block.split('\n')
+        reprocessed_blocks = []
+        reformatted_text = ''
+        for idx, text in enumerate(line_split_blocks):
+            next_elem = get_next_index_or_blank(idx, line_split_blocks)
+
+            reformatted_text += text + ' '
+
+            # Checks for: double or higher consecutive newlines (needed as
+            # page breaks on the pdf can result in up to 7 line breaks.
+            if text in ['', ' '] and next_elem in ['', ' ']:
+                reformatted_text = ''
+                continue
+
+            # Checks for: line length being too short and not being in the
+            # middle of a sentence, a blank line being read in, or a sentence
+            # end followed by a blank line.
+            if ((len(text) < 115 and not re.match(r'[a-z]', next_elem))
+                    or text in ['', ' ']
+                    or (text.endswith(('.', '?', '!', ':', ';'))
+                                      and next_elem in ['', ' '])):
+                reprocessed_blocks.append(reformatted_text)
+                reformatted_text = ''
+                continue
+        return ('\n'.join(reprocessed_blocks)).strip(' \n')
+    return None
+
 
 def is_question(item):
     first_column = item[item.columns[0]]
@@ -203,13 +242,13 @@ def parse_interview_language(item):
 
 def parse_question_text(item):
     question_text = get_column_value("Question - Anglais", item)
-    return question_text
+    return reprocess_line_breaks(question_text)
 
 
 def parse_complementary_question_text(item):
     complementary_question_text = get_column_value(
         "Complementary Question", item)
-    return complementary_question_text
+    return reprocess_line_breaks(complementary_question_text)
 
 
 def parse_applicant_answer(item):
@@ -235,12 +274,12 @@ def parse_applicant_complementary_response(item):
         applicant_complementary_response = re.sub(
             r'\\r', '\n', applicant_complementary_response)
 
-        return applicant_complementary_response
+        return reprocess_line_breaks(applicant_complementary_response)
     elif is_final_answer(item):
         applicant_answer = get_column_value(
             "Réponse du postulant / Applicant Answer:", item)
 
-        return applicant_answer
+        return reprocess_line_breaks(applicant_answer)
     else:
         return None
 
@@ -493,7 +532,6 @@ def create_short_question_text(long_text):
 def get_question(table, questions, position):
     # Creates a list of questions cross checked for redundancy against previously made questions.
     if is_question(table) and not is_stream(table):
-
         question = FormQuestion(question_text=parse_question_text(table),
                                 complementary_question_text=parse_complementary_question_text(
                                     table),
