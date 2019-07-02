@@ -210,7 +210,7 @@
                 <th colspan="1" class="hide"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
                   <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">Analysis</div>
-                  <span class="hide analysis-preview blue-text text-darken-2">{{ answer.analysis }}</span>
+                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-line;">{{ answer.analysis }}</span>
                 </th>
                 {% endif %}
                 <th colspan="1">
@@ -259,7 +259,7 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="9">{{ answer.parent_question.question_text|fix_single_asterix|fix_double_asterix|linebreaks }}</td>
+                <td colspan="9" style="white-space: pre-line;">{{ answer.parent_question.question_text }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
@@ -279,7 +279,7 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12">{{ answer.applicant_complementary_response }}</td>
+                <td colspan="12" style="white-space: pre-line;">{{ answer.applicant_complementary_response }}</td>
                 <td colspan="1"></td>
                 <td colspan="10" class="blue-text text-darken-2">{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}</td>
                 <td colspan="1"></td>
