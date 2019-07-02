@@ -3,63 +3,52 @@ import os
 import numpy as np
 import pandas as pd
 import tabula
-from fuzzywuzzy import fuzz
 from pandas import options
 from tika import parser
 from weasyprint import HTML, CSS
 
 
-def redact_table(table, forbidden):
-    for field in forbidden:
-        if table[0].str.contains(field).any():
-            series = table.set_index(0)[1]
-            series[field] = "REDACTED"
-    return series
-
-
-def cleanData(x):
-    if "Réponse Complémentaire: / Complementary Answer:" not in x:
-        x = x.replace(r'\r', ' ', regex=True)
-    return x
-
-
 def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, string_array):
     length = len(list_of_data_frames)
-    no_applicants_batch = 1
-
+    y = 1
     # /////////////////////////////////////////////////////////////////////////
 
-    list_of_data_frames = [item.apply(cleanData) for item in list_of_data_frames]
+    list_of_data_frames = [item.replace(r'\r', ' ', regex=True) for item in list_of_data_frames]
 
     print("Reading file: " + filename)
 
-    forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales / Initials:", "No SRFP / PSRS no:",
-                 "Organisation du poste d'attache / Substantive organization:",
-                 "Organisation actuelle / Current organization:",
-                 "Lieu de travail actuel / Current work location:",
-                 "Lieu de travail du poste d'attache / Substantive work location:",
-                 "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
-                 "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
-                 "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
+    forbidden = []
 
-    save = False
     for idx, item in enumerate(list_of_data_frames):
         if item[0].dtype == np.float64 or item[0].dtype == np.int64:
             continue
         else:
-            for field in forbidden:
-                if item[0].str.contains(field).any():
-                    series = item.set_index(0)[1]
-                    series[field] = "REDACTED"
-                    item = pd.DataFrame({0: series.index, 1: series.values})
-
             if item[0].str.contains("Nom de famille / Last Name:").any():
+                count = count + 1
+                y = y + 1
+                print("Processing applicant: " + str(count))
                 series = item.set_index(0)[1]
-                series[
-                    "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):"] = "REDACTED"
-                item = pd.DataFrame({0: series.index, 1: series.values})
+                forbidden.append(series["Nom de famille / Last Name:"])
+                forbidden.append(series["No SRFP / PSRS no:"])
+                series["Nom de famille / Last Name:"] = "REDACTED"
+                series["Prénom / First Name:"] = "REDACTED"
+                series["Initiales / Initials:"] = "REDACTED"
+                series["No SRFP / PSRS no:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
 
-            list_of_data_frames[idx] = item
+            elif item[0].str.contains("Courriel / E-mail:").any():
+                series = item.set_index(0)[1]
+                forbidden.append(series["Courriel / E-mail:"])
+                forbidden.append(series["Adresse / Address:"])
+                forbidden.append(series["Téléphone / Telephone:"])
+                series["Adresse / Address:"] = "REDACTED"
+                series["Courriel / E-mail:"] = "REDACTED"
+                series["Téléphone / Telephone:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
+            elif item[0].str.contains("Adresse / Address:").any():
+                series = item.set_index(0)[1]
+                series["Adresse / Address:"] = "REDACTED"
+                list_of_data_frames[idx] = pd.DataFrame({0: series.index, 1: series.values})
 
     # /////////////////////////////////////////////////////////////////////////
 
@@ -67,28 +56,27 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
     print("Writing to html and appending to redacted pdf")
     print("This may take a while...")
     # //////////////////////// Li's html printing Thang ////////////////////////////////
-    no_applicants_total = 1
-
+    x = 1
     deletion = False
     for idx, item in enumerate(list_of_data_frames):
 
         if str(item.shape) == "(1, 1)":
             for string in string_array:
                 if item.iat[0, 0].replace(" ", "").startswith(string):
-                    print("Writing Applicant: " + str(no_applicants_total))
-                    no_applicants_total = no_applicants_total + 1
+                    print("Writing Applicant: " + str(x))
+                    x = x + 1
+                    print(item)
                     deletion = True
 
-        if not (item[0].dtype == np.float64 or item[0].dtype == np.int64):
-
+        legit = not (item[0].dtype == np.float64 or item[0].dtype == np.int64)
+        if legit:
             if item[0].str.contains("Nom de famille / Last Name:").any():
                 deletion = False
 
         if not deletion:
             html = item.to_html(index=False, header=False)
             documents.append(
-                HTML(string=html).render(
-                    stylesheets=[CSS(string='table, th, td {border: 1px solid black; border-collapse: collapse;}')]))
+                HTML(string=html).render(stylesheets=[CSS(string='table, tr, td {border: 1px solid black;}')]))
 
     pages = []
 
@@ -97,8 +85,8 @@ def find_essential_details(list_of_data_frames, filename, count, pdf_file_path, 
             pages.append(page)
 
     documents[0].copy(pages).write_pdf('redacted/re' + filename)
-    print("TOTAL RESUMES REDACTED: " + str(no_applicants_total))
-    print("TOTAL APPLICANTS: " + str(no_applicants_batch))
+    print("TOTAL RESUMES REDACTED: " + str(x))
+    print("TOTAL APPLICANTS: " + str(y))
 
     return count
 
@@ -111,6 +99,7 @@ def get_resume_starter_string(pdf_file_path):
     array1 = text.split("Curriculum vitae / Résumé\n")
     string_array = []
     for idx, item in enumerate(array1):
+
         item = item.replace("\n", "")
         item = item.replace("\t", " ")
         item = item.strip()
@@ -123,7 +112,7 @@ def get_resume_starter_string(pdf_file_path):
     return string_array
 
 
-def redact_applications():
+def parse_application():
     print("Starting Redactor...")
 
     pd.set_option('display.max_colwidth', -1)
@@ -146,3 +135,5 @@ def redact_applications():
     return count
 
 
+applicant_count = parse_application()
+print("Total number of applicants processed: " + str(applicant_count))
