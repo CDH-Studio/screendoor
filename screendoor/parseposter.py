@@ -4,6 +4,7 @@ import re
 
 import tika
 from dateutil import parser as dateparser
+from selenium.webdriver import DesiredCapabilities
 from tika import parser
 
 from .models import Requirement
@@ -347,10 +348,20 @@ def find_essential_details(pdf_poster_text, position):
     return dictionary
 
 
+def get_from_url():
+    import json
+    from selenium import webdriver
+
+    driver = webdriver.Remote(
+        command_executor='4444:4444',
+        desired_capabilities=DesiredCapabilities.FIREFOX,
+    )
+
+
 def parse_upload(position):
     # checking for the existence of the pdf upload. If true, convert uploaded pdf into text
     # using tika and process using find_essential_details method. If false, process url.
-
+    get_from_url()
     if position.pdf.name:
         os.chdir("..")
         file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
@@ -360,39 +371,5 @@ def parse_upload(position):
         else:
             return {'errors': ErrorMessages.incorrect_pdf_file}
     elif position.url_ref:
-
-        import json
-        from selenium import webdriver
-
-        appState = {
-            "recentDestinations": [
-                {
-                    "id": "Save as PDF",
-                    "origin": "local"
-                }
-            ],
-            "selectedDestinationId": "Save as PDF",
-            "version": 2
-        }
-        downloadPath = "code/screendoor"
-
-        profile = {'printing.print_preview_sticky_settings.appState': json.dumps(appState),
-                   'savefile.default_directory': downloadPath}
-
-        chrome_options = webdriver.ChromeOptions()
-
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--window-size=1420,1080')
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_experimental_option('prefs', profile)
-        chrome_options.add_argument('--kiosk-printing')
-
-        driver = webdriver.Chrome(chrome_options=chrome_options)
-
-        driver.get('https://www.google.com/')
-        driver.execute_script('window.print();')
-
-        driver.quit()
 
         return {'errors': ErrorMessages.url_upload_not_supported_yet}
