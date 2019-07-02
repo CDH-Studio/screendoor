@@ -167,6 +167,3 @@ def redact_applications():
             continue
 
     return count
-
-
-redact_applications()
