@@ -110,6 +110,8 @@ class PositionText():
         "ScreenDoor is processing the following applications:")
     processing_detail_2 = _(
         "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
+    ok = _("OK")
+    cancel = _("Cancel")
 
 
 class CreatePositionFormText():
