@@ -15,33 +15,33 @@ const taskId = document.getElementById("task-id").value;
 /* Variable representing ajax request timer */
 let updateTimer = null;
 
-let updateProgressText = function(total, current) {
+const updateProgressText = function(total, current) {
   progressText.innerHTML = document.getElementById("progress-text-value").value;
   document.getElementById("current-number").innerHTML = current;
   document.getElementById("total-number").innerHTML = total;
 };
 
-let updateLoadingBarProgress = function(total, current) {
+const updateLoadingBarProgress = function(total, current) {
   progressBar.style.width = Math.floor(current * 100 / total) + "%";
 };
 
-let showEllipses = function() {
+const showEllipses = function() {
   loadingEllipses.classList.add("loading");
 };
 
-let hideEllipses = function() {
+const hideEllipses = function() {
   loadingEllipses.classList.remove("loading");
 };
 
-let showProgressBar = function() {
+const showProgressBar = function() {
   progressBlock.classList.remove("hide");
 };
 
-let hideProgressBar = function() {
+const hideProgressBar = function() {
   progressBlock.classList.add("hide");
 };
 
-let updateProgress = function(state, meta) {
+const updateProgress = function(state, meta) {
   let total = meta.total;
   let current = meta.current;
   updateLoadingBarProgress(total, current);
@@ -49,14 +49,14 @@ let updateProgress = function(state, meta) {
 };
 
 /* Display error message on applicant upload modal */
-let displayError = function() {
+const displayError = function() {
   console.error();
   clearInterval(updateTimer);
   progressText.innerHTML = document.getElementById("upload-error-text").value;
 };
 
 /* Define what message displays on the applicant uploading modal */
-let displayProgress = function(queryUrl) {
+const displayProgress = function(queryUrl) {
   fetch(queryUrl).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
@@ -77,7 +77,7 @@ let displayProgress = function(queryUrl) {
 };
 
 /* Execute and run timer if applicant file upload is taking place */
-let initializeApplicantUploadProgress = function() {
+const initializeApplicantUploadProgress = function() {
   document.getElementById('files-processing').innerHTML = localStorage.getItem('applicationFiles');
   clearExceptSidebar();
   uploadModal.openInstant();

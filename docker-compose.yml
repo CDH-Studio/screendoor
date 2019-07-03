@@ -39,14 +39,15 @@ services:
       RABBITMQ_DEFAULT_VHOST: /
   celery:
     build: .
-    command: bash -c "sleep 10 && celery -A screendoor_app worker -l info"
+    command: python manage.py celery
+    restart: always
     volumes:
       - .:/code
     depends_on:
       - rabbitmq
-  celery-beat:
+  celery_beat:
     build: .
-    command: bash -c "sleep 10 && celery -A screendoor_app beat -l info"
+    command: bash -c "sleep 10 && celery beat -A screendoor_app -l info"
     volumes:
       - .:/code
     depends_on:
