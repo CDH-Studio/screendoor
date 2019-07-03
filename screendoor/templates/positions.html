@@ -9,21 +9,12 @@
     {% csrf_token %}
     <!-- If statements determine if selected sort is in blue text -->
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
-    {% if "created" in sort %}
-    <input type="submit" name="sort-created" class="btn-flat blue-text" value="{{ userVisibleText.date_uploaded }}">
-    {% else %}
-    <input type="submit" name="sort-created" class="btn-flat" value="{{ userVisibleText.date_uploaded }}">
-    {% endif %}
-    {% if "date_closed" in sort %}
-    <input type="submit" name="sort-closed" class="btn-flat blue-text" value="{{ userVisibleText.date_closed }}">
-    {% else %}
-    <input type="submit" name="sort-closed" class="btn-flat" value="{{ userVisibleText.date_closed }}">
-    {% endif %}
-    {% if "position_title" in sort %}
-    <input type="submit" name="sort-position" class="btn-flat blue-text" value="{{ userVisibleText.position }}">
-    {% else %}
-    <input type="submit" name="sort-position" class="btn-flat" value="{{ userVisibleText.position }}">
-    {% endif %}
+    <input type="submit" name="sort-created" class="btn-flat {% if 'created' in sort %}
+ blue-text{% endif %}" value="{{ userVisibleText.date_uploaded }}">
+    <input type="submit" name="sort-closed" class="btn-flat {% if 'date_closed' in sort %}blue-text{% endif %}" value="{{ userVisibleText.date_closed }}">
+    <input type="submit" name="sort-position" class="btn-flat {% if 'position_title' in sort %} blue-text{% endif %}" value="{{ userVisibleText.position }}">
+    <input type="submit" name="sort-number-applicants" class="btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}" value="{{ userVisibleText.no_applicants }}">
+    <input type="submit" name="sort-average-score" class="btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}" value="{{ userVisibleText.avg_score }}">
   </form>
   {% endif %}
   <!-- Beginning of Positions view -->
@@ -34,10 +25,23 @@
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
       <div class="card-content col s12 positions-card">
-        <!-- Link to position detail using GET request -->
-        <a class="position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
+        <div class="row valign-wrapper">
+          <!-- Link to position detail using GET request -->
+          <a class="position-list-title position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
+          {% if position.applicants is not None %}
+          <div class="col s6 right">
+            <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
+               red
+               {% elif position.mean_score > 33 and position.mean_score <= 66 %}
+               orange
+               {% elif position.mean_score > 66 and position.mean_score <= 100 %}
+               green
+               {% endif %}">{{ userVisibleText.average_score }}: {{ position.mean_score }}</span>
+            <span class="applicant-summary-card white-text blue card-panel right">{{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}</span>
+          </div>
+          {% endif %}
+        </div>
         <!-- Position row 1 headers -->
-        <br>
         <table class="highlight">
           <thead>
             <tr>
