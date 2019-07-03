@@ -123,7 +123,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -159,5 +159,6 @@
 <script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for positions list-specific functions -->
 <script src="{% static 'js/positions-list-functions.js' %}"></script>
-<!-- Script has to be inline to use Django variables -->
+<!-- Script for local storage items (application filenames) -->
+<script src="{% static 'js/localstorage.js' %}"></script>
 {% endblock %}

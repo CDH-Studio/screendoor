@@ -73,8 +73,7 @@ const displayLoadingBar = function() {
   document.getElementById("loading-bar").classList.remove("hide");
 };
 
-/* Checks for current page and initializes listeners */
-window.addEventListener("load", function() {
+const initializeListeners = function() {
   if (window.location.pathname.includes("/position") || window.location.pathname.includes("/positions")) {
     document.getElementById("upload-applications-form").addEventListener("submit", persistPdfNames);
   } else if (window.location.pathname.includes("/createnewposition")) {
@@ -90,4 +89,9 @@ window.addEventListener("load", function() {
     }
     document.getElementById("loading-bar").classList.add("hide");
   }
+};
+
+/* Checks for current page and initializes listeners */
+window.addEventListener("load", function() {
+  initializeListeners();
 });
