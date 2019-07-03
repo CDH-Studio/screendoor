@@ -10,23 +10,19 @@ const positionIdForDelete = document.getElementById("delete-confirm-id");
 const textForDeleteModal = document.getElementById("delete-text");
 const textForUploadModal = document.getElementById("upload-applications-text");
 
-/* For position list view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
-const assignDeleteValues = function(i) {
-  positionIdForDelete.value = positionIdList[i].value;
-  textForDeleteModal.innerHTML = positionTitleList[i].value;
-};
-
-/* For position list view: Gets position ID to correctly displa upload applications pop-up, and to set position ID to associate the positions */
-const assignApplicantUploadValues = function(i) {
-  positionIdForUpload.value = positionIdList[i].value;
-  textForUploadModal.innerHTML = positionApplicantUploadText[i].value;
-};
-
 /* Assign values to upload or delete modals based on the element clicked */
 const initializeButtonListeners = function() {
   for (let i = 0; i < positionIdList.length; i++) {
-    positionUploadButtons[i].addEventListener("click", assignApplicantUploadValues(i));
-    positionDeleteButtons[i].addEventListener("click", assignDeleteValues(i));
+    /* For position list view: Gets position ID to correctly display delete confirmation message, and to set position ID in the delete form */
+    positionUploadButtons[i].addEventListener("click", function() {
+      positionIdForUpload.value = positionIdList[i].value;
+      textForUploadModal.innerHTML = positionApplicantUploadText[i].value;
+    });
+    /* For position list view: Gets position ID to correctly display upload applications pop-up, and to set position ID to associate the positions */
+    positionDeleteButtons[i].addEventListener("click", function() {
+      positionIdForDelete.value = positionIdList[i].value;
+      textForDeleteModal.innerHTML = positionTitleList[i].value;
+    });
   }
 };
 
