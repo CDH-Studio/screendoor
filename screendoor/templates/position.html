@@ -20,7 +20,7 @@
             <h4 name="position-title" id="title" class="col s7 left left-align position-header grey-text text-darken-3">{{ position.position_title }}</h4>
             <!-- Applicants summary information -->
             <div class="applicant-summary-cards col s6 right">
-              {% if applicants is not None %}
+              {% if applicants %}
               <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
                            red
                            {% elif position.mean_score > 33 and position.mean_score <= 66 %}
@@ -149,14 +149,42 @@
   <!-- Applications anchor -->
   <a id="applications"></a>
   <!-- Application sort by form -->
-  {% comment %}
+  <form action="" method="POST" id="applicant-sort-form" name="applicant-sort-form" enctype="multipart/form-data" class="sort-applications left">
+    {% csrf_token %}
+    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+    <button type="submit" class="sort-button btn-flat {% if 'applicant_id' in sort %}blue-text{% endif %}" name="sort-method" value="{% if '-applicant_id' in sort %}applicant_id{% elif 'applicant_id' in sort %}-applicant_id{% else %}applicant_id{% endif %}">  {% if '-applicant_id' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'applicant_id' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.id }}</button>
+    <button type="submit" class="sort-button btn-flat {% if 'classification_names' in sort %}blue-text{% endif %}" name="sort-method" value="{% if '-classification_names' in sort %}classification_names{% elif 'classification_names' in sort %}-classification_names{% else %}-classification_names{% endif %}">
+      {% if '-classification_names' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'classification_names' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.classifications }}</button>
+    <button type="submit" class="sort-button btn-flat {% if 'stream_names' in sort %}blue-text{% endif %}" name="sort-method" value="{% if '-stream_names' in sort %}stream_names{% elif 'stream_names' in sort %}-stream_names{% else %}-stream_names{% endif %}">
+      {% if '-stream_names' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'stream_names' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.streams }}</button>
+    <button type="submit" class="sort-button btn-flat {% if 'percentage_correct' in sort %}blue-text{% endif %}" name="sort-method" value="{% if '-percentage_correct' in sort %}percentage_correct{% elif 'percentage_correct' in sort %}-percentage_correct{% else %}percentage_correct{% endif %}">
+      {% if '-percentage_correct' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'percentage_correct' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.score }}</button>
+  </form>
   <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
-       {% csrf_toekn %}
-       <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
-       <input type="submit" class="btn-flat" value="ID">
-       <input type="submit" class="btn-flat blue-text" value="Score">
+       {% csrf_token %}
+       <h6 class="btn-flat disabled sortby-button">Filter</h6>
+       <button type="submit" class="sort-button btn-flat" value="">Percentile</button>
        </form> -->
-  {% endcomment %}
   <!-- Application field headers -->
   <div class="col">
     <table class="applicant-table">

@@ -214,6 +214,10 @@ class PositionsViewText():
     no_applicants = _("No. Applicants")
     # Translators: Position View
     avg_score = _("Avg. Score")
+    id = _("ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
 
 
 class ApplicantViewText():

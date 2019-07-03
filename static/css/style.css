@@ -1,9 +1,11 @@
-.progress-indicator {
-  /* display: flex;
-     align-items: center; */
-  /* align-content: center; */
-  /* align-self: center; */
-  /* justify-content: center; */
+.sort-arrow {
+  display: inline;
+  position: absolute;
+  margin-left: -20px;
+}
+
+.sort-button {
+  font-weight: 400;
 }
 
 .position-list-title {

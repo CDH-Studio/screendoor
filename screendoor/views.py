@@ -1,31 +1,26 @@
 import statistics
 
-from string import digits
 from dateutil import parser as dateparser
+from string import digits
 
-from django.core.mail import send_mail
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
+from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.db.models import Count, Avg
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from celery.result import AsyncResult
 
-from screendoor_app.settings import PROJECT_ROOT
-
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
-    ApplicantViewText
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
-from .tasks import process_applications
 from .parseposter import parse_upload
 from .redactor import redact_applications
+from .tasks import process_applications
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
 
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
@@ -265,46 +260,44 @@ def get_positions_sort_method(request):
         return '-created'
 
 
-# Changes positions sort method
-def change_positions_sort_method(request, sort_by):
-    if request.POST.get("sort-created"):
-        return '-created'
-    elif request.POST.get("sort-closed"):
-        return '-date_closed'
-    elif request.POST.get("sort-position"):
-        return 'position_title'
-    elif request.POST.get("sort-number-applicants"):
-        return '-number_applicants'
-    elif request.POST.get("sort-average-score"):
-        return '-mean_score'
-    return sort_by
+# Gets user's persisted applicants sort method, or returns default
+def get_applicants_sort_method(request):
+    try:
+        return request.session['applicants_sort']
+    except KeyError:
+        return '-percentage_correct'
+
+
+# Changes sort method
+def change_sort_method(request):
+    return request.POST.get("sort-method")
 
 
 # Data and visible text to render with positions list view
-def positions_list_data(request, sort_by):
+def positions_list_data(request):
+    # Order of positions display
+    sort_by = change_sort_method(request) if request.POST.get(
+        "sort-method") else get_positions_sort_method(request)
+    # Persists positions sorting
+    request.session['position_sort'] = sort_by
+    # Get positions according to specific sorting
     positions = request.user.positions.all().order_by(sort_by)
+    # Attach applicants to position object if exist
     for position in positions:
         position.applicants = Applicant.objects.filter(
             parent_position=position) if Applicant.objects.filter(
             parent_position=position).count() > 0 else None
+    # Return data for display
     return {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
-        'applicationsForm': ImportApplicationsForm, 'positions': positions,
-        'sort': request.session['position_sort']
-    }
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': positions,
+        'sort': sort_by}
 
 
 # View of all positions associated with a user account
 @login_required(login_url='login', redirect_field_name=None)
 def positions(request):
-    # Order of positions display
-    sort_by = get_positions_sort_method(request)
-    if request.method == 'POST':
-        sort_by = change_positions_sort_method(request, sort_by)
-    # Persists positions sorting
-    request.session['position_sort'] = sort_by
     # Displays list of positions
-    return render(request, 'positions.html', positions_list_data(request, sort_by))
+    return render(request, 'positions.html', positions_list_data(request))
 
 
 # Return whether the position exists and the user has access to it
@@ -317,32 +310,19 @@ def user_has_position(request, reference, position_id):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position_id, task_id):
-    # Implement logic for viewing applicant "scores"
+    sort_by = change_sort_method(request) if request.POST.get(
+        "sort-method") else get_applicants_sort_method(request)
+    # Persists positions sorting
+    request.session['applicants_sort'] = sort_by
     position = Position.objects.get(id=position_id)
-    applicants = list(position.applicant_set.all()) if Applicant.objects.filter(
-        parent_position=position).count() > 0 else None
-    total_score = 0
-    score_list = []
-    if applicants is not None:
-        for applicant in applicants:
-            applicant.number_questions = FormAnswer.objects.filter(
-                parent_applicant=applicant).count()
-            applicant.number_yes_responses = FormAnswer.objects.filter(
-                parent_applicant=applicant, applicant_answer=True).count()
-            applicant.percentage_correct = applicant.number_yes_responses * \
-                100 // applicant.number_questions
-            score_list.append(applicant.percentage_correct)
-            total_score += applicant.percentage_correct
-            applicant.classifications_set = Classification.objects.filter(
-                parent_applicant=applicant)
-            applicant.streams_set = Stream.objects.filter(
-                parent_applicant=applicant)
-        # Default sorting: higher scores at the top
-        applicants.sort(
-            key=lambda applicant: applicant.number_yes_responses, reverse=True)
-
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id}
+    applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
+        parent_position=position).count() > 0 else []
+    for applicant in applicants:
+        applicant.classifications_set = Classification.objects.filter(
+            parent_applicant=applicant)
+        applicant.streams_set = Stream.objects.filter(
+            parent_applicant=applicant)
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id, 'sort': sort_by}
 
 
 # Position detail view
