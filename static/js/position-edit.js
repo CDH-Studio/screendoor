@@ -34,12 +34,12 @@ const createReturnTextInput = function(text, name) {
 
 
 const defineAdditionalButtons = function() {
-  okButton.value = document.getElementById("ok-button-text").value;
+  okButton.value = document.getElementById("ok-button-text") ? document.getElementById("ok-button-text").value : null;
   okButton.id = "ok-button";
   okButton.name = "save-edits";
   okButton.type = "button";
   okButton.classList.add("hide");
-  cancelButton.value = document.getElementById("cancel-button-text").value;
+  cancelButton.value = document.getElementById("cancel-button-text") ? document.getElementById("cancel-button-text").value : null;
   cancelButton.id = "cancel-button";
   cancelButton.name = "cancel-edits";
   cancelButton.type = "button";
@@ -48,8 +48,8 @@ const defineAdditionalButtons = function() {
 };
 
 const startEditing = function() {
-  showElements(okButton, cancelButton);
-  hideElements(editButton, saveButton);
+  showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
+  hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
 
   cells.forEach(function(cell, i) {
     cellText[i] = cells[i].innerText;
@@ -58,8 +58,8 @@ const startEditing = function() {
 };
 
 const confirmEditChanges = function() {
-  showElements(editButton, saveButton);
-  hideElements(okButton, cancelButton);
+  showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
+  hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
 
   cells.forEach(function(cell, i) {
     cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
