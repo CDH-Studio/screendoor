@@ -130,6 +130,8 @@
             <div class="col s6 left" id="import-position-buttons">
               <input type="button" id="edit-button" name="edit" class="position-edit-btn btn-flat blue-text modal-trigger" value="{{ userVisibleText.edit }}">
               <input type="button" id="save-button" name="save" class="btn-pad btn-flat blue-text modal-trigger hide" value="Save">
+              <data id="ok-button-text" value="{{ positionText.ok }}"></data>
+              <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
             </div>
             <h6 class="btn-flat right black-text">{{ userVisibleText.position_added }}: {{ position.created }}</h6>
           </div>
@@ -149,7 +151,7 @@
   <!-- Application sort by form -->
   {% comment %}
   <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
-       {% csrf_token %}
+       {% csrf_toekn %}
        <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
        <input type="submit" class="btn-flat" value="ID">
        <input type="submit" class="btn-flat blue-text" value="Score">
