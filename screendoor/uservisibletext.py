@@ -202,6 +202,16 @@ class PositionsViewText():
     collapse_all = _("Collapse all")
     # Translators: Position View
     position_added = _("Position added")
+    # Translators: Position View
+    applicants = _("Applicants")
+    # Translators: Position View
+    applicant = _("Applicant")
+    # Translators: Position View
+    average_score = _("Average Score")
+    # Translators: Position View
+    no_applicants = _("No. Applicants")
+    # Translators: Position View
+    avg_score = _("Avg. Score")
 
 
 class ApplicantViewText():

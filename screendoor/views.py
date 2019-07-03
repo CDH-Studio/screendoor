@@ -1,4 +1,4 @@
-import json
+import statistics
 
 from string import digits
 from dateutil import parser as dateparser
@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
+from django.db.models import Count, Avg
 
 from celery.result import AsyncResult
 
@@ -272,14 +273,23 @@ def change_positions_sort_method(request, sort_by):
         return '-date_closed'
     elif request.POST.get("sort-position"):
         return 'position_title'
+    elif request.POST.get("sort-number-applicants"):
+        return '-number_applicants'
+    elif request.POST.get("sort-average-score"):
+        return '-mean_score'
     return sort_by
 
 
 # Data and visible text to render with positions list view
 def positions_list_data(request, sort_by):
+    positions = request.user.positions.all().order_by(sort_by)
+    for position in positions:
+        position.applicants = Applicant.objects.filter(
+            parent_position=position) if Applicant.objects.filter(
+            parent_position=position).count() > 0 else None
     return {
         'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
-        'applicationsForm': ImportApplicationsForm, 'positions': request.user.positions.all().order_by(sort_by),
+        'applicationsForm': ImportApplicationsForm, 'positions': positions,
         'sort': request.session['position_sort']
     }
 
@@ -309,21 +319,28 @@ def user_has_position(request, reference, position_id):
 def position_detail_data(request, position_id, task_id):
     # Implement logic for viewing applicant "scores"
     position = Position.objects.get(id=position_id)
-    applicants = list(Applicant.objects.filter(parent_position=position))
-    for applicant in applicants:
-        applicant.number_questions = FormAnswer.objects.filter(
-            parent_applicant=applicant).count()
-        applicant.number_yes_responses = FormAnswer.objects.filter(
-            parent_applicant=applicant, applicant_answer=True).count()
-        applicant.percentage_correct = applicant.number_yes_responses * \
-            100 // applicant.number_questions
-        applicant.classifications_set = Classification.objects.filter(
-            parent_applicant=applicant)
-        applicant.streams_set = Stream.objects.filter(
-            parent_applicant=applicant)
-    # Default sorting: higher scores at the top
-    applicants.sort(
-        key=lambda applicant: applicant.number_yes_responses, reverse=True)
+    applicants = list(position.applicant_set.all()) if Applicant.objects.filter(
+        parent_position=position).count() > 0 else None
+    total_score = 0
+    score_list = []
+    if applicants is not None:
+        for applicant in applicants:
+            applicant.number_questions = FormAnswer.objects.filter(
+                parent_applicant=applicant).count()
+            applicant.number_yes_responses = FormAnswer.objects.filter(
+                parent_applicant=applicant, applicant_answer=True).count()
+            applicant.percentage_correct = applicant.number_yes_responses * \
+                100 // applicant.number_questions
+            score_list.append(applicant.percentage_correct)
+            total_score += applicant.percentage_correct
+            applicant.classifications_set = Classification.objects.filter(
+                parent_applicant=applicant)
+            applicant.streams_set = Stream.objects.filter(
+                parent_applicant=applicant)
+        # Default sorting: higher scores at the top
+        applicants.sort(
+            key=lambda applicant: applicant.number_yes_responses, reverse=True)
+
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id}
 
