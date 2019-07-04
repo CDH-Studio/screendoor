@@ -112,6 +112,11 @@ class PositionText():
         "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
     ok = _("OK")
     cancel = _("Cancel")
+    applicant_id = _("Applicant ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
+    pdf = _("PDF")
 
 
 class CreatePositionFormText():

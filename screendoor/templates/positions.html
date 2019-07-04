@@ -5,58 +5,45 @@
 <div class="container positions">
   <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
-  <form method="POST" id="position-sort-form" name="position-sort-form" class="sort-positions">
-    {% csrf_token %}
     <!-- If statements determine if selected sort is in blue text -->
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
-    <button type="submit" form="position-sort-form" name="sort-method"
-            value="{% if '-created' in sort %}created{% elif 'created' in sort %}-created{% else %}-created{% endif %}"
-            class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
+    <a name="sort-method" href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}" class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
       {% if '-created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.date_uploaded }}</span>
-    </button>
-    <button type="submit" form="position-sort-form" name="sort-method"
-            value="{% if '-date_closed' in sort %}date_closed{% elif 'date_closed' in sort %}-date_closed{% else %}-date_closed{% endif %}"
-            class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
+    </a>
+    <a name="sort-method" href="{% if '-date_closed' in sort %}{% url 'sort_positions' 'date_closed' %}{% elif 'date_closed' in sort %}{% url 'sort_positions' '-date_closed' %}{% else %}{% url 'sort_positions' '-date_closed' %}{% endif %}" class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
       {% if '-date_closed' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'date_closed' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}
       {{ userVisibleText.date_closed }}</span>
-    </button>
-    <button type="submit" form="position-sort-form" name="sort-method"
-            value="{% if '-position_title' in sort %}position_title{% elif 'position_title' in sort %}-position_title{% else %}position_title{% endif %}"
-            class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
+    </a>
+    <a name="sort-method" href="{% if '-position_title' in sort %}{% url 'sort_positions' 'position_title' %}{% elif 'position_title' in sort %}{% url 'sort_positions' '-position_title' %}{% else %}{% url 'sort_positions' 'position_title' %}{% endif %}" class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
       {% if '-position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.position }}</span>
-    </button>
-    <button type="submit" form="position-sort-form" name="sort-method"
-            value="{% if '-number_applicants' in sort %}number_applicants{% elif 'number_applicants' in sort %}-number_applicants{% else %}-number_applicants{% endif %}"
-            class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
+    </a>
+    <a name="sort-method" href="{% if '-number_applicants' in sort %}{% url 'sort_positions' 'number_applicants' %}{% elif 'number_applicants' in sort %}{% url 'sort_positions' '-number_applicants' %}{% else %}{% url 'sort_positions' '-number_applicants' %}{% endif %}" class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
       {% if '-number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.no_applicants }}</span>
-    </button>
-    <button type="submit" form="position-sort-form" name="sort-method"
-            value="{% if '-mean_score' in sort %}mean_score{% elif 'mean_score' in sort %}-mean_score{% else %}-mean_score{% endif %}"
-            class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
+    </a>
+    <a name="sort-method" href="{% if '-mean_score' in sort %}{% url 'sort_positions' 'mean_score' %}{% elif 'mean_score' in sort %}{% url 'sort_positions' '-mean_score' %}{% else %}{% url 'sort_positions' '-mean_score' %}{% endif %}" class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
       {% if '-mean_score' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'mean_score' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}
       {{ userVisibleText.avg_score }}</span>
-    </button>
-  </form>
+    </a>
   {% endif %}
   <!-- Beginning of Positions view -->
   <!-- Sorting is determined in views.py -->

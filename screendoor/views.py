@@ -252,6 +252,19 @@ def import_position(request):
     })
 
 
+@login_required(login_url='login', redirect_field_name=None)
+def sort_applicants(request, reference, position_id, sort_by):
+    request.session['applicants_sort'] = sort_by
+    return redirect('position', reference=reference, position_id=position_id)
+
+
+@login_required(login_url='login', redirect_field_name=None)
+def sort_positions(request, sort_by):
+    # Persists positions sorting
+    request.session['position_sort'] = sort_by
+    return redirect('positions')
+
+
 # Gets user's persisted positions sort method, or returns default
 def get_positions_sort_method(request):
     try:
@@ -268,18 +281,10 @@ def get_applicants_sort_method(request):
         return '-percentage_correct'
 
 
-# Changes sort method
-def change_sort_method(request):
-    return request.POST.get("sort-method")
-
-
 # Data and visible text to render with positions list view
 def positions_list_data(request):
     # Order of positions display
-    sort_by = change_sort_method(request) if request.POST.get(
-        "sort-method") else get_positions_sort_method(request)
-    # Persists positions sorting
-    request.session['position_sort'] = sort_by
+    sort_by = get_positions_sort_method(request)
     # Get positions according to specific sorting
     positions = request.user.positions.all().order_by(sort_by)
     # Attach applicants to position object if exist
@@ -310,10 +315,7 @@ def user_has_position(request, reference, position_id):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position_id, task_id):
-    sort_by = change_sort_method(request) if request.POST.get(
-        "sort-method") else get_applicants_sort_method(request)
-    # Persists positions sorting
-    request.session['applicants_sort'] = sort_by
+    sort_by = get_applicants_sort_method(request)
     position = Position.objects.get(id=position_id)
     applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
         parent_position=position).count() > 0 else []
@@ -361,7 +363,7 @@ def upload_applications(request):
                           for file_name in file_names]
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
-        return redirect('position', Position.objects.get(id=position_id).reference_number, position_id, task_result.id)
+        return redirect('position_upload', Position.objects.get(id=position_id).reference_number, position_id, task_result.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 

@@ -80,7 +80,7 @@ class Applicant(models.Model):
     number_questions = models.PositiveIntegerField(default=0)
     number_yes_responses = models.PositiveIntegerField(default=0)
     percentage_correct = models.PositiveIntegerField(default=0)
-    stream_names = models.TextField(null=True)
+    stream_count = models.PositiveIntegerField(default=0)
     classification_names = models.TextField(null=True)
 
     def __str__(self):
@@ -92,9 +92,8 @@ class Applicant(models.Model):
         self.number_yes_responses = FormAnswer.objects.filter(
             parent_applicant=self, applicant_answer=True).count()
         self.percentage_correct = self.number_yes_responses * 100 // self.number_questions
-        self.stream_names = "".join(
-            [(stream.stream_name or "")
-             for stream in list(Stream.objects.filter(parent_applicant=self))])
+        self.stream_count = Stream.objects.filter(
+            parent_applicant=self).count()
         classifications = list(
             Classification.objects.filter(parent_applicant=self))
         self.classification_names = "".join([(classification.classification_substantive or "") for classification in classifications]).join(
