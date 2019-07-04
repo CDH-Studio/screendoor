@@ -168,11 +168,23 @@ class FormAnswer(models.Model):
         blank=True, null=True)
     parsed_response = models.CharField(
         max_length=1000, blank=True, null=True)
-    analysis = models.TextField(blank=True, null=True)
-    tabulation = models.CharField(max_length=1000, null=True)
 
     def __bool__(self):
         return self.applicant_answer
+
+
+class NLPExtract(models.Model):
+    EXTRACT_TYPES = [
+        ('WHEN', 'Date'),
+        ('HOW', 'What was done'),
+        ('WHERE', 'Location or entity'),
+    ]
+    parent_answer = models.ForeignKey(
+        FormAnswer, on_delete=models.CASCADE, null=True)
+    extract_type = models.CharField(
+        choices=EXTRACT_TYPES, max_length=200, null=True)
+    extraction_text = models.TextField()
+    extraction_line = models.PositiveIntegerField()
 
 
 class Requirement(models.Model):
