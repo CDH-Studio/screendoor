@@ -603,7 +603,11 @@ def get_education(item, educations):
 def get_streams(item, streams):
     # Makes a list of streams.
     if is_stream(item):
-        streams.append(Stream(stream_name=parse_stream(item)))
+        stream = parse_stream(item)
+        if stream is None:
+            return streams
+        else:
+            streams.append(Stream(stream_name=stream))
     return streams
 
 
