@@ -399,15 +399,15 @@ def fill_in_single_line_arguments(item, applicant):
     # Fill in single line entries that require very little processing.
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Citoyenneté / Citizenship:").any():
+    if first_column.str.startswith("Citoyenneté").any():
         applicant.citizenship = parse_citizenship(item)
-    if first_column.str.contains("Droit de priorité / Priority entitlement:").any():
+    if first_column.str.startswith("Droit de priorité").any():
         applicant.priority = parse_priority(item)
-    if first_column.str.contains("Préférence aux anciens combattants / Preference to veterans:").any():
+    if first_column.str.startswith("Préférence aux anciens combattants").any():
         applicant.veteran_preference = parse_is_veteran(item)
-    if first_column.str.contains("Première langue officielle / First official language:").any():
+    if first_column.str.startswith("Première langue officielle").any():
         applicant.first_official_language = parse_first_official_language(item)
-    if first_column.str.contains("Connaissance pratique / Working ability:").any():
+    if first_column.str.startswith("Connaissance pratique").any():
         working_ability = parse_working_ability(item)
         applicant.french_working_ability = parse_french_ability(
             working_ability)
