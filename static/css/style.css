@@ -1,8 +1,40 @@
+th a {
+  color: #111111;
+}
+
+.applicant-id-text {
+
+}
+
+.applicant-sort-arrow {
+  display: inline;
+  position: absolute;
+  margin-left: 5px;
+}
+
+.applicant-sort {
+
+}
+
+.sort-icon {
+  margin-left: -15px;
+  font-size: 1.3rem;
+}
+
+.score-text {
+  padding-left: 10px;
+}
+
+.streams-text {
+  margin-right: 15px;
+  padding-right: 15px;}
+
 .sort-arrow {
   display: inline;
   position: absolute;
   margin-left: -20px;
 }
+
 
 .sort-button {
   font-weight: 400;
