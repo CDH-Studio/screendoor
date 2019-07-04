@@ -533,8 +533,7 @@ def create_short_question_text(long_text):
 def find_and_get_req(position, question_text):
 
     for requirement in position.requirement_set.all():
-        print("FOUND" + str(requirement))
-        if fuzz.partial_ratio(requirement.description, question_text) > 70:
+        if fuzz.partial_ratio(requirement.description, question_text) > 90:
             return requirement
     return None
 
