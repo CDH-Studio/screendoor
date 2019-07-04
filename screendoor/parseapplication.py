@@ -13,6 +13,7 @@ from .NLP.whenextraction import extract_dates
 from .models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
 
 
+
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
 def get_next_index_or_blank(idx, list):
