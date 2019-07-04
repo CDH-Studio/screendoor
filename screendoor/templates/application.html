@@ -24,7 +24,7 @@
             <!-- Applicant Totals -->
             <thead>
               <tr>
-                <th colspan="26"><h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if percentage_correct <= 33 %}red-text{% elif percentage_correct > 33 and percentage_correct <= 66 %}orange-text{% elif percentage_correct > 66 and percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ number_yes_responses}}</span><span class="">/{{ number_questions }} {{ applicantText.questions|lower }} ({{ percentage_correct }}%)</span></h6></th>
+                <th colspan="26"><h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ applicant.number_yes_responses}}</span><span class="">/{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)</span></h6></th>
               </tr>
             </thead>
             <thead class="collapse">
@@ -178,8 +178,8 @@
               </tr>
             </thead>
             {% for answer in answers %}
-            <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}">
-            <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="• {{ answer.analysis|capfirst|display_first_line }}">
+            <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
+            <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
             <!-- Question -->
 
             <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
@@ -195,22 +195,32 @@
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
                 <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="
-                        {% if answer.analysis is not None %}10
+                        {% if answer.extract_set is not None %}10
                         {% else %}23{% endif %}">
                   <div class="question-subhead hide">Question</div>
                   <span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
                 </th>
-                {% if answer.analysis is not None %}
+                {% if answer.extract_set is not None %}
                 <th colspan="1"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
-                  <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">Analysis</div>
-                  <span class="analysis-preview blue-text text-darken-2">• {{ answer.analysis|display_first_line|capfirst }}</span>
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">{{ applicantText.analysis }}</div>
+                  <span class="analysis-preview blue-text text-darken-2">
+                    {% for extract in answer.extract_set reversed %}
+                    {% if forloop.first %}
+                    {{ extract.extract_type }}: {{ extract.extract_text }}
+                    {% endif %}
+                    {% endfor %}
+                  </span>
                 </th>
                 {% else %}
                 <th colspan="1" class="hide"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
-                  <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">Analysis</div>
-                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-line;">{{ answer.analysis }}</span>
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-subhead hide">{{ applicantText.analysis }}</div>
+                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-line;">
+                    {% for extract in answer.extract_set reversed %}
+                    {{ extract.extract_type }}: {{ extract.extract_text }}<br>
+                    {% endfor %}
+                  </span>
                 </th>
                 {% endif %}
                 <th colspan="1">
@@ -222,15 +232,18 @@
               <!-- Beginning of hidden full analysis preview -->
               <tr class="question-full-header" id="previews-full{{ forloop.counter0 }}">
                 <td colspan="2"></td>
-                <td colspan="{% if answer.analysis is not None %}10
+                <td colspan="{% if answer.extract_set is not None %}10
                              {% else %}23{% endif %}">
                   <span class="question-full">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
                 </td>
-                {% if answer.analysis is not None %}
+                {% if answer.extract_set is not None %}
                 <td colspan="1"></td>
                 <td colspan="12">
-                  <span class="analysis-full blue-text text-darken-2">{% if answer.analysis is not None %}
-                    {{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}{% endif %}</span>
+                  <span class="analysis-full blue-text text-darken-2">
+                    {% for extract in answer.extract_set reversed %}
+                    {{ extract.extract_type }}: {{ extract.extract_text }}<br><br>
+                    {% endfor %}
+                  </span>
                 </td>
                 {% else %}
                 <th colspan="1" class="hide"></th>
@@ -281,7 +294,11 @@
                 <td colspan="2"></td>
                 <td colspan="12" style="white-space: pre-line;">{{ answer.applicant_complementary_response }}</td>
                 <td colspan="1"></td>
-                <td colspan="10" class="blue-text text-darken-2">{{ answer.analysis|capfirst|analysis_linebreaks|linebreaks }}</td>
+                <td colspan="10" class="blue-text text-darken-2">
+                  {% for extract in answer.extract_set reversed %}
+                  {{ extract.extract_type }}: {{ extract.extract_text }}<br><br>
+                  {% endfor %}
+                </td>
                 <td colspan="1"></td>
               </tr>
             </tbody>

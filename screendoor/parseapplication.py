@@ -11,10 +11,12 @@ from celery import current_task
 
 from .NLP.howextraction import extract_how
 from .NLP.whenextraction import extract_dates
-from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
+from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer, NlpExtract
 
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
+
+
 def get_next_index_or_blank(idx, list):
     if idx < len(list)-1:
         return list[idx+1]
@@ -45,7 +47,7 @@ def reprocess_line_breaks(text_block):
             if ((len(text) < 115 and not re.match(r'[a-z]', next_elem))
                     or text in ['', ' ']
                     or (text.endswith(('.', '?', '!', ':', ';'))
-                                      and next_elem in ['', ' '])):
+                        and next_elem in ['', ' '])):
                 reprocessed_blocks.append(reformatted_text)
                 reformatted_text = ''
                 continue
@@ -551,30 +553,45 @@ def get_question(table, questions, position):
     return questions
 
 
-def get_answer(table, answers, position):
+def get_answer(table, answers_and_extracts, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
-
     if is_in_questions(table, all_questions) and not is_stream(table):
-        analysis = None
+        date_extracts = None
+        experience_extracts = None
         comp_response = parse_applicant_complementary_response(table)
         if not (comp_response is None):
             # Extract dates
             dates = extract_dates(str.strip(comp_response))
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
-            # Combine the two lists, and make them a newline delimited str.
-            if dates == {} and experiences == {}:
-                analysis = "No Analysis"
-            else:
-                analysis = '\n'.join(list(dates) + list(experiences))
-        answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
-                                  applicant_complementary_response=comp_response,
-                                  parent_question=retrieve_question(
-                                      table, all_questions),
-                                  analysis=analysis))
+            date_extracts = nlp_date_extracts(dates) if dates != {} else None
+            experience_extracts = nlp_how_extracts(
+                experiences) if experiences != {} else None
+        answers_and_extracts.append([FormAnswer(applicant_answer=parse_applicant_answer(table),
+                                                applicant_complementary_response=comp_response,
+                                                parent_question=retrieve_question(table, all_questions)), date_extracts, experience_extracts])
+    return answers_and_extracts
 
-    return answers
+
+def nlp_date_extracts(dates):
+    date_extracts = []
+    for key, value in dates.items():
+        date_extract = NlpExtract(
+            extract_type='WHEN', extract_text=key, extract_sentence_index=value)
+        date_extract.save()
+        date_extracts.append(date_extract)
+    return date_extracts
+
+
+def nlp_how_extracts(experiences):
+    how_extracts = []
+    for key, value in experiences.items():
+        how_extract = NlpExtract(
+            extract_type='HOW', extract_text=key, extract_sentence_index=value)
+        how_extract.save()
+        how_extracts.append(how_extract)
+    return how_extracts
 
 
 def get_education(item, educations):
@@ -613,7 +630,7 @@ def find_essential_details(tables, position):
     position.save()
     questions = []
     streams = []
-    answers = []
+    answers_and_extracts = []
     classifications = []
     educations = []
 
@@ -624,7 +641,8 @@ def find_essential_details(tables, position):
     for table_counter, item in enumerate(tables):
         if check_if_table_valid(item):
             questions = get_question(item, questions, position)
-            answers = get_answer(item, answers, position)
+            answers_and_extracts = get_answer(
+                item, answers_and_extracts, position)
             educations = get_education(item, educations)
             streams = get_streams(item, streams)
             classifications = get_classifications(item, classifications)
@@ -633,9 +651,27 @@ def find_essential_details(tables, position):
     applicant.applicant_id = ''.join(
         random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
-    for item in answers:
-        item.parent_applicant = applicant
-        item.save()
+    for item in answers_and_extracts:
+        # Answer object
+        item[0].parent_applicant = applicant
+        item[0].save()
+        print("parent_question", item[0].parent_question)
+        print("parent_applicant", item[0].parent_applicant)
+        print("applicant_answer", item[0].applicant_answer)
+        print("applicant_complementary_response",
+              item[0].applicant_complementary_response)
+        # List of date extracts
+        if item[1] is not None:
+            print(item[1])
+            for date_extract in item[1]:
+                date_extract.parent_answer = item[0]
+                date_extract.save()
+        # List of how extracts
+        if item[2] is not None:
+            print(item[2])
+            for how_extract in item[2]:
+                how_extract.parent_answer = item[0]
+                how_extract.save()
     for item in educations:
         item.parent_applicant = applicant
         item.save()

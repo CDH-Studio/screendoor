@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from celery.result import AsyncResult
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, NlpExtract
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -394,18 +394,11 @@ def applicant_detail_data(request, applicant_id, position_id):
     applicant = Applicant.objects.get(id=applicant_id)
     position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(parent_applicant=applicant)
-    number_questions = len(answers)
-    number_yes_responses = FormAnswer.objects.filter(
-        parent_applicant=applicant, applicant_answer=True).count()
-    number_no_responses = FormAnswer.objects.filter(
-        parent_applicant=applicant, applicant_answer=False).count()
-    percentage_correct = number_yes_responses * 100 // number_questions
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position,
-            'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
-            'classifications': Classification.objects.filter(parent_applicant=applicant),
-            'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, 'number_questions': number_questions, 'number_yes_responses': number_yes_responses,
-            'number_no_responses': number_no_responses, 'percentage_correct': percentage_correct}
+    for answer in answers:
+        answer.extract_set = NlpExtract.objects.filter(
+            parent_answer=answer) if NlpExtract.objects.filter(
+            parent_answer=answer).count() > 0 else None
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': answers, }
 
 
 # View an application

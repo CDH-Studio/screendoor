@@ -165,25 +165,26 @@ class FormAnswer(models.Model):
     applicant_answer = models.BooleanField()
     applicant_complementary_response = models.TextField(
         blank=True, null=True)
-    parsed_response = models.CharField(
-        max_length=1000, blank=True, null=True)
 
-    def __bool__(self):
-        return self.applicant_answer
+    def __str__(self):
+        return str(self.applicant_answer) + ": " + str(self.parent_question)
 
 
-class NLPExtract(models.Model):
+class NlpExtract(models.Model):
     EXTRACT_TYPES = [
-        ('WHEN', 'Date'),
-        ('HOW', 'What was done'),
-        ('WHERE', 'Location or entity'),
+        ('WHEN', 'A date or date range, and its context'),
+        ('HOW', 'What applicant did to fulfill a requirement')
     ]
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True)
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='extract')
     extract_type = models.CharField(
         choices=EXTRACT_TYPES, max_length=200, null=True)
-    extraction_text = models.TextField()
-    extraction_line = models.PositiveIntegerField()
+    extract_text = models.TextField()
+    extract_sentence_index = models.PositiveIntegerField()
+
+    # for key, value in dates.items()
+    def __str__(self):
+        return str(self.extract_type) + ": " + str(self.extract_text)
 
 
 class Requirement(models.Model):
@@ -202,18 +203,18 @@ class ScreenDoorUser(AbstractUser):
     positions = models.ManyToManyField(Position, blank=True)
 
     def confirm_email(self):
-        self.email_confirmed = True
+        self.email_confirmed=True
 
 
 class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE, primary_key=False)
-    key = models.CharField(max_length=500, null=True)
-    created = models.DateTimeField(auto_now_add=True)
+    user=models.OneToOneField(
+        get_user_model(), on_delete = models.CASCADE, primary_key = False)
+    key=models.CharField(max_length = 500, null = True)
+    created=models.DateTimeField(auto_now_add = True)
 
     def create_key(self):
-        initial_key = Fernet.generate_key()
-        byte_values = bytes(str(self.user.email) +
+        initial_key=Fernet.generate_key()
+        byte_values=bytes(str(self.user.email) +
                             str(datetime.datetime.now()), 'utf-8')
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
         self.key = base64.b64encode(encoded_bytes).decode('utf-8')

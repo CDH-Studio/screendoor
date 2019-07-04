@@ -35,6 +35,7 @@ admin.site.register(Applicant, ApplicantAdmin)
 admin.site.register(Requirement)
 admin.site.register(Position, PositionAdmin)
 admin.site.register(EmailAuthenticateToken)
+admin.site.register(NlpExtract)
 
 
 class PositionInline(admin.TabularInline):
@@ -42,10 +43,10 @@ class PositionInline(admin.TabularInline):
     extra = 0
 
 
-
 class AccountTokenInline(admin.TabularInline):
     model = EmailAuthenticateToken
     extra = 0
+
 
 class ScreenDoorUserAdmin(UserAdmin):
     add_form = ScreenDoorUserCreationForm
