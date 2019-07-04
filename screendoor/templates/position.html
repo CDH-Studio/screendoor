@@ -195,8 +195,7 @@
               {% endif %}
             </a>
           </th>
-          <th colspan="4">
-            {{ positionText.pdf }}</th>
+          <th colspan="4"></th>
         </tr>
       </thead>
     </table>
@@ -231,7 +230,7 @@
             {{ stream.stream_name }}
             {% endif %}
             {% endfor %}</td>
-          <td colspan="8"><span class="applicant-id
+          <td colspan="9"><span class="applicant-id
                                        {% if applicant.percentage_correct <= 33 %}
                                        red-text
                                        {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
@@ -240,7 +239,7 @@
                                        green-text
                                        {% endif %}
                                        text-darken-2 applicant-question-total">{{ applicant.number_yes_responses }}</span><span class="">/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span></td>
-          <td colspan="4"><i class="material-icons red-text">picture_as_pdf</i></td>
+          <td colspan="3"><i class="material-icons red-text">picture_as_pdf</i></td>
         </tr>
       </tbody>
     </table>
