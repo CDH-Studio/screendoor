@@ -3,7 +3,10 @@ import os
 import re
 
 import tika
+
+tika.TikaClientOnly = True
 from dateutil import parser as dateparser
+from fuzzywuzzy import fuzz, process
 from tika import parser
 
 from .models import Requirement
@@ -52,67 +55,40 @@ def extract_asset_block(text):
 def extract_education(essential_block):
     education = ""
 
-    # Due to the fact that the stylistics of the statement "EDUCATION: in the
-    # essential requirements section vary, there is an array called titles that
-    # stores all possible variations. They are all lower case since the statement is processed in lower case, to prevent
-    # unnecessary checks. Degree equivalency is a statement that separates education and experience.
+    split_by_line_breaks = essential_block.split("\n")
 
-    titles = ["education", "education:"]
-    first_word = essential_block.split(" ", 1)[0]
-    first_word_lower = first_word.lower()
-    first_word_lower = first_word_lower.replace(" ", "")
-    if "Degree equivalency\n" in essential_block:
-        for title in titles:
-            if first_word_lower.__contains__(title):
-                education = text_between(first_word, "Degree equivalency", essential_block)
-                education = education.lstrip()
-                education = education.rstrip()
-        if education == "":
-            education = essential_block.split("Degree equivalency\n", 1)[0]
-            education = education.lstrip()
-            education = education.rstrip()
+    for sentence1 in split_by_line_breaks:
+        if fuzz.ratio("Education:", sentence1) > 90:
+            for sentence2 in split_by_line_breaks:
+                if fuzz.ratio("Degree equivalency", sentence2) > 90:
+                    education = text_between(sentence1, sentence2, essential_block)
 
-    education = scrub_hard_returns(education)
-
+    education = clean_block(education)
     return education
 
 
 def extract_experience(essential_block):
     experience = ""
+    split_by_line_breaks = essential_block.split("\n")
 
-    # Same deal as the extract_education
+    for sentence1 in split_by_line_breaks:
+        if fuzz.ratio("Degree equivalency", sentence1) > 90:
+            experience = essential_block.split(sentence1, 1)[1]
 
-    titles = ["experience", "experience:", "experiences:"]
-    for item in essential_block.split("\n"):
-        item_lower = item.lower()
-        item_lower = item_lower.replace(" ", "")
-        if "Degree equivalency\n" in essential_block:
-            for title in titles:
-                if title == item_lower:
-                    experience = text_between(item, "Degree equivalency", essential_block)
-                    experience = experience.lstrip()
-                    experience = experience.rstrip()
-            if experience == "":
-                experience = essential_block.split("Degree equivalency\n", 1)[1]
-                experience = experience.lstrip()
-                experience = experience.rstrip()
-
-    experience = scrub_hard_returns(experience)
+    experience = clean_block(experience)
 
     return experience
 
 
 def extract_assets(asset_block):
     assets = asset_block
+    split_by_line_breaks = asset_block.split("\n")
 
-    # scrub out the phrase degree equivalency in asset block and return it essentially.
+    for sentence1 in split_by_line_breaks:
+        if fuzz.ratio("Degree equivalency", sentence1) > 90:
+            assets = assets.replace(sentence1, "\n")
 
-    if "Degree equivalency\n" in assets:
-        assets = assets.replace("Degree equivalency\n", "")
-    assets = assets.lstrip()
-    assets = assets.rstrip()
-
-    assets = scrub_hard_returns(assets)
+    assets = clean_block(assets)
 
     return assets
 
@@ -180,45 +156,55 @@ def extract_closing_date(item):
     return closing_date
 
 
-# Removes any newlines and double spaces caused by other parsing rules.
-def scrub_extra_whitespace(item):
-    return str(item).replace('\n', '').replace('  ', ' ')
-
-
-def scrub_entry(text):
-    # Scrubs out useless text
-    text = text.strip()
-
+def clean_out_titles(text):
     if re.search(r"\w+[:]", text):
         text = re.sub(r"\w+[:]", "", text)
+        return text
+    else:
+        return text
 
-    for item in text.split("\n"):
 
-        if item.find("* Recent") != -1:
-            text = text.split("* Significant", 1)[0]
+# Removes any newlines and double spaces caused by other parsing rules.
+def scrub_extra_whitespace(item):
+    return str(item).replace('\n', ' ').replace('  ', ' ')
+
+
+def scrub_requirement_block(requirement_block_text):
+    print("///////////////////BEFORE SCRUBBING////////////////////////////")
+    print(requirement_block_text)
+    requirement_block_text = requirement_block_text.strip()
+    single_line_break_list = requirement_block_text.split("\n")
+    double_line_break_list = requirement_block_text.split("\n\n")
+
+    for sentence in double_line_break_list:
+        if "definitions:" in sentence.lower() or "note:" in sentence.lower():
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            requirement_block_text = clean_out_titles(requirement_block_text)
+            print("///////////////////AFTER SCRUBBING////////////////////////////")
+            print(requirement_block_text)
+            return requirement_block_text
+
+    for sentence in single_line_break_list:
+        if sentence.startswith("* Recent") != -1:
+            requirement_block_text = requirement_block_text.split("* Recent", 1)[0]
             break
-        elif item.find("* Significant") != -1:
-            text = text.split("* Significant", 1)[0]
+        elif sentence.startswith("* Significant") != -1:
+            requirement_block_text = requirement_block_text.split("* Significant", 1)[0]
             break
-        elif item.find("* Management") != -1:
-            text = text.split("* Management", 1)[0]
+        elif sentence.startswith("* Management") != -1:
+            requirement_block_text = requirement_block_text.split("* Management", 1)[0]
             break
+    requirement_block_text = clean_out_titles(requirement_block_text)
 
-    return text
+    print("///////////////////AFTER SCRUBBING////////////////////////////")
+    print(requirement_block_text)
+
+    return requirement_block_text
 
 
-def scrub_hard_returns(text):
-    # Removes extra spaces and newlines in sentences.
-
-    # Fancy Regex that just removes newlines within sentences
-
-    text = re.sub(r"(?<![.;])\n", " ", text)
-
-    # Adds a newline after end of every sentence.
-
-    text = text.replace("; ", ";\n")
-    text = text.replace(". ", ".\n")
-
+def clean_block(text):
+    text = text.strip()
+    # Remove number points like "2. "
     text = re.sub(r'(\d+\.\s)', '', text, flags=re.MULTILINE)
 
     return text
@@ -231,39 +217,38 @@ def scrub_raw_text(pdf_poster_text):
     pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
 
     # Removes lines starting with a date (This normally infers a footer extracted by tika
+    split_new_lines_text = pdf_poster_text.split("\n")
 
-    for item in pdf_poster_text.split("\n"):
+    for idx, item in enumerate(split_new_lines_text):
 
         if re.match('^\d{1,2}/\d{1,2}/\d{4}', item):
             pdf_poster_text = pdf_poster_text.replace(item, "")
 
-        item = re.sub(' +', ' ', item)
+        split_new_lines_text[idx] = re.sub(' +', ' ', item)
 
     # Removes consecutive newlines
 
-    pdf_poster_text = re.sub(r'\n\s*\n', '\n', pdf_poster_text)
-
+    pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
     return pdf_poster_text
 
 
-def generate_requirements(text, position, requirement_type,
+def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
-    text = scrub_entry(text)
+    requirement_block_text = scrub_requirement_block(requirement_block_text)
 
     requirement_list = []
     x = 1
-    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', text)
+    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', requirement_block_text)
     for item in lines:
-        if item != "" and not item.lower().__contains__("incumbents"):
+        if item.strip() != "" and not item.lower().__contains__("incumbents"):
             item = scrub_extra_whitespace(item.strip())
-            if not re.match(r"[*]", item):
-                item.replace("\n", "")
-                requirement_list.append(
-                    Requirement(position=position,
-                                requirement_type=requirement_type,
-                                abbreviation=requirement_abbreviation + str(x),
-                                description=item))
-                x = x + 1
+            item.replace("\n", "")
+            requirement_list.append(
+                Requirement(position=position,
+                            requirement_type=requirement_type,
+                            abbreviation=requirement_abbreviation + str(x),
+                            description=item))
+            x = x + 1
     return requirement_list
 
 

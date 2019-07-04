@@ -1,17 +1,16 @@
 import random
 import re
 import string
-import os
 
 import pandas as pd
 import tabula
+from celery import current_task
 from fuzzywuzzy import fuzz
 from pandas import options
-from celery import current_task
 
 from .NLP.howextraction import extract_how
 from .NLP.whenextraction import extract_dates
-from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
+from .models import Applicant, FormQuestion, Education, Stream, Classification, FormAnswer
 
 
 # Given an element at i, get the element at i+1 if it doesn't cause an index
