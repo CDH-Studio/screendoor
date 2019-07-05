@@ -56,11 +56,6 @@ def reprocess_line_breaks(text_block):
     return None
 
 
-== == == =
-
->>>>>> > 0481c9bba48979bc058a529c9cc10e87e5fab909
-
-
 def is_question(item):
     first_column = item[item.columns[0]]
 
@@ -570,21 +565,23 @@ def get_answer(table, answers, position):
         if not (comp_response is None):
             answer.save()
             # Extract dates
-            dates = extract_dates(str.strip(comp_response))
-            create_nlp_extracts(dates, 'WHEN', answer) if dates != {} else None
+            dates = extract_when(str.strip(comp_response))
+            create_nlp_extracts(dates, 'WHEN', answer) if dates != [] else None
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
             create_nlp_extracts(experiences, 'HOW',
-                                answer) if experiences != {} else None
+                                answer) if experiences != [] else None
         answers.append(answer)
     return answers
 
 
-def create_nlp_extracts(dictionary, nlp_type, answer):
+def create_nlp_extracts(extract_list, nlp_type, answer):
     extracts = []
-    for key, value in dictionary.items():
+    for extract_data in extract_list:
         extract = NlpExtract(parent_answer=answer, extract_type=nlp_type,
-                             extract_text=key, extract_sentence_index=value)
+                             extract_text=extract_data[0],
+                             extract_sentence_index=extract_data[1],
+                             extract_ending_index=extract_data[2])
         extract.save()
         extracts.append(extract)
     extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(

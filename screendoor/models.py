@@ -180,9 +180,9 @@ class NlpExtract(models.Model):
     extract_type = models.CharField(
         choices=EXTRACT_TYPES, max_length=200, null=True)
     extract_text = models.TextField()
-    extract_sentence_index = models.PositiveIntegerField()
+    extract_sentence_index = models.PositiveIntegerField(null=True)
+    extract_ending_index = models.PositiveIntegerField(null=True)
     next_extract_index = models.PositiveIntegerField(null=True)
-    # extract_ending_index = models.PositiveIntegerField()
 
     # for key, value in dates.items()
     def __str__(self):
