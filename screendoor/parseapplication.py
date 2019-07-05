@@ -6,13 +6,12 @@ from .models import Applicant, Position, FormQuestion, Education, Stream, Classi
 import random
 import re
 import string
-import os
 
 import pandas as pd
 import tabula
+from celery import current_task
 from fuzzywuzzy import fuzz
 from pandas import options
-from celery import current_task
 
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
@@ -369,15 +368,15 @@ def fill_in_single_line_arguments(item, applicant):
     # Fill in single line entries that require very little processing.
     first_column = item[item.columns[0]].astype(str)
 
-    if first_column.str.contains("Citoyenneté / Citizenship:").any():
+    if first_column.str.startswith("Citoyenneté").any():
         applicant.citizenship = parse_citizenship(item)
-    if first_column.str.contains("Droit de priorité / Priority entitlement:").any():
+    if first_column.str.startswith("Droit de priorité").any():
         applicant.priority = parse_priority(item)
-    if first_column.str.contains("Préférence aux anciens combattants / Preference to veterans:").any():
+    if first_column.str.startswith("Préférence aux anciens combattants").any():
         applicant.veteran_preference = parse_is_veteran(item)
-    if first_column.str.contains("Première langue officielle / First official language:").any():
+    if first_column.str.startswith("Première langue officielle").any():
         applicant.first_official_language = parse_first_official_language(item)
-    if first_column.str.contains("Connaissance pratique / Working ability:").any():
+    if first_column.str.startswith("Connaissance pratique").any():
         working_ability = parse_working_ability(item)
         applicant.french_working_ability = parse_french_ability(
             working_ability)
@@ -408,7 +407,7 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + \
-                            item2.iloc[0, 1]
+                                            item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -416,7 +415,7 @@ def correct_split_item(tables):
                     elif str(item2.shape) == "(1, 1)":
                         if "AUCUNE / NONE" not in item2.iloc[0, 0]:
                             item.iloc[-1, 0] = item.iloc[-1, 0] + \
-                                item2.iloc[0, 0]
+                                               item2.iloc[0, 0]
                             tables[index] = item
                             tables[index + 1] = None
 
@@ -500,19 +499,27 @@ def create_short_question_text(long_text):
         return long_text
 
 
+def find_and_get_req(position, question_text):
+
+    for requirement in position.requirement_set.all():
+        if fuzz.partial_ratio(requirement.description, question_text) > 85:
+            return requirement
+    return None
+
+
 def get_question(table, questions, position):
     # Creates a list of questions cross checked for redundancy against previously made questions.
     if is_question(table) and not is_stream(table):
-        question = FormQuestion(question_text=parse_question_text(table),
-                                complementary_question_text=parse_complementary_question_text(
-                                    table),
-                                short_question_text=create_short_question_text(
-                                    parse_question_text(table))
+        question_text = parse_question_text(table)
+        question = FormQuestion(question_text=question_text,
+                                complementary_question_text=parse_complementary_question_text(table),
+                                short_question_text=create_short_question_text(question_text),
+                                parent_requirement=find_and_get_req(position, question_text)
                                 )
 
         all_questions = position.questions.all()
         for item in all_questions:
-            if item.question_text.replace(" ", "") == question.question_text.replace(" ", ""):
+            if fuzz.ratio(item.question_text, question.question_text) > 80:
                 return questions
 
         question.parent_position = position
@@ -580,7 +587,11 @@ def get_education(item, educations):
 def get_streams(item, streams):
     # Makes a list of streams.
     if is_stream(item):
-        streams.append(Stream(stream_name=parse_stream(item)))
+        stream = parse_stream(item)
+        if stream is None:
+            return streams
+        else:
+            streams.append(Stream(stream_name=stream))
     return streams
 
 
@@ -662,7 +673,8 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
         else:
             print("Processing Applicant: " + str(current_applicant + 1))
             applications.append(find_essential_details(
-                data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]], position))
+                data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
+                position))
     return applications
 
 
