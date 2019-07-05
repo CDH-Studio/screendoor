@@ -435,3 +435,9 @@ def nlp(request):
     from screendoor.NLP.howextraction import extract_how
     extract_how(text)
     return redirect('positions')
+
+def nlp(request):
+    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
+    from screendoor.NLP.howextraction import extract_how
+    extract_how(text)
+    return redirect('positions')
