@@ -52,18 +52,27 @@ def extract_asset_block(text):
     return asset_block
 
 
+def clean_block(text):
+    text = text.strip()
+    # Remove number points like "2. "
+    text = re.sub(r'(\d+\.\s)', '', text, flags=re.MULTILINE)
+
+    return text
+
+
 def extract_education(essential_block):
     education = ""
 
     split_by_line_breaks = essential_block.split("\n")
 
     for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("Education:", sentence1) > 90:
+        if fuzz.ratio("education:", sentence1.lower()) > 80:
             for sentence2 in split_by_line_breaks:
-                if fuzz.ratio("Degree equivalency", sentence2) > 90:
+                if fuzz.ratio("Degree equivalency", sentence2.lower()) > 80:
                     education = text_between(sentence1, sentence2, essential_block)
 
     education = clean_block(education)
+
     return education
 
 
@@ -72,7 +81,9 @@ def extract_experience(essential_block):
     split_by_line_breaks = essential_block.split("\n")
 
     for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("Degree equivalency", sentence1) > 90:
+        if fuzz.ratio("Degree equivalency", sentence1) > 80:
+            experience = essential_block.split(sentence1, 1)[1]
+        if fuzz.ratio("experience:", sentence1.lower()) > 80:
             experience = essential_block.split(sentence1, 1)[1]
 
     experience = clean_block(experience)
@@ -85,7 +96,7 @@ def extract_assets(asset_block):
     split_by_line_breaks = asset_block.split("\n")
 
     for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("Degree equivalency", sentence1) > 90:
+        if fuzz.ratio("Degree equivalency", sentence1) > 80:
             assets = assets.replace(sentence1, "\n")
 
     assets = clean_block(assets)
@@ -157,99 +168,11 @@ def extract_closing_date(item):
 
 
 def clean_out_titles(text):
-    if re.search(r"\w+[:]", text):
-        text = re.sub(r"\w+[:]", "", text)
+    if re.search(r"^([A-Z ':]+$)", text):
+        text = re.sub(r"^([A-Z ':]+$)", "", text)
         return text
     else:
         return text
-
-
-# Removes any newlines and double spaces caused by other parsing rules.
-def scrub_extra_whitespace(item):
-    return str(item).replace('\n', ' ').replace('  ', ' ')
-
-
-def scrub_requirement_block(requirement_block_text):
-    print("///////////////////BEFORE SCRUBBING////////////////////////////")
-    print(requirement_block_text)
-    requirement_block_text = requirement_block_text.strip()
-    single_line_break_list = requirement_block_text.split("\n")
-    double_line_break_list = requirement_block_text.split("\n\n")
-
-    for sentence in double_line_break_list:
-        if "definitions:" in sentence.lower() or "note:" in sentence.lower():
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            requirement_block_text = clean_out_titles(requirement_block_text)
-            print("///////////////////AFTER SCRUBBING////////////////////////////")
-            print(requirement_block_text)
-            return requirement_block_text
-
-    for sentence in single_line_break_list:
-        if sentence.startswith("* Recent") != -1:
-            requirement_block_text = requirement_block_text.split("* Recent", 1)[0]
-            break
-        elif sentence.startswith("* Significant") != -1:
-            requirement_block_text = requirement_block_text.split("* Significant", 1)[0]
-            break
-        elif sentence.startswith("* Management") != -1:
-            requirement_block_text = requirement_block_text.split("* Management", 1)[0]
-            break
-    requirement_block_text = clean_out_titles(requirement_block_text)
-
-    print("///////////////////AFTER SCRUBBING////////////////////////////")
-    print(requirement_block_text)
-
-    return requirement_block_text
-
-
-def clean_block(text):
-    text = text.strip()
-    # Remove number points like "2. "
-    text = re.sub(r'(\d+\.\s)', '', text, flags=re.MULTILINE)
-
-    return text
-
-
-def scrub_raw_text(pdf_poster_text):
-    # Removes lines starting with https or mailto
-
-    pdf_poster_text = re.sub(r"^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
-    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
-
-    # Removes lines starting with a date (This normally infers a footer extracted by tika
-    split_new_lines_text = pdf_poster_text.split("\n")
-
-    for idx, item in enumerate(split_new_lines_text):
-
-        if re.match('^\d{1,2}/\d{1,2}/\d{4}', item):
-            pdf_poster_text = pdf_poster_text.replace(item, "")
-
-        split_new_lines_text[idx] = re.sub(' +', ' ', item)
-
-    # Removes consecutive newlines
-
-    pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
-    return pdf_poster_text
-
-
-def generate_requirements(requirement_block_text, position, requirement_type,
-                          requirement_abbreviation):
-    requirement_block_text = scrub_requirement_block(requirement_block_text)
-
-    requirement_list = []
-    x = 1
-    lines = re.split('(?i)[;.]\n(?!or|and|and/or|or/and)', requirement_block_text)
-    for item in lines:
-        if item.strip() != "" and not item.lower().__contains__("incumbents"):
-            item = scrub_extra_whitespace(item.strip())
-            item.replace("\n", "")
-            requirement_list.append(
-                Requirement(position=position,
-                            requirement_type=requirement_type,
-                            abbreviation=requirement_abbreviation + str(x),
-                            description=item))
-            x = x + 1
-    return requirement_list
 
 
 def save_requirement_lists(list1, list2, list3):
@@ -261,6 +184,85 @@ def save_requirement_lists(list1, list2, list3):
         for item in req_list:
             item.save()
     return
+
+
+# Removes any newlines and double spaces caused by other parsing rules.
+def scrub_extra_whitespace(item):
+    return str(item).replace('\n', ' ').replace('  ', ' ')
+
+
+def scrub_requirement_block(requirement_block_text):
+    requirement_block_text = requirement_block_text.strip()
+    single_line_break_list = requirement_block_text.split("\n")
+
+    for sentence in single_line_break_list:
+        sentence = sentence.strip()
+        if sentence.lower().startswith("definitions:") or sentence.lower().startswith("note:") or \
+                sentence.lower().startswith("notes:") or "incumbents" in sentence.lower():
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            requirement_block_text = clean_out_titles(requirement_block_text)
+
+            return requirement_block_text
+
+    for sentence in single_line_break_list:
+        if re.search(r"^\** Recent", sentence):
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            break
+        elif re.search(r"^\** Significant", sentence):
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            break
+        elif re.search(r"^\** Management", sentence):
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            break
+        elif "defined as" in sentence:
+            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+
+    requirement_block_text = clean_out_titles(requirement_block_text)
+
+    return requirement_block_text
+
+
+def separate_requirements(requirement_block_text):
+    requirement_list = re.split('[;.]\s*\n', requirement_block_text)
+
+    for idx, item in enumerate(requirement_list):
+        item = item.strip()
+        print("///////////ITEM///////////")
+        print(item)
+        print("///////////END ITEM///////////")
+        if len(item) > 30 and "or more of the following" in item.lower():
+            if ":" in item:
+                requirement_list.append(item.split(":", 1)[1])
+                item = ""
+                requirement_list[idx] = item
+                continue
+        if item.startswith("or") or item.startswith("and"):
+            requirement_list[idx - 1] = requirement_list[idx - 1] + item
+            item = ""
+            requirement_list[idx] = item
+            continue
+        requirement_list[idx] = item
+
+    return requirement_list
+
+
+def generate_requirements(requirement_block_text, position, requirement_type,
+                          requirement_abbreviation):
+    requirement_block_text = scrub_requirement_block(requirement_block_text)
+    requirement_model_list = []
+    requirement_list = separate_requirements(requirement_block_text)
+    x = 1
+    for item in requirement_list:
+        if item.strip() != "" and not item.lower().__contains__("incumbents"):
+            item = scrub_extra_whitespace(item.strip())
+            item.replace("\n", "")
+            requirement_model_list.append(
+                Requirement(position=position,
+                            requirement_type=requirement_type,
+                            abbreviation=requirement_abbreviation + str(x),
+                            description=item))
+            x = x + 1
+    return requirement_model_list
 
 
 def assign_single_line_values(position, pdf_poster_text):
@@ -291,6 +293,28 @@ def assign_single_line_values(position, pdf_poster_text):
     position.classification = extract_classification(position.description)
 
     return position
+
+
+def scrub_raw_text(pdf_poster_text):
+    # Removes lines starting with https or mailto
+
+    pdf_poster_text = re.sub(r"^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+
+    # Removes lines starting with a date (This normally infers a footer extracted by tika
+    split_new_lines_text = pdf_poster_text.split("\n")
+
+    for idx, item in enumerate(split_new_lines_text):
+
+        if re.match('^\d{1,2}/\d{1,2}/\d{4}', item):
+            pdf_poster_text = pdf_poster_text.replace(item, "")
+
+        split_new_lines_text[idx] = re.sub(' +', ' ', item)
+
+    # Removes consecutive newlines
+
+    pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
+    return pdf_poster_text
 
 
 def find_essential_details(pdf_poster_text, position):
