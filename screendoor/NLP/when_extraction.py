@@ -245,7 +245,7 @@ def construct_dict_of_extracts(nlp_doc):
 # date was extracted from.
 def extract_when(text):
     # create a nlp processed version of the text (referred to as a 'doc' object).
-    if text is None:
+    if text is not None:
         temp_doc = NLP_MODEL(text)
         reformatted_text = post_nlp_format_input(temp_doc)
         doc = NLP_MODEL(reformatted_text)

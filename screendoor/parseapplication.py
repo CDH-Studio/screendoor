@@ -23,38 +23,6 @@ def get_next_index_or_blank(idx, list):
     return ''
 
 
-# Takes a block of line breaks, and attempts to cut out the pdf-imposed style
-# line breaks, leaving only the line breaks the applicants added.
-def reprocess_line_breaks(text_block):
-    if text_block is not None:
-        line_split_blocks = text_block.split('\n')
-        reprocessed_blocks = []
-        reformatted_text = ''
-        for idx, text in enumerate(line_split_blocks):
-            next_elem = get_next_index_or_blank(idx, line_split_blocks)
-
-            reformatted_text += text + ' '
-
-            # Checks for: double or higher consecutive newlines (needed as
-            # page breaks on the pdf can result in up to 7 line breaks.
-            if text in ['', ' '] and next_elem in ['', ' ']:
-                reformatted_text = ''
-                continue
-
-            # Checks for: line length being too short and not being in the
-            # middle of a sentence, a blank line being read in, or a sentence
-            # end followed by a blank line.
-            if ((len(text) < 115 and not re.match(r'[a-z]', next_elem))
-                    or text in ['', ' ']
-                    or (text.endswith(('.', '?', '!', ':', ';'))
-                        and next_elem in ['', ' '])):
-                reprocessed_blocks.append(reformatted_text)
-                reformatted_text = ''
-                continue
-        return ('\n'.join(reprocessed_blocks)).strip(' \n')
-    return None
-
-
 def is_question(item):
     first_column = item[item.columns[0]]
 
