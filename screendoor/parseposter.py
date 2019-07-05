@@ -169,7 +169,7 @@ def extract_closing_date(item):
 
 def clean_out_titles(text):
     if re.search(r"^[A-Z].+:$", text):
-        text = re.sub(r"^([A-Z ':]+$)", "", text)
+        text = re.sub(r"^[A-Z].+:$", "", text)
     return text
 
 
@@ -309,6 +309,7 @@ def scrub_raw_text(pdf_poster_text):
     # Removes consecutive newlines
 
     pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
+
     return pdf_poster_text
 
 
