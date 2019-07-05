@@ -553,45 +553,43 @@ def get_question(table, questions, position):
     return questions
 
 
-def get_answer(table, answers_and_extracts, position):
+def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
     if is_in_questions(table, all_questions) and not is_stream(table):
-        date_extracts = None
-        experience_extracts = None
         comp_response = parse_applicant_complementary_response(table)
+        answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
+                            applicant_complementary_response=comp_response,
+                            parent_question=retrieve_question(table, all_questions))
         if not (comp_response is None):
+            answer.save()
             # Extract dates
             dates = extract_dates(str.strip(comp_response))
+            create_nlp_extracts(dates, 'WHEN', answer) if dates != {} else None
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
-            date_extracts = nlp_date_extracts(dates) if dates != {} else None
-            experience_extracts = nlp_how_extracts(
-                experiences) if experiences != {} else None
-        answers_and_extracts.append([FormAnswer(applicant_answer=parse_applicant_answer(table),
-                                                applicant_complementary_response=comp_response,
-                                                parent_question=retrieve_question(table, all_questions)), date_extracts, experience_extracts])
-    return answers_and_extracts
+            create_nlp_extracts(experiences, 'HOW',
+                                answer) if experiences != {} else None
+        answers.append(answer)
+    return answers
 
 
-def nlp_date_extracts(dates):
-    date_extracts = []
-    for key, value in dates.items():
-        date_extract = NlpExtract(
-            extract_type='WHEN', extract_text=key, extract_sentence_index=value)
-        date_extract.save()
-        date_extracts.append(date_extract)
-    return date_extracts
-
-
-def nlp_how_extracts(experiences):
-    how_extracts = []
-    for key, value in experiences.items():
-        how_extract = NlpExtract(
-            extract_type='HOW', extract_text=key, extract_sentence_index=value)
-        how_extract.save()
-        how_extracts.append(how_extract)
-    return how_extracts
+def create_nlp_extracts(dictionary, nlp_type, answer):
+    extracts = []
+    for key, value in dictionary.items():
+        extract = NlpExtract(parent_answer=answer, extract_type=nlp_type,
+                             extract_text=key, extract_sentence_index=value)
+        extract.save()
+        extracts.append(extract)
+    extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(
+        'extract_sentence_index', '-extract_type')
+    counter = 0
+    while counter < len(extract_set)-1:
+        counter += 1
+        extract_set[counter -
+                    1].next_extract_index = extract_set[counter].extract_sentence_index
+    for e in extract_set:
+        e.save()
 
 
 def get_education(item, educations):
@@ -630,7 +628,7 @@ def find_essential_details(tables, position):
     position.save()
     questions = []
     streams = []
-    answers_and_extracts = []
+    answers = []
     classifications = []
     educations = []
 
@@ -641,37 +639,17 @@ def find_essential_details(tables, position):
     for table_counter, item in enumerate(tables):
         if check_if_table_valid(item):
             questions = get_question(item, questions, position)
-            answers_and_extracts = get_answer(
-                item, answers_and_extracts, position)
+            answers = get_answer(item, answers, position)
             educations = get_education(item, educations)
             streams = get_streams(item, streams)
             classifications = get_classifications(item, classifications)
             applicant = fill_in_single_line_arguments(item, applicant)
-
     applicant.applicant_id = ''.join(
         random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
-    for item in answers_and_extracts:
-        # Answer object
-        item[0].parent_applicant = applicant
-        item[0].save()
-        print("parent_question", item[0].parent_question)
-        print("parent_applicant", item[0].parent_applicant)
-        print("applicant_answer", item[0].applicant_answer)
-        print("applicant_complementary_response",
-              item[0].applicant_complementary_response)
-        # List of date extracts
-        if item[1] is not None:
-            print(item[1])
-            for date_extract in item[1]:
-                date_extract.parent_answer = item[0]
-                date_extract.save()
-        # List of how extracts
-        if item[2] is not None:
-            print(item[2])
-            for how_extract in item[2]:
-                how_extract.parent_answer = item[0]
-                how_extract.save()
+    for answer in answers:
+        answer.parent_applicant = applicant
+        answer.save()
     for item in educations:
         item.parent_applicant = applicant
         item.save()

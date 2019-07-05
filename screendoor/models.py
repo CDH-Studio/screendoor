@@ -181,6 +181,8 @@ class NlpExtract(models.Model):
         choices=EXTRACT_TYPES, max_length=200, null=True)
     extract_text = models.TextField()
     extract_sentence_index = models.PositiveIntegerField()
+    next_extract_index = models.PositiveIntegerField(null=True)
+    # extract_ending_index = models.PositiveIntegerField()
 
     # for key, value in dates.items()
     def __str__(self):
@@ -203,18 +205,18 @@ class ScreenDoorUser(AbstractUser):
     positions = models.ManyToManyField(Position, blank=True)
 
     def confirm_email(self):
-        self.email_confirmed=True
+        self.email_confirmed = True
 
 
 class EmailAuthenticateToken(models.Model):
-    user=models.OneToOneField(
-        get_user_model(), on_delete = models.CASCADE, primary_key = False)
-    key=models.CharField(max_length = 500, null = True)
-    created=models.DateTimeField(auto_now_add = True)
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def create_key(self):
-        initial_key=Fernet.generate_key()
-        byte_values=bytes(str(self.user.email) +
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
                             str(datetime.datetime.now()), 'utf-8')
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
         self.key = base64.b64encode(encoded_bytes).decode('utf-8')

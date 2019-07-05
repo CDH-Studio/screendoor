@@ -1,3 +1,26 @@
+.extract-text p {
+  margin-bottom: 8px !important;
+  line-height: 1.4rem;
+}
+
+.extract-preview {
+
+}
+
+hr {
+  margin-top: 7px;
+  margin-bottom: 17px;
+  border-top: 1px solid #2196F3;
+  border-bottom: 0px;
+  width: 95%;
+  margin-left: 0px;
+}
+
+.extract-icon {
+  font-size: 1.2rem;
+  position: absolute;
+  margin-left: -25px;
+}
 
 th a {
   color: #111111;
@@ -63,7 +86,7 @@ th a {
 
 .scaled {
   transform: scale(0.7); /* Equal to scaleX(0.7) scaleY(0.7) */
-  }
+}
 
 .number-applicants {
   font-size: 1.6rem;
@@ -186,6 +209,18 @@ th a {
 .analysis-subhead {
   font-weight: 500;
   margin-bottom: 10px;
+  margin-left: -25px;
+}
+
+.analysis-header {
+  margin-left: -25px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+}
+
+
+.ellipsis-column th {
+
 }
 
 .ellipsis {
@@ -195,7 +230,7 @@ th a {
 }
 
 .ellipsis-larger {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: #2196F3;
   margin-left: -5px;
@@ -232,6 +267,10 @@ th a {
 
 .education-header th {
   font-weight: 400;
+}
+
+.question-header thead {
+
 }
 
 .question-header th {
