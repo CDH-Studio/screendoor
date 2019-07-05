@@ -168,11 +168,9 @@ def extract_closing_date(item):
 
 
 def clean_out_titles(text):
-    if re.search(r"^([A-Z ':]+$)", text):
+    if re.search(r"^[A-Z].+:$", text):
         text = re.sub(r"^([A-Z ':]+$)", "", text)
-        return text
-    else:
-        return text
+    return text
 
 
 def save_requirement_lists(list1, list2, list3):
@@ -227,10 +225,7 @@ def separate_requirements(requirement_block_text):
 
     for idx, item in enumerate(requirement_list):
         item = item.strip()
-        print("///////////ITEM///////////")
-        print(item)
-        print("///////////END ITEM///////////")
-        if len(item) > 30 and "or more of the following" in item.lower():
+        if len(item) > 30 and ("or more of the following" in item.lower() or "common to all streams") in item.lower():
             if ":" in item:
                 requirement_list.append(item.split(":", 1)[1])
                 item = ""
