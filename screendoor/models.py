@@ -36,7 +36,8 @@ class Position(models.Model):
         if self.applicant_set.all().count() > 0:
             self.number_applicants = self.applicant_set.all().count()
             self.mean_score = sum([FormAnswer.objects.filter(parent_applicant=applicant, applicant_answer=True).count(
-            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in self.applicant_set.all()]) // self.applicant_set.all().count()
+            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in
+                                   self.applicant_set.all()]) // self.applicant_set.all().count()
             self.save()
 
 
@@ -72,9 +73,10 @@ class Applicant(models.Model):
         choices=LANGUAGE_CHOICES, max_length=200, null=True)
     interview = models.CharField(
         choices=LANGUAGE_CHOICES, max_length=200, null=True)
+
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-        blank=True)
+                           blank=True)
     ranking = models.PositiveIntegerField(null=True)
     # For sorting purposes
     number_questions = models.PositiveIntegerField(default=0)
@@ -124,6 +126,7 @@ class Stream(models.Model):
 class Classification(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
+
     classification_substantive = models.CharField(max_length=200, null=True)
     classification_current = models.CharField(max_length=200, null=True)
 
@@ -146,9 +149,22 @@ class Education(models.Model):
         return self.academic_level
 
 
+class Requirement(models.Model):
+    position = models.ForeignKey(
+        Position, on_delete=models.CASCADE, null=True)
+    requirement_type = models.CharField(max_length=200)
+    abbreviation = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.position.__str__() + " - " + self.abbreviation
+
+
 class FormQuestion(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True, related_name='questions')
+    parent_requirement = models.ForeignKey(
+        Requirement, on_delete=models.CASCADE, null=True, related_name='parent_req')
     question_text = models.TextField(blank=True, null=True)
     short_question_text = models.TextField(blank=True, null=True)
     complementary_question_text = models.TextField(blank=True, null=True)
@@ -165,24 +181,28 @@ class FormAnswer(models.Model):
     applicant_answer = models.BooleanField()
     applicant_complementary_response = models.TextField(
         blank=True, null=True)
-    parsed_response = models.CharField(
-        max_length=1000, blank=True, null=True)
-    analysis = models.TextField(blank=True, null=True)
-    tabulation = models.CharField(max_length=1000, null=True)
-
-    def __bool__(self):
-        return self.applicant_answer
-
-
-class Requirement(models.Model):
-    position = models.ForeignKey(
-        Position, on_delete=models.CASCADE, null=True)
-    requirement_type = models.CharField(max_length=200)
-    abbreviation = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
 
     def __str__(self):
-        return self.position.__str__() + " - " + self.abbreviation
+        return str(self.applicant_answer) + ": " + str(self.parent_question)
+
+
+class NlpExtract(models.Model):
+    EXTRACT_TYPES = [
+        ('WHEN', 'A date or date range, and its context'),
+        ('HOW', 'What applicant did to fulfill a requirement')
+    ]
+    parent_answer = models.ForeignKey(
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='extract')
+    extract_type = models.CharField(
+        choices=EXTRACT_TYPES, max_length=200, null=True)
+    extract_text = models.TextField()
+    extract_sentence_index = models.PositiveIntegerField(null=True)
+    extract_ending_index = models.PositiveIntegerField(null=True)
+    next_extract_index = models.PositiveIntegerField(null=True)
+
+    # for key, value in dates.items()
+    def __str__(self):
+        return str(self.extract_type) + ": " + str(self.extract_text)
 
 
 class ScreenDoorUser(AbstractUser):

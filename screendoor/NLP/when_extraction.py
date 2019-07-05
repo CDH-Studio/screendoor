@@ -245,15 +245,17 @@ def construct_dict_of_extracts(nlp_doc):
 # date was extracted from.
 def extract_when(text):
     # create a nlp processed version of the text (referred to as a 'doc' object).
-    temp_doc = NLP_MODEL(text)
-    reformatted_text = post_nlp_format_input(temp_doc)
-    doc = NLP_MODEL(reformatted_text)
+    if text is not None:
+        temp_doc = NLP_MODEL(text)
+        reformatted_text = post_nlp_format_input(temp_doc)
+        doc = NLP_MODEL(reformatted_text)
 
-    # Clean the date identification by combining the entities into single tokens,
-    # and manually re-identifying dates when needed
-    squash_named_entities(doc)
-    doc = hard_identify_date_ents(doc)
+        # Clean the date identification by combining the entities into single tokens,
+        # and manually re-identifying dates when needed
+        squash_named_entities(doc)
+        doc = hard_identify_date_ents(doc)
 
-    dates_and_contexts = construct_dict_of_extracts(doc)
+        dates_and_contexts = construct_dict_of_extracts(doc)
 
-    return dates_and_contexts
+        return dates_and_contexts
+    return []
