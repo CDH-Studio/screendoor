@@ -32,6 +32,17 @@ const persistPdfNames = function() {
   localStorage.setItem('applicationFiles', document.getElementById('pdf_path_input').value);
 };
 
+const persistScrollLocation = function() {
+  localStorage.setItem('scroll', window.scrollY);
+};
+
+const getScrollLocation = function() {
+  if (localStorage.getItem('scroll')) {
+    window.scroll(0, localStorage.getItem('scroll'));
+    localStorage.removeItem('scroll');
+  }
+};
+
 /* Persist the form data to display alongside processed position */
 const persistUploadForm = function() {
   localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
@@ -73,7 +84,18 @@ const displayLoadingBar = function() {
   document.getElementById("loading-bar").classList.remove("hide");
 };
 
+/* Initialize listeners for local storage requirements depending on current page */
 const initializeListeners = function() {
+  if (window.location.pathname.includes("/position/")) {
+    if (document.getElementsByClassName("applicant-sort")) {
+      const sortLinks = document.getElementsByClassName("applicant-sort");
+      for (let i = 0; i < sortLinks.length; i++) {
+        sortLinks[i].addEventListener("click", persistScrollLocation);
+      }
+      getScrollLocation();
+    }
+  }
+
   if (window.location.pathname.includes("/position") || window.location.pathname.includes("/positions")) {
     document.getElementById("upload-applications-form").addEventListener("submit", persistPdfNames);
   } else if (window.location.pathname.includes("/createnewposition")) {

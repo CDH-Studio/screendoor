@@ -25,6 +25,7 @@ class Position(models.Model):
     url_ref = models.URLField(max_length=200, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    # For sorting purposes
     number_applicants = models.IntegerField(blank=True, null=True, default=0)
     mean_score = models.IntegerField(blank=True, null=True, default=0)
 
@@ -77,9 +78,28 @@ class Applicant(models.Model):
         FileExtensionValidator(allowed_extensions=['pdf'])],
                            blank=True)
     ranking = models.PositiveIntegerField(null=True)
+    # For sorting purposes
+    number_questions = models.PositiveIntegerField(default=0)
+    number_yes_responses = models.PositiveIntegerField(default=0)
+    percentage_correct = models.PositiveIntegerField(default=0)
+    stream_count = models.PositiveIntegerField(default=0)
+    classification_names = models.TextField(null=True)
 
     def __str__(self):
         return self.applicant_id
+
+    def update_question_fields(self):
+        self.number_questions = FormAnswer.objects.filter(
+            parent_applicant=self).count()
+        self.number_yes_responses = FormAnswer.objects.filter(
+            parent_applicant=self, applicant_answer=True).count()
+        self.percentage_correct = self.number_yes_responses * 100 // self.number_questions
+        self.stream_count = Stream.objects.filter(
+            parent_applicant=self).count()
+        classifications = list(
+            Classification.objects.filter(parent_applicant=self))
+        self.classification_names = "".join([(classification.classification_substantive or "") for classification in classifications]).join(
+            " ").join([(classification.classification_current or "") for classification in classifications])
 
 
 class RequirementMet(models.Model):
@@ -158,16 +178,31 @@ class FormAnswer(models.Model):
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='answers')
-
     applicant_answer = models.BooleanField()
+    applicant_complementary_response = models.TextField(
+        blank=True, null=True)
 
-    applicant_complementary_response = models.TextField(blank=True, null=True)
-    parsed_response = models.CharField(max_length=1000, blank=True, null=True)
-    analysis = models.TextField(blank=True, null=True)
-    tabulation = models.CharField(max_length=1000, null=True)
+    def __str__(self):
+        return str(self.applicant_answer) + ": " + str(self.parent_question)
 
-    def __bool__(self):
-        return self.applicant_answer
+
+class NlpExtract(models.Model):
+    EXTRACT_TYPES = [
+        ('WHEN', 'A date or date range, and its context'),
+        ('HOW', 'What applicant did to fulfill a requirement')
+    ]
+    parent_answer = models.ForeignKey(
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='extract')
+    extract_type = models.CharField(
+        choices=EXTRACT_TYPES, max_length=200, null=True)
+    extract_text = models.TextField()
+    extract_sentence_index = models.PositiveIntegerField(null=True)
+    extract_ending_index = models.PositiveIntegerField(null=True)
+    next_extract_index = models.PositiveIntegerField(null=True)
+
+    # for key, value in dates.items()
+    def __str__(self):
+        return str(self.extract_type) + ": " + str(self.extract_text)
 
 
 class ScreenDoorUser(AbstractUser):

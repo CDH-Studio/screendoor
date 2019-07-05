@@ -112,6 +112,11 @@ class PositionText():
         "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
     ok = _("OK")
     cancel = _("Cancel")
+    applicant_id = _("Applicant ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
+    pdf = _("PDF")
 
 
 class CreatePositionFormText():
@@ -214,6 +219,10 @@ class PositionsViewText():
     no_applicants = _("No. Applicants")
     # Translators: Position View
     avg_score = _("Avg. Score")
+    id = _("ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
 
 
 class ApplicantViewText():
@@ -293,6 +302,9 @@ class ApplicantViewText():
     expand_all = _("Expand all")
     # Translators: Applicant View
     collapse_all = _("Collapse all")
+    extract = _("Extract")
+    extracts = _("Extracts")
+    no_analysis = _("No Analysis")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
