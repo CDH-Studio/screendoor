@@ -9,48 +9,10 @@ from fuzzywuzzy import fuzz
 from pandas import options
 from celery import current_task
 
-from .NLP.howextraction import extract_how
-from .NLP.whenextraction import extract_dates
+from .NLP.how_extraction import extract_how
+from .NLP.when_extraction import extract_when
+from .NLP.helpers.format_text import reprocess_line_breaks
 from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
-
-# Given an element at i, get the element at i+1 if it doesn't cause an index
-# out of bounds error.
-def get_next_index_or_blank(idx, list):
-    if idx < len(list)-1:
-        return list[idx+1]
-    return ''
-
-
-# Takes a block of line breaks, and attempts to cut out the pdf-imposed style
-# line breaks, leaving only the line breaks the applicants added.
-def reprocess_line_breaks(text_block):
-    if text_block is not None:
-        line_split_blocks = text_block.split('\n')
-        reprocessed_blocks = []
-        reformatted_text = ''
-        for idx, text in enumerate(line_split_blocks):
-            next_elem = get_next_index_or_blank(idx, line_split_blocks)
-
-            reformatted_text += text + ' '
-
-            # Checks for: double or higher consecutive newlines (needed as
-            # page breaks on the pdf can result in up to 7 line breaks.
-            if text in ['', ' '] and next_elem in ['', ' ']:
-                reformatted_text = ''
-                continue
-
-            # Checks for: line length being too short and not being in the
-            # middle of a sentence, a blank line being read in, or a sentence
-            # end followed by a blank line.
-            if ((len(text) < 115 and not re.match(r'[a-z]', next_elem))
-                    or text in ['', ' ']
-                    or (text.endswith(('.', '?', '!', ':', ';'))
-                                      and next_elem in ['', ' '])):
-                reprocessed_blocks.append(reformatted_text)
-                reformatted_text = ''
-                continue
-        return ('\n'.join(reprocessed_blocks)).strip(' \n')
-    return None
 
 
 def is_question(item):
@@ -560,11 +522,11 @@ def get_answer(table, answers, position):
         comp_response = parse_applicant_complementary_response(table)
         if not (comp_response is None):
             # Extract dates
-            dates = extract_dates(str.strip(comp_response))
+            dates = extract_when(str.strip(comp_response))
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
             # Combine the two lists, and make them a newline delimited str.
-            if dates == {} and experiences == {}:
+            if dates == [] and experiences == []:
                 analysis = "No Analysis"
             else:
                 analysis = '\n'.join(list(dates) + list(experiences))
