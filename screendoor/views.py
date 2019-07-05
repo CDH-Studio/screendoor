@@ -248,7 +248,7 @@ def import_position(request):
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
-            edit_position(request)
+            # edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
