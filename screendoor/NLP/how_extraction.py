@@ -56,10 +56,12 @@ def extract_how(text):
     doc = NLP_MODEL(reformatted_text)
 
     experiences = []
+    char_index = 0
     for sent in doc.sents:
         experience = strip_faulty_formatting(construct_how_extract(sent))
-        idx = 0
         if experience:
-            experiences.append((experience, idx))
+            experiences.append(
+                (experience, char_index, char_index + len(sent.text)))
+        char_index += len(sent.text) + 1
 
     return experiences
