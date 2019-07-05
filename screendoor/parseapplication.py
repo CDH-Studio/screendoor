@@ -1,3 +1,10 @@
+from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
+from .NLP.helpers.format_text import reprocess_line_breaks
+from .NLP.when_extraction import extract_when
+from .NLP.how_extraction import extract_how
+from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer, NlpExtract
+from .NLP.whenextraction import extract_dates
+from .NLP.howextraction import extract_how
 import random
 import re
 import string
@@ -9,9 +16,7 @@ from fuzzywuzzy import fuzz
 from pandas import options
 from celery import current_task
 
-from .NLP.howextraction import extract_how
-from .NLP.whenextraction import extract_dates
-from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer, NlpExtract
+<< << << < HEAD
 
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
@@ -53,6 +58,11 @@ def reprocess_line_breaks(text_block):
                 continue
         return ('\n'.join(reprocessed_blocks)).strip(' \n')
     return None
+
+
+== == == =
+
+>>>>>> > 0481c9bba48979bc058a529c9cc10e87e5fab909
 
 
 def is_question(item):
