@@ -110,6 +110,13 @@ class PositionText():
         "ScreenDoor is processing the following applications:")
     processing_detail_2 = _(
         "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
+    ok = _("OK")
+    cancel = _("Cancel")
+    applicant_id = _("Applicant ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
+    pdf = _("PDF")
 
 
 class CreatePositionFormText():
@@ -202,6 +209,20 @@ class PositionsViewText():
     collapse_all = _("Collapse all")
     # Translators: Position View
     position_added = _("Position added")
+    # Translators: Position View
+    applicants = _("Applicants")
+    # Translators: Position View
+    applicant = _("Applicant")
+    # Translators: Position View
+    average_score = _("Average Score")
+    # Translators: Position View
+    no_applicants = _("No. Applicants")
+    # Translators: Position View
+    avg_score = _("Avg. Score")
+    id = _("ID")
+    classifications = _("Classifications")
+    streams = _("Streams")
+    score = _("Score")
 
 
 class ApplicantViewText():

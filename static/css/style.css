@@ -1,9 +1,104 @@
-.progress-indicator {
-  /* display: flex;
-     align-items: center; */
-  /* align-content: center; */
-  /* align-self: center; */
-  /* justify-content: center; */
+th a {
+  color: #111111;
+}
+
+.applicant-id-text {
+
+}
+
+.applicant-sort-arrow {
+  display: inline;
+  position: absolute;
+  margin-left: 5px;
+}
+
+.applicant-sort {
+
+}
+
+.sort-icon {
+  margin-left: -15px;
+  font-size: 1.3rem;
+}
+
+.score-text {
+  padding-left: 10px;
+}
+
+.streams-text {
+  margin-right: 15px;
+  padding-right: 15px;}
+
+.sort-arrow {
+  display: inline;
+  position: absolute;
+  margin-left: -20px;
+}
+
+
+.sort-button {
+  font-weight: 400;
+}
+
+.position-list-title {
+  margin-left: 5px;
+  padding-left: 0px;
+  margin-top: 0px;
+  margin-bottom: 5px;
+}
+
+.applicant-summary-card {
+  padding: 3px 13px 3px 13px;
+  margin: 0px 0px 5px 20px;
+  border-radius: 75px;
+  box-shadow: 0px 1px 1px lightgrey;
+}
+
+.applicants-summary-box {
+  /* border-radius: 75px;
+     box-shadow: 0px 1px 1px lightgrey; */
+  background-color: lightgrey;
+  margin-bottom: -15px;
+}
+
+.scaled {
+  transform: scale(0.7); /* Equal to scaleX(0.7) scaleY(0.7) */
+  }
+
+.number-applicants {
+  font-size: 1.6rem;
+  color: #ffffff;
+  font-weight: 400;
+  margin-left: -86px;
+  margin-top: -23px;
+  position: absolute;
+  margin-right: 15px;
+}
+
+.number-applicants-icon {
+  position: absolute;
+  margin-left: -100px;
+  margin-top: -35px;
+  font-size: 3.8rem;
+  text-shadow: 0px 1px 1px lightgrey;
+  margin-right: 15px;
+}
+
+.mean-score-icon {
+  position: absolute;
+  margin-top: -34px;
+  margin-left: -26px;
+  font-size: 3.6rem;
+  text-shadow: 0px 1px 1px lightgrey;
+}
+
+.mean-score {
+  position: absolute;
+  font-size: 1.6rem;
+  margin-left: -13px;
+  margin-top: -22px;
+  color: #ffffff;
+  font-weight: 400;
 }
 
 .progress-text {

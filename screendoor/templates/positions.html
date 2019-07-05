@@ -5,26 +5,45 @@
 <div class="container positions">
   <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
-  <form method="POST" class="sort-positions">
-    {% csrf_token %}
     <!-- If statements determine if selected sort is in blue text -->
     <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
-    {% if "created" in sort %}
-    <input type="submit" name="sort-created" class="btn-flat blue-text" value="{{ userVisibleText.date_uploaded }}">
-    {% else %}
-    <input type="submit" name="sort-created" class="btn-flat" value="{{ userVisibleText.date_uploaded }}">
-    {% endif %}
-    {% if "date_closed" in sort %}
-    <input type="submit" name="sort-closed" class="btn-flat blue-text" value="{{ userVisibleText.date_closed }}">
-    {% else %}
-    <input type="submit" name="sort-closed" class="btn-flat" value="{{ userVisibleText.date_closed }}">
-    {% endif %}
-    {% if "position_title" in sort %}
-    <input type="submit" name="sort-position" class="btn-flat blue-text" value="{{ userVisibleText.position }}">
-    {% else %}
-    <input type="submit" name="sort-position" class="btn-flat" value="{{ userVisibleText.position }}">
-    {% endif %}
-  </form>
+    <a name="sort-method" href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}" class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
+      {% if '-created' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'created' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}{{ userVisibleText.date_uploaded }}</span>
+    </a>
+    <a name="sort-method" href="{% if '-date_closed' in sort %}{% url 'sort_positions' 'date_closed' %}{% elif 'date_closed' in sort %}{% url 'sort_positions' '-date_closed' %}{% else %}{% url 'sort_positions' '-date_closed' %}{% endif %}" class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
+      {% if '-date_closed' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'date_closed' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.date_closed }}</span>
+    </a>
+    <a name="sort-method" href="{% if '-position_title' in sort %}{% url 'sort_positions' 'position_title' %}{% elif 'position_title' in sort %}{% url 'sort_positions' '-position_title' %}{% else %}{% url 'sort_positions' 'position_title' %}{% endif %}" class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
+      {% if '-position_title' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'position_title' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}{{ userVisibleText.position }}</span>
+    </a>
+    <a name="sort-method" href="{% if '-number_applicants' in sort %}{% url 'sort_positions' 'number_applicants' %}{% elif 'number_applicants' in sort %}{% url 'sort_positions' '-number_applicants' %}{% else %}{% url 'sort_positions' '-number_applicants' %}{% endif %}" class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
+      {% if '-number_applicants' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'number_applicants' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}{{ userVisibleText.no_applicants }}</span>
+    </a>
+    <a name="sort-method" href="{% if '-mean_score' in sort %}{% url 'sort_positions' 'mean_score' %}{% elif 'mean_score' in sort %}{% url 'sort_positions' '-mean_score' %}{% else %}{% url 'sort_positions' '-mean_score' %}{% endif %}" class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
+      {% if '-mean_score' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_up</i>
+      {% elif 'mean_score' in sort %}
+      <i class="sort-arrow material-icons">arrow_drop_down</i>
+      {% endif %}
+      {{ userVisibleText.avg_score }}</span>
+    </a>
   {% endif %}
   <!-- Beginning of Positions view -->
   <!-- Sorting is determined in views.py -->
@@ -34,10 +53,23 @@
     <!--Beginning of confirm position card -->
     <div class="col card white hoverable">
       <div class="card-content col s12 positions-card">
-        <!-- Link to position detail using GET request -->
-        <a class="position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
+        <div class="row valign-wrapper">
+          <!-- Link to position detail using GET request -->
+          <a class="position-list-title position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
+          {% if position.applicants is not None %}
+          <div class="col s6 right">
+            <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
+               red
+               {% elif position.mean_score > 33 and position.mean_score <= 66 %}
+               orange
+               {% elif position.mean_score > 66 and position.mean_score <= 100 %}
+               green
+               {% endif %}">{{ userVisibleText.average_score }}: {{ position.mean_score }}</span>
+            <span class="applicant-summary-card white-text blue card-panel right">{{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}</span>
+          </div>
+          {% endif %}
+        </div>
         <!-- Position row 1 headers -->
-        <br>
         <table class="highlight">
           <thead>
             <tr>
@@ -119,7 +151,7 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>{{ applicationsForm.title }}</h5>
@@ -155,5 +187,6 @@
 <script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for positions list-specific functions -->
 <script src="{% static 'js/positions-list-functions.js' %}"></script>
-<!-- Script has to be inline to use Django variables -->
+<!-- Script for local storage items (application filenames) -->
+<script src="{% static 'js/localstorage.js' %}"></script>
 {% endblock %}

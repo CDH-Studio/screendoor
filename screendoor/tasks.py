@@ -40,9 +40,10 @@ def process_applications(self, file_paths, position_id):
         for application in applications:
             print("APPLICANT COUNTER: " + str(applicant_counter))
             application.parent_position = position
+            application.update_question_fields()
             application.save()
         print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
-
+    position.update_applicant_fields()
 
 # Scheduled tasks
 
