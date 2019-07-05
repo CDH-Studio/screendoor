@@ -302,6 +302,9 @@ class ApplicantViewText():
     expand_all = _("Expand all")
     # Translators: Applicant View
     collapse_all = _("Collapse all")
+    extract = _("Extract")
+    extracts = _("Extracts")
+    no_analysis = _("No Analysis")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file

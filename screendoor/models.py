@@ -165,13 +165,28 @@ class FormAnswer(models.Model):
     applicant_answer = models.BooleanField()
     applicant_complementary_response = models.TextField(
         blank=True, null=True)
-    parsed_response = models.CharField(
-        max_length=1000, blank=True, null=True)
-    analysis = models.TextField(blank=True, null=True)
-    tabulation = models.CharField(max_length=1000, null=True)
 
-    def __bool__(self):
-        return self.applicant_answer
+    def __str__(self):
+        return str(self.applicant_answer) + ": " + str(self.parent_question)
+
+
+class NlpExtract(models.Model):
+    EXTRACT_TYPES = [
+        ('WHEN', 'A date or date range, and its context'),
+        ('HOW', 'What applicant did to fulfill a requirement')
+    ]
+    parent_answer = models.ForeignKey(
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='extract')
+    extract_type = models.CharField(
+        choices=EXTRACT_TYPES, max_length=200, null=True)
+    extract_text = models.TextField()
+    extract_sentence_index = models.PositiveIntegerField(null=True)
+    extract_ending_index = models.PositiveIntegerField(null=True)
+    next_extract_index = models.PositiveIntegerField(null=True)
+
+    # for key, value in dates.items()
+    def __str__(self):
+        return str(self.extract_type) + ": " + str(self.extract_text)
 
 
 class Requirement(models.Model):

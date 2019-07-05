@@ -1,3 +1,8 @@
+from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
+from .NLP.helpers.format_text import reprocess_line_breaks
+from .NLP.when_extraction import extract_when
+from .NLP.how_extraction import extract_how
+from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer, NlpExtract
 import random
 import re
 import string
@@ -9,48 +14,14 @@ from fuzzywuzzy import fuzz
 from pandas import options
 from celery import current_task
 
-from .NLP.howextraction import extract_how
-from .NLP.whenextraction import extract_dates
-from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
-
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
+
+
 def get_next_index_or_blank(idx, list):
     if idx < len(list)-1:
         return list[idx+1]
     return ''
-
-
-# Takes a block of line breaks, and attempts to cut out the pdf-imposed style
-# line breaks, leaving only the line breaks the applicants added.
-def reprocess_line_breaks(text_block):
-    if text_block is not None:
-        line_split_blocks = text_block.split('\n')
-        reprocessed_blocks = []
-        reformatted_text = ''
-        for idx, text in enumerate(line_split_blocks):
-            next_elem = get_next_index_or_blank(idx, line_split_blocks)
-
-            reformatted_text += text + ' '
-
-            # Checks for: double or higher consecutive newlines (needed as
-            # page breaks on the pdf can result in up to 7 line breaks.
-            if text in ['', ' '] and next_elem in ['', ' ']:
-                reformatted_text = ''
-                continue
-
-            # Checks for: line length being too short and not being in the
-            # middle of a sentence, a blank line being read in, or a sentence
-            # end followed by a blank line.
-            if ((len(text) < 115 and not re.match(r'[a-z]', next_elem))
-                    or text in ['', ' ']
-                    or (text.endswith(('.', '?', '!', ':', ';'))
-                                      and next_elem in ['', ' '])):
-                reprocessed_blocks.append(reformatted_text)
-                reformatted_text = ''
-                continue
-        return ('\n'.join(reprocessed_blocks)).strip(' \n')
-    return None
 
 
 def is_question(item):
@@ -554,27 +525,42 @@ def get_question(table, questions, position):
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
-
     if is_in_questions(table, all_questions) and not is_stream(table):
-        analysis = None
         comp_response = parse_applicant_complementary_response(table)
+        answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
+                            applicant_complementary_response=comp_response,
+                            parent_question=retrieve_question(table, all_questions))
         if not (comp_response is None):
+            answer.save()
             # Extract dates
-            dates = extract_dates(str.strip(comp_response))
+            dates = extract_when(str.strip(comp_response))
+            create_nlp_extracts(dates, 'WHEN', answer) if dates != [] else None
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
-            # Combine the two lists, and make them a newline delimited str.
-            if dates == {} and experiences == {}:
-                analysis = "No Analysis"
-            else:
-                analysis = '\n'.join(list(dates) + list(experiences))
-        answers.append(FormAnswer(applicant_answer=parse_applicant_answer(table),
-                                  applicant_complementary_response=comp_response,
-                                  parent_question=retrieve_question(
-                                      table, all_questions),
-                                  analysis=analysis))
-
+            create_nlp_extracts(experiences, 'HOW',
+                                answer) if experiences != [] else None
+        answers.append(answer)
     return answers
+
+
+def create_nlp_extracts(extract_list, nlp_type, answer):
+    extracts = []
+    for extract_data in extract_list:
+        extract = NlpExtract(parent_answer=answer, extract_type=nlp_type,
+                             extract_text=extract_data[0],
+                             extract_sentence_index=extract_data[1],
+                             extract_ending_index=extract_data[2])
+        extract.save()
+        extracts.append(extract)
+    extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(
+        'extract_sentence_index', '-extract_type')
+    counter = 0
+    while counter < len(extract_set)-1:
+        counter += 1
+        extract_set[counter -
+                    1].next_extract_index = extract_set[counter].extract_sentence_index
+    for e in extract_set:
+        e.save()
 
 
 def get_education(item, educations):
@@ -629,13 +615,12 @@ def find_essential_details(tables, position):
             streams = get_streams(item, streams)
             classifications = get_classifications(item, classifications)
             applicant = fill_in_single_line_arguments(item, applicant)
-
     applicant.applicant_id = ''.join(
         random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
-    for item in answers:
-        item.parent_applicant = applicant
-        item.save()
+    for answer in answers:
+        answer.parent_applicant = applicant
+        answer.save()
     for item in educations:
         item.parent_applicant = applicant
         item.save()
