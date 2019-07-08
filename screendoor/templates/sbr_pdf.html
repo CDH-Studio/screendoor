@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% load static %}
+<link href="{% static 'css/sbr.css' %}" rel="stylesheet">
 
-</body>
-</html>
+
+<title>SBR PDF</title>
+<h3 id="myHeader">Screening Evaluation Sheet / Feuille d’évaluation à la présélection – {{ applicant.applicant_id}}</h3>
+
+<div id="left-section">
+    <span>Selection process number/Numéro de processus de sélection:</span>
+    <ul>
+        <li>Priority entitlement/ Droit de priorité: {{ applicant.priority }}</li>
+        <li>Preference to veterans/ Préférence aux anciens combattants: {{ applicant.veteran_preference }}</li>
+    </ul>
+
+</div>
+<div id="right-section">
+    <table id=right-table>
+        <tr class = "right-table-row">
+            <th class = "table-right-header"> Streams </th>
+            <th class = "table-right-header"> Applicant Selection </th>
+        {% for stream in streams %}
+            </tr>
+            <tr class = "right-table-row">
+            {% if stream.stream_response  %}
+                <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
+                <td>IN</td>
+            {% else %}
+                <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
+                <td>OUT</td>
+           {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+
+
+</div>

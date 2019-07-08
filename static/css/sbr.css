@@ -1,0 +1,36 @@
+#myHeader {
+  color: black;
+  text-align: center;
+  font-size: 20px;
+  color: white;
+  background-color: grey;
+  width: 100%;
+}
+#left-section{
+  float: left;
+  width: 50%;
+  text-align: left;
+
+}
+#right-section{
+  float: right;
+  width: 50%;
+  text-align: left;
+}
+#right-table{
+  width: 100%;
+
+}
+.table-entry{
+
+}
+.right-table-row{
+  text-align: left;
+}
+.table-right-header{
+  width: 50%;
+
+
+}
+
+
