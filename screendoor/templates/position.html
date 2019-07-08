@@ -104,7 +104,7 @@
             </tbody>
             <!-- Position education and experience rows -->
             <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-            {% for req in position.requirement_set.all %}
+            {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
             <!-- ifchanged executes only for distinct values without repetition -->
             {% ifchanged %}
             <thead class="collapse">
