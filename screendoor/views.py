@@ -393,7 +393,7 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
     applicant = Applicant.objects.get(id=applicant_id)
     position = Position.objects.get(id=position_id)
-    answers = FormAnswer.objects.filter(parent_applicant=applicant)
+    answers = FormAnswer.objects.filter(parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('extract_sentence_index', '-extract_type') if NlpExtract.objects.filter(
@@ -409,6 +409,15 @@ def application(request, app_id):
         return render(request, 'application.html',
                       applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
+    return redirect('home')
+
+
+@login_required(login_url='login', redirect_field_name=None)
+def render_pdf(request, app_id):
+    applicant = position_has_applicant(request, app_id)
+    if applicant is not None:
+        return render(request, 'sbr_pdf.html',
+                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     return redirect('home')
 
 

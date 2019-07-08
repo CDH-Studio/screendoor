@@ -13,13 +13,14 @@ from celery import current_task
 from fuzzywuzzy import fuzz
 from pandas import options
 
+
 # Given an element at i, get the element at i+1 if it doesn't cause an index
 # out of bounds error.
 
 
 def get_next_index_or_blank(idx, list):
-    if idx < len(list)-1:
-        return list[idx+1]
+    if idx < len(list) - 1:
+        return list[idx + 1]
     return ''
 
 
@@ -31,13 +32,17 @@ def is_question(item):
     return False
 
 
-def is_in_questions(table, question_list):
+def is_in_questions(table, all_questions):
     if is_question(table):
-        for item in question_list:
-            if fuzz.ratio(item.question_text, parse_question_text(table)) > 80:
-                return True
+        question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
 
-    return False
+        for other_question in all_questions:
+            other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+            if fuzz.ratio(question_text, other_question_text) > 90:
+                return True
+        print("NOT A MATCH, THERE WAS AN ERROR")
+    else:
+        return False
 
 
 def is_qualification(item):
@@ -122,11 +127,14 @@ def get_column_value(search_string, item):
     return "N/A"
 
 
-def retrieve_question(table, question_list):
-    if is_question(table):
-        for item in question_list:
-            if fuzz.ratio(item.question_text, parse_question_text(table)) > 80:
-                return item
+def retrieve_question(table, all_questions):
+    question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
+
+    for other_question in all_questions:
+        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        if fuzz.ratio(question_text, other_question_text) > 95:
+            return other_question
+    print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
 
     return None
 
@@ -150,8 +158,9 @@ def parse_priority(item):
 
 
 def parse_is_veteran(item):
-    applicant_is_veteran = get_column_value(
-        "Préférence aux anciens combattants / Preference to veterans:", item)
+    print(item)
+    applicant_is_veteran = get_column_value("anciens combattants", item)
+    print(applicant_is_veteran)
     if "No" in applicant_is_veteran:
         applicant_is_veteran = "False"
     else:
@@ -500,14 +509,25 @@ def create_short_question_text(long_text):
 
 
 def find_and_get_req(position, question_text):
-
     for requirement in position.requirement_set.all():
         if fuzz.partial_ratio(requirement.description, question_text) > 85:
             return requirement
     return None
 
 
-def get_question(table, questions, position):
+def does_exist(question, all_questions):
+    question_text = question.question_text.replace('\n', " ").replace(" ", "")
+
+    for other_question in all_questions:
+        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        if fuzz.ratio(question_text, other_question_text) > 95:
+            return True
+    print("QUESTION DOES NOT EXIST")
+
+    return False
+
+
+def get_question(table, position):
     # Creates a list of questions cross checked for redundancy against previously made questions.
     if is_question(table) and not is_stream(table):
         question_text = parse_question_text(table)
@@ -518,21 +538,20 @@ def get_question(table, questions, position):
                                 )
 
         all_questions = position.questions.all()
-        for item in all_questions:
-            if fuzz.ratio(item.question_text, question.question_text) > 80:
-                return questions
+        if does_exist(question, all_questions):
+            return
+        else:
+            question.parent_position = position
+            question.save()
 
-        question.parent_position = position
-        question.save()
-        questions.append(question)
-
-    return questions
+    return
 
 
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
-    if is_in_questions(table, all_questions) and not is_stream(table):
+
+    if is_question(table) and not is_stream(table):
         comp_response = parse_applicant_complementary_response(table)
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
                             applicant_complementary_response=comp_response,
@@ -562,7 +581,7 @@ def create_nlp_extracts(extract_list, nlp_type, answer):
     extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(
         'extract_sentence_index', '-extract_type')
     counter = 0
-    while counter < len(extract_set)-1:
+    while counter < len(extract_set) - 1:
         counter += 1
         extract_set[counter -
                     1].next_extract_index = extract_set[counter].extract_sentence_index
@@ -584,6 +603,36 @@ def get_education(item, educations):
     return educations
 
 
+def parse_stream_description(item):
+    for index, row in item.iterrows():
+        key = item.iloc[index, 0]
+        value = item.iloc[index, 1]
+        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+            stream_text = re.split(r'\d+', value, 1)[1]
+        if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
+            response = value
+            if "Yes" in response:
+                stream_text = stream_text.replace(",", "")
+                stream_text = stream_text.replace("?", "")
+
+                return stream_text
+    return None
+
+
+def parse_stream_response(item):
+    for index, row in item.iterrows():
+        key = item.iloc[index, 0]
+        value = item.iloc[index, 1]
+        if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
+            response = value
+            if "Yes" in response:
+                return True
+            elif "No" in response:
+                return False
+
+    return None
+
+
 def get_streams(item, streams):
     # Makes a list of streams.
     if is_stream(item):
@@ -591,7 +640,9 @@ def get_streams(item, streams):
         if stream is None:
             return streams
         else:
-            streams.append(Stream(stream_name=stream))
+            streams.append(Stream(stream_name=parse_stream(item),
+                                  stream_response=parse_stream_response(item),
+                                  stream_description=parse_stream_description(item)))
     return streams
 
 
@@ -608,7 +659,6 @@ def find_essential_details(tables, position):
     applicant = Applicant()
     applicant.save()
     position.save()
-    questions = []
     streams = []
     answers = []
     classifications = []
@@ -620,7 +670,7 @@ def find_essential_details(tables, position):
 
     for table_counter, item in enumerate(tables):
         if check_if_table_valid(item):
-            questions = get_question(item, questions, position)
+            get_question(item, position)
             answers = get_answer(item, answers, position)
             educations = get_education(item, educations)
             streams = get_streams(item, streams)
@@ -675,6 +725,10 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
             applications.append(find_essential_details(
                 data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
                 position))
+
+    for question in position.questions.all():
+        print(len(question.answer.all()))
+
     return applications
 
 

@@ -118,6 +118,8 @@ class Stream(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
     stream_name = models.CharField(max_length=200, null=True)
+    stream_response = models.BooleanField(null=True)
+    stream_description = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name
