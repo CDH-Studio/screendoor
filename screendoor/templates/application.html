@@ -330,18 +330,31 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
+<<<<<<< HEAD
                 <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|safe }}</td>
                 <data class="answer-id" value="{{ answer.id }}" />
+=======
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}
+                </td>
+>>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
                 <td colspan="1"></td>
                 <td colspan="10" class="blue-text text-darken-2">
                   {% for extract in answer.extract_set %}
                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
+<<<<<<< HEAD
                   <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
+=======
+                  <data class="extract-ending-index" value=""/>
+>>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
                   <data class="extract-string" value="{{ extract.extract_text }}"/>
                   <data class="extract-id" value="{{ extract.id }}"/>
                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
+<<<<<<< HEAD
                   <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"/>
+=======
+                  <data class="extract-parent-answer" value="{{ extract.parent_answer }}"/>
+>>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons extract-icon">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}

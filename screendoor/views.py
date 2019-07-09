@@ -243,7 +243,7 @@ def import_position(request):
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
-            edit_position(request)
+            # edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
@@ -393,7 +393,11 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
     applicant = Applicant.objects.get(id=applicant_id)
     position = Position.objects.get(id=position_id)
+<<<<<<< HEAD
     answers = FormAnswer.objects.filter(parent_applicant=applicant)
+=======
+    answers = FormAnswer.objects.filter(parent_applicant=applicant).order_by("parent_question")
+>>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
     for answer in answers:
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('extract_sentence_index', '-extract_type') if NlpExtract.objects.filter(
@@ -409,6 +413,15 @@ def application(request, app_id):
         return render(request, 'application.html',
                       applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
+    return redirect('home')
+
+
+@login_required(login_url='login', redirect_field_name=None)
+def render_pdf(request, app_id):
+    applicant = position_has_applicant(request, app_id)
+    if applicant is not None:
+        return render(request, 'sbr_pdf.html',
+                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
     return redirect('home')
 
 
@@ -429,6 +442,12 @@ def task_status(request, task_id):
             return JsonResponse(response_data)
     return None
 
+
+def nlp(request):
+    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
+    from screendoor.NLP.howextraction import extract_how
+    extract_how(text)
+    return redirect('positions')
 
 def nlp(request):
     text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""

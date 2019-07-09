@@ -37,7 +37,11 @@ class Position(models.Model):
             self.number_applicants = self.applicant_set.all().count()
             self.mean_score = sum([FormAnswer.objects.filter(parent_applicant=applicant, applicant_answer=True).count(
             ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in
+<<<<<<< HEAD
                 self.applicant_set.all()]) // self.applicant_set.all().count()
+=======
+                                   self.applicant_set.all()]) // self.applicant_set.all().count()
+>>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
             self.save()
 
 
@@ -45,6 +49,7 @@ class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
     applicant_id = models.CharField(max_length=200, null=True)
+
     citizenship = models.CharField(max_length=200, null=True)
     priority = models.BooleanField(null=True)
     veteran_preference = models.BooleanField(null=True)
@@ -76,7 +81,7 @@ class Applicant(models.Model):
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-        blank=True)
+                           blank=True)
     ranking = models.PositiveIntegerField(null=True)
     # For sorting purposes
     number_questions = models.PositiveIntegerField(default=0)
@@ -118,6 +123,8 @@ class Stream(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
     stream_name = models.CharField(max_length=200, null=True)
+    stream_response = models.BooleanField(null=True)
+    stream_description = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name

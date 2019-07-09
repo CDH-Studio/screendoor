@@ -239,7 +239,7 @@
                                        green-text
                                        {% endif %}
                                        text-darken-2 applicant-question-total">{{ applicant.number_yes_responses }}</span><span class="">/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span></td>
-          <td colspan="3"><i class="material-icons red-text">picture_as_pdf</i></td>
+          <td colspan="3"><a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a></td>
         </tr>
       </tbody>
     </table>
