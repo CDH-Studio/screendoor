@@ -104,7 +104,7 @@
             </tbody>
             <!-- Position education and experience rows -->
             <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
-            {% for req in position.requirement_set.all %}
+            {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
             <!-- ifchanged executes only for distinct values without repetition -->
             {% ifchanged %}
             <thead class="collapse">
@@ -239,7 +239,7 @@
                                        green-text
                                        {% endif %}
                                        text-darken-2 applicant-question-total">{{ applicant.number_yes_responses }}</span><span class="">/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span></td>
-          <td colspan="3"><i class="material-icons red-text">picture_as_pdf</i></td>
+          <td colspan="3"><a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a></td>
         </tr>
       </tbody>
     </table>

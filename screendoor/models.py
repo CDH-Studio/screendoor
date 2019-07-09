@@ -44,6 +44,7 @@ class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
     applicant_id = models.CharField(max_length=200, null=True)
+
     citizenship = models.CharField(max_length=200, null=True)
     priority = models.BooleanField(null=True)
     veteran_preference = models.BooleanField(null=True)
@@ -72,6 +73,7 @@ class Applicant(models.Model):
         choices=LANGUAGE_CHOICES, max_length=200, null=True)
     interview = models.CharField(
         choices=LANGUAGE_CHOICES, max_length=200, null=True)
+
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
         blank=True)
@@ -116,6 +118,8 @@ class Stream(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
     stream_name = models.CharField(max_length=200, null=True)
+    stream_response = models.BooleanField(null=True)
+    stream_description = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name
@@ -124,6 +128,7 @@ class Stream(models.Model):
 class Classification(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='classifications')
+
     classification_substantive = models.CharField(max_length=200, null=True)
     classification_current = models.CharField(max_length=200, null=True)
 
@@ -146,9 +151,22 @@ class Education(models.Model):
         return self.academic_level
 
 
+class Requirement(models.Model):
+    position = models.ForeignKey(
+        Position, on_delete=models.CASCADE, null=True)
+    requirement_type = models.CharField(max_length=200)
+    abbreviation = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.position.__str__() + " - " + self.abbreviation
+
+
 class FormQuestion(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True, related_name='questions')
+    parent_requirement = models.ForeignKey(
+        Requirement, on_delete=models.CASCADE, null=True, related_name='parent_req')
     question_text = models.TextField(blank=True, null=True)
     short_question_text = models.TextField(blank=True, null=True)
     complementary_question_text = models.TextField(blank=True, null=True)
@@ -162,6 +180,7 @@ class FormAnswer(models.Model):
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='answers')
+
     applicant_answer = models.BooleanField()
     applicant_complementary_response = models.TextField(
         blank=True, null=True)
@@ -187,17 +206,6 @@ class NlpExtract(models.Model):
     # for key, value in dates.items()
     def __str__(self):
         return str(self.extract_type) + ": " + str(self.extract_text)
-
-
-class Requirement(models.Model):
-    position = models.ForeignKey(
-        Position, on_delete=models.CASCADE, null=True)
-    requirement_type = models.CharField(max_length=200)
-    abbreviation = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.position.__str__() + " - " + self.abbreviation
 
 
 class ScreenDoorUser(AbstractUser):

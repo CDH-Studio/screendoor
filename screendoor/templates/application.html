@@ -198,8 +198,13 @@
                         {% if answer.applicant_answer is True %}10
                         {% else %}23{% endif %}">
                   <div class="question-subhead hide">Question</div>
-                  <span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                  <span class="question-preview">
+                    {% if answer.parent_question.parent_requirement is not None %}
+                    <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span>
+                    {% endif %}
+                    {{ answer.parent_question.short_question_text|bullet_points }}</span>
                 </th>
+                <!-- Full preview -->
                 {% if answer.applicant_answer is True %}
                 <th colspan="1"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
@@ -246,7 +251,11 @@
                 <td colspan="2"></td>
                 <td colspan="{% if answer.applicant_answer is True %}10
                              {% else %}23{% endif %}">
-                  <span class="question-full">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                  <span class="question-full">
+                    {% if answer.parent_question.parent_requirement is not None %}
+                    <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span>
+                    {% endif %}
+                    {{ answer.parent_question.short_question_text }}</span>
                 </td>
                 {% if answer.applicant_answer is True %}
                 <td colspan="1"></td>
@@ -258,8 +267,7 @@
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   {% if extract is not None %}
-                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>{% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endif %}
@@ -297,7 +305,7 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="9" style="white-space: pre-line;">{{ answer.parent_question.question_text }}</td>
+                <td colspan="9">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span> {% endif %}{{ answer.parent_question.question_text }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
@@ -322,25 +330,25 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}
-                </td>
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points|double_line_breaks }}</td>
+                <data class="answer-id" value="{{ answer.id }}" />
                 <td colspan="1"></td>
                 <td colspan="10" class="blue-text text-darken-2">
-                  {% for extract in answer.extract_set %}
+                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
                   <data class="extract-ending-index" value=""/>
                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
                   <data class="extract-string" value="{{ extract.extract_text }}"/>
                   <data class="extract-id" value="{{ extract.id }}"/>
                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer }}"/>
+                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons extract-icon">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endfor %}
@@ -369,4 +377,12 @@
   <script src="{% static 'js/helper-functions.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
   <script src="{% static 'js/tables.js' %}"></script>
+  <!-- Script for extract origin highlighting -->
+  <script src="{% static 'js/sentence-highlighting.js' %}"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.tooltipped');
+    var instances = M.Tooltip.init(elems, {});
+  });
+  </script>
   {% endblock %}
