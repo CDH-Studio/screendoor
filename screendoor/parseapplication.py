@@ -12,6 +12,16 @@ import tabula
 from celery import current_task
 from fuzzywuzzy import fuzz
 from pandas import options
+from celery import current_task
+
+# Given an element at i, get the element at i+1 if it doesn't cause an index
+# out of bounds error.
+
+
+def get_next_index_or_blank(idx, list):
+    if idx < len(list)-1:
+        return list[idx+1]
+    return ''
 
 
 def is_question(item):
