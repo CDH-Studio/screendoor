@@ -1,5 +1,5 @@
 from screendoor_app.settings import NLP_MODEL
-from .helpers.general_helpers import remove_bad_subjects, get_first_elem_or_none
+from .helpers.general_helpers import remove_bad_subjects, get_first_elem_or_none, fuzzy_search_extract_in_orig_doc
 from .helpers.format_text import strip_faulty_formatting, post_nlp_format_input
 from .helpers.how_extraction_helpers import create_phrase
 
@@ -14,7 +14,7 @@ def construct_how_extract(sent):
     doc = sent.as_doc()
 
     # Find all the verbs.
-    verbs = [x for x in doc if x.pos_ == 'VERB']
+    verbs = [x for x in doc if x.pos_ == 'VERB' and not x.dep_ == 'amod']
     if verbs == []:
         return None
 
@@ -36,10 +36,13 @@ def construct_how_extract(sent):
 
         # Attempts to "atomize" the verb phrase, by removing unneeded details,
         # or other ideas being explored in the same sentence
+        if token.text == ';':
+            extract += '--'
+            break
         if token.text == ',' and idx < len(phrase)-1:
             if 'conj' not in [x.dep_ for x in token.head.children] \
                     or token.nbor().dep_ == 'appos':
-                extract+= '---'
+                extract+= '--'
                 break
 
         extract += ' ' + token.text
@@ -51,17 +54,24 @@ def construct_how_extract(sent):
 # (e.g. I acquired x  VS  the project acquired x)
 def extract_how(text):
     # create a nlp processed version of the text (referred to as a 'doc' object).
-    temp_doc = NLP_MODEL(text)
-    reformatted_text = post_nlp_format_input(temp_doc)
+    orig_doc = NLP_MODEL(text)
+    reformatted_text = post_nlp_format_input(orig_doc)
     doc = NLP_MODEL(reformatted_text)
 
     experiences = []
-    char_index = 0
     for sent in doc.sents:
         experience = strip_faulty_formatting(construct_how_extract(sent))
         if experience:
-            experiences.append(
-                (experience, char_index, char_index + len(sent.text)))
-        char_index += len(sent.text) + 1
+            # retrieve the location of the extract in the original formatted
+            # text (for display purposes)
+            original_location = fuzzy_search_extract_in_orig_doc(orig_doc.text,
+                                                                 experience)
+            if original_location:
+                experiences.append(
+                    (experience, original_location[0], original_location[1]))
+            else:
+                # Should never get here!
+                experiences.append((experience, 0, 0))
 
     return experiences
+

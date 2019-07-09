@@ -1,4 +1,9 @@
 import re
+from .general_helpers import print_if_debug
+
+months_regex = r'\b(?:jan|feb|mar|apr|jun|jul|aug|sept|oct|nov|dec|' \
+                    r'january|febuary|march|april|may|june|july|august|september|october|november|december)'
+digits_or_present_regex = r'(?:\d*|present)'
 
 # Prevents crash: retokenizer only works on disjoint sets
 def filter_spans(spans):
@@ -31,12 +36,15 @@ def squash_named_entities(doc):
 def hard_identify_date_ents(doc):
     # for now, only checks the 07/2015-05/2014 regex, but will be expanded
     # as needed
+    regex = r'{0}\d*-{0}{1}'.format(months_regex, digits_or_present_regex)
+
     manually_identified_dates = re.findall(r"\d*\/\d*-\d*\/\d*", doc.text)
+    manually_identified_dates += re.findall(regex, doc.text.lower())
 
     #creates a list of the dates' start/end positions in the doc
     identified_date_locations = []
     for date in manually_identified_dates:
-        start = doc.text.find(date)
+        start = doc.text.lower().find(date)
         identified_date_locations.append((start, start + len(date)))
 
 
@@ -81,7 +89,7 @@ def get_valid_dates(ents):
                               r'July|August|September|November|December|'
                               r'Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Nov|Dec|'
                               r'last|ago', potential_date.text)):
+            print_if_debug(('REMOVED DATE: ', potential_date.text))
             continue
         dates.append(potential_date.text)
     return dates
-

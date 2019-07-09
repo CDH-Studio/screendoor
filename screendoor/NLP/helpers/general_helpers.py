@@ -1,5 +1,6 @@
 import re
 from spacy import displacy
+from fuzzysearch import find_near_matches
 
 # IMPORTANT NOTE: DISABLE THIS FOR PRODUCTION, ONLY FOR DEBUGGING
 print_debug_traces = False
@@ -57,6 +58,22 @@ def get_first_elem_or_none(list):
     if not list == []:
         return list[0]
     return None
+
+# Returns the location of the found extract in the original document
+def fuzzy_search_extract_in_orig_doc(original_doc_text, extract):
+    # Note; scripts return blanks instead of null values
+    if extract != '':
+        match = get_first_elem_or_none(
+            find_near_matches(extract, original_doc_text, max_l_dist=2))
+        if match:
+            print_if_debug(
+                ("MATCH FOUND: ", original_doc_text[match[0]:match[1]]))
+            return ((match[0], match[1]))
+        else:
+            print_if_debug(("NO MATCH FOUND: ", extract))
+    return None
+
+
 
 # For local development, calls displacy to render a visualization of the dep tree.
 # Does not like docker, and will hang the program if called inside the container.

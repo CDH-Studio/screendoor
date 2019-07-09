@@ -532,11 +532,15 @@ def get_answer(table, answers, position):
             answer.save()
             # Extract dates
             dates = extract_when(str.strip(comp_response))
-            create_nlp_extracts(dates, 'WHEN', answer) if dates != [] else None
+            if (dates != [] or dates is not None):
+                create_nlp_extracts(dates, 'WHEN', answer)
+
             # Extract actions
             experiences = extract_how(str.strip(comp_response))
-            create_nlp_extracts(experiences, 'HOW',
-                                answer) if experiences != [] else None
+            if (experiences != [] or experiences is not None):
+                create_nlp_extracts(experiences, 'HOW', answer)
+
+
         answers.append(answer)
     return answers
 

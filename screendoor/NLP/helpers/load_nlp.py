@@ -3,10 +3,18 @@ from spacy.pipeline import EntityRuler
 
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
-    months_regex = '\bJanuary\b|\bFebruary\b|\bMarch\b|\bApril\b|' \
-                   '\bMay\b|\bJune\b|\bJuly\b|\bAugust\b|\bSeptember\b|' \
-                   '\bNovember\b|\bDecember\b|\bJan\b|\bFeb\b|\bMar\b|' \
-                   '\bApr\b|\bJun\b|\bJul\b|\bAug\b|\bSept\b|\bNov\b|\bDec\b|'
+    months_regex = '\bjanuary\b|\b[j|J]an\b|' \
+                   '\bfebruary\b|\b[f|F]eb\b|' \
+                   '\bmarch\b|\b[m|M]ar\b|' \
+                   '\bapril\b|\b[a|A]pr\b|' \
+                   '\bmay\b|' \
+                   '\bjune\b|\b[j|J]un\b|' \
+                   '\bjuly\b|\b[j|J]ul\b|' \
+                   '\b[a|A]ugust\b|\b[a|A]ug\b|' \
+                   '\b[s|S]eptember\b|\b[s|S]ept\b|' \
+                   '\b[n|N]ovember\b|\b[n|N]ov\b|' \
+                   '\b[d|D]ecember\b|\b[d|D]ec\b|' \
+                   '\b[p|P]resent\b'
     ruler = EntityRuler(nlp, overwrite_ents=True)
     sentencizer = nlp.create_pipe("sentencizer")
     nlp.add_pipe(sentencizer, first=True)
