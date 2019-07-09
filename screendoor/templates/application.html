@@ -336,7 +336,7 @@
                 <td colspan="10" class="blue-text text-darken-2">
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
-                  <data class="extract-ending-index" value=""/>
+                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
                   <data class="extract-string" value="{{ extract.extract_text }}"/>
                   <data class="extract-id" value="{{ extract.id }}"/>
