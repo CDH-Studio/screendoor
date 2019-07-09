@@ -202,8 +202,9 @@
                     {% if answer.parent_question.parent_requirement is not None %}
                     <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span>
                     {% endif %}
-                    {{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                    {{ answer.parent_question.short_question_text|bullet_points }}</span>
                 </th>
+                <!-- Full preview -->
                 {% if answer.applicant_answer is True %}
                 <th colspan="1"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
@@ -254,7 +255,7 @@
                     {% if answer.parent_question.parent_requirement is not None %}
                     <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span>
                     {% endif %}
-                    {{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                    {{ answer.parent_question.short_question_text }}</span>
                 </td>
                 {% if answer.applicant_answer is True %}
                 <td colspan="1"></td>
@@ -266,8 +267,7 @@
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   {% if extract is not None %}
-                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>{% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endif %}
@@ -305,7 +305,7 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="9" style="white-space: pre-line;">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span> {% endif %}{{ answer.parent_question.question_text }}</td>
+                <td colspan="9">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>({{ answer.parent_question.parent_requirement.abbreviation }})</span> {% endif %}{{ answer.parent_question.question_text }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
@@ -330,38 +330,25 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
               <tr>
                 <td colspan="2"></td>
-<<<<<<< HEAD
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|safe }}</td>
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points|double_line_breaks }}</td>
                 <data class="answer-id" value="{{ answer.id }}" />
-=======
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}
-                </td>
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
                 <td colspan="1"></td>
                 <td colspan="10" class="blue-text text-darken-2">
-                  {% for extract in answer.extract_set %}
+                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
-<<<<<<< HEAD
-                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
-=======
                   <data class="extract-ending-index" value=""/>
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
                   <data class="extract-string" value="{{ extract.extract_text }}"/>
                   <data class="extract-id" value="{{ extract.id }}"/>
                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-<<<<<<< HEAD
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"/>
-=======
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer }}"/>
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
+                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons extract-icon">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endfor %}

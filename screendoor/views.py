@@ -393,11 +393,8 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
     applicant = Applicant.objects.get(id=applicant_id)
     position = Position.objects.get(id=position_id)
-<<<<<<< HEAD
-    answers = FormAnswer.objects.filter(parent_applicant=applicant)
-=======
-    answers = FormAnswer.objects.filter(parent_applicant=applicant).order_by("parent_question")
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
+    answers = FormAnswer.objects.filter(
+        parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('extract_sentence_index', '-extract_type') if NlpExtract.objects.filter(
@@ -448,6 +445,7 @@ def nlp(request):
     from screendoor.NLP.howextraction import extract_how
     extract_how(text)
     return redirect('positions')
+
 
 def nlp(request):
     text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""

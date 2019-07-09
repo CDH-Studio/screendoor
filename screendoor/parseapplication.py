@@ -12,19 +12,6 @@ import tabula
 from celery import current_task
 from fuzzywuzzy import fuzz
 from pandas import options
-<<<<<<< HEAD
-
-# Given an element at i, get the element at i+1 if it doesn't cause an index
-# out of bounds error.
-
-
-def get_next_index_or_blank(idx, list):
-    if idx < len(list)-1:
-        return list[idx+1]
-    return ''
-
-
-=======
 
 
 # Given an element at i, get the element at i+1 if it doesn't cause an index
@@ -37,7 +24,6 @@ def get_next_index_or_blank(idx, list):
     return ''
 
 
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
 def is_question(item):
     first_column = item[item.columns[0]]
 
@@ -48,10 +34,12 @@ def is_question(item):
 
 def is_in_questions(table, all_questions):
     if is_question(table):
-        question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
+        question_text = parse_question_text(
+            table).replace('\n', " ").replace(" ", "")
 
         for other_question in all_questions:
-            other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+            other_question_text = other_question.question_text.replace(
+                '\n', " ").replace(" ", "")
             if fuzz.ratio(question_text, other_question_text) > 90:
                 return True
         print("NOT A MATCH, THERE WAS AN ERROR")
@@ -142,14 +130,15 @@ def get_column_value(search_string, item):
 
 
 def retrieve_question(table, all_questions):
-    question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
+    question_text = parse_question_text(
+        table).replace('\n', " ").replace(" ", "")
 
     for other_question in all_questions:
-        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return other_question
     print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
-
     return None
 
 
@@ -430,7 +419,7 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + \
-                                            item2.iloc[0, 1]
+                            item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -438,7 +427,7 @@ def correct_split_item(tables):
                     elif str(item2.shape) == "(1, 1)":
                         if "AUCUNE / NONE" not in item2.iloc[0, 0]:
                             item.iloc[-1, 0] = item.iloc[-1, 0] + \
-                                               item2.iloc[0, 0]
+                                item2.iloc[0, 0]
                             tables[index] = item
                             tables[index + 1] = None
 
@@ -523,24 +512,18 @@ def create_short_question_text(long_text):
 
 
 def find_and_get_req(position, question_text):
-<<<<<<< HEAD
-
-=======
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
     for requirement in position.requirement_set.all():
         if fuzz.partial_ratio(requirement.description, question_text) > 85:
             return requirement
     return None
 
 
-<<<<<<< HEAD
-def get_question(table, questions, position):
-=======
 def does_exist(question, all_questions):
     question_text = question.question_text.replace('\n', " ").replace(" ", "")
 
     for other_question in all_questions:
-        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return True
     print("QUESTION DOES NOT EXIST")
@@ -549,12 +532,10 @@ def does_exist(question, all_questions):
 
 
 def get_question(table, position):
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
     # Creates a list of questions cross checked for redundancy against previously made questions.
     if is_question(table) and not is_stream(table):
         question_text = parse_question_text(table)
         question = FormQuestion(question_text=question_text,
-<<<<<<< HEAD
                                 complementary_question_text=parse_complementary_question_text(
                                     table),
                                 short_question_text=create_short_question_text(
@@ -564,39 +545,18 @@ def get_question(table, position):
                                 )
 
         all_questions = position.questions.all()
-        for item in all_questions:
-            if fuzz.ratio(item.question_text, question.question_text) > 80:
-                return questions
-
-        question.parent_position = position
-        question.save()
-        questions.append(question)
-=======
-                                complementary_question_text=parse_complementary_question_text(table),
-                                short_question_text=create_short_question_text(question_text),
-                                parent_requirement=find_and_get_req(position, question_text)
-                                )
-
-        all_questions = position.questions.all()
         if does_exist(question, all_questions):
             return
         else:
             question.parent_position = position
             question.save()
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
-
     return
 
 
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
-<<<<<<< HEAD
-    if is_in_questions(table, all_questions) and not is_stream(table):
-=======
-
     if is_question(table) and not is_stream(table):
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
         comp_response = parse_applicant_complementary_response(table)
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
                             applicant_complementary_response=comp_response,
@@ -626,11 +586,7 @@ def create_nlp_extracts(extract_list, nlp_type, answer):
     extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(
         'extract_sentence_index', '-extract_type')
     counter = 0
-<<<<<<< HEAD
-    while counter < len(extract_set)-1:
-=======
     while counter < len(extract_set) - 1:
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
         counter += 1
         extract_set[counter -
                     1].next_extract_index = extract_set[counter].extract_sentence_index
@@ -689,13 +645,9 @@ def get_streams(item, streams):
         if stream is None:
             return streams
         else:
-<<<<<<< HEAD
-            streams.append(Stream(stream_name=stream))
-=======
             streams.append(Stream(stream_name=parse_stream(item),
                                   stream_response=parse_stream_response(item),
                                   stream_description=parse_stream_description(item)))
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
     return streams
 
 
@@ -776,18 +728,12 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
         else:
             print("Processing Applicant: " + str(current_applicant + 1))
             applications.append(find_essential_details(
-<<<<<<< HEAD
-                data_frames[applicant_page_numbers[current_applicant]
-                    :applicant_page_numbers[current_applicant + 1]],
-                position))
-=======
                 data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
                 position))
 
     for question in position.questions.all():
         print(len(question.answer.all()))
 
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
     return applications
 
 

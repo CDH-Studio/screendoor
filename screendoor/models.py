@@ -36,12 +36,7 @@ class Position(models.Model):
         if self.applicant_set.all().count() > 0:
             self.number_applicants = self.applicant_set.all().count()
             self.mean_score = sum([FormAnswer.objects.filter(parent_applicant=applicant, applicant_answer=True).count(
-            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in
-<<<<<<< HEAD
-                self.applicant_set.all()]) // self.applicant_set.all().count()
-=======
-                                   self.applicant_set.all()]) // self.applicant_set.all().count()
->>>>>>> 0b02801fa6fb830128a42ac4b2a781145425828b
+            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in self.applicant_set.all()]) // self.applicant_set.all().count()
             self.save()
 
 
@@ -81,7 +76,7 @@ class Applicant(models.Model):
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-                           blank=True)
+        blank=True)
     ranking = models.PositiveIntegerField(null=True)
     # For sorting purposes
     number_questions = models.PositiveIntegerField(default=0)
