@@ -397,7 +397,7 @@ def applicant_detail_data(request, applicant_id, position_id):
         parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.extract_set = NlpExtract.objects.filter(
-            parent_answer=answer).order_by('extract_sentence_index', '-extract_type') if NlpExtract.objects.filter(
+            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': answers, }
 
