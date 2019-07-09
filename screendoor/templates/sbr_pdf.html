@@ -1,25 +1,31 @@
 {% load static %}
 <link href="{% static 'css/sbr.css' %}" rel="stylesheet">
-
+<head>
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+</head>
 
 <title>SBR PDF</title>
 <h3 id="myHeader">Screening Evaluation Sheet / Feuille d’évaluation à la présélection – {{ applicant.applicant_id}}</h3>
 
-<div id="left-section">
-    <span>Selection process number/Numéro de processus de sélection:</span>
+<section id="left-section">
+    <span style="font-weight: bold;">Selection process number/Numéro de processus de sélection:</span>
     <ul>
         <li>Priority entitlement/ Droit de priorité: {{ applicant.priority }}</li>
         <li>Preference to veterans/ Préférence aux anciens combattants: {{ applicant.veteran_preference }}</li>
     </ul>
-
-</div>
-<div id="right-section">
+    <div style="font-weight: bold;">Candidate | Candidat(e) : 	_______________________________________________________</div>
+    <div style="font-weight: bold;">Board member | Membre du jury : 	_______________________________________________</div>
+    <div style="font-weight: bold;">Board member (second member if applicable)  | Membre du jury (deuxième membre du jury si c’est applicable): __________________________________________________</div>
+    <div style="font-weight: bold;">Date : 	_______________________________________________</div>
+</section>
+<section id="right-section">
     <table id=right-table>
         <tr class = "right-table-row">
             <th class = "table-right-header"> Streams </th>
             <th class = "table-right-header"> Applicant Selection </th>
+        </tr>
+
         {% for stream in streams %}
-            </tr>
             <tr class = "right-table-row">
             {% if stream.stream_response  %}
                 <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
@@ -31,6 +37,29 @@
             </tr>
         {% endfor %}
     </table>
+</section>
+<div id="bottom-section">
+    <table id=#table-bottom>
+        <tr class = "table-bottom-header-row">
+            <th class = "table-bottom-header"> Questions </th>
+            <th class = "table-bottom-header"> Yes/Oui </th>
+            <th class = "table-bottom-header"> No/Non </th>
+            <th class = "table-bottom-header"> Comments/Commentaires </th>
+
+        {% for answer in answers %}
+            <tr class = "table-bottom-entry-row">
+                <td class = "table-bottom-entry"> {{ answer.parent_question }}</td>
+                {% if answer.applicant_answer  %}
+                    <td class = "table-bottom-entry"> &#10004;</td>
+                    <td class = "table-bottom-entry"> </td>
+                {% else %}
+                    <td class = "table-bottom-entry"> </td>
+                    <td class = "table-bottom-entry"> &#10004;</td>
+                {% endif %}
+                <td class = "table-bottom-entry">&nbsp;</td>
 
 
+            </tr>
+        {% endfor %}
+    </table>
 </div>

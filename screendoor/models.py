@@ -45,6 +45,7 @@ class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
     applicant_id = models.CharField(max_length=200, null=True)
+
     citizenship = models.CharField(max_length=200, null=True)
     priority = models.BooleanField(null=True)
     veteran_preference = models.BooleanField(null=True)

@@ -1,3 +1,14 @@
+
+@page {
+  size: landscape
+}
+@page :left {
+  margin-left: 3cm;
+}
+
+@page :right {
+  margin-left: 3cm;
+}
 #myHeader {
   color: black;
   text-align: center;
@@ -8,29 +19,47 @@
 }
 #left-section{
   float: left;
-  width: 50%;
   text-align: left;
+  width: 70%;
+
 
 }
 #right-section{
   float: right;
-  width: 50%;
   text-align: left;
+  width: 30%;
+
 }
-#right-table{
+#bottom-section{
+  text-align: left;
   width: 100%;
-
-}
-.table-entry{
-
+  clear:both;
 }
 .right-table-row{
   text-align: left;
 }
-.table-right-header{
-  width: 50%;
 
+#table-bottom{
+
+  border-collapse: collapse;
+  width: 100%;
+}
+.table-bottom-header-row{
+  page-break-inside:avoid;
+}
+.table-bottom-entry{
+  color: black;
+  border: 1px solid black;
+}
+thead {display: table-header-group;}
+.table-bottom-entry-row{
+  page-break-inside:avoid;
 
 }
-
-
+.table-bottom-entry, .table-bottom-header {
+  border: 1px solid black;
+  text-align: left;
+  padding:4;
+  page-break-inside: avoid !important;
+  font-family: Calibri, san-serif;
+}
