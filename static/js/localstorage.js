@@ -8,9 +8,9 @@ const clearExceptSidebar = function() {
 /* Display persisted form information, or if none exists, hide PDF and URL forms */
 const initializePositionImportVariables = function() {
   if (localStorage.getItem('pdfRequired') === null) {
-    document.getElementById('pdf_upload_form').style.display = 'none';
-    document.getElementById('url_upload_form').style.display = 'none';
-    document.getElementById('position_submit_button').style.display = 'none';
+    document.getElementById('pdf_upload_form').classList.add("hide");
+    document.getElementById('url_upload_form').classList.add("hide");
+    document.getElementById('position_submit_button').classList.add("hide");
     document.getElementById('radio_pdf').checked = false;
     document.getElementById('radio_url').checked = false;
   } else {
@@ -19,8 +19,8 @@ const initializePositionImportVariables = function() {
     document.getElementById('pdf_path_input').value = localStorage.getItem('pdfText');
     document.getElementById('pdf_input').value = null;
     document.getElementById('url_input').value = localStorage.getItem('urlText');
-    document.getElementById('pdf_upload_form').style.display = localStorage.getItem('pdfDisplay');
-    document.getElementById('url_upload_form').style.display = localStorage.getItem('urlDisplay');
+    document.getElementById('pdf_upload_form').classList = localStorage.getItem('pdfDisplay');
+    document.getElementById('url_upload_form').classList = localStorage.getItem('urlDisplay');
     document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
     document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
     clearExceptSidebar();
@@ -48,34 +48,34 @@ const persistUploadForm = function() {
   localStorage.setItem('pdfRequired', document.getElementById('pdf_input').required);
   localStorage.setItem('pdfText', document.getElementById('pdf_path_input').value);
   localStorage.setItem('urlText', document.getElementById('url_input').value);
-  localStorage.setItem('pdfDisplay', document.getElementById('pdf_upload_form').style.display);
-  localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').style.display);
+  localStorage.setItem('pdfDisplay', document.getElementById('pdf_upload_form').classList);
+  localStorage.setItem('urlDisplay', document.getElementById('url_upload_form').classList);
   localStorage.setItem('pdfChecked', document.getElementById('radio_pdf').checked);
   localStorage.setItem('urlChecked', document.getElementById('radio_url').checked);
 };
 
 /* Show URL form, hide and clear PDF input form */
 const showUrl = function() {
-  document.getElementById('pdf_upload_form').style.display = 'none';
+  document.getElementById('pdf_upload_form').classList.add("hide");
   document.getElementById('pdf_input').required = false;
   document.getElementById('pdf_input').value = null;
   document.getElementById('pdf_path_input').value = null;
-  document.getElementById('url_upload_form').style.display = 'block';
+  document.getElementById('url_upload_form').classList.remove("hide");
   document.getElementById('url_input').required = true;
-  document.getElementById('position_submit_button').style.display = 'block';
-  document.getElementById('position_submit_button').className = 'right btn disabled';
+  document.getElementById('position_submit_button').classList.remove("hide");
+  document.getElementById('position_submit_button').classList.add('right', 'btn', 'disabled');
   document.getElementById('position_submit_button').value = 'Coming soon';
 };
 
 /* Show PDF form, hide and clear URL input form */
 const showPdf = function() {
-  document.getElementById('pdf_upload_form').style.display = 'block';
+  document.getElementById('pdf_upload_form').classList.remove("hide");
   document.getElementById('pdf_input').required = true;
-  document.getElementById('url_upload_form').style.display = 'none';
+  document.getElementById('url_upload_form').classList.add("hide");
   document.getElementById('url_input').required = false;
   document.getElementById('url_input').value = null;
-  document.getElementById('position_submit_button').style.display = 'block';
-  document.getElementById('position_submit_button').className = 'right btn';
+  document.getElementById('position_submit_button').classList.remove("hide", "disabled");
+  document.getElementById('position_submit_button').classList.add('right', 'btn');
   document.getElementById('position_submit_button').value = 'Submit';
 };
 

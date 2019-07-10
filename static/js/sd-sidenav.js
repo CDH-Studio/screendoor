@@ -1,11 +1,11 @@
 /* Register sidenav and related variables */
-let elems = document.querySelectorAll('.sidenav-fixed'),
-    instances = M.Sidenav.init(elems, {}/* options */),
-    elem = document.querySelector('.sidenav-fixed'),
-    instance = M.Sidenav.getInstance(elem);
+const elems = document.querySelectorAll('.sidenav-fixed'),
+      instances = M.Sidenav.init(elems, {}/* options */),
+      elem = document.querySelector('.sidenav-fixed'),
+      instance = M.Sidenav.getInstance(elem);
 
 /* Initialize sidenav to close and load storage */
-function initSideNav() {
+const initSideNav() = function() {
   /* Open sidebar if saved state is to open */
   if ((JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize())
       || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
@@ -20,21 +20,21 @@ function initSideNav() {
   }
   /* Check padding and fix depending on sidebar closed/open status */
   fixPaddingWidth();
-}
+};
 
 /* Listener for page load */
 window.addEventListener('DOMContentLoaded', (event) => {
-  initSideNav();
+    initSideNav();
 });
 
 /* Adjusts navbar and body main padding if window is > 992px width */
-function fixPaddingWidth() {
+const fixPaddingWidth = function() {
   if (!isWindowFullSize()) {
     removeSidenavPadding();
   } else if (isWindowFullSize() && JSON.parse(localStorage.getItem('sidenavOpen'))) {
     addSidenavPadding();
   }
-}
+};
 
 /* Listen for window size changes */
 window.addEventListener('resize', function() {
@@ -47,42 +47,44 @@ document.querySelector("#toggle_sidenav").addEventListener('click', function() {
 });
 
 /* Toggle sidebar */
-function toggleSidebar() {
+const toggleSidebar = function() {
   instance.isOpen ? closeSideNav() : openSideNav();
   if (isWindowFullSize()) {
     localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
   }
-}
+};
 
 /* Change CSS to add padding when sidenav opened */
-function addSidenavPadding() {
+const addSidenavPadding = function() {
   document.getElementById('base-header').style.paddingLeft = "300";
   document.getElementById('base-main').style.paddingLeft = "300";
-}
+};
 
 /* Change CSS to remove padding when sidenav closed */
-function removeSidenavPadding() {
+const removeSidenavPadding = function() {
   document.getElementById('base-header').style.paddingLeft = "0";
   document.getElementById('base-main').style.paddingLeft = "0";
-}
+};
 
 /* Is the window above 992 pixels */
-function isWindowFullSize() {
+const isWindowFullSize = function() {
   return window.innerWidth > 992;
-}
+};
 
 /* Open sidenav */
-function openSideNav() {
+const openSideNav = function() {
+  document.getElementById("slide-out").classList.remove("hide");
   instance.open();
   if (isWindowFullSize()) {
     addSidenavPadding();
   }
-}
+};
 
 /* Close sidenav */
-function closeSideNav() {
+const closeSideNav = function() {
+  document.getElementById("slide-out").classList.add("hide");
   instance.close();
   if (isWindowFullSize()) {
     removeSidenavPadding();
   }
-}
+};
