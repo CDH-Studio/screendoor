@@ -26,13 +26,16 @@ def post_nlp_format_input(nlp_parsed_text):
             if sentence_fragment in ['.', '']:
                 continue
 
+            if sentence_fragment.endswith(('...')):
+                sentence_fragment = sentence_fragment[
+                                    0:len(sentence_fragment) - 3]
             # If the element introduces a bullet point list (colons are not considered
             # sentence boundaries).
-            if sentence_fragment.endswith((':', ': ', ';', '; ')):
-                sentence_fragment = sentence_fragment.replace(":", ".").replace(';', '.')
+            if sentence_fragment.endswith((':', ';')):
+                sentence_fragment = sentence_fragment[0:len(sentence_fragment)-1]
 
             # If the element ends with a valid boundary, it's already a sentence.
-            elif not sentence_fragment.endswith('.'):
+            if not sentence_fragment.endswith('.'):
 
                 # If a double new line is detected.
                 if next_sentence_fragment == '':
@@ -47,7 +50,7 @@ def post_nlp_format_input(nlp_parsed_text):
                 # Note: new line characters are meaningless to the parser, so there
                 # is no reason to maintain them in the input.
             if not sentence_fragment.endswith('.'):
-                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + ', '
+                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + '; '
             else:
                 reformatted_text += remove_starting_bullet_point_chars(
                     sentence_fragment) + ' '
@@ -107,15 +110,12 @@ def remove_starting_bullet_point_chars(text):
 # Remove faulty spacing, hanging punctuation, and other formatting issues
 # so the return value displays all nice
 def strip_faulty_formatting(text):
-
     if text == None:
         return None
     text = text.strip()
-    if text.endswith(' ,'):
-        text = text.replace(' ,', '')
     if text.endswith('('):
         text = text[0:len(text) - 1]
-    if text.endswith(' :'):
+    if text.endswith(' :') or text.endswith(' ;') or text.endswith(' ,'):
         text = text[0:len(text) - 2]
     if text.startswith(' '):
          text = text[1:len(text)]
@@ -128,6 +128,7 @@ def strip_faulty_formatting(text):
     text = text.replace("..", ".")
     text = text.replace('\t', ' ')
     text = text.replace('  ', ' ')
+    text = text.replace(' ; ', ' ')
     if text.count('(') > text.count(')'):
         text += ')'
     return text

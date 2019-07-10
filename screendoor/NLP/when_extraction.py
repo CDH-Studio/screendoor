@@ -7,8 +7,8 @@ import re
 # relations that contain supplementary information we want, but not as the
 # path we want to create. Mostly for content like "and" and "to".
 prepend_relations = ['aux', 'auxpass', 'nsubj', 'nsubjpass', 'mark',
-                             'advmod', 'amod', 'compound', 'poss', 'nmod',
-                             'compound', 'neg']
+                     'advmod', 'amod', 'compound', 'poss', 'nmod',
+                     'compound', 'neg']
 
 append_relations = ['cc', 'prt', 'case', 'nummod']
 
@@ -28,13 +28,15 @@ accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj', 'advcl', 'meta']
 # Makes sure any punctuation is not lost in the dep_tree navigation (as punctuation are tokens just as
 # any other word).
 def add_punctuation_to_extract(token, extract, dates):
-    punctuation_to_add_to_extract = [x for x in token.children if x.dep_ == 'punct' and
+    punctuation_to_add_to_extract = [x for x in token.children if
+                                     x.dep_ == 'punct' and
                                      x.i == token.nbor().i and x.text not in dates
                                      and x.text not in ['(']]
     print_if_debug(punctuation_to_add_to_extract)
 
     if punctuation_to_add_to_extract:
-        extract += ' ' + ' '.join([x.text for x in punctuation_to_add_to_extract])
+        extract += ' ' + ' '.join(
+            [x.text for x in punctuation_to_add_to_extract])
     return extract
 
 
@@ -43,7 +45,7 @@ def add_punctuation_to_extract(token, extract, dates):
 def prepend_text_to_extract(token, extract, dates):
     words_to_prepend_to_extract = [x for x in token.lefts if
                                    x.dep_ in prepend_relations and
-                                   not x.tag_ == 'XX' and x.i > token.i - 4 and x.text not in dates]
+                                   not x.tag_ == 'XX' and x.text not in dates]
     print_if_debug(words_to_prepend_to_extract)
 
     # Makes sure that the prepend words get added before the last word, rather
@@ -67,7 +69,8 @@ def append_text_to_extract(token, extract, dates):
                                   x == token.nbor() and x.text not in dates]
     print_if_debug(words_to_append_to_extract)
 
-    return extract + ' ' + ' '.join([x.text for x in words_to_append_to_extract])
+    return extract + ' ' + ' '.join(
+        [x.text for x in words_to_append_to_extract])
 
 
 # Searches for any 'split branches', to avoid dead-ending dep_tree navigation when
@@ -80,6 +83,7 @@ def check_for_additional_iterations(token, dates):
 
     return get_first_elem_or_none(words_for_additional_iteration)
 
+
 # Searches for tokens that are determined to be valid iteration paths for
 # dep_tree navigation.
 def determine_next_word_to_navigate_to(token, dates):
@@ -87,10 +91,12 @@ def determine_next_word_to_navigate_to(token, dates):
                       x.dep_ in accepted_left_relations and x.text not in dates] + \
                      [x for x in token.rights if
                       x.dep_ in accepted_right_relations and x.text not in dates]
-    punctuation_to_append_to_extract = [x for x in token.children if x.dep_ == 'punct' and
-                   x.i == token.nbor().i and x.text not in dates
-                   and x.text not in ['(']]
-    punctuation_less_children = [x for x in token.children if x not in punctuation_to_append_to_extract]
+    punctuation_to_append_to_extract = [x for x in token.children if
+                                        x.dep_ == 'punct' and
+                                        x.i == token.nbor().i and x.text not in dates
+                                        and x.text not in ['(']]
+    punctuation_less_children = [x for x in token.children if
+                                 x not in punctuation_to_append_to_extract]
 
     # Edge case prevention: relative clause as the only remaining valid option
     if ('relcl' in [x.dep_ for x in punctuation_less_children] and len(
@@ -165,6 +171,7 @@ def construct_context(token, dates):
 
     return extract
 
+
 # Given a token (often a 'DATE' named entity), determine the highest possible
 # navigation up the dep_tree that will return meaningful information. While a
 # nlp sentence object has a .root function that gets the true root of the
@@ -194,7 +201,8 @@ def get_dep_tree_starting_point(token, dates):
         # edge case: stem is the highest root element, and only has one child,
         # being the leaf element, and that head contains no usable data.
         # return the leaf
-        children = [x for x in list(token_head.children) if not x.pos_ == 'PUNCT']
+        children = [x for x in list(token_head.children) if
+                    not x.pos_ == 'PUNCT']
         if (len(children) == 1 and
                 token_head.text == token_head.head.text and
                 not (token_head.pos_ in ['NOUN', 'PROPN'])):
@@ -219,6 +227,7 @@ def get_dep_tree_starting_point(token, dates):
         token_head = token.head
     return token_head
 
+
 # Given a text run through the nlp model, retrieve a dictionary consisting of
 # each date and its context, tied to the sentence index it originates from.
 # (Index needed for frontend display functionality).
@@ -238,7 +247,8 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
         # applicant did not do themselves (eg a project's duration)
         if not token.sent == stored_sentence:
             char_index += len(token.sent.text)
-        if not token.sent == stored_sentence and not len(token.sent) == len(nlp_doc):
+        if not token.sent == stored_sentence and not len(token.sent) == len(
+                nlp_doc):
             sentence_has_valid_subject = remove_bad_subjects(token.sent)
 
         if sentence_has_valid_subject:
@@ -249,15 +259,20 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
 
                 # now that we have the head of the date entity,
                 # navigate through it for the context of the current date
-                extract = strip_faulty_formatting(construct_context(token_head, dates))
-                original_location = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract)
+                extract = strip_faulty_formatting(
+                    construct_context(token_head, dates))
+                original_location = fuzzy_search_extract_in_orig_doc(
+                    orig_doc_text, token.sent.text)
                 if original_location:
                     dates_and_their_contexts.append((
-                        (token.text + ": " + extract), original_location[0], original_location[1]))
+                        (token.text + ": " + extract), original_location[0],
+                        original_location[1]))
                 else:
-                    dates_and_their_contexts.append(((token.text + ": " + extract), 0, 0))
+                    dates_and_their_contexts.append(
+                        ((token.text + ": " + extract), -1, -1))
         stored_sentence = token.sent
     return dates_and_their_contexts
+
 
 # Given a text block, finds any date entities and returns them, the context
 # in which the date was stated, and the sentence index in the text where the
@@ -274,5 +289,7 @@ def extract_when(text):
     doc = hard_identify_date_ents(doc)
 
     dates_and_contexts = construct_dict_of_extracts(orig_doc.text, doc)
-
+    for extract_text, start, end in dates_and_contexts:
+        print((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end))
+        print('\n')
     return dates_and_contexts

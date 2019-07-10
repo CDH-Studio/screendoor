@@ -2,6 +2,7 @@ import re
 from spacy import displacy
 from fuzzysearch import find_near_matches
 
+
 # IMPORTANT NOTE: DISABLE THIS FOR PRODUCTION, ONLY FOR DEBUGGING
 print_debug_traces = False
 def print_if_debug(text):
@@ -15,18 +16,20 @@ def remove_bad_subjects(sent):
     # If a sentence fragment is verbless, it is most often a list heading.
     verbs = [x for x in sent if x.pos_ == 'VERB']
     if not verbs:
-        print_if_debug(('INCLUDED verbless', sent))
+        print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW verbless', sent))
         return True
 
     identified_subjects = [x.text for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
 
     # If no subject is found, it is assumed to be a bullet point (and thus valid)
     if identified_subjects == []:
-        print_if_debug(('INCLUDED subject-less', sent))
+        print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW subject-less', sent))
         return True
     else:
         # Checks for both I (I worked on...) and 'as' (as a team lead, i worked on...)
         pronoun_check = [item for sublist in [re.findall(r'\bI\b', x) for x in identified_subjects] for item in sublist]
+
+        # TODO: identify qualifers such as "my role" "my responsabilities"(?) while excluding "my project" "my team"
         possessive_check = [item for sublist in [re.findall(r'\b[a|A]s\b', x) for x in identified_subjects] for item in sublist]
 
         if not (pronoun_check + possessive_check == []):
@@ -59,28 +62,30 @@ def get_first_elem_or_none(list):
         return list[0]
     return None
 
-# Returns the location of the found extract in the original document
-def fuzzy_search_extract_in_orig_doc(original_doc_text, extract):
-    # Note; scripts return blanks instead of null values
-    if extract != '':
-        match = None
-        threshold = 3
-        while match is None and threshold < 15:
-            match = get_first_elem_or_none(find_near_matches(extract, original_doc_text, max_l_dist=threshold))
-            if match:
-                print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
-                return ((match[0], match[1]))
-            else:
-                threshold+=2
-    return None
-
-
-
 # For local development, calls displacy to render a visualization of the dep tree.
 # Does not like docker, and will hang the program if called inside the container.
 def visualize_dep_tree(doc):
     sentence_spans = list(doc.sents)
     # show dependency tree (http://localhost:5000/)
-    options = {'color': 'red', 'compact': True,  # 'fine_grained':True,
+    options = {'color': 'red', 'compact': True,  'fine_grained':True,
                'collapse_punct': False, 'distance': 350}
     displacy.serve(sentence_spans, style='dep', options=options)
+
+
+
+# Returns the location of the found extract in the original document
+def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text):
+    # Note; scripts return blanks instead of null values
+    if searched_text != '':
+        match = None
+        threshold = 3
+        while match is None and threshold < 15:
+            match = get_first_elem_or_none(find_near_matches(searched_text, original_doc_text, max_l_dist=threshold))
+            if match:
+                print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
+                if threshold > 5:
+                    print("FAULTY FOUND: ", searched_text, ' ', threshold)
+                return ((match[0], match[1]))
+            else:
+                threshold+=2
+    return None

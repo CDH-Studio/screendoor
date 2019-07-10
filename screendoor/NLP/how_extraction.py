@@ -71,7 +71,5 @@ def extract_how(text):
                     (experience, original_location[0], original_location[1]))
             else:
                 # Should never get here!
-                experiences.append((experience, 0, 0))
-
+                experiences.append((experience, -1, -1))
     return experiences
-
