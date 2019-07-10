@@ -2,11 +2,11 @@ import re
 from spacy import displacy
 from fuzzysearch import find_near_matches
 
-
-# IMPORTANT NOTE: DISABLE THIS FOR PRODUCTION, ONLY FOR DEBUGGING
-print_debug_traces = False
+# IMPORTANT NOTE: DISABLE THESE FOR PRODUCTION, ONLY FOR DEBUGGING
+DEBUG = False
+DISPLACY = False
 def print_if_debug(text):
-    if print_debug_traces:
+    if DEBUG:
         print('~-+ ', text)
 
 
@@ -64,28 +64,32 @@ def get_first_elem_or_none(list):
 
 # For local development, calls displacy to render a visualization of the dep tree.
 # Does not like docker, and will hang the program if called inside the container.
-def visualize_dep_tree(doc):
-    sentence_spans = list(doc.sents)
-    # show dependency tree (http://localhost:5000/)
-    options = {'color': 'red', 'compact': True,  'fine_grained':True,
-               'collapse_punct': False, 'distance': 350}
-    displacy.serve(sentence_spans, style='dep', options=options)
-
+def visualize_dep_tree_if_debugging(doc):
+    if DISPLACY:
+        sentence_spans = list(doc.sents)
+        # show dependency tree (http://localhost:5000/)
+        options = {'color': 'red', 'compact': True,  'fine_grained':True,
+                   'collapse_punct': False, 'distance': 350}
+        displacy.serve(sentence_spans, style='dep', options=options)
 
 
 # Returns the location of the found extract in the original document
-def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text):
+def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_matches):
     # Note; scripts return blanks instead of null values
     if searched_text != '':
-        match = None
-        threshold = 3
-        while match is None and threshold < 15:
-            match = get_first_elem_or_none(find_near_matches(searched_text, original_doc_text, max_l_dist=threshold))
-            if match:
+        matches = []
+        threshold = 1
+        while matches == [] and threshold < 15:
+            threshold += 2
+            matches = find_near_matches(searched_text, original_doc_text, max_l_dist=threshold)
+
+        match = get_first_elem_or_none(matches)
+        while match:
+            if match not in stored_matches:
                 print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
-                if threshold > 5:
-                    print("FAULTY FOUND: ", searched_text, ' ', threshold)
-                return ((match[0], match[1]))
-            else:
-                threshold+=2
+                matches += match
+                return (((match[0], match[1]), match))
+            matches = matches[1:len(matches)]
+            match = get_first_elem_or_none(matches)
+
     return None

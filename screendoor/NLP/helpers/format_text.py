@@ -41,8 +41,8 @@ def post_nlp_format_input(nlp_parsed_text):
                 if next_sentence_fragment == '':
                     sentence_fragment = sentence_fragment+ '.'
                 # If the current element has a date and no verb (considered a 'list heading').
-                elif any(substring in sentence_fragment for substring in dates):
-                    sentence_fragment = sentence_fragment + '.'
+                # elif any(substring in sentence_fragment for substring in dates):
+                #     sentence_fragment = sentence_fragment + '.'
                 # If the next element is a bullet point.
                 elif next_sentence_fragment.startswith(a_bullet_point_char):
                     sentence_fragment = sentence_fragment + '.'

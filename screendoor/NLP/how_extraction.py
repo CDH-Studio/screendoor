@@ -1,8 +1,7 @@
 from screendoor_app.settings import NLP_MODEL
-from .helpers.general_helpers import remove_bad_subjects, get_first_elem_or_none, fuzzy_search_extract_in_orig_doc
+from .helpers.general_helpers import remove_bad_subjects, get_first_elem_or_none, fuzzy_search_extract_in_orig_doc, print_if_debug, visualize_dep_tree_if_debugging
 from .helpers.format_text import strip_faulty_formatting, post_nlp_format_input
 from .helpers.how_extraction_helpers import create_phrase
-
 
 def construct_how_extract(sent):
     # Filter out sentences without valid subjects.
@@ -52,24 +51,38 @@ def construct_how_extract(sent):
 # Given a text block, finds any actions or duties an applicant mentioned,
 # in the case where the applicant is directly referring to themselves.
 # (e.g. I acquired x  VS  the project acquired x)
-def extract_how(text):
-    # create a nlp processed version of the text (referred to as a 'doc' object).
+def extract_how(text, taken_sentence_indexes):
     orig_doc = NLP_MODEL(text)
     reformatted_text = post_nlp_format_input(orig_doc)
     doc = NLP_MODEL(reformatted_text)
 
     experiences = []
-    for sent in doc.sents:
-        experience = strip_faulty_formatting(construct_how_extract(sent))
-        if experience:
-            # retrieve the location of the extract in the original formatted
-            # text (for display purposes)
-            original_location = fuzzy_search_extract_in_orig_doc(orig_doc.text,
-                                                                 experience)
-            if original_location:
-                experiences.append(
-                    (experience, original_location[0], original_location[1]))
-            else:
-                # Should never get here!
-                experiences.append((experience, -1, -1))
+    matches = []
+    for idx, sent in enumerate(doc.sents):
+        if idx not in taken_sentence_indexes:
+            experience = strip_faulty_formatting(construct_how_extract(sent))
+            if experience:
+                # retrieve the location of the extract in the original formatted
+                # text (for display purposes)
+                match = fuzzy_search_extract_in_orig_doc(orig_doc.text, experience, matches)
+                if match:
+                    experiences.append((experience, match[0][0], match[0][1], idx))
+                    matches.append(match[1])
+                else:
+                    # Should never get here!
+                    experiences.append((experience, -1, -1, idx))
+    print_if_debug('\n')
+
+    for extract_text, start, end, sent_i in experiences:
+        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
+        print_if_debug('\n')
+
+    if experiences == []:
+        print_if_debug("NO EXTRACTION FOUND")
+    for x in doc.sents:
+        print_if_debug(repr(x).replace('\n', '/N'))
+        print_if_debug("~x~x~x~x~x~x~x~x~x~x~x~x~x~x~x~x~")
+
+    visualize_dep_tree_if_debugging(doc)
+
     return experiences
