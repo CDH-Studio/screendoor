@@ -23,6 +23,7 @@ const initializePositionImportVariables = function() {
     document.getElementById('url_upload_form').classList = localStorage.getItem('urlDisplay');
     document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
     document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
+    document.getElementById('position_submit_button').classList.remove("hide")
     clearExceptSidebar();
   }
 };
@@ -103,7 +104,9 @@ const initializeListeners = function() {
     document.getElementById("radio_pdf").addEventListener("click", showPdf);
     document.getElementById("radio_url").addEventListener("click", showUrl);
     document.getElementById("position_submit_button").addEventListener("click", function() {
-      displayLoadingBar();
+      if (document.getElementById('pdf_input').value != "") {
+        displayLoadingBar();
+      }
       persistUploadForm();
     });
     if (document.getElementById("save-button")) {

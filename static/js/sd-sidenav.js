@@ -4,54 +4,9 @@ const elems = document.querySelectorAll('.sidenav-fixed'),
       elem = document.querySelector('.sidenav-fixed'),
       instance = M.Sidenav.getInstance(elem);
 
-/* Initialize sidenav to close and load storage */
-const initSideNav() = function() {
-  /* Open sidebar if saved state is to open */
-  if ((JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize())
-      || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
-    instance.isOpen = false;
-    toggleSidebar();
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
-    /* Otherwise re-initialize to closed  */
-  } else {
-    instance.isOpen = true;
-    toggleSidebar();
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
-  }
-  /* Check padding and fix depending on sidebar closed/open status */
-  fixPaddingWidth();
-};
-
-/* Listener for page load */
-window.addEventListener('DOMContentLoaded', (event) => {
-    initSideNav();
-});
-
-/* Adjusts navbar and body main padding if window is > 992px width */
-const fixPaddingWidth = function() {
-  if (!isWindowFullSize()) {
-    removeSidenavPadding();
-  } else if (isWindowFullSize() && JSON.parse(localStorage.getItem('sidenavOpen'))) {
-    addSidenavPadding();
-  }
-};
-
-/* Listen for window size changes */
-window.addEventListener('resize', function() {
-  fixPaddingWidth();
-});
-
-/* Listen for menu button clicks */
-document.querySelector("#toggle_sidenav").addEventListener('click', function() {
-  toggleSidebar();
-});
-
-/* Toggle sidebar */
-const toggleSidebar = function() {
-  instance.isOpen ? closeSideNav() : openSideNav();
-  if (isWindowFullSize()) {
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
-  }
+/* Is the window above 992 pixels */
+const isWindowFullSize = function() {
+  return window.innerWidth > 992;
 };
 
 /* Change CSS to add padding when sidenav opened */
@@ -66,9 +21,13 @@ const removeSidenavPadding = function() {
   document.getElementById('base-main').style.paddingLeft = "0";
 };
 
-/* Is the window above 992 pixels */
-const isWindowFullSize = function() {
-  return window.innerWidth > 992;
+/* Adjusts navbar and body main padding if window is > 992px width */
+const fixPaddingWidth = function() {
+  if (!isWindowFullSize()) {
+    removeSidenavPadding();
+  } else if (isWindowFullSize() && JSON.parse(localStorage.getItem('sidenavOpen'))) {
+    addSidenavPadding();
+  }
 };
 
 /* Open sidenav */
@@ -88,3 +47,44 @@ const closeSideNav = function() {
     removeSidenavPadding();
   }
 };
+
+/* Toggle sidebar */
+const toggleSidebar = function() {
+  instance.isOpen ? closeSideNav() : openSideNav();
+  if (isWindowFullSize()) {
+    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+  }
+};
+
+/* Initialize sidenav to close and load storage */
+const initSideNav = function() {
+  /* Open sidebar if saved state is to open */
+  if ((JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize())
+      || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
+    instance.isOpen = false;
+    toggleSidebar();
+    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+    /* Otherwise re-initialize to closed  */
+  } else {
+    instance.isOpen = true;
+    toggleSidebar();
+    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+  }
+  /* Check padding and fix depending on sidebar closed/open status */
+  fixPaddingWidth();
+};
+
+/* Listen for window size changes */
+window.addEventListener('resize', function() {
+  fixPaddingWidth();
+});
+
+/* Listener for page load */
+window.addEventListener('DOMContentLoaded', (event) => {
+    initSideNav();
+});
+
+/* Listen for menu button clicks */
+document.querySelector("#toggle_sidenav").addEventListener('click', function() {
+  toggleSidebar();
+});
