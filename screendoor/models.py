@@ -45,6 +45,7 @@ class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
     applicant_id = models.CharField(max_length=200, null=True)
+
     citizenship = models.CharField(max_length=200, null=True)
     priority = models.BooleanField(null=True)
     veteran_preference = models.BooleanField(null=True)
@@ -118,6 +119,8 @@ class Stream(models.Model):
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='streams')
     stream_name = models.CharField(max_length=200, null=True)
+    stream_response = models.BooleanField(null=True)
+    stream_description = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.stream_name

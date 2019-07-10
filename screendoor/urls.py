@@ -25,6 +25,7 @@ urlpatterns = [
     path('position/upload-applications',
          views.upload_applications, name='upload-applications'),
     path('application/<app_id>', views.application, name='application'),
+    path('sbr_pdf/<app_id>', views.render_pdf, name='sbr'),
     path('progress/<task_id>', views.task_status, name='task_status'),
     path('nlp/', views.nlp,
          name='nlp')
