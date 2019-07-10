@@ -46,8 +46,12 @@ def post_nlp_format_input(nlp_parsed_text):
 
                 # Note: new line characters are meaningless to the parser, so there
                 # is no reason to maintain them in the input.
-            reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + ' '
-
+            if not sentence_fragment.endswith('.'):
+                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + ', '
+            else:
+                reformatted_text += remove_starting_bullet_point_chars(
+                    sentence_fragment) + ' '
+    print_if_debug(reformatted_text)
     return reformatted_text
 
 
@@ -103,8 +107,10 @@ def remove_starting_bullet_point_chars(text):
 # Remove faulty spacing, hanging punctuation, and other formatting issues
 # so the return value displays all nice
 def strip_faulty_formatting(text):
+
     if text == None:
         return None
+    text = text.strip()
     if text.endswith(' ,'):
         text = text.replace(' ,', '')
     if text.endswith('('):
@@ -121,6 +127,7 @@ def strip_faulty_formatting(text):
     text = text.replace(" .", ".")
     text = text.replace("..", ".")
     text = text.replace('\t', ' ')
+    text = text.replace('  ', ' ')
     if text.count('(') > text.count(')'):
         text += ')'
     return text

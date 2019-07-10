@@ -10,6 +10,11 @@ def grab_verb_phrase(doc, i):
 
 # Checks the subject tied directly to the verb (nouns not included)
 def is_valid_subject(verb, sent):
+    noun_root = verb.head if verb.head.dep_ == 'ROOT' and verb.head.pos_ == 'NOUN' else None
+    if noun_root:
+        print_if_debug(('     --EXCLUDED    ', verb, ' - ', sent))
+        return False
+
     identified_subjects = [x.text for x in sent if
                            x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
     if 'nsubj' in [x.dep_ for x in verb.children] or identified_subjects == []:

@@ -16,17 +16,15 @@
         <div class="card-content col s12 applicant-card">
           <!-- Application row 1 headers -->
           <!-- Upload Applications and Delete buttons -->
-          <div class="applicant-collapse-buttons">
-            <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
-            <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
+          <div class="row applicant-top-row">
+            <div class="applicant-collapse-buttons valign-wrapper">
+              <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
+              <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
+            </div>
+            <h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ applicant.number_yes_responses}}</span><span class="">/{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)</span></h6>
           </div>
           <table class="highlight">
             <!-- Applicant Totals -->
-            <thead>
-              <tr>
-                <th colspan="26"><h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ applicant.number_yes_responses}}</span><span class="">/{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)</span></h6></th>
-              </tr>
-            </thead>
             <thead class="collapse">
               <tr>
                 <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
@@ -143,7 +141,7 @@
               </tr>
             </thead>
             <!-- END OF EDUCATION HEADER -->
-            <tbody>
+            <tbody class="hide">
               <tr>
                 <td colspan="2"></td>
                 <td colspan="8">{{ education.academic_level }}</td>
@@ -151,7 +149,7 @@
                 <td colspan="9">{{ education.area_of_study }}</td>
               </tr>
             </tbody>
-            <tbody>
+            <tbody class="hide">
               <tr>
                 <td colspan="2"></td>
                 <td colspan="5" class="table-subhead">{{ applicantText.specialization }}</td>
@@ -160,7 +158,7 @@
                 <td colspan="9" class="table-subhead">{{ applicantText.graduation_date }}</td>
               </tr>
             </tbody>
-            <tbody>
+            <tbody class="hide">
               <tr>
                 <td colspan="2"></td>
                 <td colspan="5">{{ education.specialization }}</td>
@@ -190,7 +188,7 @@
                           {% else %}no-answer{% endif %}">
               <tr id="previews-small{{ forloop.counter0 }}">
                 <th colspan="1">
-                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
                 </th>
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
@@ -198,8 +196,13 @@
                         {% if answer.applicant_answer is True %}10
                         {% else %}23{% endif %}">
                   <div class="question-subhead hide">Question</div>
-                  <span class="question-preview">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                  <span class="question-preview">
+                    {% if answer.parent_question.parent_requirement is not None %}
+                    <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                    {% endif %}
+                    {{ answer.parent_question.short_question_text|bullet_points }}</span>
                 </th>
+                <!-- Full preview -->
                 {% if answer.applicant_answer is True %}
                 <th colspan="1"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
@@ -242,11 +245,14 @@
                 </th>
               </tr>
               <!-- Beginning of hidden full analysis preview -->
-              <tr class="question-full-header" id="previews-full{{ forloop.counter0 }}">
-                <td colspan="2"></td>
+              <tr class="question-full-header hide" id="previews-full{{ forloop.counter0 }}">
+                <td colspan="1"></td>
+                <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                    {% endif %}</td>
                 <td colspan="{% if answer.applicant_answer is True %}10
                              {% else %}23{% endif %}">
-                  <span class="question-full">{{ answer.parent_question.short_question_text|strip_all_asterix }}</span>
+                  <span class="question-full">
+                    {{ answer.parent_question.short_question_text }}</span>
                 </td>
                 {% if answer.applicant_answer is True %}
                 <td colspan="1"></td>
@@ -258,8 +264,7 @@
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   {% if extract is not None %}
-                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>{% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endif %}
@@ -277,9 +282,9 @@
               </tr>
               <!-- End of hidden full analysis preview -->
               <!-- Hidden full clicked question/answer contents header -->
-              <tr class="clicked-question-header" id="clicked-header{{ forloop.counter0 }}">
+              <tr class="clicked-question-header hide" id="clicked-header{{ forloop.counter0 }}">
                 <th colspan="1">
-                  <i class="material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                  <i class="collapse-arrows-down material-icons grey-text text-darken-2">keyboard_arrow_down</i>
                 </th>
                 <td colspan="1">{{ forloop.counter }}.</td>
                 <td class="table-subhead" colspan="9">{{ applicantText.question }}</td>
@@ -294,10 +299,12 @@
 
             <!-- Clicked and opened questions, answers, analysis -->
             <!-- Displays red or green if answer is yes or no -->
-            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
               <tr>
-                <td colspan="2"></td>
-                <td colspan="9" style="white-space: pre-line;">{{ answer.parent_question.question_text }}</td>
+                <td colspan="1"></td>
+                <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                  {% endif %}</td>
+                <td colspan="9">{{ answer.parent_question.question_text }}</td>
                 <td colspan="1"></td>
                 <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
                 <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
@@ -305,7 +312,7 @@
               </tr>
             </tbody>
             {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
-            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
               <tr>
                 <td colspan="2"></td>
                 <td colspan="12" class="table-subhead">{{ applicantText.complementary_response }}</td>
@@ -319,28 +326,28 @@
               </tr>
             </tbody>
             <!-- Fullly opened complementary response and extracts section -->
-            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %}">
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}
-                </td>
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</td>
+                <data class="answer-id" value="{{ answer.id }}" />
                 <td colspan="1"></td>
-                <td colspan="10" class="blue-text text-darken-2">
-                  {% for extract in answer.extract_set %}
+                <td colspan="10" class="blue-text text-darken-2 extract-full">
+                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
-                  <data class="extract-ending-index" value=""/>
+                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
                   <data class="extract-string" value="{{ extract.extract_text }}"/>
                   <data class="extract-id" value="{{ extract.id }}"/>
                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer }}"/>
+                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons extract-icon">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
                   <br>
                   {% endif %}
                   {% endfor %}
@@ -369,4 +376,12 @@
   <script src="{% static 'js/helper-functions.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
   <script src="{% static 'js/tables.js' %}"></script>
+  <!-- Script for extract origin highlighting -->
+  <script src="{% static 'js/sentence-highlighting.js' %}"></script>
+  <script>
+   document.addEventListener('DOMContentLoaded', function() {
+     var elems = document.querySelectorAll('.tooltipped');
+     var instances = M.Tooltip.init(elems, {});
+   });
+  </script>
   {% endblock %}

@@ -392,8 +392,8 @@ def import_applications_redact(request):
 # Verify that the applicant exists and belongs to position that user has access to
 def position_has_applicant(request, app_id):
     if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(
-            applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
-        applicant_id=app_id).parent_position.id):
+        applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
+            applicant_id=app_id).parent_position.id):
         return Applicant.objects.get(applicant_id=app_id)
 
 
@@ -401,10 +401,11 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
     applicant = Applicant.objects.get(id=applicant_id)
     position = Position.objects.get(id=position_id)
-    answers = FormAnswer.objects.filter(parent_applicant=applicant).order_by("parent_question")
+    answers = FormAnswer.objects.filter(
+        parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.extract_set = NlpExtract.objects.filter(
-            parent_answer=answer).order_by('extract_sentence_index', '-extract_type') if NlpExtract.objects.filter(
+            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position,
             'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
@@ -439,7 +440,6 @@ def render_pdf(request, app_id):
         HTML(string=html).write_pdf(response, font_config=font_config)
         return response
     return redirect('home')
-
 
 
 def task_status(request, task_id):

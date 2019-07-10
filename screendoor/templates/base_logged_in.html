@@ -15,7 +15,7 @@
   </header>
   <!-- End of top navbar -->
   <!-- Beginning of sidebar menu -->
-  <ul id="slide-out" class="sidenav sidenav-fixed">
+  <ul id="slide-out" class="sidenav sidenav-fixed hide">
     <br>
     <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
@@ -41,6 +41,15 @@
       {% endblock  %}
     </div>
   </main>
+  <script>
+   if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+     document.getElementById("base-main").style.paddingLeft = "300";
+     document.getElementById("base-header").style.paddingLeft = "300";
+   } else {
+     document.getElementById("base-main").style.paddingLeft = "0";
+     document.getElementById("base-header").style.paddingLeft = "0";
+   }
+  </script>
   <!-- End of page content -->
   <!-- MaterializeCSS JS library -->
   <script src="{% static 'js/materialize.js' %}"></script>

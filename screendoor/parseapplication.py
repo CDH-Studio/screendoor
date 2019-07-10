@@ -34,10 +34,11 @@ def is_question(item):
 
 def is_in_questions(table, all_questions):
     if is_question(table):
-        question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
-
+        question_text = parse_question_text(
+            table).replace('\n', " ").replace(" ", "")
         for other_question in all_questions:
-            other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+            other_question_text = other_question.question_text.replace(
+                '\n', " ").replace(" ", "")
             if fuzz.ratio(question_text, other_question_text) > 90:
                 return True
         print("NOT A MATCH, THERE WAS AN ERROR")
@@ -128,14 +129,21 @@ def get_column_value(search_string, item):
 
 
 def retrieve_question(table, all_questions):
-    question_text = parse_question_text(table).replace('\n', " ").replace(" ", "")
+    question_text = parse_question_text(
+        table).replace('\n', " ").replace(" ", "")
 
     for other_question in all_questions:
-        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return other_question
     print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
-
+    for other_question in all_questions:
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
+        if fuzz.ratio(question_text, other_question_text) > 95:
+            return other_question
+    print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
     return None
 
 
@@ -416,7 +424,7 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + \
-                                            item2.iloc[0, 1]
+                            item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -424,7 +432,7 @@ def correct_split_item(tables):
                     elif str(item2.shape) == "(1, 1)":
                         if "AUCUNE / NONE" not in item2.iloc[0, 0]:
                             item.iloc[-1, 0] = item.iloc[-1, 0] + \
-                                               item2.iloc[0, 0]
+                                item2.iloc[0, 0]
                             tables[index] = item
                             tables[index + 1] = None
 
@@ -519,7 +527,8 @@ def does_exist(question, all_questions):
     question_text = question.question_text.replace('\n', " ").replace(" ", "")
 
     for other_question in all_questions:
-        other_question_text = other_question.question_text.replace('\n', " ").replace(" ", "")
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return True
     print("QUESTION DOES NOT EXIST")
@@ -532,9 +541,12 @@ def get_question(table, position):
     if is_question(table) and not is_stream(table):
         question_text = parse_question_text(table)
         question = FormQuestion(question_text=question_text,
-                                complementary_question_text=parse_complementary_question_text(table),
-                                short_question_text=create_short_question_text(question_text),
-                                parent_requirement=find_and_get_req(position, question_text)
+                                complementary_question_text=parse_complementary_question_text(
+                                    table),
+                                short_question_text=create_short_question_text(
+                                    question_text),
+                                parent_requirement=find_and_get_req(
+                                    position, question_text)
                                 )
 
         all_questions = position.questions.all()
@@ -543,14 +555,12 @@ def get_question(table, position):
         else:
             question.parent_position = position
             question.save()
-
     return
 
 
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
-
     if is_question(table) and not is_stream(table):
         comp_response = parse_applicant_complementary_response(table)
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),

@@ -36,8 +36,7 @@ class Position(models.Model):
         if self.applicant_set.all().count() > 0:
             self.number_applicants = self.applicant_set.all().count()
             self.mean_score = sum([FormAnswer.objects.filter(parent_applicant=applicant, applicant_answer=True).count(
-            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in
-                                   self.applicant_set.all()]) // self.applicant_set.all().count()
+            ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in self.applicant_set.all()]) // self.applicant_set.all().count()
             self.save()
 
 
@@ -77,7 +76,7 @@ class Applicant(models.Model):
 
     pdf = models.FileField(upload_to="applications/", validators=[
         FileExtensionValidator(allowed_extensions=['pdf'])],
-                           blank=True)
+        blank=True)
     ranking = models.PositiveIntegerField(null=True)
     # For sorting purposes
     number_questions = models.PositiveIntegerField(default=0)
@@ -181,6 +180,7 @@ class FormAnswer(models.Model):
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
     parent_applicant = models.ForeignKey(
         Applicant, on_delete=models.CASCADE, null=True, related_name='answers')
+
     applicant_answer = models.BooleanField()
     applicant_complementary_response = models.TextField(
         blank=True, null=True)
