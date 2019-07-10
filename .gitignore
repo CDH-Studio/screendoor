@@ -136,3 +136,4 @@ dmypy.json
 /applicants
 screendoor/applications
 code/screendoor/temp/
+.map
