@@ -19,8 +19,7 @@
 }
 
 .requirement-abbreviation-hidden {
-  margin-top: 5px;
-  margin-left: -8px;
+  margin-left: -10px;
   color: rgba(132,119,214, .92);
   font-weight: 600;
   border-bottom: 2px solid rgba(132,119,214, .92);
