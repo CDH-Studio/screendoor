@@ -16,7 +16,6 @@ from django.template.loader import get_template, render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from weasyprint import HTML
 from weasyprint.fonts import FontConfiguration
-from xhtml2pdf import pisa
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
