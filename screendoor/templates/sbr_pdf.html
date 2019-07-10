@@ -1,65 +1,129 @@
 {% load static %}
-<link href="{% static 'css/sbr.css' %}" rel="stylesheet">
 <head>
     <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
 </head>
 
 <title>SBR PDF</title>
-<h3 id="myHeader">Screening Evaluation Sheet / Feuille d’évaluation à la présélection – {{ applicant.applicant_id}}</h3>
+<h3 id="myHeader">Screening Evaluation Sheet / Feuille d’évaluation à la présélection – {{ applicant.parent_position.selection_process_number}}</h3>
+<section id="right-section">
+    <table id=right-table>
+        <tr class="right-table-row">
+            <th class="table-right-header"> Streams</th>
+            <th class="table-right-header"> Applicant Selection</th>
+        </tr>
 
+        {% for stream in applicant.streams.all %}
+        <tr class="right-table-row">
+            {% if stream.stream_response %}
+            <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
+            <td>IN</td>
+            {% else %}
+            <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
+            <td>OUT</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</section>
 <section id="left-section">
-    <span style="font-weight: bold;">Selection process number/Numéro de processus de sélection:</span>
+    <span style="font-weight: bold;">Selection process number/Numéro de processus de sélection: {{ applicant.parent_position.selection_process_number}}</span>
     <ul>
         <li>Priority entitlement/ Droit de priorité: {{ applicant.priority }}</li>
         <li>Preference to veterans/ Préférence aux anciens combattants: {{ applicant.veteran_preference }}</li>
     </ul>
-    <div style="font-weight: bold;">Candidate | Candidat(e) : 	_______________________________________________________</div>
-    <div style="font-weight: bold;">Board member | Membre du jury : 	_______________________________________________</div>
-    <div style="font-weight: bold;">Board member (second member if applicable)  | Membre du jury (deuxième membre du jury si c’est applicable): __________________________________________________</div>
-    <div style="font-weight: bold;">Date : 	_______________________________________________</div>
+    <div style="font-weight: bold;">Candidate | Candidat(e) : _______________________________________________________
+    </div>
+    <div style="font-weight: bold;">Board member | Membre du jury : _______________________________________________
+    </div>
+    <div style="font-weight: bold;">Board member (second member if applicable) | Membre du jury (deuxième membre du jury
+        si c’est applicable): __________________________________________________
+    </div>
+    <div style="font-weight: bold;">Date : _______________________________________________</div>
 </section>
-<section id="right-section">
-    <table id=right-table>
-        <tr class = "right-table-row">
-            <th class = "table-right-header"> Streams </th>
-            <th class = "table-right-header"> Applicant Selection </th>
-        </tr>
 
-        {% for stream in streams %}
-            <tr class = "right-table-row">
-            {% if stream.stream_response  %}
-                <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
-                <td>IN</td>
-            {% else %}
-                <td>{{ stream.stream_name }}: ({{ stream.stream_description }})</td>
-                <td>OUT</td>
-           {% endif %}
-            </tr>
-        {% endfor %}
-    </table>
-</section>
 <div id="bottom-section">
-    <table id=#table-bottom>
-        <tr class = "table-bottom-header-row">
-            <th class = "table-bottom-header"> Questions </th>
-            <th class = "table-bottom-header"> Yes/Oui </th>
-            <th class = "table-bottom-header"> No/Non </th>
-            <th class = "table-bottom-header"> Comments/Commentaires </th>
+    <table id=table-bottom>
+        <thead>
+        <tr class="table-bottom-header-row">
+            <th class="table-bottom-header"> Questions</th>
+            <th class="table-bottom-header"> Yes/Oui</th>
+            <th class="table-bottom-header"> No/Non</th>
+            <th class="table-bottom-header"> Comments/Commentaires</th>
+        </thead>
+        {% for answer in applicant.answers.all %}
+        <tr class="table-bottom-entry-row">
+            <td class="table-bottom-entry"> {{ answer.parent_question }}</td>
+            {% if answer.applicant_answer %}
+            <td class="table-bottom-entry"> &#10004;</td>
+            <td class="table-bottom-entry"></td>
+            {% else %}
+            <td class="table-bottom-entry"></td>
+            <td class="table-bottom-entry"> &#10004;</td>
+            {% endif %}
+            <td class="table-bottom-entry">&nbsp;</td>
 
-        {% for answer in answers %}
-            <tr class = "table-bottom-entry-row">
-                <td class = "table-bottom-entry"> {{ answer.parent_question }}</td>
-                {% if answer.applicant_answer  %}
-                    <td class = "table-bottom-entry"> &#10004;</td>
-                    <td class = "table-bottom-entry"> </td>
-                {% else %}
-                    <td class = "table-bottom-entry"> </td>
-                    <td class = "table-bottom-entry"> &#10004;</td>
-                {% endif %}
-                <td class = "table-bottom-entry">&nbsp;</td>
 
-
-            </tr>
+        </tr>
         {% endfor %}
     </table>
 </div>
+
+<style>
+
+@page {
+    size: letter landscape;
+    margin: 0.5cm;
+}
+#myHeader {
+  color: black;
+  text-align: center;
+  font-size: 16px;
+  color: white;
+  background-color: grey;
+  width: 100%;
+}
+#left-section{
+  text-align: left;
+  font-size: 8pt;
+
+}
+#right-section{
+  float: right;
+  text-align: left;
+  font-size: 8pt;
+
+}
+#bottom-section{
+  padding-top: 10px;
+  text-align: left;
+  width: 100%;
+  clear:both;
+  border-collapse: collapse;
+}
+.right-table-row{
+  text-align: left;
+}
+
+#table-bottom{
+  border-collapse: collapse;
+}
+#table-bottom, .table-bottom-entry, .table-bottom-header {
+  border: 1px solid black;
+  text-align: left;
+  font-family: Calibri, san-serif;
+  color: black;
+  padding: 3px;
+}
+.table-bottom-entry{
+  padding: 10px;
+}
+thead {
+display: table-header-group;
+background-color: #BEBEBE;
+}
+.table-bottom-entry-row{
+  page-break-inside:avoid;
+}
+
+
+</style>
