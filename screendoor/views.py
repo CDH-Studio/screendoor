@@ -1,26 +1,30 @@
-import statistics
-
-from dateutil import parser as dateparser
+from io import BytesIO
 from string import digits
 
+from celery.result import AsyncResult
+from dateutil import parser as dateparser
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
+from django.template import Context
+from django.template.loader import get_template, render_to_string
 from django.views.decorators.csrf import csrf_exempt
-
-from celery.result import AsyncResult
+from weasyprint import HTML
+from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
-from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, NlpExtract
+from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
+    NlpExtract
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
-from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, ApplicantViewText
+from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
+    ApplicantViewText
 
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
@@ -294,7 +298,8 @@ def positions_list_data(request):
             parent_position=position).count() > 0 else None
     # Return data for display
     return {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'applicationsForm': ImportApplicationsForm, 'positions': positions,
+        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
+        'applicationsForm': ImportApplicationsForm, 'positions': positions,
         'sort': sort_by}
 
 
@@ -324,7 +329,9 @@ def position_detail_data(request, position_id, task_id):
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText, 'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id, 'sort': sort_by}
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id,
+            'sort': sort_by}
 
 
 # Position detail view
@@ -363,7 +370,8 @@ def upload_applications(request):
                           for file_name in file_names]
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
-        return redirect('position_upload', Position.objects.get(id=position_id).reference_number, position_id, task_result.id)
+        return redirect('position_upload', Position.objects.get(id=position_id).reference_number, position_id,
+                        task_result.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -399,7 +407,11 @@ def applicant_detail_data(request, applicant_id, position_id):
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant), 'classifications': Classification.objects.filter(parent_applicant=applicant), 'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText, 'answers': answers, }
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position,
+            'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
+            'classifications': Classification.objects.filter(parent_applicant=applicant),
+            'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
+            'answers': answers, }
 
 
 # View an application
@@ -408,7 +420,8 @@ def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
         return render(request, 'application.html',
-                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
+                      applicant_detail_data(request, applicant.id,
+                                            Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
 
@@ -417,8 +430,15 @@ def application(request, app_id):
 def render_pdf(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
-        return render(request, 'sbr_pdf.html',
-                      applicant_detail_data(request, applicant.id, Applicant.objects.get(applicant_id=app_id).parent_position.id))
+
+        response = HttpResponse(content_type="application/pdf")
+        html = render_to_string("sbr_pdf.html", {
+            'applicant': applicant,
+        })
+
+        font_config = FontConfiguration()
+        HTML(string=html).write_pdf(response, font_config=font_config)
+        return response
     return redirect('home')
 
 

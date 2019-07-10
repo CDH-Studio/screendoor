@@ -36,7 +36,6 @@ def is_in_questions(table, all_questions):
     if is_question(table):
         question_text = parse_question_text(
             table).replace('\n', " ").replace(" ", "")
-
         for other_question in all_questions:
             other_question_text = other_question.question_text.replace(
                 '\n', " ").replace(" ", "")
@@ -130,8 +129,22 @@ def get_column_value(search_string, item):
 
 
 def retrieve_question(table, all_questions):
+
+
+<< << << < HEAD
     question_text = parse_question_text(
         table).replace('\n', " ").replace(" ", "")
+== == == =
+    question_text = parse_question_text(
+        table).replace('\n', " ").replace(" ", "")
+
+    for other_question in all_questions:
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
+        if fuzz.ratio(question_text, other_question_text) > 95:
+            return other_question
+    print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
+>>>>>> > 65a4376ddf193469d6b6ceca7d2f693282cc73db
 
     for other_question in all_questions:
         other_question_text = other_question.question_text.replace(
@@ -522,8 +535,15 @@ def does_exist(question, all_questions):
     question_text = question.question_text.replace('\n', " ").replace(" ", "")
 
     for other_question in all_questions:
+
+
+<< << << < HEAD
         other_question_text = other_question.question_text.replace(
             '\n', " ").replace(" ", "")
+== == == =
+        other_question_text = other_question.question_text.replace(
+            '\n', " ").replace(" ", "")
+>>>>>> > 65a4376ddf193469d6b6ceca7d2f693282cc73db
         if fuzz.ratio(question_text, other_question_text) > 95:
             return True
     print("QUESTION DOES NOT EXIST")
