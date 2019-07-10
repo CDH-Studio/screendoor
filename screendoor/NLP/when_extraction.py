@@ -108,19 +108,22 @@ def construct_context(token, dates):
     # Initialize the return object (dates check to remove redundant printing).
     extract = ''
     if token.text not in dates:
-        extract = token.text
+        extract = prepend_text_to_extract(token, extract, dates)
+        extract += token.text
 
     # Note: .children, .lefts, and .rights return generators, not lists.
     children = list(token.children)
-
+    initial_token = token
     stored_additional_iterations = []
 
     while not (list(children) == []):
         print_if_debug(token)
         # Adds all the text in the right place to the extract.
         extract = add_punctuation_to_extract(token, extract, dates)
-        extract = prepend_text_to_extract(token, extract, dates)
         extract = append_text_to_extract(token, extract, dates)
+        # prevents reprinting of prepended text on initial loop
+        if (token.text != initial_token.text):
+            extract = prepend_text_to_extract(token, extract, dates)
 
         # Stores any additional iterations for later retrieval.
         split_branch = check_for_additional_iterations(token, dates)

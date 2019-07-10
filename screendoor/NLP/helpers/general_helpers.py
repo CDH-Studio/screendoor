@@ -63,14 +63,15 @@ def get_first_elem_or_none(list):
 def fuzzy_search_extract_in_orig_doc(original_doc_text, extract):
     # Note; scripts return blanks instead of null values
     if extract != '':
-        match = get_first_elem_or_none(
-            find_near_matches(extract, original_doc_text, max_l_dist=2))
-        if match:
-            print_if_debug(
-                ("MATCH FOUND: ", original_doc_text[match[0]:match[1]]))
-            return ((match[0], match[1]))
-        else:
-            print_if_debug(("NO MATCH FOUND: ", extract))
+        match = None
+        threshold = 3
+        while match is None and threshold < 15:
+            match = get_first_elem_or_none(find_near_matches(extract, original_doc_text, max_l_dist=threshold))
+            if match:
+                print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
+                return ((match[0], match[1]))
+            else:
+                threshold+=2
     return None
 
 
