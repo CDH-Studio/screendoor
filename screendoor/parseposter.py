@@ -3,6 +3,7 @@ import os
 import re
 
 import tika
+from selenium.webdriver.chrome import webdriver
 
 tika.TikaClientOnly = True
 from dateutil import parser as dateparser
@@ -366,9 +367,8 @@ def parse_upload(position):
             return {'errors': ErrorMessages.incorrect_pdf_file}
     elif position.url_ref:
 
-        import json
-        from selenium import webdriver
-
+        curr_dir = os.getcwd()
+        download_path = os.path.join(curr_dir, 'dl')
         appState = {
             "recentDestinations": [
                 {
@@ -377,27 +377,20 @@ def parse_upload(position):
                 }
             ],
             "selectedDestinationId": "Save as PDF",
-            "version": 2
+            "version": 2,
         }
-        downloadPath = "code/screendoor"
 
-        profile = {'printing.print_preview_sticky_settings.appState': json.dumps(appState),
-                   'savefile.default_directory': downloadPath}
+        profile = {
+            'printing.print_preview_sticky_settings.appState': json.dumps(appState),
+            'savefile.default_directory': download_path,
+        }
 
         chrome_options = webdriver.ChromeOptions()
-
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--window-size=1420,1080')
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
         chrome_options.add_experimental_option('prefs', profile)
         chrome_options.add_argument('--kiosk-printing')
 
-        driver = webdriver.Chrome(chrome_options=chrome_options)
-
-        driver.get('https://www.google.com/')
-        driver.execute_script('window.print();')
-
-        driver.quit()
+        driver = webdriver.Chrome("D:\\master\\chromedriver\\2.45\\chromedriver.exe",
+                                  chrome_options=chrome_options)
+        URL = "taget site"
 
         return {'errors': ErrorMessages.url_upload_not_supported_yet}
