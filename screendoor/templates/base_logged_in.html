@@ -41,6 +41,15 @@
       {% endblock  %}
     </div>
   </main>
+  <script>
+   if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+     document.getElementById("base-main").style.paddingLeft = "300";
+     document.getElementById("base-header").style.paddingLeft = "300";
+   } else {
+     document.getElementById("base-main").style.paddingLeft = "0";
+     document.getElementById("base-header").style.paddingLeft = "0";
+   }
+  </script>
   <!-- End of page content -->
   <!-- MaterializeCSS JS library -->
   <script src="{% static 'js/materialize.js' %}"></script>
