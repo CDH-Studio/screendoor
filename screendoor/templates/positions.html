@@ -6,7 +6,8 @@
   <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
     <!-- If statements determine if selected sort is in blue text -->
-    <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+  <div class="sort-positions">
+  <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
     <a name="sort-method" href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}" class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
       {% if '-created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
@@ -44,6 +45,10 @@
       {% endif %}
       {{ userVisibleText.avg_score }}</span>
     </a>
+  </div>
+  {% else %}
+  <div class="sort-positions">
+  </div>
   {% endif %}
   <!-- Beginning of Positions view -->
   <!-- Sorting is determined in views.py -->

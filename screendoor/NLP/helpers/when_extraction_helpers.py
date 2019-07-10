@@ -57,7 +57,7 @@ def hard_identify_date_ents(doc):
         if not (new_ent is None):
             recreated_named_entities.append(new_ent)
         else:
-            print("ERROR: span not found. help")
+            print_if_debug("ERROR: span not found. help")
 
     # Loops through the existing entities, leaving them out of the new list
     # if they are contained within the identified date entities

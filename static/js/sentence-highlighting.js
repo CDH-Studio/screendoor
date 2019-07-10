@@ -47,7 +47,7 @@ const highlightSentence = function(extractIndex, answerId) {
       const answerAfter = answerText.slice(endIndex);
 
       answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
-      document.getElementById('answer-highlight').classList.add("blue", "white-text");
+      document.getElementById('answer-highlight').classList.add("answer-highlighted");
     }
   }
 };

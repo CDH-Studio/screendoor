@@ -1,6 +1,51 @@
+#base-header {
+  padding-left: 0px;
+}
+
+#base-main {
+  padding-left: 0px;
+}
+
+.logged-out-logo {
+  margin-left: 25px;
+}
+
 .requirement-abbreviation {
+  color: rgba(132,119,214, .92);
+  font-weight: 600;
   border-bottom: 2px solid rgba(132,119,214, .92);
   display: inline-block;
+  margin-right: 3px;
+}
+
+.requirement-abbreviation-hidden {
+  margin-left: -10px;
+  color: rgba(132,119,214, .92);
+  font-weight: 600;
+  border-bottom: 2px solid rgba(132,119,214, .92);
+  display: inline-block;
+}
+
+.requirement-abbreviation-hidden .tooltiptext {
+  white-space: normal;
+  visibility: hidden;
+  background-color: rgba(132,119,214, .92);
+  color: #fff;
+  text-align: left;
+  padding: 10px;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  margin-top: -10px;
+  float: none;
+  margin-right: auto;
+  margin-left: 50px;
+  z-index: 1;
+}
+
+.requirement-abbreviation-hidden:hover .tooltiptext {
+  visibility: visible;
 }
 
 .requirement-abbreviation .tooltiptext {
@@ -33,15 +78,15 @@
 }
 
 .answer-highlighted {
-  background-color: blue;
+  background-color:  #2196F3;
   color: white;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
-.answer-complementary-response {
-  transition: all 2s ease;
-  background-color: none;
+.applicant-full-answer td {
+  padding-bottom: 15px;
 }
-
 
 .extract-bold {
   text-decoration: underline;
@@ -52,6 +97,10 @@
   line-height: 1.4rem;
 }
 
+
+tr {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
 
 .extract-preview {
 
@@ -226,13 +275,17 @@ th a {
   margin-top: -15px;
 }
 
+.applicant-top-row {
+  padding: 10px 15px;;
+}
+
 .applicant-collapse-buttons {
-  margin-bottom: -25px;
-  display: inline-block;
-  position: static;
   float: right;
   margin-right: -15px;
+  padding-top: 8px;
+  padding-right: 5px;
 }
+
 
 .applicant-question-total {
   padding-left: 5px;
@@ -253,13 +306,15 @@ th a {
 
 .question-subhead {
   font-weight: 500;
-  margin-bottom: 10px;
+  padding-bottom: 0px;
+  margin-top: 10px;
 }
 
 .analysis-subhead {
+  margin-top: 10px;
   font-weight: 500;
-  margin-bottom: 10px;
   margin-left: -25px;
+  padding-bottom: 0px;
 }
 
 .analysis-header {
@@ -273,22 +328,23 @@ th a {
 
 }
 
-.ellipsis {
-  font-weight: 400 !important;
+.ellipsis i {
   font-size: 1.2rem;
-  margin-left: -5px;
+  margin-left: -10px;
+  margin-top: 5px;
 }
 
-.ellipsis-larger {
+.ellipsis-larger i {
   font-size: 1.4rem;
-  font-weight: 600;
   color: #2196F3;
-  margin-left: -5px;
+  margin-left: -10px;
+  margin-top: 5px;
 }
 
 .truncation-open {
   overflow: visible;
   white-space: initial;
+  padding: 0px;
 }
 
 .yes-answer {

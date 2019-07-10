@@ -47,8 +47,8 @@
                 <br>
               </div>
               <!-- PDF/File input -->
-              <div class="row" id="pdf_upload_form">
-                <div class="col s12 file-field input-field">
+              <div class="row">
+                <div id="pdf_upload_form" class="col s12 file-field input-field hide">
                   <div class="btn-small">
                     <span>{{ form.browse_text }}</span>
                     <input type="file" name="pdf" id="pdf_input">
@@ -59,18 +59,18 @@
                   </div>
                 </div>
               </div>
-              <div id="loading-bar" class="progress">
+              <div id="loading-bar" class="progress hide">
                 <div class="indeterminate"></div>
               </div>
               <!-- URL input -->
-              <div class="row" id="url_upload_form">
-                <div class="input-field col s12">
+              <div class="row">
+                <div id="url_upload_form" class="input-field col s12 hide">
                   <input id="url_input" name="url_ref" type="url" class="validate">
                   <label for="url">{{ form.url_text }}</label>
                 </div>
               </div>
               <!-- Submit button -->
-              <input class="right btn" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+              <input class="right btn hide" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
             </div>
             <!-- End of form -->
           </form>

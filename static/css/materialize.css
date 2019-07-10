@@ -2161,6 +2161,10 @@ blockquote {
 
 i {
   line-height: inherit; }
+  i.collapse-arrows {
+    font-size: 1.5rem; }
+  i.collapse-arrows-down {
+    font-size: 1.5rem; }
   i.left {
     float: left;
     margin-right: 15px; }
@@ -2373,7 +2377,7 @@ tr {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
 
 td, th {
-  padding: 10px 5px;
+  padding: 10px 5px 7px 5px;
   display: table-cell;
   text-align: left;
   vertical-align: middle;
@@ -2664,8 +2668,7 @@ table span.badge {
   .container {
     width: 85%; }
     .container.positions {
-      width: 90%;
-      padding-top: 2%; }
+      width: 90%; }
     .container.position {
       width: 90%;
       padding-top: 2%; } }
@@ -2673,8 +2676,7 @@ table span.badge {
   .container {
     width: 70%; }
     .container.positions {
-      width: 90%;
-      padding-top: 2%; }
+      width: 90%; }
     .container.position {
       width: 90%;
       padding-top: 2%; } }
@@ -3284,14 +3286,14 @@ nav {
   nav .brand-logo {
     color: #fff;
     display: inline-block;
-    font-size: 2.1rem;
-    padding-top: 22;
+    font-size: 1.4rem;
+    padding-top: 23;
     padding-bottom: 22; }
     nav .brand-logo.center {
       left: 50%;
       transform: translateX(-50%); }
     nav .brand-logo img {
-      max-width: 115px; }
+      max-width: 100px; }
     @media only screen and (max-width: 992px) {
       nav .brand-logo {
         left: 50%;
@@ -3386,19 +3388,19 @@ a {
   text-decoration: none; }
 
 html {
-  line-height: 1.5;
+  line-height: 1.4;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-weight: normal;
   color: rgba(0, 0, 0, 0.87); }
   @media only screen and (min-width: 0) {
     html {
-      font-size: 14px; } }
+      font-size: .775rem; } }
   @media only screen and (min-width: 992px) {
     html {
-      font-size: 14.5px; } }
+      font-size: .8rem; } }
   @media only screen and (min-width: 1200px) {
     html {
-      font-size: 15px; } }
+      font-size: .85rem; } }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
@@ -3408,35 +3410,35 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
   font-weight: inherit; }
 
 h1 {
-  font-size: 4.2rem;
+  font-size: 4rem;
   line-height: 110%;
-  margin: 2.8rem 0 1.68rem 0; }
+  margin: 2.6666666667rem 0 1.6rem 0; }
 
 h2 {
-  font-size: 3.56rem;
+  font-size: 3rem;
   line-height: 110%;
-  margin: 2.3733333333rem 0 1.424rem 0; }
+  margin: 2rem 0 1.2rem 0; }
 
 h3 {
-  font-size: 2.92rem;
+  font-size: 2.5rem;
   line-height: 110%;
-  margin: 1.9466666667rem 0 1.168rem 0; }
+  margin: 1.6666666667rem 0 1rem 0; }
 
 h4 {
-  font-size: 2.28rem;
+  font-size: 2rem;
   line-height: 110%;
-  margin: 1.52rem 0 0.912rem 0; }
+  margin: 1.3333333333rem 0 0.8rem 0; }
   h4.position-header {
-    margin: 0.456rem 0 0.912rem 0; }
+    margin: 0.4rem 0 0.8rem 0; }
 
 h5 {
-  font-size: 1.64rem;
+  font-size: 1.5rem;
   line-height: 110%;
-  margin: 1.0933333333rem 0 0.656rem 0; }
+  margin: 1rem 0 0.6rem 0; }
   h5.position-header {
-    margin: 0.456rem 0 0.912rem 0; }
+    margin: 0.4rem 0 0.8rem 0; }
   h5 .position-header {
-    margin: 0.456rem 0 0.912rem 0; }
+    margin: 0.4rem 0 0.8rem 0; }
 
 h6 {
   font-size: 1.15rem;
@@ -3472,14 +3474,22 @@ small {
   margin-top: 2px; }
 
 .sort-positions {
-  margin-top: -5;
-  margin-bottom: 0; }
+  padding-top: 5px;
+  margin-top: 10px; }
+
+.sort-positions a {
+  padding-top: 0px;
+  margin-top: -6px; }
+
+.sort-positions h6 {
+  padding-top: 0px;
+  margin-top: 0px; }
 
 .position-button {
   margin-bottom: -35px; }
 
 .position-title {
-  font-size: 1.64rem;
+  font-size: 1.5rem;
   color: rgba(0, 0, 0, 0.87);
   font-weight: normal;
   margin-left: -3px;
@@ -3884,7 +3894,7 @@ input .position-title {
   margin-left: 15px; }
 
 .btn-pad {
-  margin: 0.456rem 0 0.912rem 15; }
+  margin: 0.4rem 0 0.8rem 15; }
 
 .btn, .btn-large, .btn-small,
 .btn-flat {
@@ -3949,14 +3959,14 @@ input .position-title {
 .btn-large,
 .btn-small,
 .btn-flat {
-  font-size: 14px;
+  font-size: 0.9rem;
   outline: 0; }
   .btn i, .btn-large i, .btn-small i,
   .btn-floating i,
   .btn-large i,
   .btn-small i,
   .btn-flat i {
-    font-size: 1.3rem;
+    font-size: 1rem;
     line-height: inherit; }
 
 .btn:focus, .btn-large:focus, .btn-small:focus,
@@ -4145,9 +4155,9 @@ button.btn-floating {
 .btn-small {
   height: 32.4px;
   line-height: 32.4px;
-  font-size: 13px; }
+  font-size: 11px; }
   .btn-small i {
-    font-size: 1.2rem; }
+    font-size: 1rem; }
 
 .btn-block {
   display: block; }
@@ -4484,7 +4494,7 @@ body.keyboard-focused .dropdown-content li:focus {
     border: 0;
     color: rgba(0, 0, 0, 0.6);
     display: inline-block;
-    font-size: 16px;
+    font-size: 1rem;
     height: 3rem;
     line-height: 32px;
     outline: 0;
@@ -4580,7 +4590,7 @@ textarea.materialize-textarea {
   outline: none;
   height: 3rem;
   width: 100%;
-  font-size: 16px;
+  font-size: 1rem;
   margin: 0 0 8px 0;
   padding: 0;
   box-shadow: none;
@@ -5377,7 +5387,7 @@ select {
     height: 3rem;
     line-height: 3rem;
     width: 100%;
-    font-size: 16px;
+    font-size: 1rem;
     margin: 0 0 8px 0;
     padding: 0;
     display: block;
@@ -5663,7 +5673,7 @@ input[type=range]::-ms-thumb {
   .sidenav li > a {
     color: rgba(0, 0, 0, 0.87);
     display: block;
-    font-size: 14px;
+    font-size: 0.925rem;
     font-weight: 500;
     height: 48px;
     line-height: 48px;
@@ -5693,7 +5703,7 @@ input[type=range]::-ms-thumb {
     cursor: initial;
     pointer-events: none;
     color: rgba(0, 0, 0, 0.54);
-    font-size: 14px;
+    font-size: 0.925rem;
     font-weight: 500;
     line-height: 48px; }
     .sidenav .subheader:hover {
@@ -5722,7 +5732,7 @@ input[type=range]::-ms-thumb {
       width: 64px; }
     .sidenav .user-view .name,
     .sidenav .user-view .email {
-      font-size: 14px;
+      font-size: 0.925rem;
       line-height: 24px; }
     .sidenav .user-view .name {
       margin-top: 16px;
