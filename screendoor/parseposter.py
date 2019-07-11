@@ -5,11 +5,7 @@ import time
 
 import tika
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 from weasyprint import HTML
 
 tika.TikaClientOnly = True
@@ -203,8 +199,7 @@ def scrub_requirement_block(requirement_block_text):
 
     for sentence in single_line_break_list:
         sentence = sentence.strip()
-        if sentence.lower().startswith("definitions:") or sentence.lower().startswith("note:") or \
-                sentence.lower().startswith("notes:") or "incumbents" in sentence.lower():
+        if sentence.lower().startswith(("definitions:", "note:", "notes:"))or "incumbents" in sentence.lower():
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             requirement_block_text = clean_out_titles(requirement_block_text)
 
