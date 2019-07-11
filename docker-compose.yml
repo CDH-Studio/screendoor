@@ -19,6 +19,8 @@ services:
     depends_on:
       - db
       - rabbitmq
+    links:
+      - selenium
     stdin_open: true
     tty: true
   tika:
@@ -26,7 +28,8 @@ services:
     command: docker run -d -p 9998:9998 docker-tikaserver
   selenium:
     image: selenium/standalone-chrome
-    command: docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-radium
+    ports:
+      - 4444:4444   # Selenium
   rabbitmq:
     image: rabbitmq:3.7.5-management
     hostname: app-rabbitmq

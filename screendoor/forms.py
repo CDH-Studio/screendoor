@@ -19,6 +19,12 @@ def check_filetype_for_pdf(self):
             ErrorMessages.incorrect_mime_type)
         self.add_error('pdf', msg)
 
+def check_startswith_gov(self):
+
+    if not (self.cleaned_data.get('url_ref').startswith("https://emploisfp-psjobs.cfp-psc.gc.ca")):
+        msg = forms.ValidationError(
+            ErrorMessages.invalid_url_domain)
+        self.add_error('url_ref', msg)
 
 # For uploading completed applications to a position
 class ImportApplicationsForm(forms.ModelForm):
@@ -66,7 +72,6 @@ class CreatePositionForm(forms.ModelForm):
     class Meta:
         model = Position
         fields = ('pdf', 'url_ref')
-        widgets = {'url_ref': forms.TextInput(attrs={'disabled': 'disabled'})}
 
     def clean(self):
         pdf = self.cleaned_data.get('pdf')
@@ -89,16 +94,7 @@ class CreatePositionForm(forms.ModelForm):
             check_filetype_for_pdf(self)
             # Verify if the url matches the job.gc.ca domain
         if url:
-            # Note: Below code is temporary, until url uploading is supported.
-            msg = forms.ValidationError(
-                ErrorMessages.url_upload_not_supported_yet)
-            self.add_error('url_ref', msg)
-
-            # Note: Desired code below.
-            # if not "https://emploisfp-psjobs.cfp-psc.gc.ca" in url:
-            #     msg = forms.ValidationError(
-            #         ErrorMessages.invalid_url_domain)
-            #     self.add_error('url_ref', msg)
+            check_startswith_gov(self)
 
         return self.cleaned_data
 
