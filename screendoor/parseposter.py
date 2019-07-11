@@ -1,17 +1,15 @@
 # ////////////////////////////////////////START IMPORTS//////////////////////////////////
-import json
 import os
 import re
 
 import tika
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options
 from weasyprint import HTML
 
 tika.TikaClientOnly = True
 from dateutil import parser as dateparser
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 from tika import parser
 
 from .models import Requirement
