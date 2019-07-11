@@ -248,7 +248,7 @@
               <tr class="question-full-header hide" id="previews-full{{ forloop.counter0 }}">
                 <td colspan="1"></td>
                 <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
-                    {% endif %}</td>
+                  {% endif %}</td>
                 <td colspan="{% if answer.applicant_answer is True %}10
                              {% else %}23{% endif %}">
                   <span class="question-full">
@@ -329,34 +329,44 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</td>
-                <data class="answer-id" value="{{ answer.id }}" />
-                <td colspan="1"></td>
-                <td colspan="10" class="blue-text text-darken-2 extract-full">
-                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
-                  <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
-                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
-                  <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
-                  <data class="extract-string" value="{{ extract.extract_text }}"/>
-                  <data class="extract-id" value="{{ extract.id }}"/>
-                  <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
-                  {% if extract.extract_type == 'WHEN' %}
-                  <i class="material-icons extract-icon">date_range</i>
-                  {% elif extract.extract_type == 'HOW' %}
-                  <i class="material-icons extract-icon">work</i>
-                  {% endif %}
-                  <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                  {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
-                  <br>
-                  {% endif %}
-                  {% endfor %}
-                  {% if answer.extract_set is None %}
-                  <i class="material-icons extract-icon">clear</i>
-                  <span class="extract-preview">{{ applicantText.no_analysis }}</span>
-                  {% endif %}
-                </td>
-                <td colspan="1"></td>
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response|bullet_points }}</a></td>
+                <!-- Modal Structure -->
+                  <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
+                    <div class="modal-content response-modal"><h5>Question {{ forloop.counter }}</h5>
+                      <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
+                      <h6 class="modal-complementary-question">{{ answer.parent_question.complementary_question_text }}:</h6>
+                      <p class="modal-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</p>
+                    </div>
+                    <a href="#!" class="modal-close btn-flat right response-modal-close">Close</a>
+                  </div>
+
+                  <data class="answer-id" value="{{ answer.id }}" />
+                  <td colspan="1"></td>
+                  <td colspan="10" class="blue-text text-darken-2 extract-full">
+                    {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
+                    <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
+                    <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
+                    <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
+                    <data class="extract-string" value="{{ extract.extract_text }}"/>
+                    <data class="extract-id" value="{{ extract.id }}"/>
+                    <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
+                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
+                    {% if extract.extract_type == 'WHEN' %}
+                    <i class="material-icons extract-icon">date_range</i>
+                    {% elif extract.extract_type == 'HOW' %}
+                    <i class="material-icons extract-icon">work</i>
+                    {% endif %}
+                    <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
+                    {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
+                    <br>
+                    {% endif %}
+                    {% endfor %}
+                    {% if answer.extract_set is None %}
+                    <i class="material-icons extract-icon">clear</i>
+                    <span class="extract-preview">{{ applicantText.no_analysis }}</span>
+                    {% endif %}
+                  </td>
+                  <td colspan="1"></td>
               </tr>
             </tbody>
             {% endif %}
@@ -378,10 +388,12 @@
   <script src="{% static 'js/tables.js' %}"></script>
   <!-- Script for extract origin highlighting -->
   <script src="{% static 'js/sentence-highlighting.js' %}"></script>
+  <!-- Script for initializing modal pop-ups -->
+  <script src="{% static 'js/modal.js' %}"></script>
   <script>
    document.addEventListener('DOMContentLoaded', function() {
-     var elems = document.querySelectorAll('.tooltipped');
-     var instances = M.Tooltip.init(elems, {});
+     var tooltips = document.querySelectorAll('.tooltipped');
+     var tooltipInstances = M.Tooltip.init(tooltips, {});
    });
   </script>
   {% endblock %}

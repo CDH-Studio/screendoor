@@ -46,7 +46,7 @@ const highlightSentence = function(extractIndex, answerId) {
       const answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
       const answerAfter = answerText.slice(endIndex);
 
-      answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
+      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + answerBefore + answerHighlight + answerAfter + "</a>";
       document.getElementById('answer-highlight').classList.add("answer-highlighted");
     }
   }
@@ -58,7 +58,7 @@ const unHighlightSentence = function(extractIndex, answerId) {
 
   for (let i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
-      answerComplementaryResponse[i].innerHTML = extractParentAnswerTexts[extractIndex].value;
+      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + extractParentAnswerTexts[extractIndex].value + "</a>";
     }
   }
 };
