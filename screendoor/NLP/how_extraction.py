@@ -32,6 +32,8 @@ def construct_how_extract(sent):
         return None
 
     for idx, token in enumerate(phrase):
+        if token.pos_ == 'ADD':
+            break
 
         # Attempts to "atomize" the verb phrase, by removing unneeded details,
         # or other ideas being explored in the same sentence
@@ -51,11 +53,7 @@ def construct_how_extract(sent):
 # Given a text block, finds any actions or duties an applicant mentioned,
 # in the case where the applicant is directly referring to themselves.
 # (e.g. I acquired x  VS  the project acquired x)
-def extract_how(text, taken_sentence_indexes):
-    orig_doc = NLP_MODEL(text)
-    reformatted_text = post_nlp_format_input(orig_doc)
-    doc = NLP_MODEL(reformatted_text)
-
+def extract_how(orig_doc, doc, taken_sentence_indexes):
     experiences = []
     matches = []
     for idx, sent in enumerate(doc.sents):

@@ -4,7 +4,6 @@ from .helpers.format_text import post_nlp_format_input, strip_faulty_formatting
 from .helpers.when_extraction_helpers import squash_named_entities, get_valid_dates, hard_identify_date_ents
 import re
 
-
 # relations that contain supplementary information we want, but not as the
 # path we want to create. Mostly for content like "and" and "to".
 prepend_relations = ['aux', 'auxpass', 'nsubj', 'nsubjpass', 'mark',
@@ -263,11 +262,7 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
 # Given a text block, finds any date entities and returns them, the context
 # in which the date was stated, and the sentence index in the text where the
 # date was extracted from.
-def extract_when(text):
-    orig_doc = NLP_MODEL(text)
-    reformatted_text = post_nlp_format_input(orig_doc)
-    doc = NLP_MODEL(reformatted_text)
-
+def extract_when(orig_doc, doc):
     squash_named_entities(doc)
     doc = hard_identify_date_ents(doc)
 

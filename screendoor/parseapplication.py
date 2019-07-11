@@ -552,13 +552,25 @@ def get_question(table, position):
     return
 
 
+def strip_bullet_points(string):
+    string = string.replace("\no ", "\n• ")
+    string = string.replace("\n. \n", "\n")
+    string = string.replace("\n. ", "\n• ")
+    string = string.replace("&#61607;", "\n• ")
+    string = string.replace(" &#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; ", "\n• ")
+    string = string.replace(", \n", ", ")
+    return string
+
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
     if is_question(table) and not is_stream(table):
         comp_response = parse_applicant_complementary_response(table)
+
         if comp_response is not None:
-            comp_response = str.strip(comp_response)
+            comp_response = strip_bullet_points(str.strip(comp_response))
 
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
                             applicant_complementary_response=comp_response,
