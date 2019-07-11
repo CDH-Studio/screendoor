@@ -24,9 +24,6 @@ services:
   tika:
     image: logicalspark/docker-tikaserver
     command: docker run -d -p 9998:9998 docker-tikaserver
-  selenium:
-    image: selenium/standalone-firefox
-    command: docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.141.59-radium
   rabbitmq:
     image: rabbitmq:3.7.5-management
     hostname: app-rabbitmq
