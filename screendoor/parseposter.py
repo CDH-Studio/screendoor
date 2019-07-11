@@ -199,10 +199,9 @@ def scrub_requirement_block(requirement_block_text):
 
     for sentence in single_line_break_list:
         sentence = sentence.strip()
-        if sentence.lower().startswith(("definitions:", "note:", "notes:"))or "incumbents" in sentence.lower():
+        if sentence.lower().startswith(("definitions:", "note:", "notes:")) or "incumbents" in sentence.lower():
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             requirement_block_text = clean_out_titles(requirement_block_text)
-
             return requirement_block_text
 
     for sentence in single_line_break_list:
@@ -340,6 +339,12 @@ def find_essential_details(pdf_poster_text, position):
     position = assign_single_line_values(position, pdf_poster_text)
 
     position.save()
+    print("/////////////////////////////////////////////////////////")
+    print(requirement_education)
+    print("/////////////////////////////////////////////////////////")
+    print(requirement_experience)
+    print("/////////////////////////////////////////////////////////")
+    print(requirement_assets)
 
     education_reqs = generate_requirements(requirement_education, position,
                                            "Education", "ED")
@@ -358,7 +363,6 @@ def find_essential_details(pdf_poster_text, position):
 
 
 def download_temp_pdf(url, download_path):
-
     # Chrome settings for the Selenium chrome window.
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
@@ -381,15 +385,13 @@ def download_temp_pdf(url, download_path):
 
 
 def parse_poster_text(download_path):
-
     # Extract the poster text read from the temporary pdf file.
     file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
     job_poster_text = file_data['content']
-    print(job_poster_text)
     job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
 
     if "Share this page" in job_poster_text:
-        job_poster_text = job_poster_text.split("Share this page", 2)[2]
+        job_poster_text = "Home" + job_poster_text.split("Share this page", 2)[2]
     return job_poster_text
 
 
