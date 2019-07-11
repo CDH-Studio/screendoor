@@ -60,7 +60,9 @@ const defineAdditionalButtons = function() {
 };
 
 const startEditing = function() {
-  expandAllButton.click();
+  if (window.location.pathname.includes("/position")) {
+    expandAllButton.click();
+  }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
 
