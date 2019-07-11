@@ -8,7 +8,7 @@ from cryptography.fernet import Fernet
 
 
 class Position(models.Model):
-    position_title = models.CharField(max_length=200, blank=True)
+    position_title = models.TextField(blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
     salary_min = models.DecimalField(

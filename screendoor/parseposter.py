@@ -1,10 +1,15 @@
 # ////////////////////////////////////////START IMPORTS//////////////////////////////////
 import os
 import re
+import time
 
 import tika
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 from weasyprint import HTML
 
 tika.TikaClientOnly = True
@@ -358,21 +363,31 @@ def find_essential_details(pdf_poster_text, position):
 
 
 def download_temp_pdf(url, download_path):
+
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--whitelisted-ips")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    desired_capabilities = DesiredCapabilities.CHROME
+    desired_capabilities.update(chrome_options.to_capabilities())
     driver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
-                              desired_capabilities=DesiredCapabilities.CHROME)
+                              desired_capabilities=desired_capabilities)
+
     driver.get(url)
+    delay = 2  # seconds
+    time.sleep(delay)
     HTML(string=driver.page_source).write_pdf(download_path)
     driver.close()
-
     pass
 
 
 def parse_poster_text(download_path):
     file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
     job_poster_text = file_data['content']
-    removal = job_poster_text.split("1. Home", 1)[1].rsplit("Share this page", 1)[0]
-    job_poster_text = "1. Home" + job_poster_text.split(removal, 1)[1]
-    job_poster_text = job_poster_text.replace("Share this page", "")
+    print(job_poster_text)
+    job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
     return job_poster_text
 
 
@@ -389,7 +404,6 @@ def parse_upload(position):
             return {'errors': ErrorMessages.incorrect_pdf_file}
     elif position.url_ref:
         download_path = os.getcwd() + "/tempPDF.pdf"
-
         download_temp_pdf(position.url_ref, download_path)
         job_poster_text = parse_poster_text(download_path)
         os.remove(download_path)
