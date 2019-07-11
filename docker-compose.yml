@@ -19,17 +19,14 @@ services:
     depends_on:
       - db
       - rabbitmq
-    links:
-      - selenium
     stdin_open: true
     tty: true
   tika:
     image: logicalspark/docker-tikaserver
     command: docker run -d -p 9998:9998 docker-tikaserver
   selenium:
-    image: selenium/standalone-chrome
-    ports:
-      - 4444:4444   # Selenium
+    image: selenium/standalone-firefox
+    command: docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.141.59-radium
   rabbitmq:
     image: rabbitmq:3.7.5-management
     hostname: app-rabbitmq
@@ -45,15 +42,14 @@ services:
       RABBITMQ_DEFAULT_VHOST: /
   celery:
     build: .
-    command: python manage.py celery
-    restart: always
+    command: bash -c "sleep 10 && celery -A screendoor_app worker -l info"
     volumes:
       - .:/code
     depends_on:
       - rabbitmq
-  celery_beat:
+  celery-beat:
     build: .
-    command: bash -c "sleep 10 && celery beat -A screendoor_app -l info"
+    command: bash -c "sleep 10 && celery -A screendoor_app beat -l info"
     volumes:
       - .:/code
     depends_on:
