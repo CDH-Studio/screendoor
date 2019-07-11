@@ -57,13 +57,13 @@ const persistUploadForm = function() {
 
 /* Show URL form, hide and clear PDF input form */
 const showUrl = function() {
-  document.getElementById('pdf_upload_form').style.display = 'none';
+  document.getElementById('pdf_upload_form').classList.add("hide");
   document.getElementById('pdf_input').required = false;
   document.getElementById('pdf_input').value = null;
   document.getElementById('pdf_path_input').value = null;
-  document.getElementById('url_upload_form').style.display = 'block';
+  document.getElementById('url_upload_form').classList.remove("hide");
   document.getElementById('url_input').required = true;
-    document.getElementById('position_submit_button').classList.remove("block");
+  document.getElementById('position_submit_button').classList.remove("hide");
   document.getElementById('position_submit_button').classList.add('right', 'btn');
   document.getElementById('position_submit_button').value = 'Submit';
   };
