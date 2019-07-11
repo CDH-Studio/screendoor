@@ -36,6 +36,9 @@ class ErrorMessages():
     # Translators: When a user tries to upload a url.
     url_upload_not_supported_yet = _(
         'URL uploading not currently supported. Please upload a pdf file.')
+    # Translators: An error that should not be possible, a user must submit either a pdf or url.
+    no_pdf_or_url_submitted = _(
+        'No pdf or url submitted')
 
 
 class InterfaceText():
