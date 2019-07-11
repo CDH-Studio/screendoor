@@ -359,6 +359,7 @@ def find_essential_details(pdf_poster_text, position):
 
 def download_temp_pdf(url, download_path):
 
+    # Chrome settings for the Selenium chrome window.
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--whitelisted-ips")
@@ -369,20 +370,26 @@ def download_temp_pdf(url, download_path):
     desired_capabilities.update(chrome_options.to_capabilities())
     driver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
                               desired_capabilities=desired_capabilities)
-
+    # Opens the page using the url, waits for 2 seconds so ajax commands can process.
     driver.get(url)
     delay = 2  # seconds
     time.sleep(delay)
+    # Write the html to a temporary pdf file.
     HTML(string=driver.page_source).write_pdf(download_path)
     driver.close()
     pass
 
 
 def parse_poster_text(download_path):
+
+    # Extract the poster text read from the temporary pdf file.
     file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
     job_poster_text = file_data['content']
     print(job_poster_text)
     job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
+
+    if "Share this page" in job_poster_text:
+        job_poster_text = job_poster_text.split("Share this page", 2)[2]
     return job_poster_text
 
 
@@ -400,7 +407,7 @@ def parse_upload(position):
         job_poster_text = parse_poster_text(download_path)
         os.remove(download_path)
     else:
-        return {'errors': ErrorMessages.incorrect_pdf_file}
+        return {'errors': ErrorMessages.no_pdf_or_url_submitted}
 
     if "Selection process number:" in job_poster_text:
         return find_essential_details(job_poster_text, position)
