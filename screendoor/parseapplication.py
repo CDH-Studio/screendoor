@@ -561,6 +561,8 @@ def strip_bullet_points(string):
     string = string.replace("\n&#9632; \n", "\n• ")
     string = string.replace("\n&#9632; ", "\n• ")
     string = string.replace(", \n", ", ")
+    string = string.replace("\n-", "\n• ")
+    string = string.replace("\n -", "\n• ")
     return string
 
 def get_answer(table, answers, position):

@@ -10,7 +10,7 @@ import re
 # may impede overall performance. No way around this.
 def post_nlp_format_input(nlp_parsed_text):
     #dates = get_valid_dates(nlp_parsed_text.ents)
-
+    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
     reformatted_text = ''
     # Note: a sentence is broken by sentence boundary characters (. ! ?)
     for sentence in nlp_parsed_text.sents:
@@ -18,11 +18,10 @@ def post_nlp_format_input(nlp_parsed_text):
 
         # A sentence fragment is something that may or may not need to be
         # 'converted' into a full sentence, depending on the context of the
-        # surrounding information.
+        # surronding information.
         for idx, sentence_fragment in enumerate(newline_split_sentence):
             sentence_fragment = sentence_fragment.strip()
             next_sentence_fragment = get_next_index_or_blank(idx, newline_split_sentence).strip()
-
             # Prevents bad data caused by people using periods as bullet points.
             if sentence_fragment in ['.', '']:
                 continue
@@ -45,15 +44,16 @@ def post_nlp_format_input(nlp_parsed_text):
                 # elif any(substring in sentence_fragment for substring in dates):
                 #     sentence_fragment = sentence_fragment + '.'
                 # If the next element is a bullet point.
-                elif next_sentence_fragment.startswith('•'):
+                elif next_sentence_fragment.startswith(a_bullet_point_char):
                     sentence_fragment = sentence_fragment + '.'
 
                 # Note: new line characters are meaningless to the parser, so there
                 # is no reason to maintain them in the input.
             if not sentence_fragment.endswith('.'):
-                reformatted_text += remove_bullet_point(sentence_fragment) + '; '
+                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + '; '
             else:
-                reformatted_text += remove_bullet_point(sentence_fragment) + ' '
+                reformatted_text += remove_starting_bullet_point_chars(
+                    sentence_fragment) + ' '
     print_if_debug(reformatted_text)
     return reformatted_text
 
@@ -61,6 +61,7 @@ def post_nlp_format_input(nlp_parsed_text):
 # Takes a block of line breaks, and attempts to cut out the pdf-imposed style
 # line breaks, leaving only the line breaks the applicants added.
 def reprocess_line_breaks(text_block):
+    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
     if text_block is not None:
         line_split_blocks = text_block.split('\n')
         reprocessed_blocks = []
@@ -82,7 +83,7 @@ def reprocess_line_breaks(text_block):
             if ((len(text) < 115)
                     or text in ['', ' ']
                     or next_elem in ['', ' ']
-                    or next_elem.strip().startswith('•')
+                    or next_elem.strip().startswith(a_bullet_point_char)
                     and not re.match(r'[a-z]', next_elem.strip())):
                 reprocessed_blocks.append(reformatted_text)
                 reformatted_text = ''
@@ -92,9 +93,18 @@ def reprocess_line_breaks(text_block):
     return None
 
 
-def remove_bullet_point(text):
+def remove_starting_bullet_point_chars(text):
+    # remove any leading spaces/tabs so the startswith doesnt need to check for variations
     text = text.strip()
-    return text[1:len(text)] if text.startswith('•') else text
+
+    # 1 letter bullet points
+    if text.startswith(('.', '-', 'o', '•')):
+        text = text[1:len(text)]
+    # 8 letter bullet points (unescaped unicode bullet point chars)
+    elif text.startswith(('&#61656;', '&#61607;')):
+        text = text[8:len(text)]
+
+    return text.strip()
 
 
 # Remove faulty spacing, hanging punctuation, and other formatting issues
