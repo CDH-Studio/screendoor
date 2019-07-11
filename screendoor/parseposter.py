@@ -393,17 +393,16 @@ def parse_upload(position):
     if position.pdf.name:
         file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
-        if "Selection process number:" in job_poster_text:
-            return find_essential_details(job_poster_text, position)
-        else:
-            return {'errors': ErrorMessages.incorrect_pdf_file}
+
     elif position.url_ref:
         download_path = os.getcwd() + "/tempPDF.pdf"
         download_temp_pdf(position.url_ref, download_path)
         job_poster_text = parse_poster_text(download_path)
         os.remove(download_path)
+    else:
+        return {'errors': ErrorMessages.incorrect_pdf_file}
 
-        if "Selection process number:" in job_poster_text:
-            return find_essential_details(job_poster_text, position)
-        else:
-            return {'errors': ErrorMessages.incorrect_pdf_file}
+    if "Selection process number:" in job_poster_text:
+        return find_essential_details(job_poster_text, position)
+    else:
+        return {'errors': ErrorMessages.incorrect_pdf_file}
