@@ -3,6 +3,7 @@ const elems = document.querySelectorAll('.sidenav-fixed'),
       instances = M.Sidenav.init(elems, {}/* options */),
       elem = document.querySelector('.sidenav-fixed'),
       instance = M.Sidenav.getInstance(elem);
+let sidebarIsOpen = false;
 
 /* Is the window above 992 pixels */
 const isWindowFullSize = function() {
@@ -33,7 +34,10 @@ const fixPaddingWidth = function() {
 /* Open sidenav */
 const openSideNav = function() {
   document.getElementById("slide-out").classList.remove("hide");
-  instance.open();
+  document.getElementById("slide-out").classList.remove("sidenav-closed");
+  document.getElementById("slide-out").classList.add("sidenav-open");
+  sidebarIsOpen = true;
+  // instance.open();
   if (isWindowFullSize()) {
     addSidenavPadding();
   }
@@ -41,8 +45,10 @@ const openSideNav = function() {
 
 /* Close sidenav */
 const closeSideNav = function() {
-  document.getElementById("slide-out").classList.add("hide");
-  instance.close();
+  document.getElementById("slide-out").classList.add("sidenav-closed");
+  document.getElementById("slide-out").classList.remove("sidenav-open");
+  sidebarIsOpen = false;
+  // instance.close();
   if (isWindowFullSize()) {
     removeSidenavPadding();
   }
@@ -50,9 +56,9 @@ const closeSideNav = function() {
 
 /* Toggle sidebar */
 const toggleSidebar = function() {
-  instance.isOpen ? closeSideNav() : openSideNav();
+  sidebarIsOpen ? closeSideNav() : openSideNav();
   if (isWindowFullSize()) {
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+    localStorage.setItem('sidenavOpen', JSON.stringify(sidebarIsOpen));
   }
 };
 
@@ -61,14 +67,14 @@ const initSideNav = function() {
   /* Open sidebar if saved state is to open */
   if ((JSON.parse(localStorage.getItem('sidenavOpen')) && isWindowFullSize())
       || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
-    instance.isOpen = false;
+    sidebarIsOpen = false;
     toggleSidebar();
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+    localStorage.setItem('sidenavOpen', JSON.stringify(sidebarisOpen));
     /* Otherwise re-initialize to closed  */
   } else {
-    instance.isOpen = true;
+    sidebarIsOpen = true;
     toggleSidebar();
-    localStorage.setItem('sidenavOpen', JSON.stringify(instance.isOpen));
+    localStorage.setItem('sidenavOpen', JSON.stringify(sidebarIsOpen));
   }
   /* Check padding and fix depending on sidebar closed/open status */
   fixPaddingWidth();

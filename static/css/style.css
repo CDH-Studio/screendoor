@@ -1,9 +1,50 @@
-#base-header {
+.sidenav-open {
+  width: 300px !important;
+}
+
+.sidenav-closed {
+  width: 0px !important;
+}
+
+.header-open {
+  padding-left: 300px;
+}
+
+.header-closed {
   padding-left: 0px;
 }
 
+#base-header {
+  -webkit-transition: padding .5s; /* Safari prior 6.1 */
+  transition: padding .5s;
+}
+
 #base-main {
-  padding-left: 0px;
+  -webkit-transition: padding .5s; /* Safari prior 6.1 */
+  transition: padding .5s;
+}
+
+.sidenav {
+  -webkit-transition: width 1s; /* Safari prior 6.1 */
+  transition: width .5s;
+}
+
+/* For Firefox */
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+/* Webkit browsers like Safari and Chrome */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.edit input {
+  box-sizing: border-box !important;
+  padding: 0px !important;
+  margin: 0px !important;
 }
 
 .logged-out-logo {
@@ -419,8 +460,12 @@ th {
 }
 
 
-header, main, footer {
-  padding-left: 300px;}
+html {
+  min-width: 720px !important;
+}
+
+/* header, main, footer {
+   padding-left: 300px;} */
 
 .menu-button {
   margin-right: -5px !important;
