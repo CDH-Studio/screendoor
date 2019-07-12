@@ -1,11 +1,110 @@
-#base-header {
+.sidenav-open {
+  width: 300px !important;
+}
+
+.sidenav-closed {
+  width: 0px !important;
+}
+
+.header-open {
+  padding-left: 300px;
+}
+
+.header-closed {
   padding-left: 0px;
+}
+
+#base-header {
+  -webkit-transition: padding .5s; /* Safari prior 6.1 */
+  transition: padding .5s;
 }
 
 #base-main {
-  padding-left: 0px;
+  -webkit-transition: padding .5s; /* Safari prior 6.1 */
+  transition: padding .5s;
 }
 
+.sidenav {
+  -webkit-transition: width 1s; /* Safari prior 6.1 */
+  transition: width .5s;
+}
+
+/* For Firefox */
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+/* Webkit browsers like Safari and Chrome */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.edit input {
+  box-sizing: border-box !important;
+  padding: 0px !important;
+  margin: 0px !important;
+}
+
+.modal-complementary-response {
+  white-space: pre-line;
+  font-size: 1.1rem;
+  margin-left: 15px;
+  padding-left: 15px;
+  margin-bottom: -25px;
+}
+
+.answer-complementary-response a {
+  color: #333333;
+}
+
+.modal-content.response-modal {
+  margin-top: -20px;
+}
+
+.modal-complementary-question {
+  padding-bottom: 15px;
+}
+
+.response-modal-close {
+  margin-bottom: 15px;
+}
+
+.modal.response-modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  white-space: pre-line;
+  background-color: #fafafa;
+  padding: 0;
+  max-height: 70%;
+  width: 90%;
+  margin: auto;
+  overflow-y: auto;
+  border-radius: 2px;
+  will-change: top, opacity; }
+.modal:focus {
+  outline: none; }
+@media only screen and (max-width: 992px) {
+  .modal {
+    width: 80%; } }
+.modal h1, .modal h2, .modal h3, .modal h4 {
+  margin-top: 0; }
+.modal .modal-content {
+  padding: 24px; }
+.modal .modal-close {
+  cursor: pointer; }
+.modal .modal-footer {
+  border-radius: 0 0 2px 2px;
+  background-color: #fafafa;
+  padding: 4px 6px;
+  height: 56px;
+  width: 100%;
+  text-align: right; }
+.modal .modal-footer .btn, .modal .modal-footer .btn-large, .modal .modal-footer .btn-small, .modal .modal-footer .btn-flat {
+  margin: 6px 0; }
 .logged-out-logo {
   margin-left: 25px;
 }
@@ -448,8 +547,12 @@ th {
 }
 
 
-header, main, footer {
-  padding-left: 300px;}
+html {
+  min-width: 720px !important;
+}
+
+/* header, main, footer {
+   padding-left: 300px;} */
 
 .menu-button {
   margin-right: -5px !important;

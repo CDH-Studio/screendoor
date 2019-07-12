@@ -414,10 +414,12 @@
   <script src="{% static 'js/sentence-highlighting.js' %}"></script>
   <!-- Script for adding notes to positions -->
   <script src="{% static 'js/notes.js' %}"></script>
+  <!-- Script for initializing modal pop-ups -->
+  <script src="{% static 'js/modal.js' %}"></script>
   <script>
    document.addEventListener('DOMContentLoaded', function() {
-     var elems = document.querySelectorAll('.tooltipped');
-     var instances = M.Tooltip.init(elems, {});
+     var tooltips = document.querySelectorAll('.tooltipped');
+     var tooltipInstances = M.Tooltip.init(tooltips, {});
    });
   </script>
   {% endblock %}
