@@ -21,20 +21,6 @@ def interpolate(value, arg):
 
 @register.filter()
 @stringfilter
-def bullet_points(string):
-    string = string.replace("\no ", "\n• ")
-    string = string.replace("\n. \n", "\n")
-    string = string.replace("\n. ", "\n• ")
-    string = string.replace("\n&#61607; ", "\n• ")
-    string = string.replace(" &#9632; \n", "\n• ")
-    string = string.replace("\n&#9632; \n", "\n• ")
-    string = string.replace("\n&#9632; ", "\n• ")
-    string = string.replace(", \n", ", ")
-    return string
-
-
-@register.filter()
-@stringfilter
 def display_first_line(string):
     string_list = string.split('\n')
     return string_list[0]

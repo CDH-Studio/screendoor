@@ -5,13 +5,19 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
-  <header id="base-header">
-    <nav>
-      <div class="nav-wrapper">
-        <a id="toggle_sidenav" href="#"><i class="material-icons left menu-button">menu</i></a>
-        <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
-      </div>
-    </nav>
+  <script>
+   if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+     document.write('<header id="base-header" style="padding-left: 300px;">');
+   } else {
+     document.write('<header id="base-header" style="padding-left: 0px;">');
+   }
+  </script>
+  <nav>
+    <div class="nav-wrapper">
+      <a id="toggle_sidenav" href="#"><i class="material-icons left menu-button">menu</i></a>
+      <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+    </div>
+  </nav>
   </header>
   <!-- End of top navbar -->
   <!-- Beginning of sidebar menu -->
@@ -20,7 +26,7 @@
     <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
     <br>
     <!-- Display View Positions menu item in blue if user is at that page -->
-     {% if request.path == '/positions' %}
+    {% if request.path == '/positions' %}
     <li><a href="{% url 'positions' %}" class="blue-text"><i class="material-icons blue-text">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
     {% else %}
     <li><a href="{% url 'positions' %}"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
@@ -35,22 +41,28 @@
   </ul>
   <!-- End of sidebar menu -->
   <!-- Beginning of page content -->
-  <main id="base-main">
-    <div class="row">
-      {% block content %}
-      {% endblock  %}
-    </div>
-  </main>
   <script>
    if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
-     document.getElementById("base-main").style.paddingLeft = "300";
-     document.getElementById("base-header").style.paddingLeft = "300";
+     document.write('<main id="base-main" style="padding-left: 300px;">');
    } else {
-     document.getElementById("base-main").style.paddingLeft = "0";
-     document.getElementById("base-header").style.paddingLeft = "0";
+     document.write('<main id="base-main" style="padding-left: 0px;">');
    }
   </script>
+  <div class="row">
+    {% block content %}
+    {% endblock  %}
+  </div>
+  </main>
   <!-- End of page content -->
+  <script>
+   /* if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+    *   document.getElementById("base-main").style.paddingLeft = "300";
+    *   document.getElementById("base-header").style.paddingLeft = "300";
+    * } else {
+    *   document.getElementById("base-main").style.paddingLeft = "0";
+    *   document.getElementById("base-header").style.paddingLeft = "0";
+    * } */
+  </script>
   <!-- MaterializeCSS JS library -->
   <script src="{% static 'js/materialize.js' %}"></script>
   <!-- Script for sidenav expand and collapse -->
