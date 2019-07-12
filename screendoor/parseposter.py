@@ -27,35 +27,6 @@ def text_between(start_string, end_string, text):
     return extracted_text
 
 
-def extract_essential_block(text):
-    essential_block = ""
-
-    # Every poster normally has "essential qualifications"
-    # but not every poster has assets in the form of "other qualifications"
-    # These if statements check both cases to extract the text block containing experience and education.
-
-    if "(essential qualifications)" in text:
-        if "If you possess any" in text:
-            essential_block = text_between('(essential qualifications)', "If you possess any", text)
-
-        else:
-            essential_block = text_between('(essential qualifications)', "The following will be applied / assessed",
-                                           text)
-
-    return essential_block
-
-
-def extract_asset_block(text):
-    asset_block = ""
-
-    # Some posters have an assets section found between other qualifications and the statement "The following will be"
-
-    if "(other qualifications)" in text:
-        asset_block = text_between('(other qualifications)', "The following will be ", text)
-
-    return asset_block
-
-
 def clean_block(text):
     text = text.strip()
     # Remove number points like "2. "
@@ -184,25 +155,12 @@ def clean_out_titles(text):
     text = find_and_remove(r"^[A-Z]+:$", text)
     text = find_and_remove(r"[A-Z]+\d:", text)
     text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
-    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
     text = find_and_remove(r"\bAsset experience:.+", text)
     text = find_and_remove(r"\bAsset education:.+", text)
     text = find_and_remove(r"\bExperience - Common to all Streams:.+", text)
     text = find_and_remove(r"\bABILITY :$", text)
 
-
     return text
-
-
-def save_requirement_lists(list1, list2, list3):
-    # saves the lists of requirements
-
-    mega_list = [list1, list2, list3]
-
-    for req_list in mega_list:
-        for item in req_list:
-            item.save()
-    return
 
 
 # Removes any newlines and double spaces caused by other parsing rules.
@@ -210,8 +168,56 @@ def scrub_extra_whitespace(item):
     return str(item).replace('\n', ' ').replace('  ', ' ')
 
 
-def remove_definitions_and_titles(requirement_block_text):
+def extract_req_list(pdf_poster_text, position):
+    essential_block = ""
 
+    # Every poster normally has "essential qualifications"
+    # but not every poster has assets in the form of "other qualifications"
+    # These if statements check both cases to extract the text block containing experience and education.
+
+    if "(essential qualifications)" in pdf_poster_text:
+        if "If you possess any" in pdf_poster_text:
+            essential_block = text_between('(essential qualifications)', "If you possess any", pdf_poster_text)
+
+        else:
+            essential_block = text_between('(essential qualifications)', "The following will be applied / assessed",
+                                           pdf_poster_text)
+
+    requirement_education = extract_education(essential_block)
+
+    requirement_experience = extract_experience(essential_block)
+
+    requirement_assets = extract_asset(pdf_poster_text)
+
+    education_reqs = generate_requirements(requirement_education, position,
+                                           "Education", "ED")
+    experience_reqs = generate_requirements(requirement_experience, position,
+                                            "Experience", "EXP")
+    asset_experience_reqs = generate_requirements(requirement_assets, position,
+                                                  "Asset", "AEXP")
+
+    return education_reqs + experience_reqs + asset_experience_reqs
+
+
+def extract_asset(text):
+    asset_block = ""
+
+    # Some posters have an assets section found between other qualifications and the statement "The following will be"
+
+    if "(other qualifications)" in text:
+        asset_block = text_between('(other qualifications)', "The following will be ", text)
+    split_by_line_breaks = asset_block.split("\n")
+
+    for sentence1 in split_by_line_breaks:
+        if fuzz.ratio("Degree equivalency", sentence1) > 80:
+            asset_block = asset_block.replace(sentence1, "\n")
+
+    asset_block = clean_block(asset_block)
+
+    return asset_block
+
+
+def remove_definitions_and_titles(requirement_block_text):
     requirement_block_text = requirement_block_text.strip()
     single_line_break_list = requirement_block_text.split("\n")
 
@@ -239,7 +245,6 @@ def remove_definitions_and_titles(requirement_block_text):
 
 
 def separate_requirements(requirement_block_text):
-    print(requirement_block_text)
     requirement_list = re.split(r'^\s\*+(?!\s)|\n- |[;.]\s*\n', requirement_block_text)
     joining_list = ["The following combinations"]
     for idx, sentence in enumerate(requirement_list):
@@ -325,34 +330,20 @@ def scrub_raw_text(pdf_poster_text):
 def find_essential_details(pdf_poster_text, position):
     # The mother of all methods, find_essential_details uses all the other methods to parse the job poster.
 
-    pdf_poster_text = scrub_raw_text(pdf_poster_text)
-
     position.position_title = extract_job_title(pdf_poster_text)
 
     position.open_to = extract_who_can_apply(pdf_poster_text)
 
-    essential_block = extract_essential_block(pdf_poster_text)
-
-    asset_block = extract_asset_block(pdf_poster_text)
-
-    requirement_education = extract_education(essential_block)
-
-    requirement_experience = extract_experience(essential_block)
-
-    requirement_assets = extract_assets(asset_block)
-
     position = assign_single_line_values(position, pdf_poster_text)
+
+    list_of_requirements = extract_req_list(pdf_poster_text, position)
 
     position.save()
 
-    education_reqs = generate_requirements(requirement_education, position,
-                                           "Education", "ED")
-    experience_reqs = generate_requirements(requirement_experience, position,
-                                            "Experience", "EXP")
-    asset_experience_reqs = generate_requirements(requirement_assets, position,
-                                                  "Asset", "AEXP")
-    save_requirement_lists(education_reqs, experience_reqs,
-                           asset_experience_reqs)
+    for item in list_of_requirements:
+        print(item.description)
+        item.position = position
+        item.save()
 
     dictionary = {
         'position': position
@@ -388,9 +379,9 @@ def parse_poster_text(download_path):
     file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
     job_poster_text = file_data['content']
     job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
-
     if "Share this page" in job_poster_text:
         job_poster_text = "Home" + job_poster_text.split("Share this page", 2)[2]
+    job_poster_text = scrub_raw_text(job_poster_text)
     return job_poster_text
 
 
