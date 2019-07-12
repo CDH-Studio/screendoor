@@ -48,11 +48,13 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .modal-complementary-response {
-  white-space: pre-line;
+  white-space: pre-wrap;
   font-size: 1.1rem;
-  margin-left: 15px;
-  padding-left: 15px;
   margin-bottom: -25px;
+}
+
+.answer-complementary-response:hover {
+
 }
 
 .answer-complementary-response a {
@@ -69,6 +71,18 @@ input[type=number]::-webkit-outer-spin-button {
 
 .response-modal-close {
   margin-bottom: 15px;
+}
+
+.modal-complementary-response-header {
+  font-weight: 600;
+  margin-bottom: 15px;
+  margin-top: 5px;
+}
+
+.modal-question-header {
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-top: 15px;
 }
 
 .modal.response-modal {

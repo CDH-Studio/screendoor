@@ -2,8 +2,8 @@
 
 const editButton = document.getElementById("edit-button");
 const saveButton = document.getElementById("save-button");
-const okButton = editButton.cloneNode();
-const cancelButton = saveButton.cloneNode();
+const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
+const cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
 const hiddenInputs = document.getElementsByClassName("hidden");
 const cells = window.location.pathname.includes("/createnewposition") ? Array.from(document.getElementsByTagName("td")) : Array.from(document.getElementsByClassName("editable")[0].getElementsByTagName("td"));
 cells.unshift(document.getElementById("title"));
@@ -83,14 +83,17 @@ const cancelEditChanges = function() {
 /* LISTENERS */
 window.addEventListener('DOMContentLoaded', (event) => {
   /* Defines additional buttons that do not appear on page load */
-  defineAdditionalButtons();
-
+  if (document.getElementById("edit-button")) {
+    defineAdditionalButtons();
   /* User presses the edit button to change position information */
   editButton.addEventListener("click", startEditing);
 
   /* User presses the OK button to confirm editing changes */
   okButton.addEventListener("click", confirmEditChanges);
+  }
 
-  /* User presses the cancel button to cancel editing changes and revert to original */
-  cancelButton.addEventListener("click", cancelEditChanges);
+  if (cancelButton) {
+    /* User presses the cancel button to cancel editing changes and revert to original */
+    cancelButton.addEventListener("click", cancelEditChanges);
+  }
 });
