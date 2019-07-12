@@ -23,7 +23,7 @@ const initializePositionImportVariables = function() {
     document.getElementById('url_upload_form').classList = localStorage.getItem('urlDisplay');
     document.getElementById('radio_pdf').checked = localStorage.getItem('pdfChecked');
     document.getElementById('radio_url').checked = !localStorage.getItem('pdfChecked');
-    document.getElementById('position_submit_button').classList.remove("hide");
+    document.getElementById('position_submit_button').classList.remove("hide")
     clearExceptSidebar();
   }
 };
