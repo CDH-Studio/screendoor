@@ -1,7 +1,6 @@
 from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer
 from .NLP.helpers.format_text import reprocess_line_breaks
-from .NLP.when_extraction import extract_when
-from .NLP.how_extraction import extract_how
+from .NLP.run_NLP_scripts import generate_nlp_extracts
 from .models import Applicant, Position, FormQuestion, Education, Stream, Classification, FormAnswer, NlpExtract
 import random
 import re
@@ -36,6 +35,7 @@ def is_in_questions(table, all_questions):
     if is_question(table):
         question_text = parse_question_text(
             table).replace('\n', " ").replace(" ", "")
+
         for other_question in all_questions:
             other_question_text = other_question.question_text.replace(
                 '\n', " ").replace(" ", "")
@@ -132,12 +132,6 @@ def retrieve_question(table, all_questions):
     question_text = parse_question_text(
         table).replace('\n', " ").replace(" ", "")
 
-    for other_question in all_questions:
-        other_question_text = other_question.question_text.replace(
-            '\n', " ").replace(" ", "")
-        if fuzz.ratio(question_text, other_question_text) > 95:
-            return other_question
-    print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
     for other_question in all_questions:
         other_question_text = other_question.question_text.replace(
             '\n', " ").replace(" ", "")
@@ -558,45 +552,36 @@ def get_question(table, position):
     return
 
 
+def strip_bullet_points(string):
+    string = string.replace("\no ", "\n• ")
+    string = string.replace("\n. \n", "\n")
+    string = string.replace("\n. ", "\n• ")
+    string = string.replace("&#61607;", "\n• ")
+    string = string.replace(" &#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; ", "\n• ")
+    string = string.replace(", \n", ", ")
+    string = string.replace("\n-", "\n• ")
+    string = string.replace("\n -", "\n• ")
+    return string
+
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
     if is_question(table) and not is_stream(table):
         comp_response = parse_applicant_complementary_response(table)
+
+        if comp_response is not None:
+            comp_response = strip_bullet_points(str.strip(comp_response))
+
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
                             applicant_complementary_response=comp_response,
                             parent_question=retrieve_question(table, all_questions))
         if not (comp_response is None):
             answer.save()
-            # Extract dates
-            dates = extract_when(str.strip(comp_response))
-            create_nlp_extracts(dates, 'WHEN', answer) if dates != [] else None
-            # Extract actions
-            experiences = extract_how(str.strip(comp_response))
-            create_nlp_extracts(experiences, 'HOW',
-                                answer) if experiences != [] else None
+            generate_nlp_extracts(comp_response, answer)
         answers.append(answer)
     return answers
-
-
-def create_nlp_extracts(extract_list, nlp_type, answer):
-    extracts = []
-    for extract_data in extract_list:
-        extract = NlpExtract(parent_answer=answer, extract_type=nlp_type,
-                             extract_text=extract_data[0],
-                             extract_sentence_index=extract_data[1],
-                             extract_ending_index=extract_data[2])
-        extract.save()
-        extracts.append(extract)
-    extract_set = NlpExtract.objects.filter(parent_answer=answer).order_by(
-        'extract_sentence_index', '-extract_type')
-    counter = 0
-    while counter < len(extract_set) - 1:
-        counter += 1
-        extract_set[counter -
-                    1].next_extract_index = extract_set[counter].extract_sentence_index
-    for e in extract_set:
-        e.save()
 
 
 def get_education(item, educations):

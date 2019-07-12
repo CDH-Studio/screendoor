@@ -11,6 +11,7 @@ const extractParentAnswerTexts = document.getElementsByClassName("extract-parent
 
 /* Same length */
 const answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
+const answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
 
 
 const underlineExtracts = function(extractIndex, direction) {
@@ -40,13 +41,13 @@ const highlightSentence = function(extractIndex, answerId) {
 
       let startIndex = parseInt(extractStringStarts[extractIndex].value);
       let endIndex = parseInt(extractStringEnds[extractIndex].value);
-      const answerText = answerComplementaryResponse[i].innerHTML.toString();
+      const answerText = answerComplementaryResponseValue[i].value;
 
       const answerBefore = answerText.slice(0, startIndex);
       const answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
       const answerAfter = answerText.slice(endIndex);
 
-      answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
+      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + answerBefore + answerHighlight + answerAfter + "</a>";
       document.getElementById('answer-highlight').classList.add("answer-highlighted");
     }
   }
@@ -58,7 +59,7 @@ const unHighlightSentence = function(extractIndex, answerId) {
 
   for (let i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
-      answerComplementaryResponse[i].innerHTML = extractParentAnswerTexts[extractIndex].value;
+      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + extractParentAnswerTexts[extractIndex].value + "</a>";
     }
   }
 };
