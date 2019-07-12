@@ -19,7 +19,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract
+    NlpExtract, Note
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -405,8 +405,10 @@ def applicant_detail_data(request, applicant_id, position_id):
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position,
-            'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
+        answer.note_set = Note.objects.filter(
+            parent_answer=answer).order_by('created') if Note.objects.filter(
+                parent_answer=answer).count() > 0 else None
+    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
             'classifications': Classification.objects.filter(parent_applicant=applicant),
             'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
             'answers': answers, }
@@ -424,16 +426,34 @@ def application(request, app_id):
     return redirect('home')
 
 
+# Add a note to an applicant answer
+@login_required(login_url='login', redirect_field_name=None)
+def add_note(request):
+    if request.POST.get("note-input"):
+        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
+        note = Note(author=request.user, parent_answer=answer,
+                    note_text=request.POST.get("note-input"))
+        note.save()
+        return redirect('application', answer.parent_applicant.applicant_id)
+
+# Delete a note
+@login_required(login_url='login', redirect_field_name=None)
+def delete_note(request):
+    if request.POST.get("note-id"):
+        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
+        note = Note.objects.get(id=request.POST.get("note-id"))
+        note.delete()
+        return redirect('application', answer.parent_applicant.applicant_id)
+
+
 @login_required(login_url='login', redirect_field_name=None)
 def render_pdf(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
-
         response = HttpResponse(content_type="application/pdf")
         html = render_to_string("sbr_pdf.html", {
             'applicant': applicant,
         })
-
         font_config = FontConfiguration()
         HTML(string=html).write_pdf(response, font_config=font_config)
         return response
@@ -456,13 +476,6 @@ def task_status(request, task_id):
                 }
             return JsonResponse(response_data)
     return None
-
-
-def nlp(request):
-    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
-    from screendoor.NLP.howextraction import extract_how
-    extract_how(text)
-    return redirect('positions')
 
 
 def nlp(request):
