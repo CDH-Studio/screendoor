@@ -5,42 +5,30 @@ const saveButton = document.getElementById("save-button");
 const okButton = editButton.cloneNode();
 const cancelButton = saveButton.cloneNode();
 const hiddenInputs = document.getElementsByClassName("hidden");
-const form = window.location.pathname.includes("/createnewposition") ? document.getElementById("save-edit-position") : document.getElementById("save-position");
-const cells = Array.from(document.getElementsByClassName("edit"));
+const cells = window.location.pathname.includes("/createnewposition") ? Array.from(document.getElementsByTagName("td")) : Array.from(document.getElementsByClassName("editable")[0].getElementsByTagName("td"));
+cells.unshift(document.getElementById("title"));
 let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
-
-document.addEventListener('DOMContentLoaded', function() {
-  var datepickers = document.querySelectorAll('.datepicker');
-  var datepickerInstances = M.Datepicker.init(datepickers, {});
-});
 
 /* HELPER FUNCTIONS */
 
 /* Appends edit cells containing existing position data */
 const defineEditCells = function(cell, name, isReadOnly) {
-  let input = createReturnTextInput(cell.innerText, name, isReadOnly);
-  cell.innerText = null;
-  cell.appendChild(input);
+  let input = createReturnTextInput(cell.innerText, name);
+  input.readOnly = isReadOnly;
+  if (!isReadOnly) {
+    cell.innerText = null;
+    cell.appendChild(input);
+  }
 };
 
 /* Returns an edit cell with the name and value of the table data element */
-const createReturnTextInput = function(text, name, isReadOnly) {
+const createReturnTextInput = function(text, name) {
   let editableNode = document.createElement("input");
-  editableNode.readOnly = isReadOnly;
   editableNode.name = name;
-  editableNode.className = "editing";
+  editableNode.className = "editable";
+  editableNode.type = "text";
   editableNode.value = text;
-  if (name == "position-date-closed") {
-    editableNode.type = "date";
-    editableNode.value = text;
-  } else if (name.includes("salary")) {
-    editableNode.style.width = "60";
-    editableNode.type = "number";
-  } else {
-    editableNode.type = "text";
-  }
-  editableNode.setAttribute("required", "");;
   return editableNode;
 };
 
@@ -60,31 +48,26 @@ const defineAdditionalButtons = function() {
 };
 
 const startEditing = function() {
-  if (window.location.pathname.includes("/position")) {
-    expandAllButton.click();
-  }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
 
   cells.forEach(function(cell, i) {
     cellText[i] = cells[i].innerText;
-    cell.classList.contains("readonly") ? defineEditCells(cell, cell.id, true) : defineEditCells(cell, cell.id, false);
+    cell.className == "readonly" ? defineEditCells(cell, cell.name, true) : defineEditCells(cell, cell.name, false);
   });
 };
 
 const confirmEditChanges = function() {
-  if (form.reportValidity()) {
-    showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
-    hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
+  showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
+  hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
 
-    cells.forEach(function(cell, i) {
-      cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
-        hiddenInputs[i].value = cell.value;
-      cell.lastChild.value != null ? cell.innerText = cell.lastChild.value : cell.innerText = cell.value;
-    });
-    if (window.location.pathname.includes("/position")) {
-      document.getElementById("save-position").submit();
-    }
+  cells.forEach(function(cell, i) {
+    cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
+      hiddenInputs[i].value = cell.value;
+    cell.lastChild.value != null ? cell.innerText = cell.lastChild.value : cell.innerText = cell.value;
+  });
+  if (window.location.pathname.includes("/position")) {
+    document.getElementById("save-position").submit();
   }
 };
 

@@ -196,14 +196,16 @@ def edit_position(request):
                     request.POST.get("position-date-closed"))
                 position.num_positions = request.POST.get(
                     "position-num-positions")
-                position.salary_min = request.POST.get("position-salary-min")
-                position.salary_max = request.POST.get("position-salary-max")
+                position.salary_min = request.POST.get(
+                    "position-salary-range").split("$")[1].split("-")[0]
+                position.salary_max = request.POST.get(
+                    "position-salary-range").split("-")[1].split("$")[1]
                 position.open_to = request.POST.get("position-open-to")
                 position.description = request.POST.get("position-description")
                 counter = 1
                 for requirement in position.requirement_set.all().reverse():
                     requirement.description = request.POST.get(
-                        "position-requirement" + str(counter))
+                        "position-requirement" + str(counter)).split(":")[1]
                     counter += 1
                     requirement.save()
                 position.save()
@@ -245,7 +247,7 @@ def import_position(request):
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
-            edit_position(request)
+            # edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()

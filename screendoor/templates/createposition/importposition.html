@@ -93,7 +93,7 @@
             <div class="row valign-wrapper">
               <input type="hidden" name="position-id" value="{{ position.id }}">
               <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-              <h4 name="position-title" id="title" class="col s8 left position-header"><span class="edit" id="position-title">{{ position.position_title }}</span></h4>
+              <h4 name="position-title" id="title" class="col s8 left position-header">{{ position.position_title }}</h4>
               <!-- Confirm/Edit button row -->
               <div class="col s4 right right-align" id="import-position-buttons">
                 {% csrf_token %}
@@ -114,17 +114,11 @@
               <tbody>
                 <tr>
                   <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-                  <td name="position-classification" colspan="1">
-                    <span id="position-classification" class="edit">{{ position.classification }}</span>
-                  </td>
+                  <td name="position-classification" colspan="1">{{ position.classification }}</td>
                   <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                  <td name="position-reference" colspan="2">
-                    <span id="position-reference" class="edit">{{ position.reference_number }}</span>
-                  </td>
+                  <td name="position-reference" colspan="2">{{ position.reference_number }}</td>
                   <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-                  <td name="position-selection" colspan="2">
-                    <span id="position-selection" class="edit">{{ position.selection_process_number }}</span>
-                  </td>
+                  <td name="position-selection" colspan="2">{{ position.selection_process_number }}</td>
                 </tr>
               </tbody>
               <!-- Position row 2 headers -->
@@ -139,24 +133,14 @@
               <!-- Position row 2 body -->
               <tbody>
                 <tr>
-                  <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
-                  <td name="position-date-closed" colspan="1">
-                    <span class="edit date" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
-                  </td>
+                  <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:"M d, Y" }}'>
+                  <td name="position-date-closed" colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
                   <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
-                  <td name="position-num-positions" colspan="1">
-                    <span id="position-num-positions" class="edit">{{ position.num_positions }}</span>
-                  </td>
-                  <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-                  <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-                  <td name="position-salary-range" colspan="1">
-                    $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> -
-                    $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
-                  </td>
+                  <td name="position-num-positions" colspan="1">{{ position.num_positions }}</td>
+                  <input type="hidden" class="hidden" name="position-salary-range" value='${{ position.salary_min }} - ${{ position.salary_max }}'>
+                  <td name="position-salary-range" colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
                   <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
-                  <td name="position-open-to" colspan="2">
-                    <span id="position-open-to" class="edit">{{ position.open_to }}</span>
-                  </td>
+                  <td name="position-open-to" colspan="2">{{ position.open_to }}</td>
                 </tr>
               </tbody>
               <!-- Position row 3 header -->
@@ -169,35 +153,28 @@
               <tbody>
                 <tr>
                   <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
-                  <td name="position-description" colspan="5">
-                    <span id="position-description" class="edit">{{ position.description }}</span>
-                  </td>
+                  <td name="position-description" colspan="5">{{ position.description }}</td>
                 </tr>
               </tbody>
             </table>
             <!-- Position education and experience rows -->
             <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
             <table class="highlight">
-              {% for req in position.requirement_set.all|dictsort:"abbreviation" %}
+              {% for req in position.requirement_set.all %}
               <!-- ifchanged executes only for distinct values without repetition -->
               {% ifchanged %}
               <thead>
                 <tr>
                   <!-- Requirement type, e.g. education, experience, assets -->
-                  <th colspan="20">{{ req.requirement_type }}</th>
+                  <th colspan="5">{{ req.requirement_type }}</th>
                 </tr>
               </thead>
               {% endifchanged %}
               <tbody>
                 <tr>
                   <!-- Requirement abbreviation, e.g. EX1, and description -->
-                  <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
-                  <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="1">
-                    <span id="requirement_abbreviation" class="edit readonly">{{ req.abbreviation }}</span></td>
-                  <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
-                  <td name="position-requirement{{ forloop.counter }}" colspan="19">
-                    <span id="requirement_description" class="edit">{{ req.description|linebreaksbr }}</span>
-                  </td>
+                  <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.abbreviation }}: {{ req.description|linebreaksbr }}'>
+                  <td name="position-requirement{{ forloop.counter }}" colspan="5">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
                 </tr>
               </tbody>
               {% endfor %}
