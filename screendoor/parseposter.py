@@ -186,6 +186,7 @@ def clean_out_titles(text):
     text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
     text = find_and_remove(r"\bAsset experience:.+", text)
     text = find_and_remove(r"\bAsset education:.+", text)
+    text = find_and_remove(r"\bExperience - Common to all Streams:.+", text)
 
 
     return text
@@ -246,7 +247,7 @@ def separate_requirements(requirement_block_text):
         for joining_string in joining_list:
             if joining_string in sentence:
                 requirement_list[idx] = "".join(requirement_list[idx:])
-                return requirement_list
+                return requirement_list[:idx+1]
     return requirement_list
 
 
