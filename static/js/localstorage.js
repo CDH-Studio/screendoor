@@ -64,9 +64,9 @@ const showUrl = function() {
   document.getElementById('url_upload_form').classList.remove("hide");
   document.getElementById('url_input').required = true;
   document.getElementById('position_submit_button').classList.remove("hide");
-  document.getElementById('position_submit_button').classList.add('right', 'btn', 'disabled');
-  document.getElementById('position_submit_button').value = 'Coming soon';
-};
+  document.getElementById('position_submit_button').classList.add('right', 'btn');
+  document.getElementById('position_submit_button').value = 'Submit';
+  };
 
 /* Show PDF form, hide and clear URL input form */
 const showPdf = function() {

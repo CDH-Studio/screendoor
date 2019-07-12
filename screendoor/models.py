@@ -8,7 +8,7 @@ from cryptography.fernet import Fernet
 
 
 class Position(models.Model):
-    position_title = models.CharField(max_length=200, blank=True)
+    position_title = models.TextField(blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
     salary_min = models.DecimalField(
@@ -17,7 +17,7 @@ class Position(models.Model):
         decimal_places=2, max_digits=10, null=True, blank=True)
     classification = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
-    open_to = models.CharField(max_length=200, blank=True)
+    open_to = models.TextField(blank=True)
     reference_number = models.CharField(max_length=200, blank=True)
     selection_process_number = models.CharField(max_length=200, blank=True)
     pdf = models.FileField(upload_to="positions/", validators=[FileExtensionValidator(allowed_extensions=['pdf'])],

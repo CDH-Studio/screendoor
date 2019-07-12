@@ -1,12 +1,16 @@
 # ////////////////////////////////////////START IMPORTS//////////////////////////////////
 import os
 import re
+import time
 
 import tika
+from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
+from weasyprint import HTML
 
 tika.TikaClientOnly = True
 from dateutil import parser as dateparser
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 from tika import parser
 
 from .models import Requirement
@@ -131,7 +135,8 @@ def extract_salary_min(salary):
     # Salary normally looks like ???$ to ???$ where ??? is an amount.
     # Use the statement " to " to separate minimum and maximum salary values.
     # Scrub out $ and ,
-
+    if "//" in salary:
+        return 0
     salary_min = salary.split(" to ", 1)[0]
     salary_min = salary_min.replace("$", "")
     salary_min = salary_min.replace(",", "")
@@ -140,7 +145,8 @@ def extract_salary_min(salary):
 
 def extract_salary_max(salary):
     # Same deal as extract_salary_min
-
+    if "//" in salary:
+        return 0
     salary_max = text_between(" to ", " ", salary)
     salary_max = salary_max.replace("$", "")
     salary_max = salary_max.replace(",", "")
@@ -167,9 +173,24 @@ def extract_closing_date(item):
     return closing_date
 
 
+def find_and_remove(pattern, text):
+    if re.search(pattern, text):
+        text = re.sub(pattern, "", text)
+
+    return text
+
+
 def clean_out_titles(text):
-    if re.search(r"^[A-Z].+:$", text):
-        text = re.sub(r"^[A-Z].+:$", "", text)
+    text = find_and_remove(r"^[A-Z]+:$", text)
+    text = find_and_remove(r"[A-Z]+\d:", text)
+    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
+    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
+    text = find_and_remove(r"\bAsset experience:.+", text)
+    text = find_and_remove(r"\bAsset education:.+", text)
+    text = find_and_remove(r"\bExperience - Common to all Streams:.+", text)
+    text = find_and_remove(r"\bABILITY :$", text)
+
+
     return text
 
 
@@ -189,66 +210,54 @@ def scrub_extra_whitespace(item):
     return str(item).replace('\n', ' ').replace('  ', ' ')
 
 
-def scrub_requirement_block(requirement_block_text):
+def remove_definitions_and_titles(requirement_block_text):
+
     requirement_block_text = requirement_block_text.strip()
     single_line_break_list = requirement_block_text.split("\n")
 
     for sentence in single_line_break_list:
         sentence = sentence.strip()
-        if sentence.lower().startswith("definitions:") or sentence.lower().startswith("note:") or \
-                sentence.lower().startswith("notes:") or "incumbents" in sentence.lower():
+        if sentence.lower().startswith(("definitions:", "note:", "notes:")) or "incumbents" in sentence.lower():
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             requirement_block_text = clean_out_titles(requirement_block_text)
-
             return requirement_block_text
 
     for sentence in single_line_break_list:
-        if re.search(r"^\** Recent", sentence):
+        if re.search(r"^\n\** Recent is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
-        elif re.search(r"^\** Significant", sentence):
+        elif re.search(r"^\** Significant is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
-        elif re.search(r"^\** Management", sentence):
+        elif re.search(r"^\** Management is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
         elif "defined as" in sentence:
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-
     requirement_block_text = clean_out_titles(requirement_block_text)
-
     return requirement_block_text
 
 
 def separate_requirements(requirement_block_text):
-    requirement_list = re.split('[;.]\s*\n', requirement_block_text)
-
-    for idx, item in enumerate(requirement_list):
-        item = item.strip()
-        if len(item) > 30 and ("or more of the following" in item.lower() or "common to all streams") in item.lower():
-            if ":" in item:
-                requirement_list.append(item.split(":", 1)[1])
-                item = ""
-                requirement_list[idx] = item
-                continue
-        if item.startswith("or") or item.startswith("and"):
-            requirement_list[idx - 1] = requirement_list[idx - 1] + item
-            item = ""
-            requirement_list[idx] = item
-            continue
-        requirement_list[idx] = item
-
+    print(requirement_block_text)
+    requirement_list = re.split(r'^\s\*+(?!\s)|\n- |[;.]\s*\n', requirement_block_text)
+    joining_list = ["The following combinations"]
+    for idx, sentence in enumerate(requirement_list):
+        for joining_string in joining_list:
+            if joining_string in sentence:
+                requirement_list[idx] = "".join(requirement_list[idx:])
+                return requirement_list[:idx + 1]
     return requirement_list
 
 
 def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
-    requirement_block_text = scrub_requirement_block(requirement_block_text)
+    requirement_block_text = remove_definitions_and_titles(requirement_block_text)
     requirement_model_list = []
     requirement_list = separate_requirements(requirement_block_text)
     x = 1
     for item in requirement_list:
-        if item.strip() != "" and not item.lower().__contains__("incumbents"):
+        if item.strip() != "":
             item = scrub_extra_whitespace(item.strip())
             item.replace("\n", "")
             requirement_model_list.append(
@@ -264,10 +273,10 @@ def assign_single_line_values(position, pdf_poster_text):
     is_description_parsing = False
 
     # A loop that extracts single line position fields like salary or reference number. Also extracts description.
-
+    reg_salary = re.compile(r'\d+,\d+')
     for item in pdf_poster_text.split("\n"):
 
-        if '$' in item:
+        if reg_salary.search(item):
             salary = item.strip()
             position.salary_min = extract_salary_min(salary)
             position.salary_max = extract_salary_max(salary)
@@ -352,17 +361,56 @@ def find_essential_details(pdf_poster_text, position):
     return dictionary
 
 
+def download_temp_pdf(url, download_path):
+    # Chrome settings for the Selenium chrome window.
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--whitelisted-ips")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    desired_capabilities = DesiredCapabilities.CHROME
+    desired_capabilities.update(chrome_options.to_capabilities())
+    driver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
+                              desired_capabilities=desired_capabilities)
+    # Opens the page using the url, waits for 2 seconds so ajax commands can process.
+    driver.get(url)
+    delay = 2  # seconds
+    time.sleep(delay)
+    # Write the html to a temporary pdf file.
+    HTML(string=driver.page_source).write_pdf(download_path)
+    driver.close()
+    pass
+
+
+def parse_poster_text(download_path):
+    # Extract the poster text read from the temporary pdf file.
+    file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
+    job_poster_text = file_data['content']
+    job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
+
+    if "Share this page" in job_poster_text:
+        job_poster_text = "Home" + job_poster_text.split("Share this page", 2)[2]
+    return job_poster_text
+
+
 def parse_upload(position):
     # checking for the existence of the pdf upload. If true, convert uploaded pdf into text
     # using tika and process using find_essential_details method. If false, process url.
 
     if position.pdf.name:
-        os.chdir("..")
         file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
         job_poster_text = file_data['content']
-        if "Selection process number:" in job_poster_text:
-            return find_essential_details(job_poster_text, position)
-        else:
-            return {'errors': ErrorMessages.incorrect_pdf_file}
+
     elif position.url_ref:
-        return {'errors': ErrorMessages.url_upload_not_supported_yet}
+        download_path = os.getcwd() + "/tempPDF.pdf"
+        download_temp_pdf(position.url_ref, download_path)
+        job_poster_text = parse_poster_text(download_path)
+        os.remove(download_path)
+    else:
+        return {'errors': ErrorMessages.no_pdf_or_url_submitted}
+
+    if "Selection process number:" in job_poster_text:
+        return find_essential_details(job_poster_text, position)
+    else:
+        return {'errors': ErrorMessages.incorrect_pdf_file}

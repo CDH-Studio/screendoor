@@ -383,7 +383,7 @@ def fill_in_single_line_arguments(item, applicant):
         applicant.citizenship = parse_citizenship(item)
     if first_column.str.startswith("Droit de priorité").any():
         applicant.priority = parse_priority(item)
-    if first_column.str.startswith("Préférence aux anciens combattants").any():
+    if first_column.str.contains("combattants").any():
         applicant.veteran_preference = parse_is_veteran(item)
     if first_column.str.startswith("Première langue officielle").any():
         applicant.first_official_language = parse_first_official_language(item)

@@ -19,11 +19,17 @@ services:
     depends_on:
       - db
       - rabbitmq
+    links:
+      - selenium
     stdin_open: true
     tty: true
   tika:
     image: logicalspark/docker-tikaserver
     command: docker run -d -p 9998:9998 docker-tikaserver
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+      - 4444:4444   # Selenium
   rabbitmq:
     image: rabbitmq:3.7.5-management
     hostname: app-rabbitmq
