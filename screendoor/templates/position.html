@@ -17,7 +17,7 @@
             <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
             <input type="hidden" name="position-id" value="{{ position.id }}">
             <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-            <h4 name="position-title" id="title" class="col s7 left left-align position-header grey-text text-darken-3">{{ position.position_title }}</h4>
+            <h4 name="position-title" id="title" class="col s7 left left-align position-header grey-text text-darken-3"><span class="edit" id="position-title">{{ position.position_title }}</span></h4>
             <!-- Applicants summary information -->
             <div class="applicant-summary-cards col s6 right">
               {% if applicants %}
@@ -42,7 +42,7 @@
             </div>
           </div>
           <!-- Position row 1 headers -->
-          <table class="highlight editable">
+          <table class="highlight">
             <thead class="collapse">
               <tr>
                 <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
@@ -56,11 +56,17 @@
               <tr>
                 <th colspan="1"></th>
                 <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-                <td colspan="5" name="position-classification">{{ position.classification }}</td>
+                <td colspan="5" name="position-classification">
+                  <span id="position-classification" class="edit">{{ position.classification }}</span>
+                </td>
                 <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                <td colspan="10" name="position-reference">{{ position.reference_number }}</td>
+                <td colspan="10" name="position-reference">
+                  <span id="position-reference" class="edit">{{ position.reference_number }}</span>
+                </td>
                 <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-                <td colspan="10" name="position-selection">{{ position.selection_process_number }}</td>
+                <td colspan="10" name="position-selection">
+                  <span id="position-selection" class="edit">{{ position.selection_process_number }}</span>
+                </td>
               </tr>
             </tbody>
             <!-- Position row 2 headers -->
@@ -77,14 +83,24 @@
             <tbody>
               <tr>
                 <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:"M d, Y" }}'>
-                <td colspan="5" name="position-date-closed">{{ position.date_closed|date:"M d, Y" }}</td>
+                <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
+                <td colspan="5" name="position-date-closed">
+                  <span class="edit date" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
+                </td>
                 <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
-                <td colspan="4" name="position-num-positions">{{ position.num_positions }}</td>
-                <input type="hidden" class="hidden" name="position-salary-range" value='${{ position.salary_min }} - ${{ position.salary_max }}'>
-                <td colspan="6" name="position-salary-range">${{ position.salary_min }} - ${{ position.salary_max }}</td>
+                <td colspan="4" name="position-num-positions">
+                  <span class="edit date" id="position-num-positions">{{ position.num_positions }}</span>
+                </td>
+                <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
+                <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
+                <td colspan="6" name="position-salary-range">
+                  $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> -
+                  $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+                </td>
                 <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
-                <td colspan="10" name="position-open-to">{{ position.open_to }}</td>
+                <td colspan="10" name="position-open-to">
+                  <span id="position-open-to" class="edit">{{ position.open_to }}</span>
+                </td>
               </tr>
             </tbody>
             <!-- Position row 3 header -->
@@ -99,7 +115,9 @@
               <tr>
                 <th colspan="1"></th>
                 <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
-                <td colspan="25" name="position-description">{{ position.description }}</td>
+                <td colspan="25" name="position-description">
+                  <span id="position-description" class="edit">{{ position.description }}</span>
+                </td>
               </tr>
             </tbody>
             <!-- Position education and experience rows -->
@@ -119,8 +137,14 @@
               <tr>
                 <!-- Requirement abbreviation, e.g. EX1, and description -->
                 <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.abbreviation }}: {{ req.description|linebreaksbr }}'>
-                <td colspan="25" name="position-requirement{{ forloop.counter }}">{{ req.abbreviation }}: {{ req.description|linebreaksbr }}</td>
+                <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
+                <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
+                <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="1">
+                  <span id="requirement_abbreviation" class="edit readonly">{{ req.abbreviation }}</span>
+                </td>
+                <td name="position-requirement{{ forloop.counter }}" colspan="24">
+                  <span id="requirement_description" class="edit">{{ req.description|linebreaksbr }}</span>
+                </td>
               </tr>
             </tbody>
             {% endfor %}
@@ -174,7 +198,7 @@
             {% elif 'classification_names' in sort %}
             <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
             {% endif %}
-            </a>
+          </a>
           </th>
           <th colspan="14" class="streams-text"><a href="{% if '-stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id 'stream_count' %}{% elif 'stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% endif %}" class="applicant-sort {% if 'stream_count' in sort %}blue-text{% endif %}">
             {{ positionText.streams }}
