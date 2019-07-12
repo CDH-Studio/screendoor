@@ -9,8 +9,8 @@ import re
 # Returns a nlp model, meaning long answers that take a long time to parse
 # may impede overall performance. No way around this.
 def post_nlp_format_input(nlp_parsed_text):
-    dates = get_valid_dates(nlp_parsed_text.ents)
-    a_bullet_point_char = (('.', '-', 'o', '&#61656;', '&#61607;'))
+    #dates = get_valid_dates(nlp_parsed_text.ents)
+    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
     reformatted_text = ''
     # Note: a sentence is broken by sentence boundary characters (. ! ?)
     for sentence in nlp_parsed_text.sents:
@@ -26,20 +26,23 @@ def post_nlp_format_input(nlp_parsed_text):
             if sentence_fragment in ['.', '']:
                 continue
 
+            if sentence_fragment.endswith(('...')):
+                sentence_fragment = sentence_fragment[
+                                    0:len(sentence_fragment) - 3]
             # If the element introduces a bullet point list (colons are not considered
             # sentence boundaries).
-            if sentence_fragment.endswith((':', ': ', ';', '; ')):
-                sentence_fragment = sentence_fragment.replace(":", ".").replace(';', '.')
+            if sentence_fragment.endswith((':', ';')):
+                sentence_fragment = sentence_fragment[0:len(sentence_fragment)-1]
 
             # If the element ends with a valid boundary, it's already a sentence.
-            elif not sentence_fragment.endswith('.'):
+            if not sentence_fragment.endswith('.'):
 
                 # If a double new line is detected.
                 if next_sentence_fragment == '':
                     sentence_fragment = sentence_fragment+ '.'
                 # If the current element has a date and no verb (considered a 'list heading').
-                elif any(substring in sentence_fragment for substring in dates):
-                    sentence_fragment = sentence_fragment + '.'
+                # elif any(substring in sentence_fragment for substring in dates):
+                #     sentence_fragment = sentence_fragment + '.'
                 # If the next element is a bullet point.
                 elif next_sentence_fragment.startswith(a_bullet_point_char):
                     sentence_fragment = sentence_fragment + '.'
@@ -47,7 +50,7 @@ def post_nlp_format_input(nlp_parsed_text):
                 # Note: new line characters are meaningless to the parser, so there
                 # is no reason to maintain them in the input.
             if not sentence_fragment.endswith('.'):
-                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + ', '
+                reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + '; '
             else:
                 reformatted_text += remove_starting_bullet_point_chars(
                     sentence_fragment) + ' '
@@ -58,7 +61,7 @@ def post_nlp_format_input(nlp_parsed_text):
 # Takes a block of line breaks, and attempts to cut out the pdf-imposed style
 # line breaks, leaving only the line breaks the applicants added.
 def reprocess_line_breaks(text_block):
-    a_bullet_point_char = (('.', '-', 'o', '&#61656;', '&#61607;'))
+    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
     if text_block is not None:
         line_split_blocks = text_block.split('\n')
         reprocessed_blocks = []
@@ -95,7 +98,7 @@ def remove_starting_bullet_point_chars(text):
     text = text.strip()
 
     # 1 letter bullet points
-    if text.startswith(('.', '-', 'o')):
+    if text.startswith(('.', '-', 'o', '•')):
         text = text[1:len(text)]
     # 8 letter bullet points (unescaped unicode bullet point chars)
     elif text.startswith(('&#61656;', '&#61607;')):
@@ -107,15 +110,12 @@ def remove_starting_bullet_point_chars(text):
 # Remove faulty spacing, hanging punctuation, and other formatting issues
 # so the return value displays all nice
 def strip_faulty_formatting(text):
-
     if text == None:
         return None
     text = text.strip()
-    if text.endswith(' ,'):
-        text = text.replace(' ,', '')
     if text.endswith('('):
         text = text[0:len(text) - 1]
-    if text.endswith(' :'):
+    if text.endswith(' :') or text.endswith(' ;') or text.endswith(' ,'):
         text = text[0:len(text) - 2]
     if text.startswith(' '):
          text = text[1:len(text)]
@@ -128,6 +128,7 @@ def strip_faulty_formatting(text):
     text = text.replace("..", ".")
     text = text.replace('\t', ' ')
     text = text.replace('  ', ' ')
+    text = text.replace(' ; ', ' ')
     if text.count('(') > text.count(')'):
         text += ')'
     return text

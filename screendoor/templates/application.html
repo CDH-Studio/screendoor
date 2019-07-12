@@ -200,7 +200,7 @@
                     {% if answer.parent_question.parent_requirement is not None %}
                     <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
                     {% endif %}
-                    {{ answer.parent_question.short_question_text|bullet_points }}</span>
+                    {{ answer.parent_question.short_question_text }}</span>
                 </th>
                 <!-- Full preview -->
                 {% if answer.applicant_answer is True %}
@@ -231,7 +231,7 @@
                 <th colspan="1" class="hide"></th>
                 <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
                   <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-header hide">{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}</div>
-                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-line;">
+                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-wrap;">
                     {% for extract in answer.extract_set %}
                     <i class="material-icons extract-icon">date_range</i> {{ extract.extract_text }}<br>
                     {% endfor %}
@@ -329,13 +329,14 @@
             <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
               <tr>
                 <td colspan="2"></td>
-                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response|bullet_points }}</a></td>
+                <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response }}</a></td>
+                <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}"/>
                 <!-- Modal Structure -->
                   <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
                     <div class="modal-content response-modal"><h5>Question {{ forloop.counter }}</h5>
-                      <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
+                      <h6 style="white-space: pre-wrap;">{{ answer.parent_question.question_text }}</h6>
                       <h6 class="modal-complementary-question">{{ answer.parent_question.complementary_question_text }}:</h6>
-                      <p class="modal-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</p>
+                      <p class="modal-complementary-response">{{ answer.applicant_complementary_response }}</p>
                     </div>
                     <a href="#!" class="modal-close btn-flat right response-modal-close">Close</a>
                   </div>
@@ -350,7 +351,7 @@
                     <data class="extract-string" value="{{ extract.extract_text }}"/>
                     <data class="extract-id" value="{{ extract.id }}"/>
                     <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
+                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"/>
                     {% if extract.extract_type == 'WHEN' %}
                     <i class="material-icons extract-icon">date_range</i>
                     {% elif extract.extract_type == 'HOW' %}
