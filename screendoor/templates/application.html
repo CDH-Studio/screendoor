@@ -198,7 +198,7 @@
                   {% if answer.parent_question.parent_requirement is not None %}
                   <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
                   {% endif %}
-                  {{ answer.parent_question.short_question_text|bullet_points }}</span>
+                  {{ answer.parent_question.short_question_text }}</span>
               </th>
               <!-- Full preview -->
               {% if answer.applicant_answer is True %}
@@ -327,7 +327,7 @@
           <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
             <tr>
               <td colspan="2"></td>
-              <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</td>
+              <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}</td>
               <data class="answer-id" value="{{ answer.id }}" />
               <td colspan="1"></td>
               <td colspan="10" class="blue-text text-darken-2 extract-full">
@@ -338,7 +338,7 @@
                 <data class="extract-string" value="{{ extract.extract_text }}"/>
                 <data class="extract-id" value="{{ extract.id }}"/>
                 <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
+                <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"/>
                 {% if extract.extract_type == 'WHEN' %}
                 <i class="material-icons extract-icon">date_range</i>
                 {% elif extract.extract_type == 'HOW' %}
