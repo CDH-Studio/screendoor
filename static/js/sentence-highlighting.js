@@ -11,6 +11,7 @@ const extractParentAnswerTexts = document.getElementsByClassName("extract-parent
 
 /* Same length */
 const answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
+const answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
 
 
 const underlineExtracts = function(extractIndex, direction) {
@@ -40,7 +41,7 @@ const highlightSentence = function(extractIndex, answerId) {
 
       let startIndex = parseInt(extractStringStarts[extractIndex].value);
       let endIndex = parseInt(extractStringEnds[extractIndex].value);
-      const answerText = answerComplementaryResponse[i].innerHTML.toString();
+      const answerText = answerComplementaryResponseValue[i].value;
 
       const answerBefore = answerText.slice(0, startIndex);
       const answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
