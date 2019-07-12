@@ -181,12 +181,14 @@ def find_and_remove(pattern, text):
 
 
 def clean_out_titles(text):
-    text = find_and_remove(r"^.+:$", text)
+    text = find_and_remove(r"^[A-Z]+:$", text)
+    text = find_and_remove(r"[A-Z]+\d:", text)
     text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
     text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
     text = find_and_remove(r"\bAsset experience:.+", text)
     text = find_and_remove(r"\bAsset education:.+", text)
     text = find_and_remove(r"\bExperience - Common to all Streams:.+", text)
+    text = find_and_remove(r"\bABILITY :$", text)
 
 
     return text
@@ -209,16 +211,15 @@ def scrub_extra_whitespace(item):
 
 
 def remove_definitions_and_titles(requirement_block_text):
-    print("PRE DEFINITION AND TITLE REMOVAL:\n" + requirement_block_text)
 
     requirement_block_text = requirement_block_text.strip()
     single_line_break_list = requirement_block_text.split("\n")
-    requirement_block_text = clean_out_titles(requirement_block_text)
 
     for sentence in single_line_break_list:
         sentence = sentence.strip()
         if sentence.lower().startswith(("definitions:", "note:", "notes:")) or "incumbents" in sentence.lower():
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
+            requirement_block_text = clean_out_titles(requirement_block_text)
             return requirement_block_text
 
     for sentence in single_line_break_list:
@@ -233,21 +234,19 @@ def remove_definitions_and_titles(requirement_block_text):
             break
         elif "defined as" in sentence:
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-
-
+    requirement_block_text = clean_out_titles(requirement_block_text)
     return requirement_block_text
 
 
 def separate_requirements(requirement_block_text):
-    print("PRE SEPARATION:\n" + requirement_block_text)
-
-    requirement_list = re.split('\n- |\n\n|[;.]\s*\n', requirement_block_text)
+    print(requirement_block_text)
+    requirement_list = re.split(r'^\s\*+(?!\s)|\n- |[;.]\s*\n', requirement_block_text)
     joining_list = ["The following combinations"]
     for idx, sentence in enumerate(requirement_list):
         for joining_string in joining_list:
             if joining_string in sentence:
                 requirement_list[idx] = "".join(requirement_list[idx:])
-                return requirement_list[:idx+1]
+                return requirement_list[:idx + 1]
     return requirement_list
 
 
@@ -404,7 +403,6 @@ def parse_upload(position):
         job_poster_text = file_data['content']
 
     elif position.url_ref:
-        print("URL:" + position.url_ref)
         download_path = os.getcwd() + "/tempPDF.pdf"
         download_temp_pdf(position.url_ref, download_path)
         job_poster_text = parse_poster_text(download_path)
