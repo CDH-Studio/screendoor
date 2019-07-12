@@ -22,16 +22,6 @@ def generate_nlp_extracts(text, linked_answer):
     if experiences != [] and experiences is not None:
         save_nlp_extracts(experiences, 'HOW', linked_answer)
 
-    print((linked_answer, text))
-
-    for extract_text, start, end, sent_i in dates_and_contexts:
-        print((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
-        print('\n')
-    print('~~~~~~')
-    for extract_text, start, end, sent_i in experiences:
-        print((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
-        print('\n')
-
 
 def save_nlp_extracts(extract_list, nlp_type, answer):
     extracts = []
