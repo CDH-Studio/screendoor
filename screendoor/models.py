@@ -40,28 +40,6 @@ class Position(models.Model):
             self.save()
 
 
-class ScreenDoorUser(AbstractUser):
-    email_confirmed = models.BooleanField(default=False)
-    positions = models.ManyToManyField(Position, blank=True)
-
-    def confirm_email(self):
-        self.email_confirmed = True
-
-
-class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE, primary_key=False)
-    key = models.CharField(max_length=500, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def create_key(self):
-        initial_key = Fernet.generate_key()
-        byte_values = bytes(str(self.user.email) +
-                            str(datetime.datetime.now()), 'utf-8')
-        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
-        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
-
-
 class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
@@ -211,15 +189,6 @@ class FormAnswer(models.Model):
         return str(self.applicant_answer) + ": " + str(self.parent_question)
 
 
-class Note(models.Model):
-    author = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='author')
-    parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True, related_name='notes')
-    note_text = models.TextField(blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-
 class NlpExtract(models.Model):
     EXTRACT_TYPES = [
         ('WHEN', 'A date or date range, and its context'),
@@ -237,3 +206,25 @@ class NlpExtract(models.Model):
     # for key, value in dates.items()
     def __str__(self):
         return str(self.extract_type) + ": " + str(self.extract_text)
+
+
+class ScreenDoorUser(AbstractUser):
+    email_confirmed = models.BooleanField(default=False)
+    positions = models.ManyToManyField(Position, blank=True)
+
+    def confirm_email(self):
+        self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def create_key(self):
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
+                            str(datetime.datetime.now()), 'utf-8')
+        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')

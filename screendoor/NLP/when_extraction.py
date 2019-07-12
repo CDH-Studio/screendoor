@@ -31,6 +31,7 @@ def add_punctuation_to_extract(token, extract, dates):
     punctuation_to_add_to_extract = [x for x in token.children if x.dep_ == 'punct' and
                                      x.i == token.nbor().i and x.text not in dates
                                      and x.text not in ['(']]
+    print_if_debug(punctuation_to_add_to_extract)
 
     if punctuation_to_add_to_extract:
         extract += ' ' + ' '.join([x.text for x in punctuation_to_add_to_extract])
@@ -42,7 +43,8 @@ def add_punctuation_to_extract(token, extract, dates):
 def prepend_text_to_extract(token, extract, dates):
     words_to_prepend_to_extract = [x for x in token.lefts if
                                    x.dep_ in prepend_relations and
-                                   not x.tag_ == 'XX' and x.text not in dates]
+                                   not x.tag_ == 'XX' and x.i > token.i - 4 and x.text not in dates]
+    print_if_debug(words_to_prepend_to_extract)
 
     # Makes sure that the prepend words get added before the last word, rather
     # than naively just adding to the start of the entire constructed extract.
@@ -63,6 +65,7 @@ def append_text_to_extract(token, extract, dates):
     words_to_append_to_extract = [x for x in token.children if
                                   x.dep_ in append_relations and
                                   x == token.nbor() and x.text not in dates]
+    print_if_debug(words_to_append_to_extract)
 
     return extract + ' ' + ' '.join([x.text for x in words_to_append_to_extract])
 
@@ -73,6 +76,7 @@ def check_for_additional_iterations(token, dates):
     words_for_additional_iteration = [x for x in token.rights if
                                       x.dep_ in additional_iteration_relations and
                                       not x.i > token.i + 7 and x.text not in dates]
+    print_if_debug(words_for_additional_iteration)
 
     return get_first_elem_or_none(words_for_additional_iteration)
 
@@ -93,6 +97,7 @@ def determine_next_word_to_navigate_to(token, dates):
             punctuation_less_children) <= 1):
         possible_paths = punctuation_less_children
 
+    print_if_debug(possible_paths)
     return get_first_elem_or_none(possible_paths)
 
 
@@ -112,6 +117,7 @@ def construct_context(token, dates):
     stored_additional_iterations = []
 
     while not (list(children) == []):
+        print_if_debug(token)
         # Adds all the text in the right place to the extract.
         extract = add_punctuation_to_extract(token, extract, dates)
         extract = append_text_to_extract(token, extract, dates)
@@ -224,9 +230,7 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
 
     stored_sentence = None
     char_index = -1 * len(list(nlp_doc.sents)[0].text)
-    sentence_index = -1
     sentence_has_valid_subject = True
-    matches = []
 
     for token in nlp_doc:
         # If sentence changed, check if the sentences subject is valid
@@ -234,9 +238,6 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
         # applicant did not do themselves (eg a project's duration)
         if not token.sent == stored_sentence:
             char_index += len(token.sent.text)
-            sentence_index += 1
-
-
         if not token.sent == stored_sentence and not len(token.sent) == len(nlp_doc):
             sentence_has_valid_subject = remove_bad_subjects(token.sent)
 
@@ -246,37 +247,32 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
                 # Get to the head of the dep_tree
                 token_head = get_dep_tree_starting_point(token, dates)
 
+                # now that we have the head of the date entity,
+                # navigate through it for the context of the current date
                 extract = strip_faulty_formatting(construct_context(token_head, dates))
-                # Note: full sentence retrieved to minimize corruption caused by
-                # differing word location in searched text
-                match = fuzzy_search_extract_in_orig_doc(orig_doc_text, token.sent.text, matches)
-                if match:
+                original_location = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract)
+                if original_location:
                     dates_and_their_contexts.append((
-                        (token.text + ": " + extract), match[0][0], match[1][1], sentence_index))
-                    matches.append(match[1])
+                        (token.text + ": " + extract), original_location[0], original_location[1]))
                 else:
-                    dates_and_their_contexts.append(((token.text + ": " + extract), 0, 0, sentence_index))
+                    dates_and_their_contexts.append(((token.text + ": " + extract), 0, 0))
         stored_sentence = token.sent
     return dates_and_their_contexts
 
 # Given a text block, finds any date entities and returns them, the context
 # in which the date was stated, and the sentence index in the text where the
 # date was extracted from.
-def extract_when(orig_doc, doc):
+def extract_when(text):
+    # create a nlp processed version of the text (referred to as a 'doc' object).
+    orig_doc = NLP_MODEL(text)
+    reformatted_text = post_nlp_format_input(orig_doc)
+    doc = NLP_MODEL(reformatted_text)
+
+    # Clean the date identification by combining the entities into single tokens,
+    # and manually re-identifying dates when needed
     squash_named_entities(doc)
     doc = hard_identify_date_ents(doc)
 
-    for ent in doc.ents:
-        print_if_debug([(ent.text, ent.label_)])
-
-    print_if_debug('\n\n')
-
     dates_and_contexts = construct_dict_of_extracts(orig_doc.text, doc)
-    print_if_debug('\n\n')
-
-    for extract_text, start, end, sent_i in dates_and_contexts:
-        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
-        print_if_debug('\n')
-
 
     return dates_and_contexts

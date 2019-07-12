@@ -8,213 +8,264 @@
   <a href="{% url 'position' applicant.parent_position.reference_number applicant.parent_position.id %}" class="btn-flat blue-text sort-positions">←  {{ applicantText.back_to_position }}: {{ applicant.parent_position.position_title }}</a>
   <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
   <h6 class="btn-flat disabled"></h6>
-  <div class="row">
-    <!--Beginning of application card -->
-    <div class="col card white hoverable">
-      <div class="card-content col s12 applicant-card">
-        <!-- Application row 1 headers -->
-        <!-- Upload Applications and Delete buttons -->
-        <div class="row applicant-top-row">
-          <div class="applicant-collapse-buttons valign-wrapper">
-            <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
-            <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
+  <form method="post" id="save-position" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    <div class="row">
+      <!--Beginning of application card -->
+      <div class="col card white hoverable">
+        <div class="card-content col s12 applicant-card">
+          <!-- Application row 1 headers -->
+          <!-- Upload Applications and Delete buttons -->
+          <div class="row applicant-top-row">
+            <div class="applicant-collapse-buttons valign-wrapper">
+              <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
+              <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
+            </div>
+            <h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ applicant.number_yes_responses}}</span><span class="">/{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)</span></h6>
           </div>
-          <h6 class="valign-wrapper"><i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>{{ applicantText.applicant_information }}<span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">{{ applicant.number_yes_responses}}</span><span class="">/{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)</span></h6>
-        </div>
-        <table class="highlight">
-          <!-- Applicant Totals -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="8">{{ applicantText.applicant_id }}</th>
-              <th colspan="7">{{ applicantText.citizenship }}</th>
-              <th colspan="9">{{ applicantText.classifications }}</th>
-            </tr>
-          </thead>
-          <!-- Application row 1 body -->
-          <tbody>
-            <tr>
-              <th colspan="2"></th>
-              <td colspan="8">{{ applicant.applicant_id }}</td>
-              <td colspan="7">{{ applicant.citizenship }}</td>
-              <td colspan="9">{% for classification in classifications %}{{ applicantText.substantive }}: {{ classification.classification_substantive }}<br>{{ applicantText.current }}: {{ classification.classification_current }}{% endfor %}</td>
-            </tr>
-          </tbody>
-          <!-- Application row 2 head -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="8">{{ applicantText.priority }}</th>
-              <th colspan="7">{{ applicantText.veteran_preference }}</th>
-              <th colspan="9">{{ applicantText.streams }}</th>
-            </tr>
-          </thead>
-          <!-- Application row 2 body -->
-          <tbody>
-            <tr>
-              <th colspan="2"></th>
-              <td colspan="8">{{ applicant.priority }}</td>
-              <td colspan="7">{{ applicant.veteran_preference }}</td>
-              <td colspan="9">{% for stream in streams reversed %}{{ stream.stream_name }}{% if forloop.counter < streams|length %} | {% endif %}{% endfor %}</td>
-            </tr>
-          </tbody>
-          <!-- Application row 3 headers -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="8">{{ applicantText.french_working_ability }}</th>
-              <th colspan="7">{{ applicantText.english_working_ability }}</th>
-              <th colspan="9">{{ applicantText.first_official_language }}</th>
-            </tr>
-          </thead>
-          <!-- Application row 3 body -->
-          <tbody>
-            <tr>
-              <th colspan="2"></th>
-              <td colspan="8">{{ applicant.french_working_ability }}</td>
-              <td colspan="7">{{ applicant.english_working_ability }}</td>
-              <td colspan="9">{{ applicant.first_official_language }}</td>
-            </tr>
-          </tbody>
-          <!-- Application row 4 headers -->
-          <thead class="collapse">
-            <tr>
-              <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <th colspan="8">{{ applicantText.written_exam_language }}</th>
-              <th colspan="7">{{ applicantText.correspondence_language }}</th>
-              <th colspan="9">{{ applicantText.interview_language }}</th>
-            </tr>
-          </thead>
-          <!-- Application row 4 body -->
-          <tbody>
-            <tr>
-              <th colspan="2"></th>
-              <td colspan="8">{{ applicant.written_exam }}</td>
-              <td colspan="7">{{ applicant.correspondence }}</td>
-              <td colspan="9">{{ applicant.interview }}</td>
-            </tr>
-          </tbody>
-          <!-- Beginning of Education Section -->
-          {% if educations is not None %}
-          <thead>
-            <tr>
-              <th><h6 class="center">{{ applicantText.education }}</h6></th>
-            </tr>
-          </thead>
-          <!-- Education Headers -->
-          {% for education in educations %}
-          <thead class="collapse blank-answer">
-            <tr class="education-header">
-              <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <td colspan="1">{{ forloop.counter }}.</td>
-              <!-- Displays academic level full width if no institution and area of study (i.e., for secondary school) -->
-              <th id="education-academic-truncated{{ forloop.counter0 }}"
-                  class="truncation" colspan="
-                      {% if education.institution is None and education.area_of_study is None %}
-                      23
-                      {% else %}
-                      8
-                      {% endif %}">{{ education.academic_level }}</th>
-              {% if education.institution is not None %}
-              <th id="education-institution-truncated{{ forloop.counter0 }}" class="truncation" colspan="7">
-                {{ education.institution }}
-              </th>
-              {% endif %}
-              {% if education.area_of_study is not None %}
-              <th id="education-areastudy-truncated{{ forloop.counter0 }}" class="truncation"  colspan="8">
-                {{ education.area_of_study }}
-              </th>
-              {% endif %}
-              <th class="ellipsis education-ellipsis" colspan="1">
-                <i class="material-icons">more_horiz</i>
-              </th>
-            </tr>
-            <!-- Hidden education header revealed when clicked -->
-            <tr class="education-header-clicked hide">
-              <th colspan="1"><i class="material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
-              <td colspan="1">{{ forloop.counter }}.</td>
-              <td colspan="8" class="table-subhead">{{ applicantText.academic_level }}</td>
-              <td colspan="7" class="table-subhead">{{ applicantText.institution }}</td>
-              <td colspan="9" class="table-subhead">{{ applicantText.area_of_study }}</td>
-            </tr>
-          </thead>
-          <!-- END OF EDUCATION HEADER -->
-          <tbody class="hide">
-            <tr>
-              <td colspan="2"></td>
-              <td colspan="8">{{ education.academic_level }}</td>
-              <td colspan="7">{{ education.institution }}</td>
-              <td colspan="9">{{ education.area_of_study }}</td>
-            </tr>
-          </tbody>
-          <tbody class="hide">
-            <tr>
-              <td colspan="2"></td>
-              <td colspan="5" class="table-subhead">{{ applicantText.specialization }}</td>
-              <td colspan="5" class="table-subhead">{{ applicantText.program_length }}</td>
-              <td colspan="5" class="table-subhead">{{ applicantText.years_completed }}</td>
-              <td colspan="9" class="table-subhead">{{ applicantText.graduation_date }}</td>
-            </tr>
-          </tbody>
-          <tbody class="hide">
-            <tr>
-              <td colspan="2"></td>
-              <td colspan="5">{{ education.specialization }}</td>
-              <td colspan="5">{{ education.program_length }}</td>
-              <td colspan="5">{{ education.num_years_completed }}</td>
-              <td colspan="9">{{ education.graduation_date }}</td>
-            </tr>
-          </tbody>
-          {% endfor %}
-          <!-- END OF EDUCATION DATA -->
-          {% endif %}
-          <thead>
-            <tr>
-              <th><h6 class="center">{{ applicantText.questions }}</h6></th>
-            </tr>
-          </thead>
-          {% for answer in answers %}
-          <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
-          <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
-          <!-- Question -->
+          <table class="highlight">
+            <!-- Applicant Totals -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="8">{{ applicantText.applicant_id }}</th>
+                <th colspan="7">{{ applicantText.citizenship }}</th>
+                <th colspan="9">{{ applicantText.classifications }}</th>
+              </tr>
+            </thead>
+            <!-- Application row 1 body -->
+            <tbody>
+              <tr>
+                <th colspan="2"></th>
+                <td colspan="8">{{ applicant.applicant_id }}</td>
+                <td colspan="7">{{ applicant.citizenship }}</td>
+                <td colspan="9">{% for classification in classifications %}{{ applicantText.substantive }}: {{ classification.classification_substantive }}<br>{{ applicantText.current }}: {{ classification.classification_current }}{% endfor %}</td>
+              </tr>
+            </tbody>
+            <!-- Application row 2 head -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="8">{{ applicantText.priority }}</th>
+                <th colspan="7">{{ applicantText.veteran_preference }}</th>
+                <th colspan="9">{{ applicantText.streams }}</th>
+              </tr>
+            </thead>
+            <!-- Application row 2 body -->
+            <tbody>
+              <tr>
+                <th colspan="2"></th>
+                <td colspan="8">{{ applicant.priority }}</td>
+                <td colspan="7">{{ applicant.veteran_preference }}</td>
+                <td colspan="9">{% for stream in streams reversed %}{{ stream.stream_name }}{% if forloop.counter < streams|length %} | {% endif %}{% endfor %}</td>
+              </tr>
+            </tbody>
+            <!-- Application row 3 headers -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="8">{{ applicantText.french_working_ability }}</th>
+                <th colspan="7">{{ applicantText.english_working_ability }}</th>
+                <th colspan="9">{{ applicantText.first_official_language }}</th>
+              </tr>
+            </thead>
+            <!-- Application row 3 body -->
+            <tbody>
+              <tr>
+                <th colspan="2"></th>
+                <td colspan="8">{{ applicant.french_working_ability }}</td>
+                <td colspan="7">{{ applicant.english_working_ability }}</td>
+                <td colspan="9">{{ applicant.first_official_language }}</td>
+              </tr>
+            </tbody>
+            <!-- Application row 4 headers -->
+            <thead class="collapse">
+              <tr>
+                <th colspan="2"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <th colspan="8">{{ applicantText.written_exam_language }}</th>
+                <th colspan="7">{{ applicantText.correspondence_language }}</th>
+                <th colspan="9">{{ applicantText.interview_language }}</th>
+              </tr>
+            </thead>
+            <!-- Application row 4 body -->
+            <tbody>
+              <tr>
+                <th colspan="2"></th>
+                <td colspan="8">{{ applicant.written_exam }}</td>
+                <td colspan="7">{{ applicant.correspondence }}</td>
+                <td colspan="9">{{ applicant.interview }}</td>
+              </tr>
+            </tbody>
+            <!-- Beginning of Education Section -->
+            {% if educations is not None %}
+            <thead>
+              <tr>
+                <th><h6 class="center">{{ applicantText.education }}</h6></th>
+              </tr>
+            </thead>
+            <!-- Education Headers -->
+            {% for education in educations %}
+            <thead class="collapse blank-answer">
+              <tr class="education-header">
+                <th colspan="1"><i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <!-- Displays academic level full width if no institution and area of study (i.e., for secondary school) -->
+                <th id="education-academic-truncated{{ forloop.counter0 }}"
+                    class="truncation" colspan="
+                        {% if education.institution is None and education.area_of_study is None %}
+                        23
+                        {% else %}
+                        8
+                        {% endif %}">{{ education.academic_level }}</th>
+                {% if education.institution is not None %}
+                <th id="education-institution-truncated{{ forloop.counter0 }}" class="truncation" colspan="7">
+                  {{ education.institution }}
+                </th>
+                {% endif %}
+                {% if education.area_of_study is not None %}
+                <th id="education-areastudy-truncated{{ forloop.counter0 }}" class="truncation"  colspan="8">
+                  {{ education.area_of_study }}
+                </th>
+                {% endif %}
+                <th class="ellipsis education-ellipsis" colspan="1">
+                  <i class="material-icons">more_horiz</i>
+                </th>
+              </tr>
+              <!-- Hidden education header revealed when clicked -->
+              <tr class="education-header-clicked hide">
+                <th colspan="1"><i class="material-icons grey-text text-darken-2">keyboard_arrow_down</i></th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <td colspan="8" class="table-subhead">{{ applicantText.academic_level }}</td>
+                <td colspan="7" class="table-subhead">{{ applicantText.institution }}</td>
+                <td colspan="9" class="table-subhead">{{ applicantText.area_of_study }}</td>
+              </tr>
+            </thead>
+            <!-- END OF EDUCATION HEADER -->
+            <tbody class="hide">
+              <tr>
+                <td colspan="2"></td>
+                <td colspan="8">{{ education.academic_level }}</td>
+                <td colspan="7">{{ education.institution }}</td>
+                <td colspan="9">{{ education.area_of_study }}</td>
+              </tr>
+            </tbody>
+            <tbody class="hide">
+              <tr>
+                <td colspan="2"></td>
+                <td colspan="5" class="table-subhead">{{ applicantText.specialization }}</td>
+                <td colspan="5" class="table-subhead">{{ applicantText.program_length }}</td>
+                <td colspan="5" class="table-subhead">{{ applicantText.years_completed }}</td>
+                <td colspan="9" class="table-subhead">{{ applicantText.graduation_date }}</td>
+              </tr>
+            </tbody>
+            <tbody class="hide">
+              <tr>
+                <td colspan="2"></td>
+                <td colspan="5">{{ education.specialization }}</td>
+                <td colspan="5">{{ education.program_length }}</td>
+                <td colspan="5">{{ education.num_years_completed }}</td>
+                <td colspan="9">{{ education.graduation_date }}</td>
+              </tr>
+            </tbody>
+            {% endfor %}
+            <!-- END OF EDUCATION DATA -->
+            {% endif %}
+            <thead>
+              <tr>
+                <th><h6 class="center">{{ applicantText.questions }}</h6></th>
+              </tr>
+            </thead>
+            {% for answer in answers %}
+            <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
+            <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
+            <!-- Question -->
 
-          <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
+            <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
 
-          <!-- Displays green/red for Yes/No -->
-          <thead class="collapse question-header
-                        {% if answer.applicant_answer is True %}yes-answer
-                        {% else %}no-answer{% endif %}">
-            <tr id="previews-small{{ forloop.counter0 }}">
-              <th colspan="1">
-                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
-              </th>
-              <td colspan="1">{{ forloop.counter }}.</td>
-              <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
-              <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="
-                      {% if answer.applicant_answer is True %}10
-                      {% else %}23{% endif %}">
-                <div class="question-subhead hide">Question</div>
-                <span class="question-preview">
-                  {% if answer.parent_question.parent_requirement is not None %}
-                  <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
-                  {% endif %}
-                  {{ answer.parent_question.short_question_text|bullet_points }}</span>
-              </th>
-              <!-- Full preview -->
-              {% if answer.applicant_answer is True %}
-              <th colspan="1"></th>
-              <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
-                <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}</div>
-                <span class="analysis-preview blue-text text-darken-2">
+            <!-- Displays green/red for Yes/No -->
+            <thead class="collapse question-header
+                          {% if answer.applicant_answer is True %}yes-answer
+                          {% else %}no-answer{% endif %}">
+              <tr id="previews-small{{ forloop.counter0 }}">
+                <th colspan="1">
+                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
+                </th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
+                <th id="truncated{{ forloop.counter0 }}" class="truncation" colspan="
+                        {% if answer.applicant_answer is True %}10
+                        {% else %}23{% endif %}">
+                  <div class="question-subhead hide">Question</div>
+                  <span class="question-preview">
+                    {% if answer.parent_question.parent_requirement is not None %}
+                    <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                    {% endif %}
+                    {{ answer.parent_question.short_question_text|bullet_points }}</span>
+                </th>
+                <!-- Full preview -->
+                {% if answer.applicant_answer is True %}
+                <th colspan="1"></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="truncation" colspan="12">
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead hide">{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}</div>
+                  <span class="analysis-preview blue-text text-darken-2">
+                    {% for extract in answer.extract_set %}
+                    {% if forloop.first %}
+                    {% if extract.extract_type == 'WHEN' %}
+                    <i class="material-icons extract-icon">date_range</i>
+                    {% elif extract.extract_type == 'HOW' %}
+                    <i class="material-icons extract-icon">work</i>
+                    {% endif %}
+                    {% if extract is not None %}
+                    {{ extract.extract_text|capfirst|display_first_line }}
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% if answer.extract_set is None %}
+                    <i class="material-icons extract-icon">clear</i>
+                    <span class="extract-preview">{{ applicantText.no_analysis }}</span>
+                    {% endif %}
+                  </span>
+                </th>
+                <!-- What is this? -->
+                {% else %}
+                <th colspan="1" class="hide"></th>
+                <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
+                  <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-header hide">{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}</div>
+                  <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-line;">
+                    {% for extract in answer.extract_set %}
+                    <i class="material-icons extract-icon">date_range</i> {{ extract.extract_text }}<br>
+                    {% endfor %}
+                  </span>
+                </th>
+                {% endif %}
+                <th colspan="1" class="ellipsis-column">
+                  <span class="ellipsis question-ellipsis">
+                    <i class="material-icons">more_horiz</i>
+                  </span>
+                </th>
+              </tr>
+              <!-- Beginning of hidden full analysis preview -->
+              <tr class="question-full-header hide" id="previews-full{{ forloop.counter0 }}">
+                <td colspan="1"></td>
+                <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                  {% endif %}</td>
+                <td colspan="{% if answer.applicant_answer is True %}10
+                             {% else %}23{% endif %}">
+                  <span class="question-full">
+                    {{ answer.parent_question.short_question_text }}</span>
+                </td>
+                {% if answer.applicant_answer is True %}
+                <td colspan="1"></td>
+                <td colspan="12" class="analysis-full blue-text text-darken-2">
                   {% for extract in answer.extract_set %}
-                  {% if forloop.first %}
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons extract-icon">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}
                   <i class="material-icons extract-icon">work</i>
                   {% endif %}
                   {% if extract is not None %}
-                  {{ extract.extract_text|capfirst|display_first_line }}
+                  <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>{% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                  <br>
                   {% endif %}
                   {% endif %}
                   {% endfor %}
@@ -222,198 +273,121 @@
                   <i class="material-icons extract-icon">clear</i>
                   <span class="extract-preview">{{ applicantText.no_analysis }}</span>
                   {% endif %}
-                </span>
-              </th>
-              <!-- What is this? -->
-              {% else %}
-              <th colspan="1" class="hide"></th>
-              <th id="truncated-analysis{{ forloop.counter0 }}" class="hide truncation" colspan="12">
-                <div id="analysis-subhead{{ forloop.counter0 }}" class="hide analysis-header hide">{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}</div>
-                <span class="hide analysis-preview blue-text text-darken-2" style="white-space: pre-wrap;">
-                  {% for extract in answer.extract_set %}
-                  <i class="material-icons extract-icon">date_range</i> {{ extract.extract_text }}<br>
-                  {% endfor %}
-                </span>
-              </th>
-              {% endif %}
-              <th colspan="1" class="ellipsis-column">
-                <span class="ellipsis question-ellipsis">
-                  <i class="material-icons">more_horiz</i>
-                </span>
-              </th>
-            </tr>
-            <!-- Beginning of hidden full analysis preview -->
-            <tr class="question-full-header hide" id="previews-full{{ forloop.counter0 }}">
-              <td colspan="1"></td>
-              <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
-                {% endif %}</td>
-              <td colspan="{% if answer.applicant_answer is True %}10
-                           {% else %}23{% endif %}">
-                <span class="question-full">
-                  {{ answer.parent_question.short_question_text }}</span>
-              </td>
-              {% if answer.applicant_answer is True %}
-              <td colspan="1"></td>
-              <td colspan="12" class="analysis-full blue-text text-darken-2">
-                {% for extract in answer.extract_set %}
-                {% if extract.extract_type == 'WHEN' %}
-                <i class="material-icons extract-icon">date_range</i>
-                {% elif extract.extract_type == 'HOW' %}
-                <i class="material-icons extract-icon">work</i>
-                {% endif %}
-                {% if extract is not None %}
-                <span class="extract-preview">{{ extract.extract_text|capfirst|linebreaks }}</span>{% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
-                <br>
-                {% endif %}
-                {% endif %}
-                {% endfor %}
-                {% if answer.extract_set is None %}
-                <i class="material-icons extract-icon">clear</i>
-                <span class="extract-preview">{{ applicantText.no_analysis }}</span>
-                {% endif %}
-              </td>
-              {% else %}
-              <th colspan="1" class="hide"></th>
-              <th class="hide" colspan="12"></th>
-              {% endif %}
-              <td colspan="1"></td>
-            </tr>
-            <!-- End of hidden full analysis preview -->
-            <!-- Hidden full clicked question/answer contents header -->
-            <tr class="clicked-question-header hide" id="clicked-header{{ forloop.counter0 }}">
-              <th colspan="1">
-                <i class="collapse-arrows-down material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-              </th>
-              <td colspan="1">{{ forloop.counter }}.</td>
-              <td class="table-subhead" colspan="9">{{ applicantText.question }}</td>
-              <th colspan="1"></th>
-              <td class="table-subhead" colspan="3">{{ applicantText.response }}</td>
-              <td class="table-subhead" colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
-              <th colspan="1"></th>
-            </tr>
-          </thead>
-
-          <!-- END OF QUESTION/ANALYSIS PREVIEWS -->
-
-          <!-- Clicked and opened questions, answers, analysis -->
-          <!-- Displays red or green if answer is yes or no -->
-          <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
-            <tr>
-              <td colspan="1"></td>
-              <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
-                {% endif %}</td>
-              <td colspan="9">{{ answer.parent_question.question_text }}</td>
-              <td colspan="1"></td>
-              <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
-              <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
-              <td colspan="1"></td>
-            </tr>
-          </tbody>
-          {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
-          <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
-            <tr>
-              <td colspan="2"></td>
-              <td colspan="12" class="table-subhead">{{ applicantText.complementary_response }}</td>
-              <td colspan="1"></td>
-              <td colspan="10" class="table-subhead">
-                <div class="analysis-header">
-                  {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
-                </div>
-              </td>
-              <td colspan="1"></td>
-            </tr>
-          </tbody>
-          <!-- Fully opened complementary response and extracts section -->
-          <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
-            <tr>
-              <td colspan="2"></td>
-              <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</td>
-              <data class="answer-id" value="{{ answer.id }}" />
-              <td colspan="1"></td>
-              <td colspan="10" class="blue-text text-darken-2 extract-full">
-                {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
-                <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
-                <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
-                <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
-                <data class="extract-string" value="{{ extract.extract_text }}"/>
-                <data class="extract-id" value="{{ extract.id }}"/>
-                <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
-                <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
-                {% if extract.extract_type == 'WHEN' %}
-                <i class="material-icons extract-icon">date_range</i>
-                {% elif extract.extract_type == 'HOW' %}
-                <i class="material-icons extract-icon">work</i>
-                {% endif %}
-                <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
-                {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
-                <br>
-                {% endif %}
-                {% endfor %}
-                {% if answer.extract_set is None %}
-                <i class="material-icons extract-icon">clear</i>
-                <span class="extract-preview">{{ applicantText.no_analysis }}</span>
+                </td>
                 {% else %}
+                <th colspan="1" class="hide"></th>
+                <th class="hide" colspan="12"></th>
                 {% endif %}
-              </td>
-              <td colspan="1"></td>
-            </tr>
-          </tbody>
-          <!-- Notes/Comment Section -->
-          {% endif %}
-          <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
-            <tr>
-              <td colspan="1"><i class="material-icons orange-text add-note">note_add</i></td>
-              <td colspan="25" class="table-subhead notes-header">Notes</td>
-            </tr>
-            {% for note in answer.note_set %}
-            <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
-              <tr class="note">
-                {% csrf_token %}
-                <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                <input type="hidden" name="note-id" value="{{ note.id }}">
-                <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">
-                <td colspan="1">{{ forloop.counter }}.</td>
-                <td colspan="4">{{ note.author }}: </td>
-                <td colspan="19">{{ note.note_text }} - {{ note.created }}</td>
-                <td colspan="2"><i class="material-icons red-text delete-note">delete_forever</i></td>
-              </tr>
-            </form>
-            {% endfor %}
-            <tr class="hide note-input">
-              <form method="post" action="{% url 'add-note' %}" class="note-form" name="note-form" enctype="multipart/form-data">
-                {% csrf_token %}
                 <td colspan="1"></td>
-                <td colspan="23"><textarea class="note-textarea" name="note-input" rows="4" required></textarea></td>
-                <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                <td colspan="1"><span class="save-cancel-note">
-                  <i class="material-icons red-text cancel-note">cancel</i>
-                  <i class="material-icons green-text save-note">add_circle</i></span>
+              </tr>
+              <!-- End of hidden full analysis preview -->
+              <!-- Hidden full clicked question/answer contents header -->
+              <tr class="clicked-question-header hide" id="clicked-header{{ forloop.counter0 }}">
+                <th colspan="1">
+                  <i class="collapse-arrows-down material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                </th>
+                <td colspan="1">{{ forloop.counter }}.</td>
+                <td class="table-subhead" colspan="9">{{ applicantText.question }}</td>
+                <th colspan="1"></th>
+                <td class="table-subhead" colspan="3">{{ applicantText.response }}</td>
+                <td class="table-subhead" colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}</td>
+                <th colspan="1"></th>
+              </tr>
+            </thead>
+
+            <!-- END OF QUESTION/ANALYSIS PREVIEWS -->
+
+            <!-- Clicked and opened questions, answers, analysis -->
+            <!-- Displays red or green if answer is yes or no -->
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
+              <tr>
+                <td colspan="1"></td>
+                <td colspan="1">{% if answer.parent_question.parent_requirement is not None %}<span class="requirement-abbreviation-hidden"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
+                  {% endif %}</td>
+                <td colspan="9">{{ answer.parent_question.question_text }}</td>
+                <td colspan="1"></td>
+                <td colspan="3">{% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}</td>
+                <td colspan="10">{% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}</td>
+                <td colspan="1"></td>
+              </tr>
+            </tbody>
+            {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} hide">
+              <tr>
+                <td colspan="2"></td>
+                <td colspan="12" class="table-subhead">{{ applicantText.complementary_response }}</td>
+                <td colspan="1"></td>
+                <td colspan="10" class="table-subhead">
+                  <div class="analysis-header">
+                    {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
+                  </div>
                 </td>
                 <td colspan="1"></td>
-              </form>
-            </tr>
-          </tbody>
-          {% endfor %}
-        </table>
-        <!-- Date and time position was added -->
-        <!-- <div class="row position-bottom-buttons">
-             <h6 class="btn-flat right black-text">Application added: 2019-06-12</h6>
-             </div> -->
+              </tr>
+            </tbody>
+            <!-- Fullly opened complementary response and extracts section -->
+            <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
+              <tr>
+                <td colspan="2"></td>
+                <td colspan="12" style="white-space: pre-line;" class="answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response|bullet_points }}</a></td>
+                <!-- Modal Structure -->
+                  <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
+                    <div class="modal-content response-modal"><h5>Question {{ forloop.counter }}</h5>
+                      <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
+                      <h6 class="modal-complementary-question">{{ answer.parent_question.complementary_question_text }}:</h6>
+                      <p class="modal-complementary-response">{{ answer.applicant_complementary_response|bullet_points }}</p>
+                    </div>
+                    <a href="#!" class="modal-close btn-flat right response-modal-close">Close</a>
+                  </div>
+
+                  <data class="answer-id" value="{{ answer.id }}" />
+                  <td colspan="1"></td>
+                  <td colspan="10" class="blue-text text-darken-2 extract-full">
+                    {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
+                    <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
+                    <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
+                    <data class="extract-next-index" value="{{ extract.next_extract_index }}"/>
+                    <data class="extract-string" value="{{ extract.extract_text }}"/>
+                    <data class="extract-id" value="{{ extract.id }}"/>
+                    <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
+                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response|bullet_points }}"/>
+                    {% if extract.extract_type == 'WHEN' %}
+                    <i class="material-icons extract-icon">date_range</i>
+                    {% elif extract.extract_type == 'HOW' %}
+                    <i class="material-icons extract-icon">work</i>
+                    {% endif %}
+                    <span class="extract-text">{{ extract.extract_text|capfirst|linebreaks }}</span>
+                    {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
+                    <br>
+                    {% endif %}
+                    {% endfor %}
+                    {% if answer.extract_set is None %}
+                    <i class="material-icons extract-icon">clear</i>
+                    <span class="extract-preview">{{ applicantText.no_analysis }}</span>
+                    {% endif %}
+                  </td>
+                  <td colspan="1"></td>
+              </tr>
+            </tbody>
+            {% endif %}
+            {% endfor %}
+          </table>
+          <!-- Date and time position was added -->
+          <!-- <div class="row position-bottom-buttons">
+               <h6 class="btn-flat right black-text">Application added: 2019-06-12</h6>
+               </div> -->
+        </div>
       </div>
     </div>
-  </div>
+  </form>
   <!-- MaterializeCSS JS library  -->
   <script src="{% static 'js/materialize.js' %}"></script>
   <!-- Misc. helper functions -->
   <script src="{% static 'js/helper-functions.js' %}"></script>
   <!-- Script for expanding and collapsing table rows -->
   <script src="{% static 'js/tables.js' %}"></script>
-  <!-- Script for local storage -->
-  <script src="{% static 'js/localstorage.js' %}"></script>
   <!-- Script for extract origin highlighting -->
   <script src="{% static 'js/sentence-highlighting.js' %}"></script>
-  <!-- Script for adding notes to positions -->
-  <script src="{% static 'js/notes.js' %}"></script>
   <!-- Script for initializing modal pop-ups -->
   <script src="{% static 'js/modal.js' %}"></script>
   <script>

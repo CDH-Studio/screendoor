@@ -36,7 +36,6 @@ admin.site.register(Requirement)
 admin.site.register(Position, PositionAdmin)
 admin.site.register(EmailAuthenticateToken)
 admin.site.register(NlpExtract)
-admin.site.register(Note)
 
 
 class PositionInline(admin.TabularInline):

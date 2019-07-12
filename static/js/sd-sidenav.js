@@ -69,7 +69,7 @@ const initSideNav = function() {
       || (JSON.parse(localStorage.getItem('sidenavOpen')) == null)) {
     sidebarIsOpen = false;
     toggleSidebar();
-    localStorage.setItem('sidenavOpen', JSON.stringify(sidebarIsOpen));
+    localStorage.setItem('sidenavOpen', JSON.stringify(sidebarisOpen));
     /* Otherwise re-initialize to closed  */
   } else {
     sidebarIsOpen = true;
