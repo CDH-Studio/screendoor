@@ -327,7 +327,16 @@
           <tbody class="{% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer hide">
             <tr>
               <td colspan="2"></td>
-              <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response">{{ answer.applicant_complementary_response }}</td>
+              <td colspan="12" style="white-space: pre-wrap;" class="answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response }}</a></td>
+              <!-- Modal Structure -->
+                  <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
+                    <div class="modal-content response-modal"><h5>Question {{ forloop.counter }}</h5>
+                      <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
+                      <h6 class="modal-complementary-question">{{ answer.parent_question.complementary_question_text }}:</h6>
+                      <p class="modal-complementary-response">{{ answer.applicant_complementary_response }}</p>
+                    </div>
+                    <a href="#!" class="modal-close btn-flat right response-modal-close">Close</a>
+                  </div>
               <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
               <data class="answer-id" value="{{ answer.id }}" />
               <td colspan="1"></td>
