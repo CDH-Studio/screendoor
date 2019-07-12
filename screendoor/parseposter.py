@@ -135,7 +135,8 @@ def extract_salary_min(salary):
     # Salary normally looks like ???$ to ???$ where ??? is an amount.
     # Use the statement " to " to separate minimum and maximum salary values.
     # Scrub out $ and ,
-
+    if "//" in salary:
+        return 0
     salary_min = salary.split(" to ", 1)[0]
     salary_min = salary_min.replace("$", "")
     salary_min = salary_min.replace(",", "")
@@ -144,7 +145,8 @@ def extract_salary_min(salary):
 
 def extract_salary_max(salary):
     # Same deal as extract_salary_min
-
+    if "//" in salary:
+        return 0
     salary_max = text_between(" to ", " ", salary)
     salary_max = salary_max.replace("$", "")
     salary_max = salary_max.replace(",", "")
@@ -171,9 +173,21 @@ def extract_closing_date(item):
     return closing_date
 
 
+def find_and_remove(pattern, text):
+    if re.search(pattern, text):
+        text = re.sub(pattern, "", text)
+
+    return text
+
+
 def clean_out_titles(text):
-    if re.search(r"^[A-Z].+:$", text):
-        text = re.sub(r"^[A-Z].+:$", "", text)
+    text = find_and_remove(r"^.+:$", text)
+    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
+    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
+    text = find_and_remove(r"\bAsset experience:.+", text)
+    text = find_and_remove(r"\bAsset education:.+", text)
+
+
     return text
 
 
@@ -193,66 +207,57 @@ def scrub_extra_whitespace(item):
     return str(item).replace('\n', ' ').replace('  ', ' ')
 
 
-def scrub_requirement_block(requirement_block_text):
+def remove_definitions_and_titles(requirement_block_text):
+    print("PRE DEFINITION AND TITLE REMOVAL:\n" + requirement_block_text)
+
     requirement_block_text = requirement_block_text.strip()
     single_line_break_list = requirement_block_text.split("\n")
+    requirement_block_text = clean_out_titles(requirement_block_text)
 
     for sentence in single_line_break_list:
         sentence = sentence.strip()
         if sentence.lower().startswith(("definitions:", "note:", "notes:")) or "incumbents" in sentence.lower():
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            requirement_block_text = clean_out_titles(requirement_block_text)
             return requirement_block_text
 
     for sentence in single_line_break_list:
-        if re.search(r"^\** Recent", sentence):
+        if re.search(r"^\n\** Recent is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
-        elif re.search(r"^\** Significant", sentence):
+        elif re.search(r"^\** Significant is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
-        elif re.search(r"^\** Management", sentence):
+        elif re.search(r"^\** Management is", sentence):
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
             break
         elif "defined as" in sentence:
             requirement_block_text = requirement_block_text.split(sentence, 1)[0]
 
-    requirement_block_text = clean_out_titles(requirement_block_text)
 
     return requirement_block_text
 
 
 def separate_requirements(requirement_block_text):
-    requirement_list = re.split('[;.]\s*\n', requirement_block_text)
+    print("PRE SEPARATION:\n" + requirement_block_text)
 
-    for idx, item in enumerate(requirement_list):
-        item = item.strip()
-        if len(item) > 30 and ("or more of the following" in item.lower()) or (
-                "common to all streams" in item.lower()) or ("defined as:" in item.lower()):
-            if ":\n" in item:
-                requirement_list.append(item.split(":\n", 1)[1])
-                item = ""
-                requirement_list[idx] = item
-                continue
-        if item.startswith("or") or item.startswith("and") or item.startswith("-") or item.startswith(
-                "•") or item.startswith("o"):
-            requirement_list[idx - 1] = requirement_list[idx - 1] + item
-            item = ""
-            requirement_list[idx] = item
-            continue
-        requirement_list[idx] = item
-
+    requirement_list = re.split('\n- |\n\n|[;.]\s*\n', requirement_block_text)
+    joining_list = ["The following combinations"]
+    for idx, sentence in enumerate(requirement_list):
+        for joining_string in joining_list:
+            if joining_string in sentence:
+                requirement_list[idx] = "".join(requirement_list[idx:])
+                return requirement_list
     return requirement_list
 
 
 def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
-    requirement_block_text = scrub_requirement_block(requirement_block_text)
+    requirement_block_text = remove_definitions_and_titles(requirement_block_text)
     requirement_model_list = []
     requirement_list = separate_requirements(requirement_block_text)
     x = 1
     for item in requirement_list:
-        if item.strip() != "" and not item.lower().__contains__("incumbents"):
+        if item.strip() != "":
             item = scrub_extra_whitespace(item.strip())
             item.replace("\n", "")
             requirement_model_list.append(
@@ -268,10 +273,10 @@ def assign_single_line_values(position, pdf_poster_text):
     is_description_parsing = False
 
     # A loop that extracts single line position fields like salary or reference number. Also extracts description.
-
+    reg_salary = re.compile(r'\d+,\d+')
     for item in pdf_poster_text.split("\n"):
 
-        if '$' in item:
+        if reg_salary.search(item):
             salary = item.strip()
             position.salary_min = extract_salary_min(salary)
             position.salary_max = extract_salary_max(salary)
@@ -339,12 +344,6 @@ def find_essential_details(pdf_poster_text, position):
     position = assign_single_line_values(position, pdf_poster_text)
 
     position.save()
-    print("/////////////////////////////////////////////////////////")
-    print(requirement_education)
-    print("/////////////////////////////////////////////////////////")
-    print(requirement_experience)
-    print("/////////////////////////////////////////////////////////")
-    print(requirement_assets)
 
     education_reqs = generate_requirements(requirement_education, position,
                                            "Education", "ED")
@@ -404,6 +403,7 @@ def parse_upload(position):
         job_poster_text = file_data['content']
 
     elif position.url_ref:
+        print("URL:" + position.url_ref)
         download_path = os.getcwd() + "/tempPDF.pdf"
         download_temp_pdf(position.url_ref, download_path)
         job_poster_text = parse_poster_text(download_path)
