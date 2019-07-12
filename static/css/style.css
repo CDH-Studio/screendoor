@@ -109,6 +109,35 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 25px;
 }
 
+
+.add-note {
+  margin-top: -5px;
+  cursor: pointer;
+}
+
+.save-note, .cancel-note, .delete-note {
+  cursor: pointer;
+}
+
+.save-cancel-note i {
+  vertical-align: middle;
+  margin-top: 5px;
+}
+
+.note-textarea {
+  background-color: #fff !important;
+  color: #333;
+  height: 100px;
+  padding: 10px;
+  border: solid 1px gray;
+  margin: 5px;
+}
+
+.notes-header {
+
+
+}
+
 .requirement-abbreviation {
   color: rgba(132,119,214, .92);
   font-weight: 600;
