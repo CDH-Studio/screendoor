@@ -141,3 +141,6 @@ screendoor/applications
 code/screendoor/temp/
 .map
 *.map
+/GPATH
+/GRTAGS
+/GTAGS
