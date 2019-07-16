@@ -50,6 +50,7 @@
   </div>
   {% else %}
   <div class="sort-positions">
+    <br>
   </div>
   {% endif %}
   <!-- Beginning of Positions view -->
@@ -83,7 +84,7 @@
           {% endif %}
         </div>
         <!-- Position row 1 headers -->
-        <table class="highlight">
+        <table>
           <thead>
             <tr>
               <th colspan="1">
@@ -161,7 +162,7 @@
         </div>
         <!-- Date and time position was added -->
         <div class="row position-buttons right">
-          <h6 class="btn-flat black-text">
+          <h6 class="btn-flat black-text position-added">
             Position added: {{ position.created }}
           </h6>
         </div>

@@ -13,7 +13,7 @@
     {% csrf_token %}
     <div class="row">
       <!--Beginning of position card -->
-      <div class="col card white hoverable">
+      <div class="col card white">
         <div class="card-content col s12">
           <div class="row valign-wrapper">
             <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
@@ -52,7 +52,7 @@
             </div>
           </div>
           <!-- Position row 1 headers -->
-          <table class="highlight">
+          <table>
             <thead class="collapse">
               <tr>
                 <th colspan="1">
@@ -132,12 +132,7 @@
                 <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
                 <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
                 <td colspan="6" name="position-salary-range">
-                  $<span id="position-salary-min" class="edit">
-                  {{ position.salary_min }}
-                  </span> -
-                  $<span id="position-salary-max" class="edit">
-                    {{ position.salary_max }}
-                  </span>
+                  $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
                 </td>
                 <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
                 <td colspan="10" name="position-open-to">
@@ -233,7 +228,7 @@
   <!-- End of position display -->
   {% endif %}
   <!-- Beginning of applicants display -->
-  {% if applicants  %}
+  {% if applicants %}
   <!-- Applications anchor -->
   <a id="applications"></a>
   <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
@@ -247,7 +242,7 @@
       <thead class="applicant-table-header">
         <tr>
           <th colspan="2"><!-- <i class="material-icons sort-icon">sort</i> --></th>
-          <th colspan="16" class="applicant-id-text"><a href="{% if '-applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id 'applicant_id' %}{% elif 'applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% endif %}" class="applicant-sort {% if 'applicant_id' in sort %}blue-text{% endif %}">
+          <th colspan="16" class="applicant-id-text"><a href="{% if '-applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id 'applicant_id' %}{% elif 'applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% endif %}" class="id-sort applicant-sort {% if 'applicant_id' in sort %}blue-text{% endif %}">
             {{ positionText.applicant_id }}
             {% if '-applicant_id' in sort %}
             <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
@@ -292,70 +287,59 @@
       </thead>
     </table>
   </div>
-  {% for applicant in applicants %}
-  <!-- Mock application 1 -->
-  <div class="col s12 application-preview card card-content white hoverable">
-    <!-- Position row 1 body -->
-    <table class="highlight applicant-table">
-      <tbody>
-        <tr>
-          <td colspan="2">
-            <i class="applicant-icon applicant-preview-icon material-icons small
-                      {% if applicant.percentage_correct <= 33 %}
-                      red-text
-                      {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
-                      orange-text
-                      {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
-                      green-text
-                      {% endif %}
-                      text-darken-2">person</i>
-          </td>
-          <td colspan="16">
-            <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
-              {{ applicant.applicant_id }}
-            </a>
-          </td>
-          <td colspan="12">
-            {% for classification in applicant.classifications_set %}
-            {{ classification.classification_substantive }}
-            {% if classification.classification_current is not None %},
-            {{ classification.classification_current }}
-            {% endif %}
-            {% endfor %}
-          </td>
-          <td colspan="14">
-            {% for stream in applicant.streams_set %}
-            {% if stream.stream_name is not None %}
-            {{ stream.stream_name }}
-            {% endif %}
-            {% endfor %}
-          </td>
-          <td colspan="9">
-            <span class="applicant-id
-                         {% if applicant.percentage_correct <= 33 %}
-                         red-text
-                         {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
-                         orange-text
-                         {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
-                         green-text
-                         {% endif %}
-                         text-darken-2 applicant-question-total">{{ applicant.number_yes_responses }}
-            </span>
-            <span class="">
-              /{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)
-            </span>
-          </td>
-          <td colspan="3">
-            <a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  {% endfor %}
+    {% for applicant in applicants %}
+    <!-- Applicant -->
+      <div class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %}">
+        <!-- Position row 1 body -->
+        <table class="applicant-table">
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <i class="material-icons grey-text favourite-star">star_border</i>
+              </td>
+              <td colspan="16">
+                <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
+                  {{ applicant.applicant_id }}
+                </a>
+              </td>
+              <td colspan="12">
+                {% for classification in applicant.classifications_set %}
+                <span class="card-panel applicant-summary-card list screendoor-color white-text">{{ classification.classification_substantive }}</span>
+                {% if classification.classification_current is not None %}
+                <span class="applicant-summary-card list card-panel screendoor-color lighten-2 white-text">{{ classification.classification_current }}</span>
+                {% endif %}
+                {% endfor %}
+              </td>
+              <td colspan="14">
+                {% for stream in applicant.streams_set %}
+                {% if stream.stream_name is not None %}
+                <span class="applicant-summary-card list card-panel screendoor-color blue white-text">{{ stream.stream_name }}</span>
+                {% endif %}
+                {% endfor %}
+              </td>
+              <td colspan="9">
+                <span class="applicant-id
+                             {% if applicant.percentage_correct <= 33 %}
+                             applicant-summary-card list card-panel red
+                             {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                             applicant-summary-card list card-panel orange
+                             {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                             applicant-summary-card list card-panel green
+                             {% endif %}
+                             white-text applicant-question-total">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
+              </td>
+              <td colspan="3">
+                <a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
   {% endif %}
   <!-- End of applicants display -->
 </div>
+<div style="height:30px; width:100%; clear:both;"></div>
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">

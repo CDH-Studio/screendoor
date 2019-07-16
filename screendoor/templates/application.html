@@ -12,7 +12,7 @@
   <h6 class="btn-flat disabled"></h6>
   <div class="row">
     <!--Beginning of application card -->
-    <div class="col card white hoverable">
+    <div class="col card white">
       <div class="card-content col s12 applicant-card">
         <!-- Application row 1 headers -->
         <!-- Upload Applications and Delete buttons -->
@@ -22,17 +22,22 @@
             <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
           </div>
           <h6 class="valign-wrapper">
-            <i class="applicant-icon material-icons small {% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2">person</i>
+            <i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
+            {% comment %}
             {{ applicantText.applicant_information }}
-            <span class="{% if applicant.percentage_correct <= 33 %}red-text{% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}orange-text{% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}green-text{% endif %} text-darken-2 applicant-question-total">
-              {{ applicant.number_yes_responses}}
-            </span>
-            <span class="">
-              /{{ applicant.number_questions }} {{ applicantText.questions|lower }} ({{ applicant.percentage_correct }}%)
-            </span>
+            {% endcomment %}
+            {{ applicant.applicant_id }}
+            <span class="{% if applicant.percentage_correct <= 33 %}
+                             applicant-summary-card list card-panel red
+                             {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                             applicant-summary-card list card-panel orange
+                             {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                             applicant-summary-card list card-panel green
+                             {% endif %}
+                             white-text applicant-question-total-detail">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
           </h6>
         </div>
-        <table class="highlight">
+        <table>
           <!-- Applicant Totals -->
           <thead class="collapse">
             <tr>
@@ -177,7 +182,7 @@
           <thead class="collapse blank-answer">
             <tr class="education-header">
               <th colspan="1">
-                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
               </th>
               <td colspan="1">
                 {{ forloop.counter }}.
