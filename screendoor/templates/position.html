@@ -313,7 +313,7 @@
               <td colspan="14">
                 {% for stream in applicant.streams_set %}
                 {% if stream.stream_name is not None %}
-                <span class="applicant-summary-card list card-panel screendoor-color blue white-text">{{ stream.stream_name }}</span>
+                <span class="applicant-summary-card list card-panel screendoor-color {% if forloop.counter|divisibleby:'2' %}blue {% else %} blue lighten-2{% endif %} white-text">{{ stream.stream_name }}</span>
                 {% endif %}
                 {% endfor %}
               </td>
