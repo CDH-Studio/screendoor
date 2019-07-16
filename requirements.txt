@@ -1,6 +1,9 @@
 # Web framework
 Django>=2.0,<3.0
 
+# Python WSGI HTTP Server
+gunicorn==19.9.0
+
 # Async/task scheduling
 celery>=4.3.0
 
