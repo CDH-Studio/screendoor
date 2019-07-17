@@ -41,14 +41,16 @@ def extract_education(essential_block):
     split_by_line_breaks = essential_block.split("\n")
 
     for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("education:", sentence1.lower()) > 80:
-            for sentence2 in split_by_line_breaks:
-                if fuzz.ratio("Degree equivalency", sentence2.lower()) > 80:
-                    education = text_between(sentence1, sentence2, essential_block)
+        if fuzz.ratio("Degree equivalency", sentence1.lower()) > 80:
+            education = essential_block.rsplit(sentence1)[0]
 
     education = clean_block(education)
 
     return education
+
+
+def select_paragraph(text, word, delimiter='\n'):
+    return [p for p in text.split(delimiter) if word in p]
 
 
 def extract_experience(essential_block):
@@ -57,8 +59,6 @@ def extract_experience(essential_block):
 
     for sentence1 in split_by_line_breaks:
         if fuzz.ratio("Degree equivalency", sentence1) > 80:
-            experience = essential_block.split(sentence1, 1)[1]
-        if fuzz.ratio("experience:", sentence1.lower()) > 80:
             experience = essential_block.split(sentence1, 1)[1]
 
     experience = clean_block(experience)
@@ -152,13 +152,8 @@ def find_and_remove(pattern, text):
 
 
 def clean_out_titles(text):
-    text = find_and_remove(r"^[A-Z]+:$", text)
-    text = find_and_remove(r"[A-Z]+\d:", text)
-    text = find_and_remove(r"\bASSET QUALIFICATIONS.+", text)
-    text = find_and_remove(r"\bAsset experience:.+", text)
-    text = find_and_remove(r"\bAsset education:.+", text)
-    text = find_and_remove(r"\bExperience - Common to all Streams:.+", text)
-    text = find_and_remove(r"\bABILITY :$", text)
+    # text = find_and_remove(r"^[A-Z].+:\n|^ [A-Z].+:\n", text)
+    text = re.sub("^[A-Z].+:\n|^ [A-Z].+:\n", "", text)
 
     return text
 
@@ -168,12 +163,11 @@ def scrub_extra_whitespace(item):
     return str(item).replace('\n', ' ').replace('  ', ' ')
 
 
-def extract_req_list(pdf_poster_text, position):
-    essential_block = ""
-
+def extract_text_blocks(pdf_poster_text):
     # Every poster normally has "essential qualifications"
     # but not every poster has assets in the form of "other qualifications"
     # These if statements check both cases to extract the text block containing experience and education.
+    essential_block = ""
 
     if "(essential qualifications)" in pdf_poster_text:
         if "If you possess any" in pdf_poster_text:
@@ -189,11 +183,18 @@ def extract_req_list(pdf_poster_text, position):
 
     requirement_assets = extract_asset(pdf_poster_text)
 
-    education_reqs = generate_requirements(requirement_education, position,
+    return requirement_education, requirement_experience, requirement_assets
+
+
+def extract_req_list(pdf_poster_text, position):
+    # Extracts text blocks like education, experience and assets
+    text_blocks = extract_text_blocks(pdf_poster_text)
+
+    education_reqs = generate_requirements(text_blocks[0], position,
                                            "Education", "ED")
-    experience_reqs = generate_requirements(requirement_experience, position,
+    experience_reqs = generate_requirements(text_blocks[1], position,
                                             "Experience", "EXP")
-    asset_experience_reqs = generate_requirements(requirement_assets, position,
+    asset_experience_reqs = generate_requirements(text_blocks[2], position,
                                                   "Asset", "AEXP")
 
     return education_reqs + experience_reqs + asset_experience_reqs
@@ -206,46 +207,30 @@ def extract_asset(text):
 
     if "(other qualifications)" in text:
         asset_block = text_between('(other qualifications)', "The following will be ", text)
-    split_by_line_breaks = asset_block.split("\n")
-
-    for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("Degree equivalency", sentence1) > 80:
-            asset_block = asset_block.replace(sentence1, "\n")
+    # elif "(essential for the job)" in text:
+    # asset_block = text_between('(essential for the job)', "The following may be ", text)
 
     asset_block = clean_block(asset_block)
 
     return asset_block
 
 
-def remove_definitions_and_titles(requirement_block_text):
-    requirement_block_text = requirement_block_text.strip()
-    single_line_break_list = requirement_block_text.split("\n")
+def sentence_split(requirement_block_text):
+    starts_with_a_definition = re.compile("^\s\*+(?!\s)")
+    new_line_separation = re.compile("\n\n")
+    starts_with_a_bullet_point = re.compile("\n[-.o]")
+    ends_with_a_character = re.compile("[;.]\s*\n")
+    regexes = [starts_with_a_definition, starts_with_a_bullet_point, ends_with_a_character, new_line_separation]
+    pattern_combined = '|'.join(x.pattern for x in regexes)
 
-    for sentence in single_line_break_list:
-        sentence = sentence.strip()
-        if sentence.lower().startswith(("definitions:", "note:", "notes:")) or "incumbents" in sentence.lower():
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            requirement_block_text = clean_out_titles(requirement_block_text)
-            return requirement_block_text
-
-    for sentence in single_line_break_list:
-        if re.search(r"^\n\** Recent is", sentence):
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            break
-        elif re.search(r"^\** Significant is", sentence):
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            break
-        elif re.search(r"^\** Management is", sentence):
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-            break
-        elif "defined as" in sentence:
-            requirement_block_text = requirement_block_text.split(sentence, 1)[0]
-    requirement_block_text = clean_out_titles(requirement_block_text)
-    return requirement_block_text
+    requirement_list = re.split(pattern_combined, requirement_block_text)
+    return requirement_list
 
 
-def separate_requirements(requirement_block_text):
-    requirement_list = re.split(r'^\s\*+(?!\s)|\n- |[;.]\s*\n', requirement_block_text)
+def create_requirement_list(requirement_block_text):
+    # Such as *Recent
+    requirement_list = sentence_split(requirement_block_text)
+
     joining_list = ["The following combinations"]
     for idx, sentence in enumerate(requirement_list):
         for joining_string in joining_list:
@@ -255,12 +240,120 @@ def separate_requirements(requirement_block_text):
     return requirement_list
 
 
+def clean_out_definitions(requirement_block_text, definitions):
+    for definition in definitions:
+        requirement_block_text = requirement_block_text.replace(definition, "")
+    return requirement_block_text
+
+
+def extract_definitions(requirement_block_text):
+    single_line_break_list = sentence_split(requirement_block_text)
+    definitions = []
+    for sentence in single_line_break_list:
+        sentence = sentence.strip()
+        if "defined as" in sentence or "acquired through" in sentence or "acquired over" in sentence:
+            definitions.append(sentence)
+
+    for idx, item in enumerate(definitions):
+        for index, item2 in enumerate(definitions):
+            if fuzz.ratio(item, item2) > 90:
+                definitions[index] = item
+    list(set(definitions))
+    print("DEFINITIONS" + str(definitions))
+    return definitions
+
+
+def remove_definitions(requirement_block_text):
+    single_line_break_list = sentence_split(requirement_block_text)
+    for sentence in single_line_break_list:
+        sentence = sentence.strip()
+        if "defined as" in sentence or "acquired through" in sentence or "acquired over" in sentence:
+            requirement_block_text = requirement_block_text.replace(sentence, "")
+
+    return requirement_block_text
+
+
+def assign_description(item, definitions):
+    list_of_known_definitions = ["recent", "significant", "management"]
+    definitions_to_append = ""
+    for known_definition in list_of_known_definitions:
+        my_regex = known_definition + r"\**|\**" + known_definition
+        if re.search(my_regex, item, re.IGNORECASE):
+            for definition in definitions:
+                if definition.lower().__contains__(known_definition):
+                    definitions_to_append = definitions_to_append + "\n\n" + definition
+
+    return item + definitions_to_append
+
+
+def extract_headers(requirement_block_text, header_pattern):
+    list_of_headers = re.findall(header_pattern, requirement_block_text, re.MULTILINE)
+
+    return list_of_headers
+
+
+def is_header_present(requirement_block_text, header_pattern):
+    return re.search(header_pattern, requirement_block_text)
+
+
+def extract_sections_with_headers(requirement_block_text, list_of_headers):
+    sections = []
+
+    for index, header in enumerate(list_of_headers):
+
+        if index + 1 != len(list_of_headers):
+            section_text = text_between(list_of_headers[index], list_of_headers[index + 1], requirement_block_text)
+            sections.append((header, section_text))
+        else:
+            section_text = requirement_block_text.rsplit(list_of_headers[index], 1)[1]
+            sections.append((header, section_text))
+    return sections
+
+
+def extract_sections_without_headers():
+    return []
+
+
+def identify_sections(requirement_block_text):
+    option1 = "^Stream \d:.+\n"
+    option2 = "^\s*[A-Z].+:\s*"
+    option3 = "^\s*[A-Z ]+\n"
+    option4 = "^\s*[A-Z][a-z]+\s*\n"
+    header_pattern = "|".join([option1, option2, option3, option4])
+    list_of_headers = extract_headers(requirement_block_text, header_pattern)
+    if is_header_present(requirement_block_text, header_pattern):
+        return extract_sections_with_headers(requirement_block_text, list_of_headers)
+    else:
+        return extract_sections_without_headers()
+
+
+def is_definition(text):
+    if "defined as" in text or "acquired through" in text or "acquired over" in text:
+        return True
+    else:
+        return False
+
+
 def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
-    requirement_block_text = remove_definitions_and_titles(requirement_block_text)
+    requirement_list = []
     requirement_model_list = []
-    requirement_list = separate_requirements(requirement_block_text)
+    definitions = []
     x = 1
+    text_file = open(requirement_type + ".txt", "w")
+    text_file.write(requirement_block_text)
+    text_file.close()
+
+    sections = identify_sections(requirement_block_text)
+    for section in sections:
+        print(section[0].strip())
+        if is_definition(section[1].strip()):
+            definitions = extract_definitions(section[1])
+            requirement_list = requirement_list + create_requirement_list(
+                clean_out_definitions(section[1], definitions))
+        else:
+            requirement_list = requirement_list + create_requirement_list(section[1])
+
     for item in requirement_list:
         if item.strip() != "":
             item = scrub_extra_whitespace(item.strip())
@@ -269,7 +362,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
                 Requirement(position=position,
                             requirement_type=requirement_type,
                             abbreviation=requirement_abbreviation + str(x),
-                            description=item))
+                            description=assign_description(item, definitions)))
             x = x + 1
     return requirement_model_list
 
@@ -341,7 +434,6 @@ def find_essential_details(pdf_poster_text, position):
     position.save()
 
     for item in list_of_requirements:
-        print(item.description)
         item.position = position
         item.save()
 
@@ -352,7 +444,8 @@ def find_essential_details(pdf_poster_text, position):
     return dictionary
 
 
-def download_temp_pdf(url, download_path):
+def download_temp_pdf(url):
+    download_path = os.getcwd() + "/tempPDF.pdf"
     # Chrome settings for the Selenium chrome window.
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
@@ -371,17 +464,29 @@ def download_temp_pdf(url, download_path):
     # Write the html to a temporary pdf file.
     HTML(string=driver.page_source).write_pdf(download_path)
     driver.close()
-    pass
+    return download_path
 
 
-def parse_poster_text(download_path):
+def parse_poster_text_from_url(download_path):
     # Extract the poster text read from the temporary pdf file.
     file_data = tika.parser.from_file(download_path, 'http://tika:9998/tika')
-    job_poster_text = file_data['content']
-    job_poster_text = "1. Home" + job_poster_text.split("1. Home", 1)[1]
+    raw_text = file_data['content']
+
+    job_poster_text = "1. Home" + raw_text.split("1. Home", 1)[1]
     if "Share this page" in job_poster_text:
         job_poster_text = "Home" + job_poster_text.split("Share this page", 2)[2]
+        job_poster_text = scrub_raw_text(job_poster_text)
+
+    os.remove(download_path)
+    return job_poster_text
+
+
+def parse_poster_text_from_file(pdf_file):
+    # Extract the poster text read from the temporary pdf file.
+    file_data = tika.parser.from_buffer(pdf_file, 'http://tika:9998/tika')
+    job_poster_text = file_data['content']
     job_poster_text = scrub_raw_text(job_poster_text)
+
     return job_poster_text
 
 
@@ -390,14 +495,10 @@ def parse_upload(position):
     # using tika and process using find_essential_details method. If false, process url.
 
     if position.pdf.name:
-        file_data = tika.parser.from_buffer(position.pdf, 'http://tika:9998/tika')
-        job_poster_text = file_data['content']
-
+        job_poster_text = parse_poster_text_from_file(position.pdf)
     elif position.url_ref:
-        download_path = os.getcwd() + "/tempPDF.pdf"
-        download_temp_pdf(position.url_ref, download_path)
-        job_poster_text = parse_poster_text(download_path)
-        os.remove(download_path)
+        download_path = download_temp_pdf(position.url_ref)
+        job_poster_text = parse_poster_text_from_url(download_path)
     else:
         return {'errors': ErrorMessages.no_pdf_or_url_submitted}
 
