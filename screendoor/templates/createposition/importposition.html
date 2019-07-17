@@ -6,9 +6,9 @@
     <!--Beginning of upload position card -->
     <div class="row">
       {% if position is not None %}
-      <div class="card horizontal hoverable">
+      <div class="card horizontal">
         {% else %}
-        <div class="col s12 card horizontal hoverable">
+        <div class="col s12 card horizontal">
           {% endif %}
           <!-- Beginning of upload position form -->
           <form method="post" id="upload_position" enctype="multipart/form-data" action="">
@@ -109,7 +109,7 @@
     <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
       <div class="row">
         <!--Beginning of confirm position card -->
-        <div class="col card white hoverable">
+        <div class="col card white">
           <div class="card-content col s12">
             <div class="row valign-wrapper">
               <input type="hidden" name="position-id" value="{{ position.id }}">

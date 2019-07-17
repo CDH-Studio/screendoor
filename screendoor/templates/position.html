@@ -51,159 +51,148 @@
               <input type="button" class="btn-flat" id="collapse-all" value="{{ userVisibleText.collapse_all }}">
             </div>
           </div>
+
+          <!-- Existing table view -->
           <!-- Position row 1 headers -->
-          <table>
-            <thead class="collapse">
-              <tr>
-                <th colspan="1">
-                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-                </th>
-                <th colspan="5">
-                  {{ positionText.classification }}
-                </th>
-                <th colspan="10">
-                  {{ positionText.reference_number }}
-                </th>
-                <th colspan="10">
-                  {{ positionText.selection_process_number }}
-                </th>
-              </tr>
-            </thead>
+          <div class="collapse-table">
+            <div class="row collapse">
+              <div class="col cell-header">
+                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+              </div>
+              <div class="col s2 cell-header">
+                {{ positionText.classification }}
+              </div>
+              <div class="col s3 cell-header">
+                {{ positionText.reference_number }}
+              </div>
+              <div class="col s3 cell-header">
+                {{ positionText.selection_process_number }}
+              </div>
+              <div class="col s3 cell-header">
+                {{ positionText.date_closed }}
+              </div>
+            </div>
             <!-- Position row 1 body -->
-            <tbody>
-              <tr>
-                <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-                <td colspan="5" name="position-classification">
-                  <span id="position-classification" class="edit">
-                    {{ position.classification }}
-                  </span>
-                </td>
-                <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                <td colspan="10" name="position-reference">
-                  <span id="position-reference" class="edit">
-                    {{ position.reference_number }}
-                  </span>
-                </td>
-                <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-                <td colspan="10" name="position-selection">
-                  <span id="position-selection" class="edit">
-                    {{ position.selection_process_number }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
+            <div class="row body-row">
+              <div class="col cell-body"></div>
+              <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
+              <div class="col s2 cell-body">
+                <span id="position-classification" class="edit">
+                  {{ position.classification }}
+                </span>
+              </div>
+              <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
+              <div class="col s3 cell-body">
+                <span id="position-reference" class="edit">
+                  {{ position.reference_number }}
+                </span>
+              </div>
+              <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
+              <div class="col s3 cell-body">
+                <span id="position-selection" class="edit">
+                  {{ position.selection_process_number }}
+                </span>
+              </div>
+              <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
+              <div class="col s3 cell-body" name="position-date-closed">
+                <span class="edit date" id="position-date-closed">
+                  {{ position.date_closed|date:'Y-m-d' }}
+                </span>
+              </div>
+            </div>
             <!-- Position row 2 headers -->
-            <thead class="collapse">
-              <tr>
-                <th colspan="1">
-                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-                </th>
-                <th colspan="5">
-                  {{ positionText.date_closed }}
-                </th>
-                <th colspan="4">
-                  {{ positionText.number_of_positions }}
-                </th>
-                <th colspan="6">
-                  {{ positionText.salary_range }}
-                </th>
-                <th colspan="10">
-                  {{ positionText.open_to }}
-                </th>
-              </tr>
-            </thead>
+            <div class="row collapse">
+              <div class="col cell-header">
+                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+              </div>
+              <div class="col s2 cell-header">
+                {{ positionText.number_of_positions }}
+              </div>
+              <div class="col s3 cell-header">
+                {{ positionText.salary_range }}
+              </div>
+              <div class="col s6 cell-header">
+                {{ positionText.open_to }}
+              </div>
+
+            </div>
             <!-- Position row 2 body -->
-            <tbody>
-              <tr>
-                <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
-                <td colspan="5" name="position-date-closed">
-                  <span class="edit date" id="position-date-closed">
-                    {{ position.date_closed|date:'Y-m-d' }}
-                  </span>
-                </td>
-                <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
-                <td colspan="4" name="position-num-positions">
-                  <span class="edit date" id="position-num-positions">
-                    {{ position.num_positions }}
-                  </span>
-                </td>
-                <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-                <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-                <td colspan="6" name="position-salary-range">
-                  $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
-                </td>
-                <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
-                <td colspan="10" name="position-open-to">
-                  <span id="position-open-to" class="edit">
-                    {{ position.open_to }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
+            <div class="row body-row">
+              <div class="col cell-body"></div>
+
+              <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
+              <div class="col s2 cell-body" name="position-num-positions">
+                <span class="edit date" id="position-num-positions">
+                  {{ position.num_positions }}
+                </span>
+              </div>
+              <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
+              <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
+              <div class="col s3 cell-body" name="position-salary-range">
+                $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+              </div>
+              <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
+              <div class="col s6 cell-body" name="position-open-to">
+                <span id="position-open-to" class="edit">
+                  {{ position.open_to }}
+                </span>
+              </div>
+            </div>
             <!-- Position row 3 header -->
-            <thead class="collapse">
-              <tr>
-                <th colspan="1">
-                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-                </th>
-                <th colspan="25">
-                  {{ positionText.position_information }}
-                </th>
-              </tr>
-            </thead>
+            <div class="row collapse">
+              <div class="col cell-header">
+                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+              </div>
+              <div class="col s11 cell-header">
+                {{ positionText.position_information }}
+              </div>
+            </div>
             <!-- Position row 3 body -->
-            <tbody>
-              <tr>
-                <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
-                <td colspan="25" name="position-description">
-                  <span id="position-description" class="edit">
-                    {{ position.description }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-            <!-- Position education and experience rows -->
-            <h5>
-              {{ userVisibleText.education_and_experience_criteria }}
-            </h5>
-            {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
-            <!-- ifchanged executes only for distinct values without repetition -->
-            {% ifchanged %}
-            <thead class="collapse">
-              <tr>
-                <!-- Requirement type, e.g. education, experience, assets -->
-                <th colspan="1">
-                  <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
-                </th>
-                <th colspan="25">
-                  {{ req.requirement_type }}
-                </th>
-              </tr>
-            </thead>
-            {% endifchanged %}
-            <tbody class="hide">
-              <tr>
-                <!-- Requirement abbreviation, e.g. EX1, and description -->
-                <th colspan="1"></th>
-                <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
-                <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
-                <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="1">
-                  <span id="requirement_abbreviation" class="edit readonly">
-                    {{ req.abbreviation }}
-                  </span>
-                </td>
-                <td name="position-requirement{{ forloop.counter }}" colspan="24">
-                  <span id="requirement_description" class="edit">
-                    {{ req.description|linebreaksbr }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-            {% endfor %}
-          </table>
+            <div class="row body-row">
+              <div class="col cell-body"></div>
+              <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
+              <div class="col s11 cell-body" name="position-description">
+                <span id="position-description" class="edit">
+                  {{ position.description }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- Position education and experience rows -->
+          <h5 class="requirements-header">
+            {{ positionText.education_and_experience_criteria }}
+          </h5>
+          {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
+          <!-- ifchanged executes only for distinct values without repetition -->
+          {% ifchanged %}
+          <div class="row collapse">
+            <!-- Requirement type, e.g. education, experience, assets -->
+            <div class="col cell-header">
+              <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
+            </div>
+            <div class="col s11 cell-header" name="position-description">
+              {{ req.requirement_type }}
+            </div>
+          </div>
+          {% endifchanged %}
+          <div class="row body-row row-closed invisible">
+            <!-- Requirement abbreviation, e.g. EX1, and description -->
+            <div class="col cell-body req"></div>
+            <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
+            <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
+            <div class="col cell-body req" name="position-requirement-abbreviation{{ forloop.counter }}">
+              <span id="requirement_abbreviation" class="edit readonly">
+                {{ req.abbreviation }}
+              </span>
+            </div>
+            <div class="col s10 cell-body req" name="position-requirement{{ forloop.counter }}">
+              <span id="requirement_description" class="edit">
+                {{ req.description|linebreaksbr }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+
           <!-- Date and time position was added -->
           <div class="row position-bottom-buttons">
             <div class="col s6 left" id="import-position-buttons">
@@ -212,7 +201,7 @@
               <data id="ok-button-text" value="{{ positionText.ok }}"></data>
               <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
             </div>
-            <h6 class="btn-flat right black-text">
+            <h6 class="position-created btn-flat right black-text">
               {{ userVisibleText.position_added }}: {{ position.created }}
             </h6>
           </div>
@@ -238,226 +227,233 @@
        </form> -->
   <!-- Application field headers -->
   <div class="col">
-    <table class="applicant-table">
-      <thead class="applicant-table-header">
-        <tr>
-          <th colspan="2"><!-- <i class="material-icons sort-icon">sort</i> --></th>
-          <th colspan="16" class="applicant-id-text"><a href="{% if '-applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id 'applicant_id' %}{% elif 'applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% endif %}" class="id-sort applicant-sort {% if 'applicant_id' in sort %}blue-text{% endif %}">
-            {{ positionText.applicant_id }}
-            {% if '-applicant_id' in sort %}
-            <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
-            {% elif 'applicant_id' in sort %}
-            <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
-            {% endif %}
-          </a></th>
-          <th colspan="12">
-            <a href="{% if '-classification_names' in sort %}{% url 'sort_applicants' position.reference_number position.id 'classification_names' %}{% elif 'classification_names' in sort %}{% url 'sort_applicants' position.reference_number position.id '-classification_names' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-classification_names' %}{% endif %}" class="{% if 'classification_names' in sort %}blue-text{% endif %}">
-              <span class="applicant-sort">
-                {{ positionText.classifications }}
-              </span>
-              {% if '-classification_names' in sort %}
+    <h6 class="btn-flat disabled sortby-button">
+      Filter
+    </h6>
+    <a name="filter-method" href="" class="sort-button btn-flat">
+      Favourites
+    </a>
+    <div class="sort-positions">
+      <table class="applicant-table">
+        <thead class="applicant-table-header">
+          <tr>
+            <th colspan="2"><!-- <i class="material-icons sort-icon">sort</i> --></th>
+            <th colspan="16" class="applicant-id-text"><a href="{% if '-applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id 'applicant_id' %}{% elif 'applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% endif %}" class="id-sort applicant-sort {% if 'applicant_id' in sort %}blue-text{% endif %}">
+              {{ positionText.applicant_id }}
+              {% if '-applicant_id' in sort %}
               <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
-              {% elif 'classification_names' in sort %}
+              {% elif 'applicant_id' in sort %}
               <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
               {% endif %}
-            </a>
-          </th>
-          <th colspan="14" class="streams-text">
-            <a href="{% if '-stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id 'stream_count' %}{% elif 'stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% endif %}" class="applicant-sort {% if 'stream_count' in sort %}blue-text{% endif %}">
-              {{ positionText.streams }}
-              {% if '-stream_count' in sort %}
-              <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
-              {% elif 'stream_count' in sort %}
-              <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
-              {% endif %}
-            </a>
-          </th>
-          <th colspan="8" class="score-text">
-            <a href="{% if '-percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id 'percentage_correct' %}{% elif 'percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% endif %}" class="applicant-sort {% if 'percentage_correct' in sort %}blue-text{% endif %}">
-              {{ positionText.score }}
-              {% if '-percentage_correct' in sort %}
-              <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
-              {% elif 'percentage_correct' in sort %}
-              <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
-              {% endif %}
-            </a>
-          </th>
-          <th colspan="4"></th>
-        </tr>
-      </thead>
-    </table>
-  </div>
+            </a></th>
+            <th colspan="12">
+              <a href="{% if '-classification_names' in sort %}{% url 'sort_applicants' position.reference_number position.id 'classification_names' %}{% elif 'classification_names' in sort %}{% url 'sort_applicants' position.reference_number position.id '-classification_names' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-classification_names' %}{% endif %}" class="{% if 'classification_names' in sort %}blue-text{% endif %}">
+                <span class="applicant-sort">
+                  {{ positionText.classifications }}
+                </span>
+                {% if '-classification_names' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
+                {% elif 'classification_names' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
+                {% endif %}
+              </a>
+            </th>
+            <th colspan="14" class="streams-text">
+              <a href="{% if '-stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id 'stream_count' %}{% elif 'stream_count' in sort %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-stream_count' %}{% endif %}" class="applicant-sort {% if 'stream_count' in sort %}blue-text{% endif %}">
+                {{ positionText.streams }}
+                {% if '-stream_count' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
+                {% elif 'stream_count' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
+                {% endif %}
+              </a>
+            </th>
+            <th colspan="8" class="score-text">
+              <a href="{% if '-percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id 'percentage_correct' %}{% elif 'percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% endif %}" class="applicant-sort {% if 'percentage_correct' in sort %}blue-text{% endif %}">
+                {{ positionText.score }}
+                {% if '-percentage_correct' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_up</i>
+                {% elif 'percentage_correct' in sort %}
+                <i class="applicant-sort-arrow material-icons">arrow_drop_down</i>
+                {% endif %}
+              </a>
+            </th>
+            <th colspan="4"></th>
+          </tr>
+        </thead>
+      </table>
+    </div>
     {% for applicant in applicants %}
     <!-- Applicant -->
-      <div class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %}">
-        <!-- Position row 1 body -->
-        <table class="applicant-table">
-          <tbody>
-            <tr>
-              <td colspan="2">
-                <i class="material-icons grey-text favourite-star">star_border</i>
-              </td>
-              <td colspan="16">
-                <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
-                  {{ applicant.applicant_id }}
-                </a>
-              </td>
-              <td colspan="12">
-                {% for classification in applicant.classifications_set %}
-                <span class="card-panel applicant-summary-card list screendoor-color white-text">{{ classification.classification_substantive }}</span>
-                {% if classification.classification_current is not None %}
-                <span class="applicant-summary-card list card-panel screendoor-color lighten-2 white-text">{{ classification.classification_current }}</span>
-                {% endif %}
-                {% endfor %}
-              </td>
-              <td colspan="14">
-                {% for stream in applicant.streams_set %}
-                {% if stream.stream_name is not None %}
-                <span class="blue-text text-lighten-{{ forloop.revcounter }} text-darken-{{ forloop.counter }} white-text"> <i class="material-icons">filter_{{ forloop.counter }}</i> </span>
-                {% endif %}
-                {% endfor %}
-              </td>
-              <td colspan="9">
-                <span class="applicant-id
-                             {% if applicant.percentage_correct <= 33 %}
-                             applicant-summary-card list card-panel red
-                             {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
-                             applicant-summary-card list card-panel orange
-                             {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
-                             applicant-summary-card list card-panel green
-                             {% endif %}
-                             white-text applicant-question-total">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
-              </td>
-              <td colspan="3">
-                <a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    {% endfor %}
-  {% endif %}
-  <!-- End of applicants display -->
-</div>
-<div style="height:30px; width:100%; clear:both;"></div>
-<!-- Modal delete position confirmation pop-up -->
-<div id="delete-modal" class="modal">
-  <div class="modal-content">
-    <h5>
-      {{ userVisibleText.confirm_delete_header }}
-    </h5>
-    <p>
-      {{ userVisibleText.confirm_delete }}
-    </p>
-    <h6>
-      {{ position.position_title }}
-    </h6>
-  </div>
-  <form action="" method="POST">
-    {% csrf_token %}
-    <div class="modal-footer">
-      <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
-      <input type="submit" formaction="{% url 'delete' %}" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
-      <a href="#!" class="modal-close btn-flat blue-text position-button">
-        Cancel
-      </a>
+    <div class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %}">
+      <!-- Position row 1 body -->
+      <table class="applicant-table">
+        <tbody>
+          <tr>
+            <td colspan="2">
+              <i class="material-icons grey-text favourite-star">star_border</i>
+            </td>
+            <td colspan="16">
+              <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
+                {{ applicant.applicant_id }}
+              </a>
+            </td>
+            <td colspan="12">
+              {% for classification in applicant.classifications_set %}
+              <span class="card-panel applicant-summary-card list screendoor-color white-text">{{ classification.classification_substantive }}</span>
+              {% if classification.classification_current is not None %}
+              <span class="applicant-summary-card list card-panel screendoor-color lighten-2 white-text">{{ classification.classification_current }}</span>
+              {% endif %}
+              {% endfor %}
+            </td>
+            <td colspan="14">
+              {% for stream in applicant.streams_set %}
+              {% if stream.stream_name is not None %}
+              <span class="applicant-summary-card-small list card-panel blue lighten-{{ forloop.revcounter }} darken-{{ forloop.counter }} white-text">{{ forloop.counter }}</span>
+              {% endif %}
+              {% endfor %}
+            </td>
+            <td colspan="9">
+              <span class="applicant-id
+                           {% if applicant.percentage_correct <= 33 %}
+                           applicant-summary-card list card-panel red
+                           {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                           applicant-summary-card list card-panel orange
+                           {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                           applicant-summary-card list card-panel green
+                           {% endif %}
+                           white-text applicant-question-total">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
+            </td>
+            <td colspan="3">
+              <a href="{% url 'sbr' applicant.applicant_id %}" class="material-icons red-text">picture_as_pdf</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </form>
-</div>
-<!-- Modal upload applications pop-up -->
-<div id="upload-applications-modal" class="modal">
-  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+    {% endfor %}
+    {% endif %}
+    <!-- End of applicants display -->
+  </div>
+  <div style="height:30px; width:100%; clear:both;"></div>
+  <!-- Modal delete position confirmation pop-up -->
+  <div id="delete-modal" class="modal">
     <div class="modal-content">
       <h5>
-        {{ applicationsForm.title }}
+        {{ userVisibleText.confirm_delete_header }}
       </h5>
-      <p id="upload-applications-text">
-        {{ applicationsForm.description|interpolate:position.position_title }}
+      <p>
+        {{ userVisibleText.confirm_delete }}
       </p>
-      <!-- PDF/File input -->
-      <div class="file-field input-field">
-        <div class="btn-small">
-          <span>
-            {{ applicationsForm.browse }}
-          </span>
-          <!-- Input accepts multiple PDF file -->
-          <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
-        </div>
-        <div class="file-path-wrapper">
-          <input id="pdf_path_input" class="file-path validate" type="text"
-                 placeholder="{{ applicationsForm.choose_files }}" />
-        </div>
-      </div>
+      <h6>
+        {{ position.position_title }}
+      </h6>
     </div>
-    <!-- Upload and cancel buttons -->
-    <div class="modal-footer">
-      <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
-      <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
-      <input type="hidden" id="task-id" value="{{ task_id }}">
-      <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
-      <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
-      <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
-      <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
-      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
-      <a href="#!" class="modal-close btn-flat blue-text position-button">
-        {{ userVisibleText.cancel }}
-      </a>
-    </div>
-  </form>
-</div>
-<!-- Application processing modal -->
-<!-- Modal Structure -->
-<div id="processing-modal" class="modal">
-  <div class="modal-content">
-    <div class="row">
-      <h5>
-        {{ positionText.processing_applications }}
-      </h5>
-      <div id="upload-applications-text">
-        <p>
-          {{ positionText.processing_detail_1 }}
-        </p>
-        <p id="files-processing"></p>
-        <p>
-          {{ positionText.processing_detail_2 }}
-        </p>
-        <br>
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="modal-footer">
+        <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
+        <input type="submit" formaction="{% url 'delete' %}" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+        <a href="#!" class="modal-close btn-flat blue-text position-button">
+          Cancel
+        </a>
       </div>
-      <!-- Hidden inputs with values for JavaScript -->
-      <input type="hidden" id="task-id" value="{{ task_id }}">
-      <!-- Hidden loading bar div -->
-      <div id="progress-div" class="container">
-        <div class="row">
-          <div class="progress center">
-            <div id="progress-bar" class="determinate" style="width: 0%;"></div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="progress-indicator">
-            <h6 class="col s9 progress-text">
-              <span id="progress-text"></span>
-            </h6>
-            <h6 class="col s3 loading"></h6>
-          </div>
-        </div>
-      </div>
-      <!-- <div class="modal-footer"> -->
-      <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a> -->
-      <!-- </div> -->
-    </div>
+    </form>
   </div>
-  <!-- Misc helper functions -->
-  <script src="{% static 'js/helper-functions.js' %}"></script>
-  <!-- Script for initializing modal pop-ups -->
-  <script src="{% static 'js/sd-modal.js' %}"></script>
-  <!-- Script for local storage items -->
-  <script src="{% static 'js/localstorage.js' %}"></script>
-  <!-- Script for applicant upload loading screen -->
-  <script src="{% static 'js/applicant-upload.js' %}"></script>
-  <!-- Script for expanding and collapsing table rows -->
-  <script src="{% static 'js/tables.js' %}"></script>
-  <!-- Script for editing table values -->
-  <script src="{% static 'js/position-edit.js' %}"></script>
-  <!-- Inline script requiring Django variables -->
-  {% endblock %}
+  <!-- Modal upload applications pop-up -->
+  <div id="upload-applications-modal" class="modal">
+    <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-content">
+        <h5>
+          {{ applicationsForm.title }}
+        </h5>
+        <p id="upload-applications-text">
+          {{ applicationsForm.description|interpolate:position.position_title }}
+        </p>
+        <!-- PDF/File input -->
+        <div class="file-field input-field">
+          <div class="btn-small">
+            <span>
+              {{ applicationsForm.browse }}
+            </span>
+            <!-- Input accepts multiple PDF file -->
+            <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
+          </div>
+          <div class="file-path-wrapper">
+            <input id="pdf_path_input" class="file-path validate" type="text"
+                   placeholder="{{ applicationsForm.choose_files }}" />
+          </div>
+        </div>
+      </div>
+      <!-- Upload and cancel buttons -->
+      <div class="modal-footer">
+        <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
+        <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
+        <input type="hidden" id="task-id" value="{{ task_id }}">
+        <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
+        <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
+        <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
+        <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
+        <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
+        <a href="#!" class="modal-close btn-flat blue-text position-button">
+          {{ userVisibleText.cancel }}
+        </a>
+      </div>
+    </form>
+  </div>
+  <!-- Application processing modal -->
+  <!-- Modal Structure -->
+  <div id="processing-modal" class="modal">
+    <div class="modal-content">
+      <div class="row">
+        <h5>
+          {{ positionText.processing_applications }}
+        </h5>
+        <div id="upload-applications-text">
+          <p>
+            {{ positionText.processing_detail_1 }}
+          </p>
+          <p id="files-processing"></p>
+          <p>
+            {{ positionText.processing_detail_2 }}
+          </p>
+          <br>
+        </div>
+        <!-- Hidden inputs with values for JavaScript -->
+        <input type="hidden" id="task-id" value="{{ task_id }}">
+        <!-- Hidden loading bar div -->
+        <div id="progress-div" class="container">
+          <div class="row">
+            <div class="progress center">
+              <div id="progress-bar" class="determinate" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="progress-indicator">
+              <h6 class="col s9 progress-text">
+                <span id="progress-text"></span>
+              </h6>
+              <h6 class="col s3 loading"></h6>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="modal-footer"> -->
+        <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a> -->
+        <!-- </div> -->
+      </div>
+    </div>
+    <!-- Misc helper functions -->
+    <script src="{% static 'js/helper-functions.js' %}"></script>
+    <!-- Script for initializing modal pop-ups -->
+    <script src="{% static 'js/sd-modal.js' %}"></script>
+    <!-- Script for local storage items -->
+    <script src="{% static 'js/localstorage.js' %}"></script>
+    <!-- Script for applicant upload loading screen -->
+    <script src="{% static 'js/applicant-upload.js' %}"></script>
+    <!-- Script for expanding and collapsing table rows -->
+    <script src="{% static 'js/tables.js' %}"></script>
+    <!-- Script for editing table values -->
+    <script src="{% static 'js/position-edit.js' %}"></script>
+    <!-- Inline script requiring Django variables -->
+    {% endblock %}
