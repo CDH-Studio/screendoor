@@ -23,7 +23,7 @@ from dateutil.parser import *
 from datetime import *
 from .date_range import DateRange
 from dateutil.relativedelta import *
-#from word2number import w2n
+from word2number import w2n
 
 # Creates a list of DateRange objects. A date is only added to this list if
 # it represents a direct range (July 2015 - August 2016) or an indirect range
@@ -185,7 +185,10 @@ def pull_number_from_date(text):
     if identified_numbers:
         return int(re.search(r'\d+', text).group())
     else:
-        return 0                                  #w2n.word_to_num(date.text)
+        try:
+            return w2n.word_to_num(text)
+        except ValueError:
+            return 0
 
 # Determine if a date refers to year threshold (at least 2 years) or a month
 # threshold (within the last 8 months). In a perfect world, would throw an

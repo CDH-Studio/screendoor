@@ -65,7 +65,7 @@ class EmailAuthenticateToken(models.Model):
 class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
-    applicant_id = models.CharField(max_length=200, null=True)
+    applicant_id = models.CharField(max_length=200, default='N/A')
 
     citizenship = models.CharField(max_length=200, null=True)
     priority = models.BooleanField(null=True)
@@ -196,7 +196,6 @@ class FormQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
-
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
@@ -209,6 +208,28 @@ class FormAnswer(models.Model):
 
     def __str__(self):
         return str(self.applicant_answer) + ": " + str(self.parent_question)
+
+
+class Qualifier(models.Model):
+    QUALIFIER_TYPES = [
+        ('RECENCY', 'A range that the most recent experience must be within'),
+        ('SIGNIFICANCE', 'A threshold that the aggregate experience must exceed')
+    ]
+    RESULT = [
+        ('TRUE', "The applicant's experience met or exceeded the experience qualifier"),
+        ('UNSURE', "The applicant's experience could not be adequetly quantified with the dates provided"),
+        ('FALSE', "The dates that the applicant provided did not meet the experience qualifier")
+    ]
+
+    parent_answer = models.ForeignKey(
+        FormAnswer, on_delete=models.CASCADE, null=True)
+    qualifier_text = models.TextField(
+        blank=True, null=True)
+    qualifier_type = models.CharField(max_length=200, null=True)
+    status = models.BooleanField()
+
+    def __str__(self):
+        return str(self.qualifier_text)
 
 
 class Note(models.Model):

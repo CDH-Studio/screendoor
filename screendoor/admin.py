@@ -10,11 +10,13 @@ class RequirementInline(admin.TabularInline):
     model = Requirement
     extra = 0
 
+class QualifierInline(admin.TabularInline):
+    model = Qualifier
+    extra = 0
+
 
 class AnswerInLine(admin.StackedInline):
-
     model = FormAnswer
-    extra = 0
 
 
 class PositionAdmin(admin.ModelAdmin):
@@ -24,9 +26,12 @@ class PositionAdmin(admin.ModelAdmin):
 class ApplicantAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine]
 
+class AnswerAdmin(admin.ModelAdmin):
+    inlines = [QualifierInline]
+
 
 admin.site.register(FormQuestion)
-admin.site.register(FormAnswer)
+admin.site.register(FormAnswer, AnswerAdmin)
 admin.site.register(RequirementMet)
 admin.site.register(Stream)
 admin.site.register(Classification)
@@ -37,7 +42,7 @@ admin.site.register(Position, PositionAdmin)
 admin.site.register(EmailAuthenticateToken)
 admin.site.register(NlpExtract)
 admin.site.register(Note)
-
+admin.site.register(Qualifier)
 
 class PositionInline(admin.TabularInline):
     model = ScreenDoorUser.positions.through

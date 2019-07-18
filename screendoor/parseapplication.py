@@ -581,7 +581,7 @@ def get_answer(table, answers, position):
         if not (comp_response is None):
             answer.save()
             closing_date = linked_question.parent_position.date_closed
-            generate_nlp_extracts(comp_response, answer, closing_date)
+            generate_nlp_extracts(comp_response, linked_question, answer, closing_date)
         answers.append(answer)
     return answers
 
