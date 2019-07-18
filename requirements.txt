@@ -49,3 +49,6 @@ fuzzysearch==0.6.2
 
 #Selenium
 selenium==3.141.0
+
+# Words to Numbers
+#word2number==1.1

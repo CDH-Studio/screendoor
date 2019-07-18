@@ -76,6 +76,7 @@ def check_for_additional_iterations(token, dates):
 
     return get_first_elem_or_none(words_for_additional_iteration)
 
+
 # Searches for tokens that are determined to be valid iteration paths for
 # dep_tree navigation.
 def determine_next_word_to_navigate_to(token, dates):
@@ -98,7 +99,6 @@ def determine_next_word_to_navigate_to(token, dates):
 
 # Given a token in a dependency tree, construct the context in which that
 # token (most often being a 'DATE' named entity) was stated in the sentence.
-
 def construct_context(token, dates):
     # Initialize the return object (dates check to remove redundant printing).
     extract = ''
@@ -159,6 +159,7 @@ def construct_context(token, dates):
 
     return extract
 
+
 # Given a token (often a 'DATE' named entity), determine the highest possible
 # navigation up the dep_tree that will return meaningful information. While a
 # nlp sentence object has a .root function that gets the true root of the
@@ -213,6 +214,7 @@ def get_dep_tree_starting_point(token, dates):
         token_head = token.head
     return token_head
 
+
 # Given a text run through the nlp model, retrieve a dictionary consisting of
 # each date and its context, tied to the sentence index it originates from.
 # (Index needed for frontend display functionality).
@@ -259,10 +261,12 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
         stored_sentence = token.sent
     return dates_and_their_contexts
 
+
 # Given a text block, finds any date entities and returns them, the context
 # in which the date was stated, and the sentence index in the text where the
 # date was extracted from.
-def extract_when(orig_doc, doc):
+def extract_when(original_text, doc):
+
     squash_named_entities(doc)
     doc = hard_identify_date_ents(doc)
 
@@ -271,12 +275,11 @@ def extract_when(orig_doc, doc):
 
     print_if_debug('\n\n')
 
-    dates_and_contexts = construct_dict_of_extracts(orig_doc.text, doc)
+    dates_and_contexts = construct_dict_of_extracts(original_text, doc)
     print_if_debug('\n\n')
 
     for extract_text, start, end, sent_i in dates_and_contexts:
-        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
+        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', original_text[start:end], start, end, sent_i))
         print_if_debug('\n')
-
 
     return dates_and_contexts
