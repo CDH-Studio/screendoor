@@ -6,8 +6,8 @@ from .helpers.format_text import post_nlp_format_input, strip_faulty_formatting,
 from .helpers.qualifier_identfication import create_list_of_ranges, \
     pull_number_from_date, is_qualifying_years, \
     determine_if_recent_criteria_met, determine_if_significant_criteria_met
-from datetime import datetime
 import re
+
 # Runs both the when_extraction and how_extraction (in that order, as the how
 # extraction depends on the date extractions (to not overlap)
 def generate_nlp_extracts(comp_response_text, linked_question, linked_answer, closing_date):
@@ -36,8 +36,6 @@ def generate_nlp_extracts(comp_response_text, linked_question, linked_answer, cl
 
     if experiences != [] and experiences is not None:
         save_nlp_extracts(experiences, 'HOW', linked_answer)
-
-
 
 
 # takes in the question text, and determines whether the supplied date ranges

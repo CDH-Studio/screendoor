@@ -1,5 +1,11 @@
 import re
 
+from dateutil.parser import *
+from datetime import *
+from .date_range import DateRange
+from dateutil.relativedelta import *
+from word2number import w2n
+
 #regex statements to filter out noise from date entities
 months_regex = r'(?:\bjanuary\b|' \
                r'\bfebruary\b|' \
@@ -19,11 +25,6 @@ linked_words = r'\band\b|\bto\b|\buntil\b'
 
 special_words = r'(?:years|last|months|since)'
 
-from dateutil.parser import *
-from datetime import *
-from .date_range import DateRange
-from dateutil.relativedelta import *
-from word2number import w2n
 
 # Creates a list of DateRange objects. A date is only added to this list if
 # it represents a direct range (July 2015 - August 2016) or an indirect range

@@ -16,6 +16,7 @@ class QualifierInline(admin.TabularInline):
 
 
 class AnswerInLine(admin.StackedInline):
+    inlines = [QualifierInline]
     model = FormAnswer
 
 

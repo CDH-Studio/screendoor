@@ -30,5 +30,6 @@ urlpatterns = [
     path('nlp/', views.nlp,
          name='nlp'),
     path('add-note', views.add_note, name='add-note'),
-    path('delete-note', views.delete_note, name='delete-note')
+    path('delete-note', views.delete_note, name='delete-note'),
+
 ]
