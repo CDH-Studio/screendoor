@@ -145,19 +145,19 @@
               <tbody>
                 <tr>
                   <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-                  <td name="position-classification" colspan="1">
+                  <td  colspan="1">
                     <span id="position-classification" class="edit">
                       {{ position.classification }}
                     </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                  <td name="position-reference" colspan="2">
+                  <td  colspan="2">
                     <span id="position-reference" class="edit">
                       {{ position.reference_number }}
                     </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-                  <td name="position-selection" colspan="2">
+                  <td colspan="2">
                     <span id="position-selection" class="edit">
                       {{ position.selection_process_number }}
                     </span>
@@ -184,7 +184,7 @@
               <!-- Position row 2 body -->
               <tbody>
                 <tr>
-                  <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
+                  <input type="hidden" class="hidden" name="position-date-closed" value="{{ position.date_closed|date:'Y-m-d' }}">
                   <td name="position-date-closed" colspan="1">
                     <span class="edit date" id="position-date-closed">
                       {{ position.date_closed|date:'Y-m-d' }}
@@ -199,12 +199,7 @@
                   <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
                   <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
                   <td name="position-salary-range" colspan="1">
-                    $<span id="position-salary-min" class="edit">
-                    {{ position.salary_min }}
-                    </span> -
-                    $<span id="position-salary-max" class="edit">
-                      {{ position.salary_max }}
-                    </span>
+                $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
                   </td>
                   <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
                   <td name="position-open-to" colspan="2">

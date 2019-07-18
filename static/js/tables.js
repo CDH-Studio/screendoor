@@ -131,13 +131,17 @@ const hideQuestionPreview = function(i) {
 
 /* User clicks an education row */
 const showEducationFull = function(i) {
+  showElements(educationHeadersClicked[i]);
   slideOpenElements(educationHeadersClicked[i]);
+  hideElements(educationHeaders[i]);
   slideCloseElements(educationHeaders[i]);
 };
 
 /* User clicks an expanded education row */
 const hideEducationFull = function(i) {
+  hideElements(educationHeadersClicked[i]);
   slideCloseElements(educationHeadersClicked[i]);
+  showElements(educationHeaders[i]);
   slideOpenElements(educationHeaders[i]);
 };
 

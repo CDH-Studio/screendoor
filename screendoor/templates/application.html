@@ -176,7 +176,7 @@
                 {{ forloop.counter }}. {{ education.academic_level }}
               </div>
               {% if education.institution is not None %}
-              <div id="education-institution-truncated{{ forloop.counter0 }}" class="col s3 cell-header truncation">
+              <div id="education-institution-truncated{{ forloop.counter0 }}" class="col s4 cell-header truncation">
                 {{ education.institution }}
               </div>
               {% endif %}
@@ -185,7 +185,7 @@
                 {{ education.area_of_study }}
               </div>
               {% endif %}
-              <div class="col cell-header ellipsis education-ellipsis">
+              <div class="right col cell-header ellipsis education-ellipsis">
                 <i class="material-icons">more_horiz</i>
               </div>
             </div>
@@ -220,7 +220,7 @@
           </div>
           <div class="row body-row row-closed invisible">
             <div class="col cell-body"></div>
-            <div class="col s5 cell-body table-subhead">
+            <div class="col s4 cell-body table-subhead">
               {{ applicantText.specialization }}
             </div>
             <div class="col s2 cell-body table-subhead">
@@ -235,7 +235,7 @@
           </div>
           <div class="row body-row row-closed invisible">
             <div class="col cell-body"></div>
-            <div class="col s5 cell-body">
+            <div class="col s4 cell-body">
               {{ education.specialization }}
             </div>
             <div class="col s2 cell-body">
@@ -251,320 +251,342 @@
           {% endfor %}
           <!-- END OF EDUCATION DATA -->
           {% endif %}
-          <div class="row header-row">
+          <div class="row">
             <div class="col s11 cell-header">
               <h6>
+                <br>
                 {{ applicantText.questions }}
               </h6>
             </div>
           </div>
-
-          <!-- BUILD SOMETHING NEW HERE -->
-
-          <br>
-          <br>
-          <br>
-          SLATED FOR DEMOLITION v
-          <br>
-          <br>
-          <br>
-          {% comment %}
-          <!--
-          {% for answer in answers %}
-          <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
-          <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
-          <!-- Question -->
-          <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
-          <!-- Displays green/red for Yes/No -->
-          <!-- <div class="row header-row collapse question-header
-               {% if answer.applicant_answer is True %}yes-answer
-               {% else %}no-answer{% endif %}">
-               <div id="previews-small{{ forloop.counter0 }}">
-               <div class="col cell-header">
-               <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
-               </div>
-               <div class="col cell-header">
-               {{ forloop.counter }}.
-               </div> -->
-              <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
-              <!-- <div id="truncated{{ forloop.counter0 }}" class="truncation col {% if answer.applicant_answer is True %}s3
-                   {% else %} s10{% endif %}">
-                   <div class="question-subhead row-closed">
-                   Question
-                   </div>
-                   <span class="question-preview">
-                   {% if answer.parent_question.parent_requirement is not None %}
-                   <span class="requirement-abbreviation">
-                   <span class="tooltiptext">
-                   {{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
-                   </span>
-                   {{ answer.parent_question.parent_requirement.abbreviation }}
-                   </span>
-                   {% endif %}
-                   {{ answer.parent_question.short_question_text }}
-                   </span>
-                   </div>
-                   <!-- Full preview -->
-              <!-- {% if answer.applicant_answer is True %}
-                   <div class="col cell-header"></div>
-                   <div id="truncated-analysis{{ forloop.counter0 }}" class="truncation col s3">
-                   <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead row-closed">
-                   {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
-                   </div>
-                   <span class="analysis-preview blue-text text-darken-2">
-                   {% for extract in answer.extract_set %}
-                   {% if forloop.first %}
-                   {% if extract.extract_type == 'WHEN' %}
-                   <i class="material-icons extract-icon">date_range</i>
-                   {% elif extract.extract_type == 'HOW' %}
-                   <i class="material-icons extract-icon">work</i>
-                   {% endif %}
-                   {% if extract is not None %}
-                   {{ extract.extract_text|capfirst|display_first_line }}
-                   {% endif %}
-                   {% endif %}
-                   {% endfor %}
-                   {% if answer.extract_set is None %}
-                   <i class="material-icons extract-icon">clear</i>
-                   <span class="extract-preview">
-                   {{ applicantText.no_analysis }}
-                   </span>
-                   {% endif %}
-                   </span>
-                   </div> -->
-              <!-- What is this? -->
-              {% else %}
-              <!-- <div class="row-closed"></div>
-                   <div id="truncated-analysis{{ forloop.counter0 }}" class="row-closed truncation col s3">
-                   <div id="analysis-subhead{{ forloop.counter0 }}" class="row-closed analysis-header">
-                   TEST{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
-                   </div>
-                   <span class="row-closed analysis-preview blue-text text-darken-2" style="white-space: pre-wrap;">
-                   {% for extract in answer.extract_set %}
-                   <i class="material-icons extract-icon">date_range</i>
-                   {{ extract.extract_text }}
-                   <br>
-                   {% endfor %}
-                   </span>
-                   </div>
-                   {% endif %}
-                   <div class="col ellipsis-column">
-                   <span class="ellipsis question-ellipsis">
-                   <i class="material-icons">more_horiz</i>
-                   </span>
-                   </div>
-                   </div> --> -->
-            <!-- Beginning of hidden full analysis preview -->
-            <!-- <div class="question-full-header header-row row-closed" id="previews-full{{ forloop.counter0 }}">
-                 <div class="col"></div>
-                 <div class="col">
-                 {% if answer.parent_question.parent_requirement is not None %}
-                 <span class="requirement-abbreviation-hidden">
-                 <span class="tooltiptext">
-                 {{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
-                 </span>{{ answer.parent_question.parent_requirement.abbreviation }}
-                 </span>
-                 {% endif %}
-                 </div>
-                 <div class="col {% if answer.applicant_answer is True %}s4
-                 {% else %}s10{% endif %}">
-                 <span class="question-full">
-                 {{ answer.parent_question.short_question_text }}
-                 </span>
-                 </div>
-                 {% if answer.applicant_answer is True %}
-                 <div class="col"></div>
-                 <div class="col s3 analysis-full blue-text text-darken-2">
-                 {% for extract in answer.extract_set %}
-                 {% if extract.extract_type == 'WHEN' %}
-                 <i class="material-icons extract-icon">date_range</i>
-                 {% elif extract.extract_type == 'HOW' %}
-                 <i class="material-icons extract-icon">work</i>
-                 {% endif %}
-                 {% if extract is not None %}
-                 <span class="extract-preview">
-                 {{ extract.extract_text|capfirst|linebreaks }}
-                 </span>
-                 {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
-                 <br>
-                 {% endif %}
-                 {% endif %}
-                 {% endfor %}
-                 {% if answer.extract_set is None %}
-                 <i class="material-icons extract-icon">clear</i>
-                 <span class="extract-preview">
-                 {{ applicantText.no_analysis }}
-                 </span>
-                 {% endif %}
-                 </div>
-                 {% else %}
-                 <div class="col row-closed"></div>
-                 <div class="col s3 row-closed"></div>
-                 {% endif %}
-                 <div class="col"></div>
-                 </div> -->
-            <!-- End of hidden full analysis preview -->
-            <!-- Hidden full clicked question/answer contents header -->
-            <!-- <div class="clicked-question-header body-row row-closed" id="clicked-header{{ forloop.counter0 }}">
-                 <div class="col">
-                 <i class="collapse-arrows-down material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-                 </div>
-                 <div class="col">
-                 {{ forloop.counter }}.
-                 </div>
-                 <div class="col s3 table-subhead">
-                 {{ applicantText.question }}
-                 </div>
-                 <div class="col s1 table-subhead">
-                 {{ applicantText.response }}
-                 </div>
-                 <div class="col s4 table-subhead">
-                 {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}
-                 </div>
-                 </div> -->
-            <!-- END OF QUESTION/ANALYSIS PREVIEWS -->
-            <!-- Clicked and opened questions, answers, analysis -->
-            <!-- Displays red or green if answer is yes or no -->
-            <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
-                 <div class="col">
-                 {% if answer.parent_question.parent_requirement is not None %}
-                 <span class="requirement-abbreviation-hidden">
-                 <span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
-                 </span>{{ answer.parent_question.parent_requirement.abbreviation }}
-                 </span>
-                 {% endif %}
-                 </div>
-                 <div class="col s3">
-                 {{ answer.parent_question.question_text }}
-                 </div>
-                 <div class="col">
-                 {% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}
-                 </div>
-                 <div class="col s4">
-                 {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}
-                 </div>
-                 {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
-                 </div>
-                 <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
-                 <div class="col"></div>
-                 <div class="col s3 table-subhead">
-                 {{ applicantText.complementary_response }}
-                 </div>
-                 <div class="sol s4 table-subhead">
-                 <div class="analysis-header">
-                 {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
-                 </div>
-                 </div>
-                 </div> -->
-            <!-- Fully opened complementary response and extracts section -->
-            <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer row-closed">
-                 <div style="white-space: pre-wrap;" class="col s4 answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response }}</a></div> -->
-              <!-- Modal Structure -->
-              <!-- <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
-                   <div class="modal-content response-modal">
-                   <h6 class="modal-question-header">
-                   Question {{ forloop.counter }}
-                   </h6>
-                   <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
-                   <h6 class="modal-complementary-question">
-                   {{ answer.parent_question.complementary_question_text }}:
-                   </h6>
-                   <h6 class="modal-complementary-response-header">{{ applicantText.complementary_response }}</h6>
-                   <p class="modal-complementary-response">{{ answer.applicant_complementary_response }}</p>
-                   </div>
-                   <a href="#!" class="modal-close btn-flat right response-modal-close">
-                   {{ applicantText.close }}
-                   <br>
-                   </a>
-                   </div>
-                   <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}"></data>
-                   <data class="answer-id" value="{{ answer.id }}"></data>
-                   <div class="col s4 blue-text text-darken-2 extract-full">
-                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
-                   <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
-                   <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
-                   <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
-                   <data class="extract-string" value="{{ extract.extract_text }}"></data>
-                   <data class="extract-id" value="{{ extract.id }}"></data>
-                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
-                   <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
-                   {% if extract.extract_type == 'WHEN' %}
-                   <i class="material-icons extract-icon">date_range</i>
-                   {% elif extract.extract_type == 'HOW' %}
-                   <i class="material-icons extract-icon">work</i>
-                   {% endif %}
-                   <span class="extract-text">
-                   {{ extract.extract_text|capfirst|linebreaks }}
-                   </span>
-                   {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
-                   <br>
-                   {% endif %}
-                   {% endfor %}
-                   {% if answer.extract_set is None %}
-                   <i class="material-icons extract-icon">clear</i>
-                   <span class="extract-preview">
-                   {{ applicantText.no_analysis }}
-                   </span>
-                   {% else %}
-                   {% endif %}
-                   </div>
-                   </div>
-                   {% endif %} -->
-            <!-- Notes/Comment Section -->
-            <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
-                 <div class="col">
-                 <i class="material-icons orange-text add-note">note_add</i>
-                 </div>
-                 <div class="col s11 table-subhead notes-header">
-                 {{ applicantText.notes }}
-                 </div>
-                 {% for note in answer.note_set %}
-                 <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
-                 <div class="note">
-                 {% csrf_token %}
-                 <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                 <input type="hidden" name="note-id" value="{{ note.id }}">
-                 <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">
-                 <div class="col">
-                 {{ forloop.counter }}.
-                 </div>
-                 <div class="col s4">
-                 {{ note.author }}:
-                 </div>
-                 <div class="col s5">
-                 {{ note.note_text }} - {{ note.created }}
-                 </div>
-                 <div clas="col s2">
-                 <i class="material-icons red-text delete-note">delete_forever</i>
-                 </div>
-                 </div>
-                 </form>
-                 {% endfor %}
-                 <div class="row-closed note-input">
-                 <form method="post" action="{% url 'add-note' %}" class="note-form" name="note-form" enctype="multipart/form-data">
-                 {% csrf_token %}
-                 <div class="col s8">
-                 <textarea class="note-textarea" name="note-input" rows="4" required></textarea>
-                 </div>
-                 <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                 <div class="col">
-                 <span class="save-cancel-note">
-                 <i class="material-icons red-text cancel-note">cancel</i>
-                 <i class="material-icons green-text save-note">add_circle</i>
-                 </span>
-                 </div>
-                 </form>
-                 </div>
-                 </div>
-                 </div> -->
-          {% endfor %}
-          {% endcomment %}
-          -->
-
         </div>
+
+        <!-- QUESTION HEADERS -->
+
+        {% for answer in answers %}
+
+        <div class="row collapse question-row {% if answer.applicant_answer is True %}yes-answer
+                    {% else %}no-answer{% endif %}">
+          <div class="row header-row question-row hoverable">
+            <div class="col cell-header">
+              <i class="question-icons material-icons {% if answer.applicant_answer is True %}green-text {% else %} red-text{% endif %}">question_answer</i>
+            </div>
+            <div class="col s11 cell-header question-row short-question-text truncation">
+
+              {% if answer.parent_question.parent_requirement is not None %}
+              <span class="requirement-abbreviation applicant-summary-card-small list card-panel blue">
+                {{ answer.parent_question.parent_requirement.abbreviation }}
+              </span>
+              <data class="tooltiptext" value=": {{ answer.parent_question.parent_requirement.description }}
+"></data>
+              {% endif %}
+
+              {{ answer.parent_question.short_question_text }}
+            </div>
+          </div>
+        </div>
+
+        <!-- applicant-summary-card-small list card-panel blue -->
+
+        {% endfor %}
+
+
+        {% comment %}
+        <!--
+             {% for answer in answers %}
+             <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
+             <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
+             <!-- Question -->
+        <!-- BEGINNING OF QUESTION/ANALYSIS PREVIEWS -->
+        <!-- Displays green/red for Yes/No -->
+        <!-- <div class="row header-row collapse question-header
+             {% if answer.applicant_answer is True %}yes-answer
+             {% else %}no-answer{% endif %}">
+             <div id="previews-small{{ forloop.counter0 }}">
+             <div class="col cell-header">
+             <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_right</i>
+             </div>
+             <div class="col cell-header">
+             {{ forloop.counter }}.
+             </div> -->
+        <!-- Displays question full width if there is no accompanying analysis, e.g. if the respondent answered "no" -->
+        <!-- <div id="truncated{{ forloop.counter0 }}" class="truncation col {% if answer.applicant_answer is True %}s3
+             {% else %} s10{% endif %}">
+             <div class="question-subhead row-closed">
+             Question
+             </div>
+             <span class="question-preview">
+             {% if answer.parent_question.parent_requirement is not None %}
+             <span class="requirement-abbreviation">
+             <span class="tooltiptext">
+             {{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
+             </span>
+             {{ answer.parent_question.parent_requirement.abbreviation }}
+             </span>
+             {% endif %}
+             {{ answer.parent_question.short_question_text }}
+             </span>
+             </div>
+             <!-- Full preview -->
+        <!-- {% if answer.applicant_answer is True %}
+             <div class="col cell-header"></div>
+             <div id="truncated-analysis{{ forloop.counter0 }}" class="truncation col s3">
+             <div id="analysis-subhead{{ forloop.counter0 }}" class="analysis-subhead row-closed">
+             {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
+             </div>
+             <span class="analysis-preview blue-text text-darken-2">
+             {% for extract in answer.extract_set %}
+             {% if forloop.first %}
+             {% if extract.extract_type == 'WHEN' %}
+             <i class="material-icons extract-icon">date_range</i>
+             {% elif extract.extract_type == 'HOW' %}
+             <i class="material-icons extract-icon">work</i>
+             {% endif %}
+             {% if extract is not None %}
+             {{ extract.extract_text|capfirst|display_first_line }}
+             {% endif %}
+             {% endif %}
+             {% endfor %}
+             {% if answer.extract_set is None %}
+             <i class="material-icons extract-icon">clear</i>
+             <span class="extract-preview">
+             {{ applicantText.no_analysis }}
+             </span>
+             {% endif %}
+             </span>
+             </div> -->
+        <!-- What is this? -->
+        {% else %}
+        <!-- <div class="row-closed"></div>
+             <div id="truncated-analysis{{ forloop.counter0 }}" class="row-closed truncation col s3">
+             <div id="analysis-subhead{{ forloop.counter0 }}" class="row-closed analysis-header">
+             TEST{% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
+             </div>
+             <span class="row-closed analysis-preview blue-text text-darken-2" style="white-space: pre-wrap;">
+             {% for extract in answer.extract_set %}
+             <i class="material-icons extract-icon">date_range</i>
+             {{ extract.extract_text }}
+             <br>
+             {% endfor %}
+             </span>
+             </div>
+             {% endif %}
+             <div class="col ellipsis-column">
+             <span class="ellipsis question-ellipsis">
+             <i class="material-icons">more_horiz</i>
+             </span>
+             </div>
+             </div> --> -->
+        <!-- Beginning of hidden full analysis preview -->
+        <!-- <div class="question-full-header header-row row-closed" id="previews-full{{ forloop.counter0 }}">
+             <div class="col"></div>
+             <div class="col">
+             {% if answer.parent_question.parent_requirement is not None %}
+             <span class="requirement-abbreviation-hidden">
+             <span class="tooltiptext">
+             {{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
+             </span>{{ answer.parent_question.parent_requirement.abbreviation }}
+             </span>
+             {% endif %}
+             </div>
+             <div class="col {% if answer.applicant_answer is True %}s4
+             {% else %}s10{% endif %}">
+             <span class="question-full">
+             {{ answer.parent_question.short_question_text }}
+             </span>
+             </div>
+             {% if answer.applicant_answer is True %}
+             <div class="col"></div>
+             <div class="col s3 analysis-full blue-text text-darken-2">
+             {% for extract in answer.extract_set %}
+             {% if extract.extract_type == 'WHEN' %}
+             <i class="material-icons extract-icon">date_range</i>
+             {% elif extract.extract_type == 'HOW' %}
+             <i class="material-icons extract-icon">work</i>
+             {% endif %}
+             {% if extract is not None %}
+             <span class="extract-preview">
+             {{ extract.extract_text|capfirst|linebreaks }}
+             </span>
+             {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+             <br>
+             {% endif %}
+             {% endif %}
+             {% endfor %}
+             {% if answer.extract_set is None %}
+             <i class="material-icons extract-icon">clear</i>
+             <span class="extract-preview">
+             {{ applicantText.no_analysis }}
+             </span>
+             {% endif %}
+             </div>
+             {% else %}
+             <div class="col row-closed"></div>
+             <div class="col s3 row-closed"></div>
+             {% endif %}
+             <div class="col"></div>
+             </div> -->
+        <!-- End of hidden full analysis preview -->
+        <!-- Hidden full clicked question/answer contents header -->
+        <!-- <div class="clicked-question-header body-row row-closed" id="clicked-header{{ forloop.counter0 }}">
+             <div class="col">
+             <i class="collapse-arrows-down material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+             </div>
+             <div class="col">
+             {{ forloop.counter }}.
+             </div>
+             <div class="col s3 table-subhead">
+             {{ applicantText.question }}
+             </div>
+             <div class="col s1 table-subhead">
+             {{ applicantText.response }}
+             </div>
+             <div class="col s4 table-subhead">
+             {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ applicantText.complementary_question }}{% endif %}
+             </div>
+             </div> -->
+        <!-- END OF QUESTION/ANALYSIS PREVIEWS -->
+        <!-- Clicked and opened questions, answers, analysis -->
+        <!-- Displays red or green if answer is yes or no -->
+        <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
+             <div class="col">
+             {% if answer.parent_question.parent_requirement is not None %}
+             <span class="requirement-abbreviation-hidden">
+             <span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}
+             </span>{{ answer.parent_question.parent_requirement.abbreviation }}
+             </span>
+             {% endif %}
+             </div>
+             <div class="col s3">
+             {{ answer.parent_question.question_text }}
+             </div>
+             <div class="col">
+             {% if answer.applicant_answer is True %}{{ applicantText.yes }}{% else %}{{ applicantText.no }}{% endif %}
+             </div>
+             <div class="col s4">
+             {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}{{ answer.parent_question.complementary_question_text }}{% else %}{% endif %}
+             </div>
+             {% if answer.applicant_answer is True and answer.applicant_complementary_response is not None %}
+             </div>
+             <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
+             <div class="col"></div>
+             <div class="col s3 table-subhead">
+             {{ applicantText.complementary_response }}
+             </div>
+             <div class="sol s4 table-subhead">
+             <div class="analysis-header">
+             {% if answer.extract_set|length > 1 %}{{ applicantText.extracts }}{% else %}{{ applicantText.extract }}{% endif %}
+             </div>
+             </div>
+             </div> -->
+        <!-- Fully opened complementary response and extracts section -->
+        <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} applicant-full-answer row-closed">
+             <div style="white-space: pre-wrap;" class="col s4 answer-complementary-response"><a class="modal-trigger" href="#complementary-response-modal{{ forloop.counter0 }}">{{ answer.applicant_complementary_response }}</a></div> -->
+        <!-- Modal Structure -->
+        <!-- <div id="complementary-response-modal{{ forloop.counter0 }}" class="modal response-modal">
+             <div class="modal-content response-modal">
+             <h6 class="modal-question-header">
+             Question {{ forloop.counter }}
+             </h6>
+             <h6 style="white-space: pre-line;">{{ answer.parent_question.question_text }}</h6>
+             <h6 class="modal-complementary-question">
+             {{ answer.parent_question.complementary_question_text }}:
+             </h6>
+             <h6 class="modal-complementary-response-header">{{ applicantText.complementary_response }}</h6>
+             <p class="modal-complementary-response">{{ answer.applicant_complementary_response }}</p>
+             </div>
+             <a href="#!" class="modal-close btn-flat right response-modal-close">
+             {{ applicantText.close }}
+             <br>
+             </a>
+             </div>
+             <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}"></data>
+             <data class="answer-id" value="{{ answer.id }}"></data>
+             <div class="col s4 blue-text text-darken-2 extract-full">
+             {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
+             <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
+             <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
+             <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
+             <data class="extract-string" value="{{ extract.extract_text }}"></data>
+             <data class="extract-id" value="{{ extract.id }}"></data>
+             <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
+             <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
+             {% if extract.extract_type == 'WHEN' %}
+             <i class="material-icons extract-icon">date_range</i>
+             {% elif extract.extract_type == 'HOW' %}
+             <i class="material-icons extract-icon">work</i>
+             {% endif %}
+             <span class="extract-text">
+             {{ extract.extract_text|capfirst|linebreaks }}
+             </span>
+             {% if extract.next_extract_index > extract.extract_sentence_index and not forloop.last %}
+             <br>
+             {% endif %}
+             {% endfor %}
+             {% if answer.extract_set is None %}
+             <i class="material-icons extract-icon">clear</i>
+             <span class="extract-preview">
+             {{ applicantText.no_analysis }}
+             </span>
+             {% else %}
+             {% endif %}
+             </div>
+             </div>
+             {% endif %} -->
+        <!-- Notes/Comment Section -->
+        <!-- <div class="row body-row {% if answer.applicant_answer == True %}yes-answer-light{% else %}no-answer-light{% endif %} row-closed">
+             <div class="col">
+             <i class="material-icons orange-text add-note">note_add</i>
+             </div>
+             <div class="col s11 table-subhead notes-header">
+             {{ applicantText.notes }}
+             </div>
+             {% for note in answer.note_set %}
+             <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
+             <div class="note">
+             {% csrf_token %}
+             <input type="hidden" name="parent-answer" value="{{ answer.id }}">
+             <input type="hidden" name="note-id" value="{{ note.id }}">
+             <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">
+             <div class="col">
+             {{ forloop.counter }}.
+             </div>
+             <div class="col s4">
+             {{ note.author }}:
+             </div>
+             <div class="col s5">
+             {{ note.note_text }} - {{ note.created }}
+             </div>
+             <div clas="col s2">
+             <i class="material-icons red-text delete-note">delete_forever</i>
+             </div>
+             </div>
+             </form>
+             {% endfor %}
+             <div class="row-closed note-input">
+             <form method="post" action="{% url 'add-note' %}" class="note-form" name="note-form" enctype="multipart/form-data">
+             {% csrf_token %}
+             <div class="col s8">
+             <textarea class="note-textarea" name="note-input" rows="4" required></textarea>
+             </div>
+             <input type="hidden" name="parent-answer" value="{{ answer.id }}">
+             <div class="col">
+             <span class="save-cancel-note">
+             <i class="material-icons red-text cancel-note">cancel</i>
+             <i class="material-icons green-text save-note">add_circle</i>
+             </span>
+             </div>
+             </form>
+             </div>
+             </div>
+             </div> -->
+        {% endfor %}
+        {% endcomment %}
+
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <!-- Misc. helper functions -->
@@ -579,6 +601,7 @@
 <script src="{% static 'js/notes.js' %}"></script>
 <!-- Script for initializing modal pop-ups -->
 <script src="{% static 'js/sd-modal.js' %}"></script>
+<script src="{% static 'js/applicant-questions.js' %}"></script>
 <script>
  document.addEventListener('DOMContentLoaded', function() {
    var tooltips = document.querySelectorAll('.tooltipped');
