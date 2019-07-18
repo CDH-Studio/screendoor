@@ -301,8 +301,6 @@ def assign_description(item, definitions):
             list_of_known_definitions.append(re.findall(r"“[a-z A-Z]+", definition)[0].replace("“", "").split(" ")[0])
         else:
             list_of_known_definitions.append(definition.split(" ", 1)[0])
-    print("LIST OF KNOWN DEFINITIONS:\n")
-    print(list_of_known_definitions)
     if len(list_of_known_definitions) > 0:
         # If first word is in the statement, add definition
         definitions_to_append = ""
@@ -346,7 +344,6 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
     definitions = extract_definitions(requirement_block_text)
     requirement_block_text = clean_out_definitions(requirement_block_text, definitions)
     requirement_block_text = clean_out_titles(requirement_block_text, header_pattern)
-    print("BLOCK OF TEXT WITHOUT HEADERS AND CLEANED:\n\n" + requirement_block_text)
     return [(requirement_type, requirement_block_text)]
 
 
@@ -385,13 +382,11 @@ def generate_requirements(requirement_block_text, position, requirement_type,
 
     # For each section...
     for section in sections:
-        print("SECTION: " + str(section[0]) + "\n")
-        print("TEXT: " + str(section[1]))
+
         # If it contains a definition...
         if is_definition(section[1].strip()):
             # Extract definitions
             definitions = extract_definitions(section[1])
-            print("DEFINTIONS:\n" + str(definitions))
             # Add to the list of things to be added after removing the definitions
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions))

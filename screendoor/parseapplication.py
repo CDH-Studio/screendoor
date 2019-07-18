@@ -41,7 +41,6 @@ def is_in_questions(table, all_questions):
                 '\n', " ").replace(" ", "")
             if fuzz.ratio(question_text, other_question_text) > 90:
                 return True
-        print("NOT A MATCH, THERE WAS AN ERROR")
     else:
         return False
 
@@ -137,7 +136,6 @@ def retrieve_question(table, all_questions):
             '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return other_question
-    print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
     return None
 
 
@@ -160,9 +158,7 @@ def parse_priority(item):
 
 
 def parse_is_veteran(item):
-    print(item)
     applicant_is_veteran = get_column_value("anciens combattants", item)
-    print(applicant_is_veteran)
     if "No" in applicant_is_veteran:
         applicant_is_veteran = "False"
     else:
@@ -418,7 +414,7 @@ def correct_split_item(tables):
                 if check_if_table_valid(item2):
                     if "nan" == item2.iloc[0, 0].lower():
                         item.iloc[-1, -1] = item.iloc[-1, -1] + \
-                            item2.iloc[0, 1]
+                                            item2.iloc[0, 1]
                         item2 = item2.iloc[1:, ]
                         item = pd.concat([item, item2], ignore_index=True)
                         tables[index] = item
@@ -426,7 +422,7 @@ def correct_split_item(tables):
                     elif str(item2.shape) == "(1, 1)":
                         if "AUCUNE / NONE" not in item2.iloc[0, 0]:
                             item.iloc[-1, 0] = item.iloc[-1, 0] + \
-                                item2.iloc[0, 0]
+                                               item2.iloc[0, 0]
                             tables[index] = item
                             tables[index + 1] = None
 
@@ -525,7 +521,6 @@ def does_exist(question, all_questions):
             '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return True
-    print("QUESTION DOES NOT EXIST")
 
     return False
 
@@ -564,6 +559,7 @@ def strip_bullet_points(string):
     string = string.replace("\n-", "\n• ")
     string = string.replace("\n -", "\n• ")
     return string
+
 
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
@@ -712,17 +708,12 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
         current_task.update_state(task_id=task_id, state='PROGRESS', meta={
             'current': applicant_counter + current_applicant + 1, 'total': total_applicants})
         if current_applicant == (applicant_count - 1):
-            print("Processing Applicant: " + str(current_applicant + 1))
             applications.append(find_essential_details(
                 data_frames[applicant_page_numbers[current_applicant]:], position))
         else:
-            print("Processing Applicant: " + str(current_applicant + 1))
             applications.append(find_essential_details(
                 data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
                 position))
-
-    for question in position.questions.all():
-        print(len(question.answer.all()))
 
     return applications
 
