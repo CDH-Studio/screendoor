@@ -11,10 +11,7 @@ class Position(models.Model):
     position_title = models.TextField(blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
-    salary_min = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
-    salary_max = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
+    salary = models.CharField(max_length=200, blank=True)
     classification = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     open_to = models.TextField(blank=True)

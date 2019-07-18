@@ -30,7 +30,7 @@ def text_between(start_string, end_string, text):
 def clean_block(text):
     text = text.strip()
     # Remove number points like "2. "
-    text = re.sub(r'(\d+\.\s)', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^.+\d+\.\s', '', text, flags=re.MULTILINE)
 
     return text
 
@@ -66,19 +66,6 @@ def extract_experience(essential_block):
     return experience
 
 
-def extract_assets(asset_block):
-    assets = asset_block
-    split_by_line_breaks = asset_block.split("\n")
-
-    for sentence1 in split_by_line_breaks:
-        if fuzz.ratio("Degree equivalency", sentence1) > 80:
-            assets = assets.replace(sentence1, "\n")
-
-    assets = clean_block(assets)
-
-    return assets
-
-
 def extract_job_title(text):
     job_title = ""
 
@@ -108,9 +95,13 @@ def extract_salary_min(salary):
     # Scrub out $ and ,
     if "//" in salary:
         return 0
-    salary_min = salary.split(" to ", 1)[0]
-    salary_min = salary_min.replace("$", "")
-    salary_min = salary_min.replace(",", "")
+    decimal_numbers = re.findall("\d+\.\d+", salary)
+    if len(decimal_numbers) > 0:
+        salary_min = float(decimal_numbers[0])
+    else:
+        salary_min = salary.split(" to ", 1)[0]
+        salary_min = salary_min.replace("$", "")
+        salary_min = salary_min.replace(",", "")
     return salary_min
 
 
@@ -118,9 +109,13 @@ def extract_salary_max(salary):
     # Same deal as extract_salary_min
     if "//" in salary:
         return 0
-    salary_max = text_between(" to ", " ", salary)
-    salary_max = salary_max.replace("$", "")
-    salary_max = salary_max.replace(",", "")
+    decimal_numbers = re.findall("\d+\.\d+", salary)
+    if len(decimal_numbers) > 0:
+        salary_max = float(decimal_numbers[1])
+    else:
+        salary_max = text_between(" to ", " ", salary)
+        salary_max = salary_max.replace("$", "")
+        salary_max = salary_max.replace(",", "")
 
     return salary_max
 
@@ -151,15 +146,15 @@ def find_and_remove(pattern, text):
     return text
 
 
-def clean_out_titles(text):
-    # text = find_and_remove(r"^[A-Z].+:\n|^ [A-Z].+:\n", text)
-    text = re.sub("^[A-Z].+:\n|^ [A-Z].+:\n", "", text)
+def clean_out_titles(text, header_pattern):
+    text = re.sub(header_pattern, "", text, re.MULTILINE)
 
     return text
 
 
 # Removes any newlines and double spaces caused by other parsing rules.
 def scrub_extra_whitespace(item):
+    item.strip()
     return str(item).replace('\n', ' ').replace('  ', ' ')
 
 
@@ -210,6 +205,12 @@ def extract_asset(text):
     # elif "(essential for the job)" in text:
     # asset_block = text_between('(essential for the job)', "The following may be ", text)
 
+    split_by_line_breaks = asset_block.split("\n")
+
+    for sentence1 in split_by_line_breaks:
+        if fuzz.ratio("Degree equivalency", sentence1) > 80:
+            asset_block = asset_block.replace(sentence1, "\n")
+
     asset_block = clean_block(asset_block)
 
     return asset_block
@@ -218,7 +219,7 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     starts_with_a_definition = re.compile("^\s\*+(?!\s)")
     new_line_separation = re.compile("\n\n")
-    starts_with_a_bullet_point = re.compile("\n[-.o]")
+    starts_with_a_bullet_point = re.compile("\n[-.o•]\s*(?=[A-Z])")
     ends_with_a_character = re.compile("[;.]\s*\n")
     regexes = [starts_with_a_definition, starts_with_a_bullet_point, ends_with_a_character, new_line_separation]
     pattern_combined = '|'.join(x.pattern for x in regexes)
@@ -230,13 +231,18 @@ def sentence_split(requirement_block_text):
 def create_requirement_list(requirement_block_text):
     # Such as *Recent
     requirement_list = sentence_split(requirement_block_text)
-
-    joining_list = ["The following combinations"]
+    joining_list = ["The following combinations", "select up to", "not limited to"]
+    forbidden_list = ["indeterminate"]
     for idx, sentence in enumerate(requirement_list):
+        for forbidden in forbidden_list:
+            if forbidden in sentence.lower():
+                requirement_list[idx] = ""
         for joining_string in joining_list:
             if joining_string in sentence:
                 requirement_list[idx] = "".join(requirement_list[idx:])
                 return requirement_list[:idx + 1]
+
+    list(set(requirement_list))
     return requirement_list
 
 
@@ -249,41 +255,67 @@ def clean_out_definitions(requirement_block_text, definitions):
 def extract_definitions(requirement_block_text):
     single_line_break_list = sentence_split(requirement_block_text)
     definitions = []
+    defintion_key = ["defined as", "acquired through", "acquired over", "refers to"]
     for sentence in single_line_break_list:
         sentence = sentence.strip()
-        if "defined as" in sentence or "acquired through" in sentence or "acquired over" in sentence:
-            definitions.append(sentence)
+        for key in defintion_key:
+            if key in sentence:
+                definitions.append(sentence)
 
     for idx, item in enumerate(definitions):
-        for index, item2 in enumerate(definitions):
-            if fuzz.ratio(item, item2) > 90:
-                definitions[index] = item
-    list(set(definitions))
-    print("DEFINITIONS" + str(definitions))
-    return definitions
+        if idx + 1 != len(definitions):
+            for index, item2 in enumerate(definitions[idx + 1:]):
+                if fuzz.partial_ratio(item, item2) > 70:
+                    definitions[index] = ""
+
+    cleaned_definitions = []
+    for definition in definitions:
+        if definition != "":
+            cleaned_definitions.append(definition)
+
+    return cleaned_definitions
 
 
 def remove_definitions(requirement_block_text):
-    single_line_break_list = sentence_split(requirement_block_text)
-    for sentence in single_line_break_list:
+    sentence_list = sentence_split(requirement_block_text)
+    for sentence in sentence_list:
         sentence = sentence.strip()
-        if "defined as" in sentence or "acquired through" in sentence or "acquired over" in sentence:
+        if "defined as" in sentence or "acquired" in sentence:
             requirement_block_text = requirement_block_text.replace(sentence, "")
 
     return requirement_block_text
 
 
 def assign_description(item, definitions):
-    list_of_known_definitions = ["recent", "significant", "management"]
-    definitions_to_append = ""
-    for known_definition in list_of_known_definitions:
-        my_regex = known_definition + r"\**|\**" + known_definition
-        if re.search(my_regex, item, re.IGNORECASE):
-            for definition in definitions:
-                if definition.lower().__contains__(known_definition):
-                    definitions_to_append = definitions_to_append + "\n\n" + definition
+    # Determine first word of definitions
+    list_of_known_definitions = []
+    for definition in definitions:
+        definition = definition.strip()
+        if "*" in definition:
+            definition = definition.replace("*", "")
+            definition = definition.strip()
+        if definition.startswith("The"):
+            definition = definition.replace("The", "")
+            definition = definition.strip()
+        if "“" in definition:
+            list_of_known_definitions.append(re.findall(r"“[a-z A-Z]+", definition)[0].replace("“", "").split(" ")[0])
+        else:
+            list_of_known_definitions.append(definition.split(" ", 1)[0])
+    print("LIST OF KNOWN DEFINITIONS:\n")
+    print(list_of_known_definitions)
+    if len(list_of_known_definitions) > 0:
+        # If first word is in the statement, add definition
+        definitions_to_append = ""
+        for known_definition in list_of_known_definitions:
+            known_definition = known_definition.lower()
+            my_regex = known_definition + r"\**|\**" + known_definition
+            if re.search(my_regex, item, re.IGNORECASE):
+                for definition in definitions:
+                    if definition.lower().__contains__(known_definition):
+                        definitions_to_append = definitions_to_append + "\n\n" + definition
+        return item + definitions_to_append
 
-    return item + definitions_to_append
+    return item
 
 
 def extract_headers(requirement_block_text, header_pattern):
@@ -293,7 +325,7 @@ def extract_headers(requirement_block_text, header_pattern):
 
 
 def is_header_present(requirement_block_text, header_pattern):
-    return re.search(header_pattern, requirement_block_text)
+    return re.search(header_pattern, requirement_block_text, re.MULTILINE)
 
 
 def extract_sections_with_headers(requirement_block_text, list_of_headers):
@@ -310,28 +342,32 @@ def extract_sections_with_headers(requirement_block_text, list_of_headers):
     return sections
 
 
-def extract_sections_without_headers():
-    return []
+def extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern):
+    definitions = extract_definitions(requirement_block_text)
+    requirement_block_text = clean_out_definitions(requirement_block_text, definitions)
+    requirement_block_text = clean_out_titles(requirement_block_text, header_pattern)
+    print("BLOCK OF TEXT WITHOUT HEADERS AND CLEANED:\n\n" + requirement_block_text)
+    return [(requirement_type, requirement_block_text)]
 
 
-def identify_sections(requirement_block_text):
-    option1 = "^Stream \d:.+\n"
-    option2 = "^\s*[A-Z].+:\s*"
-    option3 = "^\s*[A-Z ]+\n"
-    option4 = "^\s*[A-Z][a-z]+\s*\n"
-    header_pattern = "|".join([option1, option2, option3, option4])
+def identify_sections(requirement_block_text, requirement_type):
+    # A very simple regex statement that identifies headers
+    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
     else:
-        return extract_sections_without_headers()
+        return extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern)
 
 
 def is_definition(text):
-    if "defined as" in text or "acquired through" in text or "acquired over" in text:
-        return True
-    else:
-        return False
+    defintion_key = ["defined as", "acquired through", "acquired over", "refers to"]
+
+    for key in defintion_key:
+        if key in text:
+            return True
+
+    return False
 
 
 def generate_requirements(requirement_block_text, position, requirement_type,
@@ -344,13 +380,22 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     text_file.write(requirement_block_text)
     text_file.close()
 
-    sections = identify_sections(requirement_block_text)
+    # Identify Sections
+    sections = identify_sections(requirement_block_text, requirement_type)
+
+    # For each section...
     for section in sections:
-        print(section[0].strip())
+        print("SECTION: " + str(section[0]) + "\n")
+        print("TEXT: " + str(section[1]))
+        # If it contains a definition...
         if is_definition(section[1].strip()):
+            # Extract definitions
             definitions = extract_definitions(section[1])
+            print("DEFINTIONS:\n" + str(definitions))
+            # Add to the list of things to be added after removing the definitions
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions))
+        # else just add it to the list of things to be added.
         else:
             requirement_list = requirement_list + create_requirement_list(section[1])
 
@@ -371,13 +416,12 @@ def assign_single_line_values(position, pdf_poster_text):
     is_description_parsing = False
 
     # A loop that extracts single line position fields like salary or reference number. Also extracts description.
-    reg_salary = re.compile(r'\d+,\d+')
+    reg_salary = re.compile(r'\d+,\d+|\$\d+.\d+ to \$\d+.\d+')
     for item in pdf_poster_text.split("\n"):
 
         if reg_salary.search(item):
             salary = item.strip()
-            position.salary_min = extract_salary_min(salary)
-            position.salary_max = extract_salary_max(salary)
+            position.salary = salary
             is_description_parsing = False
         if is_description_parsing:
             position.description = position.description + " " + item.strip()
