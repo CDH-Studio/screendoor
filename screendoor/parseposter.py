@@ -30,7 +30,7 @@ def text_between(start_string, end_string, text):
 def clean_block(text):
     text = text.strip()
     # Remove number points like "2. "
-    text = re.sub(r'^.+\d+\.\s', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\d+\.\s*', '', text, flags=re.MULTILINE)
 
     return text
 
@@ -47,10 +47,6 @@ def extract_education(essential_block):
     education = clean_block(education)
 
     return education
-
-
-def select_paragraph(text, word, delimiter='\n'):
-    return [p for p in text.split(delimiter) if word in p]
 
 
 def extract_experience(essential_block):
@@ -217,14 +213,9 @@ def extract_asset(text):
 
 
 def sentence_split(requirement_block_text):
-    starts_with_a_definition = re.compile("^\s\*+(?!\s)")
-    new_line_separation = re.compile("\n\n")
-    starts_with_a_bullet_point = re.compile("\n[-.o•]\s*(?=[A-Z])")
-    ends_with_a_character = re.compile("[;.]\s*\n")
-    regexes = [starts_with_a_definition, starts_with_a_bullet_point, ends_with_a_character, new_line_separation]
-    pattern_combined = '|'.join(x.pattern for x in regexes)
-
-    requirement_list = re.split(pattern_combined, requirement_block_text)
+    # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
+    requirement_list = re.split(r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z])|[;.]\s*\n", requirement_block_text, 0,
+                                re.MULTILINE)
     return requirement_list
 
 
@@ -254,13 +245,15 @@ def clean_out_definitions(requirement_block_text, definitions):
 
 def extract_definitions(requirement_block_text):
     single_line_break_list = sentence_split(requirement_block_text)
+    print("Sentences:" + str(single_line_break_list))
     definitions = []
-    defintion_key = ["defined as", "acquired through", "acquired over", "refers to"]
+    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by"]
     for sentence in single_line_break_list:
         sentence = sentence.strip()
         for key in defintion_key:
-            if key in sentence:
+            if key in sentence.lower():
                 definitions.append(sentence)
+                break
 
     for idx, item in enumerate(definitions):
         if idx + 1 != len(definitions):
@@ -272,44 +265,37 @@ def extract_definitions(requirement_block_text):
     for definition in definitions:
         if definition != "":
             cleaned_definitions.append(definition)
+    print("Definitions:" + str(cleaned_definitions))
 
     return cleaned_definitions
 
 
-def remove_definitions(requirement_block_text):
-    sentence_list = sentence_split(requirement_block_text)
-    for sentence in sentence_list:
-        sentence = sentence.strip()
-        if "defined as" in sentence or "acquired" in sentence:
-            requirement_block_text = requirement_block_text.replace(sentence, "")
+def is_definition_in_list(definition, definitions_to_append):
+    if definition in definitions_to_append:
+        return False
 
-    return requirement_block_text
+    return True
 
 
 def assign_description(item, definitions):
     # Determine first word of definitions
     list_of_known_definitions = []
     for definition in definitions:
+        definition = re.sub(r"[^a-zA-Z0-9]+", ' ', definition)
         definition = definition.strip()
-        if "*" in definition:
-            definition = definition.replace("*", "")
-            definition = definition.strip()
         if definition.startswith("The"):
-            definition = definition.replace("The", "")
-            definition = definition.strip()
-        if "“" in definition:
-            list_of_known_definitions.append(re.findall(r"“[a-z A-Z]+", definition)[0].replace("“", "").split(" ")[0])
-        else:
-            list_of_known_definitions.append(definition.split(" ", 1)[0])
+            definition = definition.replace("The", "").strip()
+        list_of_known_definitions.append(definition.split(" ", 1)[0])
     if len(list_of_known_definitions) > 0:
         # If first word is in the statement, add definition
         definitions_to_append = ""
         for known_definition in list_of_known_definitions:
             known_definition = known_definition.lower()
-            my_regex = known_definition + r"\**|\**" + known_definition
+            my_regex = known_definition + r"\*+|\*+" + known_definition
             if re.search(my_regex, item, re.IGNORECASE):
                 for definition in definitions:
-                    if definition.lower().__contains__(known_definition):
+                    if known_definition in definition.lower() and is_definition_in_list(definition,
+                                                                                        definitions_to_append):
                         definitions_to_append = definitions_to_append + "\n\n" + definition
         return item + definitions_to_append
 
@@ -348,8 +334,9 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 
 def identify_sections(requirement_block_text, requirement_type):
-    # A very simple regex statement that identifies headers
-    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
+    # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
+    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|" \
+                     r"^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^[A-Z]+\d+\.(?=\s*[A-Z])"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -358,7 +345,7 @@ def identify_sections(requirement_block_text, requirement_type):
 
 
 def is_definition(text):
-    defintion_key = ["defined as", "acquired through", "acquired over", "refers to"]
+    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by"]
 
     for key in defintion_key:
         if key in text:
@@ -367,15 +354,30 @@ def is_definition(text):
     return False
 
 
+def is_pass_filter(section):
+    list_of_forbidden_sections = ["Knowledge:", "Abilities and Skills:", "Personal Suitability:"]
+
+    for forbidden in list_of_forbidden_sections:
+        if fuzz.ratio(forbidden, section[0]):
+            return False
+
+    return True
+
+
+def write_text_file(filename, filetext):
+    text_file = open(filename + ".txt", "w")
+    text_file.write(filetext)
+    text_file.close()
+    pass
+
+
 def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
     requirement_list = []
     requirement_model_list = []
     definitions = []
     x = 1
-    text_file = open(requirement_type + ".txt", "w")
-    text_file.write(requirement_block_text)
-    text_file.close()
+    # write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type)
@@ -391,7 +393,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions))
         # else just add it to the list of things to be added.
-        else:
+        elif is_pass_filter(section):
             requirement_list = requirement_list + create_requirement_list(section[1])
 
     for item in requirement_list:
@@ -409,24 +411,28 @@ def generate_requirements(requirement_block_text, position, requirement_type,
 
 def assign_single_line_values(position, pdf_poster_text):
     is_description_parsing = False
+    is_salary_parsing = False
 
     # A loop that extracts single line position fields like salary or reference number. Also extracts description.
-    reg_salary = re.compile(r'\d+,\d+|\$\d+.\d+ to \$\d+.\d+')
+    reg_salary = re.compile(r'\d+,\d+|\$\d+.\d+ to \$\d+.\d+|salary')
     for item in pdf_poster_text.split("\n"):
 
         if reg_salary.search(item):
             salary = item.strip()
-            position.salary = salary
             is_description_parsing = False
+            is_salary_parsing = True
         if is_description_parsing:
             position.description = position.description + " " + item.strip()
-        elif "Reference number" in item:
+        if is_salary_parsing:
+            position.salary = position.salary + " " + item.strip()
+        if "Reference number" in item:
             position.reference_number = item.strip().split(": ")[1]
         elif "Selection process number" in item:
             position.selection_process_number = item.strip().split(": ")[1]
             is_description_parsing = True
         elif "Closing date" in item:
             position.date_closed = extract_closing_date(item)
+            is_salary_parsing = False
         elif "Position:" in item or "Positions to be filled:" in item:
             position.num_positions = item.strip().split(": ")[1]
 
@@ -520,10 +526,20 @@ def parse_poster_text_from_url(download_path):
     return job_poster_text
 
 
+def correct_poster_for_external_access(job_poster_text):
+    for sentence in job_poster_text.split("\n"):
+        if "Logout Applicant Number" in sentence:
+            to_find = sentence
+            job_poster_text = job_poster_text.replace(to_find, "Home", 1)
+
+    return job_poster_text
+
+
 def parse_poster_text_from_file(pdf_file):
     # Extract the poster text read from the temporary pdf file.
     file_data = tika.parser.from_buffer(pdf_file, 'http://tika:9998/tika')
     job_poster_text = file_data['content']
+    job_poster_text = correct_poster_for_external_access(job_poster_text)
     job_poster_text = scrub_raw_text(job_poster_text)
 
     return job_poster_text
