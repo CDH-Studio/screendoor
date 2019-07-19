@@ -31,6 +31,7 @@ def clean_block(text):
     text = text.strip()
     # Remove number points like "2. "
     text = re.sub(r'^\d+\.\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r"^[A-Z]+\d+\.(?=\s*[A-Z])", "", text, flags=re.MULTILINE)
 
     return text
 
@@ -121,25 +122,9 @@ def extract_classification(description):
     # separated by a hyphen.
     classification = ""
     if re.search(r"([A-Z][A-Z][x-]\d\d)", description):
-        classification = re.findall(r"([A-Z][A-Z][x-]\d\d)", description)[0]
-
+        classifications = re.findall(r"([A-Z][A-Z][x-]\d\d)", description, re.MULTILINE)
+        classification = "".join(classifications)
     return classification
-
-
-def extract_closing_date(item):
-    # Strip the string and remove any leading or trailing spacing. Find text after colon. Ex. closing date: dd/mm/yy
-    raw_date = item.strip().split(": ")[1]
-    date = raw_date.rsplit(",", 1)[0]
-    closing_date = dateparser.parse(date)
-
-    return closing_date
-
-
-def find_and_remove(pattern, text):
-    if re.search(pattern, text):
-        text = re.sub(pattern, "", text)
-
-    return text
 
 
 def clean_out_titles(text, header_pattern):
@@ -221,6 +206,7 @@ def sentence_split(requirement_block_text):
 
 def create_requirement_list(requirement_block_text):
     # Such as *Recent
+
     requirement_list = sentence_split(requirement_block_text)
     joining_list = ["The following combinations", "select up to", "not limited to"]
     forbidden_list = ["indeterminate"]
@@ -245,7 +231,6 @@ def clean_out_definitions(requirement_block_text, definitions):
 
 def extract_definitions(requirement_block_text):
     single_line_break_list = sentence_split(requirement_block_text)
-    print("Sentences:" + str(single_line_break_list))
     definitions = []
     defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by"]
     for sentence in single_line_break_list:
@@ -265,7 +250,6 @@ def extract_definitions(requirement_block_text):
     for definition in definitions:
         if definition != "":
             cleaned_definitions.append(definition)
-    print("Definitions:" + str(cleaned_definitions))
 
     return cleaned_definitions
 
@@ -336,7 +320,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 def identify_sections(requirement_block_text, requirement_type):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
     header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|" \
-                     r"^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^[A-Z]+\d+\.(?=\s*[A-Z])"
+                     r"^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -356,9 +340,9 @@ def is_definition(text):
 
 def is_pass_filter(section):
     list_of_forbidden_sections = ["Knowledge:", "Abilities and Skills:", "Personal Suitability:"]
-
+    print(section[0])
     for forbidden in list_of_forbidden_sections:
-        if fuzz.ratio(forbidden, section[0]):
+        if fuzz.ratio(forbidden, section[0]) > 80:
             return False
 
     return True
@@ -377,7 +361,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     requirement_model_list = []
     definitions = []
     x = 1
-    # write_text_file(requirement_type, requirement_block_text)
+    write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type)
@@ -387,14 +371,11 @@ def generate_requirements(requirement_block_text, position, requirement_type,
 
         # If it contains a definition...
         if is_definition(section[1].strip()):
-            # Extract definitions
             definitions = extract_definitions(section[1])
-            # Add to the list of things to be added after removing the definitions
+        # else just add it to the list of things to be added.
+        if is_pass_filter(section):
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions))
-        # else just add it to the list of things to be added.
-        elif is_pass_filter(section):
-            requirement_list = requirement_list + create_requirement_list(section[1])
 
     for item in requirement_list:
         if item.strip() != "":
@@ -409,35 +390,86 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     return requirement_model_list
 
 
-def assign_single_line_values(position, pdf_poster_text):
-    is_description_parsing = False
-    is_salary_parsing = False
+def extract_reference_number(pdf_poster_text):
+    if "Reference number:" in pdf_poster_text:
+        reference_number = text_between("Reference number: ", "\n", pdf_poster_text)
+        return reference_number
+    return ""
 
-    # A loop that extracts single line position fields like salary or reference number. Also extracts description.
-    reg_salary = re.compile(r'\d+,\d+|\$\d+.\d+ to \$\d+.\d+|salary')
-    for item in pdf_poster_text.split("\n"):
 
-        if reg_salary.search(item):
-            salary = item.strip()
-            is_description_parsing = False
-            is_salary_parsing = True
-        if is_description_parsing:
-            position.description = position.description + " " + item.strip()
-        if is_salary_parsing:
-            position.salary = position.salary + " " + item.strip()
-        if "Reference number" in item:
-            position.reference_number = item.strip().split(": ")[1]
-        elif "Selection process number" in item:
-            position.selection_process_number = item.strip().split(": ")[1]
-            is_description_parsing = True
-        elif "Closing date" in item:
-            position.date_closed = extract_closing_date(item)
-            is_salary_parsing = False
-        elif "Position:" in item or "Positions to be filled:" in item:
-            position.num_positions = item.strip().split(": ")[1]
+def extract_selection_process_number(pdf_poster_text):
+    if "Selection process number:" in pdf_poster_text:
+        selection_process_number = text_between("Selection process number: ", "\n", pdf_poster_text)
+        return selection_process_number
+    return ""
 
-    position.description = position.description.replace('N/A  ', '', 1)
+
+def extract_date_closed(pdf_poster_text):
+    if "Closing date:" in pdf_poster_text:
+        closing_date = text_between("Closing date: ", "\n", pdf_poster_text)
+        date = closing_date.rsplit(",", 1)[0]
+        closing_date = dateparser.parse(date)
+        return closing_date
+    return ""
+
+
+def extract_salary(pdf_poster_text):
+    single_line_breaked_list = pdf_poster_text.split("\n")
+
+    for line in single_line_breaked_list:
+        if re.search(r"\$", line):
+            salary = line
+            return salary
+    return ""
+
+
+def extract_open_positions(pdf_poster_text):
+    if "Position:" in pdf_poster_text:
+        open_positions = text_between("Position: ", "\n", pdf_poster_text)
+        return open_positions
+    elif "Positions to be filled:" in pdf_poster_text:
+        open_positions = text_between("Positions to be filled: ", "\n", pdf_poster_text)
+        return open_positions
+
+    return ""
+
+
+def print_variables(position):
+    print("TITLE:\n" + position.position_title)
+    print("OPEN TO:\n" + position.open_to)
+    print("REFERENCE NUMBER:\n" + position.reference_number)
+    print("SELECTION PROCESS NUMBER:\n" + position.selection_process_number)
+    print("DATE CLOSED:\n" + str(position.date_closed))
+    print("POSITIONS:\n" + str(position.num_positions))
+    print("SALARY:\n" + position.salary)
+    print("DESCRIPTION:\n" + position.description)
+    print("CLASSIFICATION:\n" + position.classification)
+
+    pass
+
+
+def extract_non_text_block_information(position, pdf_poster_text):
+    write_text_file("postertext", pdf_poster_text)
+    header_text = pdf_poster_text.split("Important messages")[0]
+    position.position_title = extract_job_title(header_text)
+
+    position.open_to = extract_who_can_apply(header_text)
+
+    position.reference_number = extract_reference_number(header_text)
+
+    position.selection_process_number = extract_selection_process_number(header_text)
+
+    position.date_closed = extract_date_closed(header_text)
+
+    position.num_positions = extract_open_positions(pdf_poster_text)
+
+    position.salary = extract_salary(header_text)
+
+    position.description = text_between(position.selection_process_number, position.salary, header_text)
+
     position.classification = extract_classification(position.description)
+
+    print_variables(position)
 
     return position
 
@@ -467,12 +499,7 @@ def scrub_raw_text(pdf_poster_text):
 
 def find_essential_details(pdf_poster_text, position):
     # The mother of all methods, find_essential_details uses all the other methods to parse the job poster.
-
-    position.position_title = extract_job_title(pdf_poster_text)
-
-    position.open_to = extract_who_can_apply(pdf_poster_text)
-
-    position = assign_single_line_values(position, pdf_poster_text)
+    position = extract_non_text_block_information(position, pdf_poster_text)
 
     list_of_requirements = extract_req_list(pdf_poster_text, position)
 
