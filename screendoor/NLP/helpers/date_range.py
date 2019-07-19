@@ -10,7 +10,7 @@ class DateRange:
         self.date_lower = None
         self.date_upper = None
         self.date_range = None
-        if date_list is not None:
+        if not date_list == []:
             if len(date_list) == 2:
                 self.date_lower = date_list[0]
                 self.date_upper = date_list[1]
@@ -24,3 +24,11 @@ class DateRange:
 
     def get_date_range(self):
         return self.date_range
+
+    def __repr__(self):
+        return str(self.date_lower) + ' - ' + str(self.date_upper)
+
+    def __lt__(self, other):
+        if self.get_date_lower() == other.get_date_lower():
+            return self.get_date_upper() > other.get_date_upper()
+        return self.get_date_lower() < other.get_date_lower()
