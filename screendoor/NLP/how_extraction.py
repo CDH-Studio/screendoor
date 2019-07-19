@@ -53,7 +53,7 @@ def construct_how_extract(sent):
 # Given a text block, finds any actions or duties an applicant mentioned,
 # in the case where the applicant is directly referring to themselves.
 # (e.g. I acquired x  VS  the project acquired x)
-def extract_how(orig_doc, doc, taken_sentence_indexes):
+def extract_how(original_text, doc, taken_sentence_indexes):
     experiences = []
     matches = []
     for idx, sent in enumerate(doc.sents):
@@ -62,7 +62,7 @@ def extract_how(orig_doc, doc, taken_sentence_indexes):
             if experience:
                 # retrieve the location of the extract in the original formatted
                 # text (for display purposes)
-                match = fuzzy_search_extract_in_orig_doc(orig_doc.text, experience, matches)
+                match = fuzzy_search_extract_in_orig_doc(original_text, experience, matches)
                 if match:
                     experiences.append((experience, match[0][0], match[0][1], idx))
                     matches.append(match[1])
@@ -72,7 +72,7 @@ def extract_how(orig_doc, doc, taken_sentence_indexes):
     print_if_debug('\n')
 
     for extract_text, start, end, sent_i in experiences:
-        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', orig_doc.text[start:end], start, end, sent_i))
+        print_if_debug((extract_text, ' ~~~~~~~~~~~~ ', original_text[start:end], start, end, sent_i))
         print_if_debug('\n')
 
     if experiences == []:

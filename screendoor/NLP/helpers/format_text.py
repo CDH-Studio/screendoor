@@ -94,6 +94,8 @@ def reprocess_line_breaks(text_block):
 
 
 def remove_starting_bullet_point_chars(text):
+    if text is None:
+        return None
     # remove any leading spaces/tabs so the startswith doesnt need to check for variations
     text = text.strip()
 
@@ -129,6 +131,36 @@ def strip_faulty_formatting(text):
     text = text.replace('\t', ' ')
     text = text.replace('  ', ' ')
     text = text.replace(' ; ', ' ')
+    text = text.replace(" - ", "-").replace(" -", "-").replace("- ", "-")
+    text = text.replace("-", " - ")
+    text = text.replace("/", "/ ")
+    text = text.replace(" (", "(").replace('(', ' (')
+    text = text.replace(', ', ',').replace(',', ', ')
     if text.count('(') > text.count(')'):
         text += ')'
+    return text
+
+
+# parses text like "one (1) year" to "one year" to fix some parsing issues
+def clear_clarification(text):
+    if text is None:
+        return None
+    return re.sub(r'\(\d*\)', '', str(text)).replace('  ', ' ')
+
+# Month acronyms do not play very nice with the NLP date identification.
+def replace_acronyms_with_full_month(text):
+    if text is None:
+        return None
+    text = re.sub(r'[j|J]an\.|\b[j|J]an\b', 'January', text)
+    text = re.sub(r'[f|F]eb\.|\b[f|F]eb\b', 'February', text)
+    text = re.sub(r'[m|M]ar\.|\b[m|M]ar\b', 'March', text)
+    text = re.sub(r'[a|A]pr\.|\b[a|A]pr\b', 'April', text)
+    text = re.sub(r'\bmay\b', 'May', text)
+    text = re.sub(r'[j|J]un\.|\b[j|J]un\b', 'June', text)
+    text = re.sub(r'[j|J]ul\.|\b[j|J]ul\b', 'July', text)
+    text = re.sub(r'[a|A]ug\.|\b[a|A]ug\b', 'August', text)
+    text = re.sub(r'[s|S]ep\.|\b[s|S]ept\.|\b[s|S]ep\b|\b[s|S]ept\b', 'September', text)
+    text = re.sub(r'[o|O]ct\.|\b[o|O]ct\b', 'October', text)
+    text = re.sub(r'[n|N]ov\.|\b[n|N]ov\b', 'November', text)
+    text = re.sub(r'[d|D]ec\.|\b[d|D]ec\b', 'December', text)
     return text

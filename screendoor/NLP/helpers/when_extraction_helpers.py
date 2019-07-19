@@ -1,7 +1,8 @@
 import re
 from .general_helpers import print_if_debug
 
-months_regex = r'\b(?:jan|feb|mar|apr|jun|jul|aug|sept|oct|nov|dec|' \
+months_regex = r'\b(?:jan|feb|mar|apr|may|jun|jul|aug|sept|oct|nov|dec|' \
+                    r'jan\.|feb\.|mar\.|apr\.|jun\.|jul\.|aug\.|sept\.|oct\.|nov\.|dec\.|' \
                     r'january|febuary|march|april|may|june|july|august|september|october|november|december)'
 digits_or_present_regex = r'(?:\d*|present)'
 
@@ -39,8 +40,7 @@ def hard_identify_date_ents(doc):
     regex = r'{0}\d*-{0}{1}'.format(months_regex, digits_or_present_regex)
 
     manually_identified_dates = re.findall(r"\d*\/\d*-\d*\/\d*", doc.text)
-    manually_identified_dates += re.findall(regex, doc.text.lower())
-
+    manually_identified_dates += re.findall    (regex, doc.text.lower())
     #creates a list of the dates' start/end positions in the doc
     identified_date_locations = []
     for date in manually_identified_dates:

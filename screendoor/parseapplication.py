@@ -569,6 +569,7 @@ def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
     if is_question(table) and not is_stream(table):
+        linked_question = retrieve_question(table, all_questions)
         comp_response = parse_applicant_complementary_response(table)
 
         if comp_response is not None:
@@ -576,10 +577,11 @@ def get_answer(table, answers, position):
 
         answer = FormAnswer(applicant_answer=parse_applicant_answer(table),
                             applicant_complementary_response=comp_response,
-                            parent_question=retrieve_question(table, all_questions))
+                            parent_question=linked_question)
         if not (comp_response is None):
             answer.save()
-            generate_nlp_extracts(comp_response, answer)
+            closing_date = linked_question.parent_position.date_closed
+            generate_nlp_extracts(comp_response, linked_question, answer, closing_date)
         answers.append(answer)
     return answers
 

@@ -19,29 +19,31 @@ def remove_bad_subjects(sent):
         print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW verbless', sent))
         return True
 
-    identified_subjects = [x.text for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass']
+    identified_subjects = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass' and not x.pos_ == 'VERB']
 
     # If no subject is found, it is assumed to be a bullet point (and thus valid)
     if identified_subjects == []:
-        print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW subject-less', sent))
+        print_if_debug(('INCLUDED subject-less', sent))
         return True
     else:
+        v = [x for x in identified_subjects if x.pos_ == 'VERB']
+        print_if_debug(v)
         # Checks for both I (I worked on...) and 'as' (as a team lead, i worked on...)
-        pronoun_check = [item for sublist in [re.findall(r'\bI\b', x) for x in identified_subjects] for item in sublist]
+        pronoun_check = [item for sublist in [re.findall(r'\bI\b', x.text) for x in identified_subjects] for item in sublist]
 
         # TODO: identify qualifers such as "my role" "my responsabilities"(?) while excluding "my project" "my team"
-        possessive_check = [item for sublist in [re.findall(r'\b[a|A]s\b', x) for x in identified_subjects] for item in sublist]
+        possessive_check = [item for sublist in [re.findall(r'\b[a|A]s\b', x.text) for x in identified_subjects] for item in sublist]
 
         if not (pronoun_check + possessive_check == []):
             print_if_debug(('INCLUDED Applicant subject', identified_subjects, sent))
             return True
-
-    nouns_as_sentence_root = [x.text for x in sent if
-                                  x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
-    # Prevents odd data from being pulled in.
-    if nouns_as_sentence_root:
-        print_if_debug(('EXCLUDED edge case', identified_subjects, sent))
-        return False
+    #
+    # nouns_as_sentence_root = [x.text for x in sent if
+    #                               x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
+    # # Prevents odd data from being pulled in.
+    # if nouns_as_sentence_root:
+    #     print_if_debug(('EXCLUDED edge case', identified_subjects, sent))
+    #     return False
 
     print_if_debug(('EXCLUDED subject', identified_subjects, sent))
     return False
@@ -68,7 +70,7 @@ def visualize_dep_tree_if_debugging(doc):
     if DISPLACY:
         sentence_spans = list(doc.sents)
         # show dependency tree (http://localhost:5000/)
-        options = {'color': 'red', 'compact': True,  'fine_grained':True,
+        options = {'color': 'red', 'compact': True,  #'fine_grained':True,
                    'collapse_punct': False, 'distance': 350}
         displacy.serve(sentence_spans, style='dep', options=options)
 
