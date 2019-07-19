@@ -132,7 +132,10 @@ def create_date_range(cleaned_date, closing_date):
         for date_string in individual_dates:
             # Parses the date as either 'present' or the date listed
             if re.findall(present_day_regex, date_string.lower()):
-                date_object = datetime.now()
+                # note: closing date stored as date, NOT datetime
+                date_object = datetime(year=closing_date.year,
+                                       month=closing_date.month,
+                                       day=closing_date.day)
             else:
                 try:
                     date_object = parse(date_string.strip())
@@ -142,7 +145,7 @@ def create_date_range(cleaned_date, closing_date):
                 date_string.strip(), date_object, closing_date)
             date_list.append(date_object)
         if not date_list == []:
-            return DateRange(date_list)
+            return DateRange(date_list[0:2])
     return None
 
 
@@ -154,7 +157,6 @@ def remove_overlapping_ranges(date_range_list):
         return date_range_list
 
     new_date_ranges = []
-    print(date_range_list)
     date_range_list.sort()
     new_date_ranges.append(date_range_list[0])
 
@@ -178,7 +180,7 @@ def combine_date_ranges(date_range_one, date_range_two):
     date_lower = date_range_one.get_date_lower() if \
         date_range_one.get_date_lower() < date_range_two.get_date_lower() \
         else date_range_two.get_date_lower()
-
+    
     date_upper = date_range_one.get_date_upper() if \
         date_range_one.get_date_upper() > date_range_two.get_date_upper() \
         else date_range_two.get_date_upper()
