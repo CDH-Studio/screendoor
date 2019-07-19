@@ -229,13 +229,12 @@ def clean_out_definitions(requirement_block_text, definitions):
     return requirement_block_text
 
 
-def extract_definitions(requirement_block_text):
+def extract_definitions(requirement_block_text, definition_key):
     single_line_break_list = sentence_split(requirement_block_text)
     definitions = []
-    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by"]
     for sentence in single_line_break_list:
         sentence = sentence.strip()
-        for key in defintion_key:
+        for key in definition_key:
             if key in sentence.lower():
                 definitions.append(sentence)
                 break
@@ -310,26 +309,27 @@ def extract_sections_with_headers(requirement_block_text, list_of_headers):
     return sections
 
 
-def extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern):
-    definitions = extract_definitions(requirement_block_text)
+def extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern, definition_key):
+    definitions = extract_definitions(requirement_block_text, definition_key)
     requirement_block_text = clean_out_definitions(requirement_block_text, definitions)
     requirement_block_text = clean_out_titles(requirement_block_text, header_pattern)
     return [(requirement_type, requirement_block_text)]
 
 
-def identify_sections(requirement_block_text, requirement_type):
+def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
     header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|" \
-                     r"^[A-Z][a-z]+:\s*|^[A-Z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
+                     r"^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
     else:
-        return extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern)
+        return extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern,
+                                                definition_key)
 
 
 def is_definition(text):
-    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by"]
+    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than"]
 
     for key in defintion_key:
         if key in text:
@@ -339,7 +339,8 @@ def is_definition(text):
 
 
 def is_pass_filter(section):
-    list_of_forbidden_sections = ["Knowledge:", "Abilities and Skills:", "Personal Suitability:"]
+    list_of_forbidden_sections = ["Knowledge:", "Abilities and Skills:", "Personal Suitability:", "NOTE:",
+                                  "DEFINITIONS:"]
     print(section[0])
     for forbidden in list_of_forbidden_sections:
         if fuzz.ratio(forbidden, section[0]) > 80:
@@ -362,16 +363,17 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     definitions = []
     x = 1
     write_text_file(requirement_type, requirement_block_text)
+    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than"]
 
     # Identify Sections
-    sections = identify_sections(requirement_block_text, requirement_type)
+    sections = identify_sections(requirement_block_text, requirement_type, definition_key)
 
     # For each section...
     for section in sections:
 
         # If it contains a definition...
         if is_definition(section[1].strip()):
-            definitions = extract_definitions(section[1])
+            definitions = extract_definitions(section[1], definition_key)
         # else just add it to the list of things to be added.
         if is_pass_filter(section):
             requirement_list = requirement_list + create_requirement_list(
@@ -476,22 +478,10 @@ def extract_non_text_block_information(position, pdf_poster_text):
 
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
-
-    pdf_poster_text = re.sub(r"^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    write_text_file("rawpostertext", pdf_poster_text)
+    pdf_poster_text = re.sub(r"\s*^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
     pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
-
-    # Removes lines starting with a date (This normally infers a footer extracted by tika
-    split_new_lines_text = pdf_poster_text.split("\n")
-
-    for idx, item in enumerate(split_new_lines_text):
-
-        if re.match('^\d{1,2}/\d{1,2}/\d{4}', item):
-            pdf_poster_text = pdf_poster_text.replace(item, "")
-
-        split_new_lines_text[idx] = re.sub(' +', ' ', item)
-
-    # Removes consecutive newlines
-
+    pdf_poster_text = re.sub(r"\s*^\d{1,2}/\d{1,2}/\d{4}.+\n", "", pdf_poster_text, flags=re.MULTILINE)
     pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
 
     return pdf_poster_text
