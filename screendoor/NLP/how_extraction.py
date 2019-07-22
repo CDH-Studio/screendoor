@@ -40,7 +40,8 @@ def construct_how_extract(sent):
         if token.text == ';':
             break
         if token.text == ',' and idx < len(phrase)-1:
-            if 'conj' not in [x.dep_ for x in token.head.children] \
+            possible_followers = [x.dep_ for x in token.head.children]
+            if not any(substring in ['conj', 'dobj'] for substring in possible_followers) \
                     or token.nbor().dep_ == 'appos':
                 break
 
