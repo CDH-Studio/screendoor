@@ -2,22 +2,18 @@
 import os
 import re
 import time
-
 import tika
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 from weasyprint import HTML
-
-tika.TikaClientOnly = True
 from dateutil import parser as dateparser
 from fuzzywuzzy import fuzz
 from tika import parser
-
 from .models import Requirement
 from .uservisibletext import ErrorMessages
 
-
 # ////////////////////////////////////////END IMPORTS////////////////////////////////////
+tika.TikaClientOnly = True
 
 
 def text_between(start_string, end_string, text):
@@ -31,7 +27,6 @@ def clean_block(text):
     text = text.strip()
     # Remove number points like "2. "
     text = re.sub(r'^\d+\.\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r"^[A-Z]+\d+\.(?=\s*[A-Z])", "", text, flags=re.MULTILINE)
 
     return text
 
@@ -84,37 +79,6 @@ def extract_who_can_apply(text):
     if "Who can apply:" in text:
         who_can_apply = text_between("Who can apply:", ".", text)
     return scrub_extra_whitespace(who_can_apply)
-
-
-def extract_salary_min(salary):
-    # Salary normally looks like ???$ to ???$ where ??? is an amount.
-    # Use the statement " to " to separate minimum and maximum salary values.
-    # Scrub out $ and ,
-    if "//" in salary:
-        return 0
-    decimal_numbers = re.findall("\d+\.\d+", salary)
-    if len(decimal_numbers) > 0:
-        salary_min = float(decimal_numbers[0])
-    else:
-        salary_min = salary.split(" to ", 1)[0]
-        salary_min = salary_min.replace("$", "")
-        salary_min = salary_min.replace(",", "")
-    return salary_min
-
-
-def extract_salary_max(salary):
-    # Same deal as extract_salary_min
-    if "//" in salary:
-        return 0
-    decimal_numbers = re.findall("\d+\.\d+", salary)
-    if len(decimal_numbers) > 0:
-        salary_max = float(decimal_numbers[1])
-    else:
-        salary_max = text_between(" to ", " ", salary)
-        salary_max = salary_max.replace("$", "")
-        salary_max = salary_max.replace(",", "")
-
-    return salary_max
 
 
 def extract_classification(description):
@@ -199,17 +163,17 @@ def extract_asset(text):
 
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
-    requirement_list = re.split(r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z])|[;.]\s*\n", requirement_block_text, 0,
+    requirement_list = re.split(r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z])|[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
+                                requirement_block_text, 0,
                                 re.MULTILINE)
     return requirement_list
 
 
-def create_requirement_list(requirement_block_text):
+def create_requirement_list(requirement_block_text, joining_list, forbidden_list):
     # Such as *Recent
 
     requirement_list = sentence_split(requirement_block_text)
-    joining_list = ["The following combinations", "select up to", "not limited to"]
-    forbidden_list = ["indeterminate"]
+
     for idx, sentence in enumerate(requirement_list):
         for forbidden in forbidden_list:
             if forbidden in sentence.lower():
@@ -274,7 +238,7 @@ def assign_description(item, definitions):
         definitions_to_append = ""
         for known_definition in list_of_known_definitions:
             known_definition = known_definition.lower()
-            my_regex = known_definition + r"\*+|\*+" + known_definition
+            my_regex = known_definition + r"\*+|\*+" + known_definition + "|" + known_definition + r" experience\*+|\*experience+" + known_definition
             if re.search(my_regex, item, re.IGNORECASE):
                 for definition in definitions:
                     if known_definition in definition.lower() and is_definition_in_list(definition,
@@ -296,8 +260,7 @@ def is_header_present(requirement_block_text, header_pattern):
 
 
 def extract_sections_with_headers(requirement_block_text, list_of_headers):
-    sections = []
-
+    sections = [("non-headered-text", requirement_block_text.split(list_of_headers[0], 1)[0])]
     for index, header in enumerate(list_of_headers):
 
         if index + 1 != len(list_of_headers):
@@ -310,16 +273,12 @@ def extract_sections_with_headers(requirement_block_text, list_of_headers):
 
 
 def extract_sections_without_headers(requirement_block_text, requirement_type, header_pattern, definition_key):
-    definitions = extract_definitions(requirement_block_text, definition_key)
-    requirement_block_text = clean_out_definitions(requirement_block_text, definitions)
-    requirement_block_text = clean_out_titles(requirement_block_text, header_pattern)
     return [(requirement_type, requirement_block_text)]
 
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].+:\s*(?!.)|^\s*[A-Z ]{2,}\n|^\s*[A-Z][a-z]+\s*\n|^►.+:|" \
-                     r"^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n"
+    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -328,22 +287,18 @@ def identify_sections(requirement_block_text, requirement_type, definition_key):
                                                 definition_key)
 
 
-def is_definition(text):
-    defintion_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than"]
-
-    for key in defintion_key:
+def is_definition(text, definition_key):
+    for key in definition_key:
         if key in text:
             return True
 
     return False
 
 
-def is_pass_filter(section):
-    list_of_forbidden_sections = ["Knowledge:", "Abilities and Skills:", "Personal Suitability:", "NOTE:",
-                                  "DEFINITIONS:"]
+def is_pass_filter(section, list_of_forbidden_sections):
     print(section[0])
     for forbidden in list_of_forbidden_sections:
-        if fuzz.ratio(forbidden, section[0]) > 80:
+        if fuzz.partial_ratio(forbidden.lower(), section[0].lower()) > 80:
             return False
 
     return True
@@ -361,9 +316,15 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     requirement_list = []
     requirement_model_list = []
     definitions = []
+    # Text before first header is labelled non-headered-text
+    list_of_forbidden_sections = ["knowledge:", "abilities and skills:", "personal suitability:", "note:",
+                                  "definitions:", "competencies"]
+    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than",
+                      "means"]
+    joining_phrase_list = ["The following combinations", "select up to", "not limited to"]
+    forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree" , "must meet all", "deciding factor", "provide appropriate", "being rejected"]
     x = 1
     write_text_file(requirement_type, requirement_block_text)
-    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than"]
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
@@ -372,12 +333,12 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     for section in sections:
 
         # If it contains a definition...
-        if is_definition(section[1].strip()):
+        if is_definition(section[1].strip(), definition_key):
             definitions = extract_definitions(section[1], definition_key)
-        # else just add it to the list of things to be added.
-        if is_pass_filter(section):
+        # Add it to the list of things to be added.
+        if is_pass_filter(section, list_of_forbidden_sections):
             requirement_list = requirement_list + create_requirement_list(
-                clean_out_definitions(section[1], definitions))
+                clean_out_definitions(section[1], definitions), joining_phrase_list, forbidden_sentence_list)
 
     for item in requirement_list:
         if item.strip() != "":
@@ -437,15 +398,15 @@ def extract_open_positions(pdf_poster_text):
 
 
 def print_variables(position):
-    print("TITLE:\n" + position.position_title)
-    print("OPEN TO:\n" + position.open_to)
-    print("REFERENCE NUMBER:\n" + position.reference_number)
-    print("SELECTION PROCESS NUMBER:\n" + position.selection_process_number)
-    print("DATE CLOSED:\n" + str(position.date_closed))
-    print("POSITIONS:\n" + str(position.num_positions))
-    print("SALARY:\n" + position.salary)
-    print("DESCRIPTION:\n" + position.description)
-    print("CLASSIFICATION:\n" + position.classification)
+    print("TITLE: " + position.position_title)
+    print("OPEN TO: " + position.open_to)
+    print("REFERENCE NUMBER: " + position.reference_number)
+    print("SELECTION PROCESS NUMBER: " + position.selection_process_number)
+    print("DATE CLOSED: " + str(position.date_closed))
+    print("POSITIONS: " + str(position.num_positions))
+    print("SALARY: " + position.salary)
+    print("DESCRIPTION: " + position.description)
+    print("CLASSIFICATION: " + position.classification)
 
     pass
 
@@ -479,10 +440,14 @@ def extract_non_text_block_information(position, pdf_poster_text):
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
     write_text_file("rawpostertext", pdf_poster_text)
-    pdf_poster_text = re.sub(r"\s*^https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^\s*https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
-    pdf_poster_text = re.sub(r"\s*^\d{1,2}/\d{1,2}/\d{4}.+\n", "", pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = pdf_poster_text.strip()
+    pdf_poster_text = re.sub(r"^\s*\d{1,2}\/\d{1,2}\/\d{4}.+\n", "", pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
+    pdf_poster_text = pdf_poster_text.strip()
 
     return pdf_poster_text
 
