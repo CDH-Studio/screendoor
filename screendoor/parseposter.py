@@ -40,6 +40,11 @@ def extract_education(essential_block):
         if fuzz.ratio("Degree equivalency", sentence1.lower()) > 80:
             education = essential_block.rsplit(sentence1)[0]
 
+    if education == "":
+        for sentence1 in split_by_line_breaks:
+            if fuzz.ratio("experience", sentence1.lower()) > 80:
+                education = essential_block.split(sentence1, 1)[0]
+
     education = clean_block(education)
 
     return education
@@ -52,6 +57,11 @@ def extract_experience(essential_block):
     for sentence1 in split_by_line_breaks:
         if fuzz.ratio("Degree equivalency", sentence1) > 80:
             experience = essential_block.split(sentence1, 1)[1]
+
+    if experience == "":
+        for sentence1 in split_by_line_breaks:
+            if fuzz.ratio("experience", sentence1.lower()) > 80:
+                experience = essential_block.split(sentence1, 1)[1]
 
     experience = clean_block(experience)
 
@@ -163,9 +173,10 @@ def extract_asset(text):
 
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
-    requirement_list = re.split(r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z])|[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
-                                requirement_block_text, 0,
-                                re.MULTILINE)
+    requirement_list = re.split(
+        r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z*])|[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
+        requirement_block_text, 0,
+        re.MULTILINE)
     return requirement_list
 
 
@@ -193,7 +204,8 @@ def clean_out_definitions(requirement_block_text, definitions):
     return requirement_block_text
 
 
-def extract_definitions(requirement_block_text, definition_key):
+def extract_definitions(requirement_block_text, definition_key, definition_regex):
+    print("LOOKING FOR DEFINITIONS")
     single_line_break_list = sentence_split(requirement_block_text)
     definitions = []
     for sentence in single_line_break_list:
@@ -201,7 +213,8 @@ def extract_definitions(requirement_block_text, definition_key):
         for key in definition_key:
             if key in sentence.lower():
                 definitions.append(sentence)
-                break
+        if re.search(definition_regex, sentence):
+            definitions.append(sentence)
 
     for idx, item in enumerate(definitions):
         if idx + 1 != len(definitions):
@@ -226,23 +239,32 @@ def is_definition_in_list(definition, definitions_to_append):
 
 def assign_description(item, definitions):
     # Determine first word of definitions
-    list_of_known_definitions = []
+    key_phrase_list = []
     for definition in definitions:
+        # Removes special symbols.
         definition = re.sub(r"[^a-zA-Z0-9]+", ' ', definition)
         definition = definition.strip()
-        if definition.startswith("The"):
-            definition = definition.replace("The", "").strip()
-        list_of_known_definitions.append(definition.split(" ", 1)[0])
-    if len(list_of_known_definitions) > 0:
-        # If first word is in the statement, add definition
+        definition = re.sub(r"\s+", " ", definition)
+        first_few_words = definition.split(" ", 3)
+
+        if first_few_words[0].lower() == "the":
+            key_phrase_list.append(first_few_words[1])
+        elif first_few_words[1][0].isupper():
+            key_phrase_list.append(first_few_words[0] + " " + first_few_words[1])
+        else:
+            key_phrase_list.append(first_few_words[0])
+
+    print("DEFINITION PHRASES : " + str(key_phrase_list))
+    if len(key_phrase_list) > 0:
+        # If key phrase is in the statement, add definition
         definitions_to_append = ""
-        for known_definition in list_of_known_definitions:
-            known_definition = known_definition.lower()
-            my_regex = known_definition + r"\*+|\*+" + known_definition + "|" + known_definition + r" experience\*+|\*experience+" + known_definition
+        for key_phrase in key_phrase_list:
+            key_phrase = key_phrase.lower()
+            my_regex = key_phrase
             if re.search(my_regex, item, re.IGNORECASE):
                 for definition in definitions:
-                    if known_definition in definition.lower() and is_definition_in_list(definition,
-                                                                                        definitions_to_append):
+                    if key_phrase in definition.lower() and is_definition_in_list(definition,
+                                                                                  definitions_to_append):
                         definitions_to_append = definitions_to_append + "\n\n" + definition
         return item + definitions_to_append
 
@@ -287,11 +309,14 @@ def identify_sections(requirement_block_text, requirement_type, definition_key):
                                                 definition_key)
 
 
-def is_definition(text, definition_key):
+def is_definition(text, definition_key, definition_regex):
+    pattern = re.compile(definition_regex, re.MULTILINE)
+
     for key in definition_key:
         if key in text:
             return True
-
+    if pattern.match(text):
+        return True
     return False
 
 
@@ -321,8 +346,10 @@ def generate_requirements(requirement_block_text, position, requirement_type,
                                   "definitions:", "competencies"]
     definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than",
                       "means"]
+    definition_regex = r"^\**\s*.{,30}:(?=...)"
     joining_phrase_list = ["The following combinations", "select up to", "not limited to"]
-    forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree" , "must meet all", "deciding factor", "provide appropriate", "being rejected"]
+    forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
+                               "must meet all", "deciding factor", "provide appropriate", "being rejected"]
     x = 1
     write_text_file(requirement_type, requirement_block_text)
 
@@ -333,8 +360,8 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     for section in sections:
 
         # If it contains a definition...
-        if is_definition(section[1].strip(), definition_key):
-            definitions = extract_definitions(section[1], definition_key)
+        if is_definition(section[1].strip(), definition_key, definition_regex):
+            definitions = extract_definitions(section[1], definition_key, definition_regex)
         # Add it to the list of things to be added.
         if is_pass_filter(section, list_of_forbidden_sections):
             requirement_list = requirement_list + create_requirement_list(
@@ -440,7 +467,7 @@ def extract_non_text_block_information(position, pdf_poster_text):
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
     write_text_file("rawpostertext", pdf_poster_text)
-    pdf_poster_text = re.sub(r"^\s*https?://.*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^\s*https?://.*\n\n", '', pdf_poster_text, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
