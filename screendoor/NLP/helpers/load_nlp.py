@@ -1,5 +1,6 @@
 import spacy
 from spacy.pipeline import EntityRuler
+from spacy_langdetect import LanguageDetector
 
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
@@ -124,4 +125,6 @@ def init_spacy_module():
     # merges all entities into single entities. Want it after the NER process
     merge_ents = nlp.create_pipe('merge_entities')
     nlp.add_pipe(merge_ents, last=True)
+
+    nlp.add_pipe(LanguageDetector(), name='language_detector', last=True)
     return nlp

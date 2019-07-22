@@ -198,6 +198,11 @@
                   {% if answer.parent_question.parent_requirement is not None %}
                   <span class="requirement-abbreviation"><span class="tooltiptext">{{ answer.parent_question.parent_requirement.abbreviation }}: {{ answer.parent_question.parent_requirement.description }}</span>{{ answer.parent_question.parent_requirement.abbreviation }}</span>
                   {% endif %}
+
+                  {% for qualifier in answer.qualifier_set.all %}
+                    <span class="requirement-abbreviation"><span class="tooltiptext">{{ qualifier.status }}: {{ qualifier.qualifier_text }}</span>{{ qualifier.qualifier_type }}</span>
+                  {% endfor %}
+
                   {{ answer.parent_question.short_question_text }}</span>
               </th>
               <!-- Full preview -->

@@ -19,7 +19,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract, Note
+    NlpExtract, Note, Qualifier
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -479,7 +479,7 @@ def task_status(request, task_id):
 
 
 def nlp(request):
-    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
-    from screendoor.NLP.howextraction import extract_how
-    extract_how(text)
+    answer = FormAnswer.objects.get(id=449)
+    qualifiers = answer.qualifier_set.all()
+    breakpoint()
     return redirect('positions')

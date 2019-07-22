@@ -9,7 +9,7 @@ import re
 # Returns a nlp model, meaning long answers that take a long time to parse
 # may impede overall performance. No way around this.
 def post_nlp_format_input(nlp_parsed_text):
-    #dates = get_valid_dates(nlp_parsed_text.ents)
+    dates = get_valid_dates(nlp_parsed_text.ents)
     a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
     reformatted_text = ''
     # Note: a sentence is broken by sentence boundary characters (. ! ?)
@@ -40,15 +40,18 @@ def post_nlp_format_input(nlp_parsed_text):
                 # If a double new line is detected.
                 if next_sentence_fragment == '':
                     sentence_fragment = sentence_fragment+ '.'
+
                 # If the current element has a date and no verb (considered a 'list heading').
-                # elif any(substring in sentence_fragment for substring in dates):
-                #     sentence_fragment = sentence_fragment + '.'
+                elif any(substring in sentence_fragment for substring in dates):
+                    if any(substring in sentence_fragment for substring in [x.text for x in sentence if x.pos_ == 'VERB']):
+                        sentence_fragment = sentence_fragment + '.'
+
                 # If the next element is a bullet point.
                 elif next_sentence_fragment.startswith(a_bullet_point_char):
                     sentence_fragment = sentence_fragment + '.'
 
-                # Note: new line characters are meaningless to the parser, so there
-                # is no reason to maintain them in the input.
+            # Note: new line characters are meaningless to the parser, so there
+            # is no reason to maintain them in the input.
             if not sentence_fragment.endswith('.'):
                 reformatted_text += remove_starting_bullet_point_chars(sentence_fragment) + '; '
             else:
@@ -135,6 +138,7 @@ def strip_faulty_formatting(text):
     text = text.replace("-", " - ")
     text = text.replace("/", "/ ")
     text = text.replace(" (", "(").replace('(', ' (')
+    text = text.replace(") ", ")").replace(')', ') ')
     text = text.replace(', ', ',').replace(',', ', ')
     if text.count('(') > text.count(')'):
         text += ')'
