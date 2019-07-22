@@ -38,12 +38,10 @@ def construct_how_extract(sent):
         # Attempts to "atomize" the verb phrase, by removing unneeded details,
         # or other ideas being explored in the same sentence
         if token.text == ';':
-            extract += '--'
             break
         if token.text == ',' and idx < len(phrase)-1:
             if 'conj' not in [x.dep_ for x in token.head.children] \
                     or token.nbor().dep_ == 'appos':
-                extract+= '--'
                 break
 
         extract += ' ' + token.text
