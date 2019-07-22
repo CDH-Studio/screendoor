@@ -205,7 +205,6 @@ def clean_out_definitions(requirement_block_text, definitions):
 
 
 def extract_definitions(requirement_block_text, definition_key, definition_regex):
-    print("LOOKING FOR DEFINITIONS")
     single_line_break_list = sentence_split(requirement_block_text)
     definitions = []
     for sentence in single_line_break_list:
@@ -254,7 +253,6 @@ def assign_description(item, definitions):
         else:
             key_phrase_list.append(first_few_words[0])
 
-    print("DEFINITION PHRASES : " + str(key_phrase_list))
     if len(key_phrase_list) > 0:
         # If key phrase is in the statement, add definition
         definitions_to_append = ""
@@ -321,7 +319,6 @@ def is_definition(text, definition_key, definition_regex):
 
 
 def is_pass_filter(section, list_of_forbidden_sections):
-    print(section[0])
     for forbidden in list_of_forbidden_sections:
         if fuzz.partial_ratio(forbidden.lower(), section[0].lower()) > 80:
             return False
@@ -351,7 +348,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
                                "must meet all", "deciding factor", "provide appropriate", "being rejected"]
     x = 1
-    write_text_file(requirement_type, requirement_block_text)
+    # write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
@@ -439,7 +436,7 @@ def print_variables(position):
 
 
 def extract_non_text_block_information(position, pdf_poster_text):
-    write_text_file("postertext", pdf_poster_text)
+    # write_text_file("postertext", pdf_poster_text)
     header_text = pdf_poster_text.split("Important messages")[0]
     position.position_title = extract_job_title(header_text)
 
@@ -459,14 +456,14 @@ def extract_non_text_block_information(position, pdf_poster_text):
 
     position.classification = extract_classification(position.description)
 
-    print_variables(position)
+    # print_variables(position)
 
     return position
 
 
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
-    write_text_file("rawpostertext", pdf_poster_text)
+    # write_text_file("rawpostertext", pdf_poster_text)
     pdf_poster_text = re.sub(r"^\s*https?://.*\n\n", '', pdf_poster_text, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
