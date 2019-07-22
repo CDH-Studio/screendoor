@@ -25,53 +25,24 @@ def get_next_index_or_blank(idx, list):
 
 def is_question(item):
     first_column = item[item.columns[0]]
-
-    if first_column.str.startswith("Question - Français").any():
-        return True
-    return False
-
-
-def is_in_questions(table, all_questions):
-    if is_question(table):
-        question_text = parse_question_text(
-            table).replace('\n', " ").replace(" ", "")
-
-        for other_question in all_questions:
-            other_question_text = other_question.question_text.replace(
-                '\n', " ").replace(" ", "")
-            if fuzz.ratio(question_text, other_question_text) > 90:
-                return True
-        print("NOT A MATCH, THERE WAS AN ERROR")
-    else:
-        return False
+    return first_column.str.startswith("Question - Français").any()
 
 
 def is_qualification(item):
     first_column = item[item.columns[0]]
-
-    if first_column.str.contains("Question - Français / French:").any():
-        return True
-    return False
+    return first_column.str.contains("Question - Français / French:").any()
 
 
 def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
-
-        if value_column.str.startswith("Are you applying for Stream").any():
-            return True
-        elif value_column.str.startswith("Are you applying to Stream").any():
-            return True
-
+        return value_column.str.startswith("Are you applying for Stream").any()
     return False
 
 
 def is_education(item):
     first_column = item[item.columns[0]]
-
-    if first_column.str.contains("Niveau d'études / Academic Level:").any():
-        return True
-    return False
+    return first_column.str.contains("Niveau d'études / Academic Level:").any()
 
 
 def is_classification(item):
@@ -87,10 +58,7 @@ def is_classification(item):
 def is_final_answer(item):
     applicant_answer = get_column_value(
         "Réponse du postulant / Applicant Answer:", item)
-    if applicant_answer.lower == "nan":
-        return True
-    else:
-        return False
+    return applicant_answer.lower == "nan"
 
 
 def check_if_table_valid(table):
@@ -160,9 +128,7 @@ def parse_priority(item):
 
 
 def parse_is_veteran(item):
-    print(item)
     applicant_is_veteran = get_column_value("anciens combattants", item)
-    print(applicant_is_veteran)
     if "No" in applicant_is_veteran:
         applicant_is_veteran = "False"
     else:
@@ -170,12 +136,14 @@ def parse_is_veteran(item):
     return applicant_is_veteran
 
 
-def parse_first_official_language(item):
-    first_official_language = get_column_value(
-        "Première langue officielle / First official language:", item)
-    applicant_first_official_language = first_official_language.replace(
-        '\n', ' ').split(" / ")[1]
-    return applicant_first_official_language
+def split_on_slash_take_second(str):
+    return str.replace('\n', ' ').split(" / ")[1]
+
+
+# gets simple values that don't require much cleaning to pull from the table
+def parse_single_line_applicant_detail(item, defining_string):
+    applicant_detail = get_column_value(defining_string, item)
+    return split_on_slash_take_second(applicant_detail)
 
 
 def parse_working_ability(item):
@@ -192,33 +160,10 @@ def parse_english_ability(working_ability):
 
 
 def parse_french_ability(working_ability):
-    french_working_ability = \
+    french_working_ability = split_on_slash_take_second(
         text_between("Français / French :", "Anglais / English:",
-                     working_ability).replace('\n', ' ').split(" / ")[1]
+                     working_ability))
     return french_working_ability
-
-
-def parse_written_exam_language(item):
-    written_exam_language = get_column_value(
-        "Examen écrit / Written exam:", item)
-    applicant_written_exam_language = written_exam_language.replace(
-        '\n', ' ').split(" / ")[1]
-    return applicant_written_exam_language
-
-
-def parse_corresponsence_language(item):
-    correspondence_language = get_column_value(
-        "Correspondance: / Correspondence:", item)
-    applicant_correspondence_language = correspondence_language.replace(
-        '\n', ' ').split(" / ")[1]
-    return applicant_correspondence_language
-
-
-def parse_interview_language(item):
-    interview_language = get_column_value("Entrevue / Interview:", item)
-    applicant_interview_language = interview_language.replace(
-        '\n', ' ').split(" / ")[1]
-    return applicant_interview_language
 
 
 def parse_question_text(item):
@@ -227,8 +172,7 @@ def parse_question_text(item):
 
 
 def parse_complementary_question_text(item):
-    complementary_question_text = get_column_value(
-        "Complementary Question", item)
+    complementary_question_text = get_column_value("Complementary Question", item)
     return reprocess_line_breaks(complementary_question_text)
 
 
@@ -265,140 +209,36 @@ def parse_applicant_complementary_response(item):
         return None
 
 
-def parse_academic_level(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Niveau d'études / Academic Level:").any():
-        academic_level = get_column_value(
-            "Niveau d'études / Academic Level:", item)
-        return academic_level
-    else:
-        return None
-
-
-def parse_area_of_study(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Domaine d'études / Area of Study:").any():
-        area_of_study = get_column_value(
-            "Domaine d'études / Area of Study:", item)
-        return area_of_study
-    else:
-        return None
-
-
-def parse_specialization(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Domaine de spécialisation / Specialization:").any():
-        specialization = get_column_value(
-            "Domaine de spécialisation / Specialization:", item)
-        return specialization
-    else:
-        return None
-
-
-def parse_program_length(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Longueur du programme").any():
-        program_length = get_column_value(
-            "Longueur du programme (Années) / Program Length (Years):", item)
-        return program_length
-    else:
-        return None
-
-
-def parse_num_years_completed(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Années complétées / Nbr of Years Completed:").any():
-        num_years_completed = get_column_value(
-            "Années complétées / Nbr of Years Completed:", item)
-        return num_years_completed
-    else:
-        return None
-
-
-def parse_institution(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Établissement d'enseignement / Institution:").any():
-        institution = get_column_value(
-            "Établissement d'enseignement / Institution:", item)
-        return institution
-    else:
-        return None
-
-
-def parse_graduation_date(item):
-    first_column = item[item.columns[0]].astype(str)
-
-    if first_column.str.contains("Date de graduation / Graduation Date:").any():
-        graduation_date = get_column_value(
-            "Date de graduation / Graduation Date:", item)
-        return graduation_date
-    else:
-        return None
-
-
-def parse_current(item):
-    for index, row in item.iterrows():
-        found_string = item.iloc[index, 0]
-        if fuzz.partial_ratio("Current group and level", found_string) > 90:
-            current_classification = item.iloc[index, 1]
-            return current_classification
-
-    return None
-
-
-def parse_substantive(item):
-    for index, row in item.iterrows():
-        found_string = item.iloc[index, 0]
-        if fuzz.partial_ratio("Substantive group and level", found_string) > 90:
-            substantive_classification = item.iloc[index, 1]
-            return substantive_classification
-
-    return None
-
-
-def parse_stream(item):
-    for index, row in item.iterrows():
-        key = item.iloc[index, 0]
-        value = item.iloc[index, 1]
-        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
-            stream_text = re.findall(r'Stream \d+', value)[0]
-        if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
-            response = value
-            if "Yes" in response:
-                return stream_text
-    return None
-
-
 def fill_in_single_line_arguments(item, applicant):
     # Fill in single line entries that require very little processing.
     first_column = item[item.columns[0]].astype(str)
 
     if first_column.str.startswith("Citoyenneté").any():
         applicant.citizenship = parse_citizenship(item)
+
     if first_column.str.startswith("Droit de priorité").any():
         applicant.priority = parse_priority(item)
+
     if first_column.str.contains("combattants").any():
         applicant.veteran_preference = parse_is_veteran(item)
+
     if first_column.str.startswith("Première langue officielle").any():
-        applicant.first_official_language = parse_first_official_language(item)
+        applicant.first_official_language = parse_single_line_applicant_detail(item, "Première langue officielle / First official language:")
+
     if first_column.str.startswith("Connaissance pratique").any():
         working_ability = parse_working_ability(item)
-        applicant.french_working_ability = parse_french_ability(
-            working_ability)
-        applicant.english_working_ability = parse_english_ability(
-            working_ability)
+        print(' ~~~~~~~ ', working_ability)
+        applicant.french_working_ability = parse_french_ability(working_ability)
+        applicant.english_working_ability = parse_english_ability(working_ability)
+
     if first_column.str.contains("Examen écrit / Written exam:").any():
-        applicant.written_exam = parse_written_exam_language(item)
+        applicant.written_exam = parse_single_line_applicant_detail(item, "Examen écrit / Written exam:")
+
     if first_column.str.contains("Correspondance: / Correspondence:").any():
-        applicant.correspondence = parse_corresponsence_language(item)
+        applicant.correspondence = parse_single_line_applicant_detail(item, "Correspondance: / Correspondence:")
+
     if first_column.str.contains("Entrevue / Interview:").any():
-        applicant.interview = parse_interview_language(item)
+        applicant.interview = parse_single_line_applicant_detail(item, "Entrevue / Interview:")
 
     return applicant
 
@@ -565,6 +405,7 @@ def strip_bullet_points(string):
     string = string.replace("\n -", "\n• ")
     return string
 
+
 def get_answer(table, answers, position):
     # Creates a list of answers and finds the corresponding question from the questions attached to the position.
     all_questions = position.questions.all()
@@ -586,33 +427,69 @@ def get_answer(table, answers, position):
     return answers
 
 
+# Given a string that defines a column with certain information, retrieve
+# the information if it exists where it should be.
+def parse_education_detail(item, defining_string):
+    first_column = item[item.columns[0]].astype(str)
+
+    if first_column.str.contains(defining_string).any():
+        return get_column_value(defining_string, item)
+    else:
+        return None
+
+
 def get_education(item, educations):
     # Makes a list of educations.
     if is_education(item):
-        educations.append(Education(academic_level=parse_academic_level(item),
-                                    area_of_study=parse_area_of_study(item),
-                                    specialization=parse_specialization(item),
-                                    program_length=parse_program_length(item),
-                                    num_years_completed=parse_num_years_completed(
-                                        item),
-                                    institution=parse_institution(item),
-                                    graduation_date=parse_graduation_date(item)))
+        educations.append(
+            Education(academic_level=parse_education_detail(
+                          item, "Niveau d'études / Academic Level:"),
+
+                      area_of_study=parse_education_detail(
+                          item, "Domaine d'études / Area of Study:"),
+
+                      specialization=parse_education_detail(
+                          item, "Domaine de spécialisation / Specialization:"),
+
+                      program_length=parse_education_detail(
+                          item, "Longueur du programme (Années) / Program Length (Years):"),
+
+                      num_years_completed=parse_education_detail(
+                          item, "Années complétées / Nbr of Years Completed:"),
+
+                      institution=parse_education_detail(
+                          item, "Établissement d'enseignement / Institution:"),
+
+                      graduation_date=parse_education_detail(
+                          item, "Date de graduation / Graduation Date:")))
     return educations
+
+
+def parse_stream(item):
+    for index, row in item.iterrows():
+        key = item.iloc[index, 0]
+        if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
+            value = item.iloc[index, 1]
+            if "Yes" in value:
+                if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+                    stream_text = re.findall(r'Stream \d+', value)[0]
+                    return stream_text
+    return None
 
 
 def parse_stream_description(item):
     for index, row in item.iterrows():
         key = item.iloc[index, 0]
-        value = item.iloc[index, 1]
-        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
-            stream_text = re.split(r'\d+', value, 1)[1]
         if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
+            value = item.iloc[index, 1]
             response = value
             if "Yes" in response:
-                stream_text = stream_text.replace(",", "")
-                stream_text = stream_text.replace("?", "")
+                if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+                    stream_text = re.split(r'\d+', value, 1)[1]
 
-                return stream_text
+                    stream_text = stream_text.replace(",", "")
+                    stream_text = stream_text.replace("?", "")
+                    return stream_text
     return None
 
 
@@ -643,11 +520,27 @@ def get_streams(item, streams):
     return streams
 
 
+def parse_classification_value(item, defining_string):
+    for index, row in item.iterrows():
+        found_string = item.iloc[index, 0]
+        if fuzz.partial_ratio(defining_string, found_string) > 90:
+            classification = item.iloc[index, 1]
+            return classification
+
+    return None
+
+
 def get_classifications(item, classifications):
     # Makes a list of classifications.
     if is_classification(item):
-        classifications.append(Classification(classification_substantive=parse_substantive(item),
-                                              classification_current=parse_current(item)))
+        classifications.append(
+            Classification(classification_substantive=
+                                parse_classification_value(
+                                    item, "Substantive group and level"),
+
+                           classification_current=
+                                parse_classification_value(
+                                    item, "Current group and level")))
     return classifications
 
 
@@ -732,9 +625,7 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
 def get_total_applicants(filepaths, task_id):
     count = 0
     for filepath in filepaths:
-        df = tabula.read_pdf(filepath, options, pages="all",
-                             multiple_tables="true",
-                             lattice="true")
+        df = tabula_read_pdf(filepath)
         for idx, item in enumerate(df):
             if not item.empty:
                 first_column = item[item.columns[0]]
