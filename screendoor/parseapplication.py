@@ -227,7 +227,6 @@ def fill_in_single_line_arguments(item, applicant):
 
     if first_column.str.startswith("Connaissance pratique").any():
         working_ability = parse_working_ability(item)
-        print(' ~~~~~~~ ', working_ability)
         applicant.french_working_ability = parse_french_ability(working_ability)
         applicant.english_working_ability = parse_english_ability(working_ability)
 
@@ -468,28 +467,27 @@ def get_education(item, educations):
 def parse_stream(item):
     for index, row in item.iterrows():
         key = item.iloc[index, 0]
+        value = item.iloc[index, 1]
+        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+            stream_text = re.findall(r'Stream \d+', value)[0]
         if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
-            value = item.iloc[index, 1]
             if "Yes" in value:
-                if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
-                    stream_text = re.findall(r'Stream \d+', value)[0]
-                    return stream_text
+                return stream_text
     return None
 
 
 def parse_stream_description(item):
     for index, row in item.iterrows():
         key = item.iloc[index, 0]
+        value = item.iloc[index, 1]
+        if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
+            stream_text = re.split(r'\d+', value, 1)[1]
         if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
-            value = item.iloc[index, 1]
-            response = value
-            if "Yes" in response:
-                if fuzz.partial_ratio("Question - Anglais / English:", key) > 80:
-                    stream_text = re.split(r'\d+', value, 1)[1]
+            if "Yes" in value:
+                stream_text = stream_text.replace(",", "")
+                stream_text = stream_text.replace("?", "")
 
-                    stream_text = stream_text.replace(",", "")
-                    stream_text = stream_text.replace("?", "")
-                    return stream_text
+                return stream_text
     return None
 
 
@@ -498,10 +496,9 @@ def parse_stream_response(item):
         key = item.iloc[index, 0]
         value = item.iloc[index, 1]
         if fuzz.partial_ratio("Réponse du postulant / Applicant Answer:", key) > 80:
-            response = value
-            if "Yes" in response:
+            if "Yes" in value:
                 return True
-            elif "No" in response:
+            elif "No" in value:
                 return False
 
     return None
@@ -510,8 +507,7 @@ def parse_stream_response(item):
 def get_streams(item, streams):
     # Makes a list of streams.
     if is_stream(item):
-        stream = parse_stream(item)
-        if stream is None:
+        if parse_stream(item) is None:
             return streams
         else:
             streams.append(Stream(stream_name=parse_stream(item),
@@ -566,18 +562,22 @@ def find_essential_details(tables, position):
             streams = get_streams(item, streams)
             classifications = get_classifications(item, classifications)
             applicant = fill_in_single_line_arguments(item, applicant)
+
     applicant.applicant_id = ''.join(
         random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
     for answer in answers:
         answer.parent_applicant = applicant
         answer.save()
+
     for item in educations:
         item.parent_applicant = applicant
         item.save()
+
     for item in streams:
         item.parent_applicant = applicant
         item.save()
+
     for item in classifications:
         item.parent_applicant = applicant
         item.save()
