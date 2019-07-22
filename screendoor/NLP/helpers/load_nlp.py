@@ -127,4 +127,5 @@ def init_spacy_module():
     nlp.add_pipe(merge_ents, last=True)
 
     nlp.add_pipe(LanguageDetector(), name='language_detector', last=True)
+
     return nlp

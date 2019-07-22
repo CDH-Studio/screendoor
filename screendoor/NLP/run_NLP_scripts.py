@@ -14,6 +14,8 @@ def generate_nlp_extracts(comp_response_text, linked_question, linked_answer, cl
     # Create the NLP doc objects of both the originally formatted text,
     # and the secret reformatted text
     orig_doc = NLP_MODEL(comp_response_text)
+    if not orig_doc._.language.get('language') == 'en':
+        return
 
     reformatted_text = post_nlp_format_input(orig_doc)
     reformatted_text = replace_acronyms_with_full_month(strip_faulty_formatting(reformatted_text))
