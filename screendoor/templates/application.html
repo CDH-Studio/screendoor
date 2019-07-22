@@ -262,37 +262,105 @@
         </div>
 
         <!-- QUESTION HEADERS -->
+        <ul class="question-list">
+          {% for answer in answers %}
+          <li class="question-preview">
+            <!-- QUESTION PREVIEW -->
+            <div class="question-preview-div hoverable row collapse question-row {% if answer.applicant_answer is True %}yes-answer {% else %}no-answer{% endif %}">
+              <div class="row header-row question-row">
+                <div class="col cell-header">
+                  <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
+                </div>
+                {% if answer.parent_question.parent_requirement is not None %}
+                <span class="col requirement-abbreviation applicant-summary-card-small list card-panel blue">
+                  {{ answer.parent_question.parent_requirement.abbreviation }}
+                </span>
+                <data class="question-data-text" value=": {{ answer.short_question_text }} "></data>
+                <data class="tooltiptext" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
+                {% endif %}
+                <span class="col s11 cell-header question-row short-question-text truncation">
+                  {{ answer.parent_question.short_question_text }}
+                </span>
 
-        {% for answer in answers %}
+                <!-- EXTRACT PREVIEWS -->
+                <div class="extract-previews col s11">
+                  {% if answer.extract_set is not None %}
+                  {% for extract in answer.extract_set %}
+                  {% if extract.extract_type == 'WHEN' %}
+                  <i class="material-icons red-text text-lighten-1">date_range</i>
+                  {% elif extract.extract_type == 'HOW' %}
+                  <i class="material-icons brown-text text-lighten-1">work</i>
+                  {% endif %}
+                  <span class="extract-preview grey-text text-darken-1">
+                    {{ extract.extract_text|capfirst|linebreaksbr }}
+                    {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
+                    <br>
+                    {% endif %}
+                  </span>
+                  {% endfor %}
+                  {% else %}
+                  <i class="material-icons extract-icon red-text text-darken-1">clear</i>
+                  <span class="extract-preview grey-text text-darken-1">
+                    {{ applicantText.no_analysis }}
+                  </span>
+                  {% endif %}
+                </div>
 
-        <div class="row collapse question-row {% if answer.applicant_answer is True %}yes-answer
-                    {% else %}no-answer{% endif %}">
-          <div class="row header-row question-row hoverable">
-            <div class="col cell-header">
-              <i class="question-icons material-icons {% if answer.applicant_answer is True %}green-text {% else %} red-text{% endif %}">question_answer</i>
+              </div>
+
+              <div class="question-answer-full row-closed">
+                <div class="row question-icons-bar">
+                  <div class="col s3">
+                    <i class="material-icons orange-text add-note">note_add</i>
+                  </div>
+                </div>
+                <div class="row question-response-extracts">
+                  <div class="col s6 applicant-response-full">
+
+                  </div>
+                  <div class="col s6 extracts-full">
+
+                  </div>
+                </div>
+              </div>
+
             </div>
-            <div class="col s11 cell-header question-row short-question-text truncation">
+          </li>
 
-              {% if answer.parent_question.parent_requirement is not None %}
-              <span class="requirement-abbreviation applicant-summary-card-small list card-panel blue">
-                {{ answer.parent_question.parent_requirement.abbreviation }}
-              </span>
-              <data class="tooltiptext" value=": {{ answer.parent_question.parent_requirement.description }}
-"></data>
-              {% endif %}
+          <!-- QUESTION TEXT -->
 
-              {{ answer.parent_question.short_question_text }}
-            </div>
-          </div>
-        </div>
+          <!-- QUESTION MOUSE-OVER -->
 
-        <!-- applicant-summary-card-small list card-panel blue -->
 
-        {% endfor %}
-
+          {% endfor %}
+        </ul>
 
         {% comment %}
         <!--
+
+             <span class="analysis-preview blue-text text-darken-2">
+             {% for extract in answer.extract_set %}
+             {% if forloop.first %}
+             {% if extract.extract_type == 'WHEN' %}
+             <i class="material-icons extract-icon">date_range</i>
+             {% elif extract.extract_type == 'HOW' %}
+             <i class="material-icons extract-icon">work</i>
+             {% endif %}
+             {% if extract is not None %}
+             {{ extract.extract_text|capfirst }}
+             {% endif %}
+             {% endif %}
+             {% endfor %}
+             {% if answer.applicant_answer is False %}
+             {% elif answer.extract_set is None %}
+             <i class="material-icons extract-icon">clear</i>
+             <span class="extract-preview">
+             {{ applicantText.no_analysis }}
+             </span>
+             {% endif %}
+             </span>
+
+
              {% for answer in answers %}
              <input type="hidden" id="analysis-full{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{{ extract.extract_type }}: {{ extract.extract_text }}<br>{% endfor %}">
              <input type="hidden" id="analysis-short{{ forloop.counter0 }}" value="{% for extract in answer.extract_set %}{% if forloop.first %}{{ extract.extract_type }}: {{ extract.extract_text }}{% endif %}{% endfor %}">
