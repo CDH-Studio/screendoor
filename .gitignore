@@ -138,3 +138,6 @@ screendoor/applications
 code/screendoor/temp/
 .map
 *.map
+
+static/admin
+django.env

@@ -212,13 +212,13 @@ def determine_if_recent_criteria_met(date_range_list, closing_date, recency_requ
     if is_years:
         cutoff_date = closing_date + relativedelta(years=-recency_requirement)
         if relativedelta(most_recent_experience, cutoff_date).years >= 0:
-            return 'Passed'
+            return 'PASS'
     else:
         cutoff_date = closing_date + relativedelta(months=-recency_requirement)
         if relativedelta(most_recent_experience, cutoff_date).months >= 0:
-            return 'Passed'
+            return 'PASS'
 
-    return 'Failed'
+    return 'FAIL'
 
 
 # Aggregate the experience an applicant has to a single value.
@@ -246,9 +246,9 @@ def determine_if_significant_criteria_met(date_range_list, needed_quantity, is_y
 
     if total_experience:
         if is_years:
-            return 'Passed' if total_experience.years >= needed_quantity else 'Failed'
+            return 'PASS' if total_experience.years >= needed_quantity else 'FAIL'
         else:
-            return 'Passed' if total_experience.months >= needed_quantity else 'Failed'
+            return 'PASS' if total_experience.months >= needed_quantity else 'FAIL'
 
 
 # Given a number within a date, either stated verbosely (three, seven)
