@@ -305,6 +305,11 @@ input[type=number]::-webkit-outer-spin-button {
   cursor: pointer;
 }
 
+.add-note i {
+  margin: 5px 15px 10px 15px;
+  font-size: 2rem;
+}
+
 .save-note, .cancel-note, .delete-note {
   cursor: pointer;
 }
@@ -314,13 +319,20 @@ input[type=number]::-webkit-outer-spin-button {
   margin-top: 5px;
 }
 
-.note-textarea {
-  background-color: #fff !important;
+#note-textarea {
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  outline: 0;
   color: #333;
-  height: 100px;
-  padding: 10px;
-  border: solid 1px gray;
-  margin: 5px;
+  box-shadow: none;
+  border: 1px solid #ced4da;
+  border-radius: 0;
+  box-sizing: content-box;
+  background-color: #fafafa;
+  padding: 1.5rem 1.5rem;
+  resize: none;
+  width: auto;
+  visibility: hidden !important;
+  max-height: 0px !important;
 }
 
 .notes-header {
@@ -500,7 +512,7 @@ tr {
 .applicant-response-full-open {
   text-overflow: initial !important;
   overflow: initial !important;
-  max-height: 1000rem !important;
+  max-height: 100rem !important;
   opacity: 1 !important;
 
   -webkit-transition: all .5s;
@@ -515,7 +527,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 1000rem !important;
+  max-height: 100rem !important;
   opacity: 1 !important;
 
   -webkit-transition: all .5s;
@@ -544,7 +556,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 1000rem !important;
+  max-height: 100rem !important;
   opacity: 1 !important;
 
   -webkit-transition: all .5s;
@@ -557,7 +569,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 1000rem !important;
+  max-height: 100rem !important;
   opacity: 1 !important;
 
   -webkit-transition: all .5s;
@@ -793,7 +805,7 @@ th a {
 
 
 .education-header {
-  max-height: 6xrem;
+  max-height: 6rem;
   padding: 15px 15px;
   margin: 0px 0px;
 
@@ -844,7 +856,7 @@ th a {
 }
 
 .education-header:hover {
-  max-height: 1000px !important;
+  max-height: 500px !important;
   cursor: pointer;
 
   -webkit-transition: max-height 1s, white-space 1s, font-size .1s, transform .3s;
@@ -980,7 +992,7 @@ th {
   -moz-transition: max-height 1s, white-space 1s, font-size .1s;
   -o-transition: max-height 1s, white-space 1s, font-size .1s;
   transition: max-height 1s, white-space 1s, font-size .1s;
-  max-height: 1000px;
+  max-height: 500px;
 }
 
 /* New "Table" structure */
@@ -1098,7 +1110,7 @@ div {
   margin-top: 0px;
   margin-bottom: 0px;
   border-bottom: solid 1px #e0e0e0;
-  max-height: 1000px;
+  max-height: 500px;
   padding: 10px 0px 10px 5px;
   overflow: hidden;
 
@@ -1112,7 +1124,7 @@ div {
   margin-top: 0px;
   margin-bottom: 0px;
   border-bottom: solid 0px #e0e0e0;
-  max-height: 1000px;
+  max-height: 500px;
   padding: 10px 0px 10px 5px;
   overflow: hidden;
 

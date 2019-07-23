@@ -1,5 +1,5 @@
 const addNoteButtons = document.getElementsByClassName("add-note");
-const noteInputs = document.getElementsByClassName("note-input");
+
 const cancelNoteButtons = document.getElementsByClassName("cancel-note");
 const saveNoteButtons = document.getElementsByClassName("save-note");
 const addNoteForms = document.getElementsByClassName("note-form");
@@ -7,6 +7,11 @@ const addNoteForms = document.getElementsByClassName("note-form");
 const deleteNoteForms = document.getElementsByClassName("delete-note-form");
 const deleteNoteButtons = document.getElementsByClassName("delete-note");
 const noteDeleteAnswerCounters = document.getElementsByClassName("note-delete-answer-counter");
+
+const noteRows = document.getElementsByClassName("notes-row");
+const noteAreas = document.getElementsByClassName("notes-area");
+
+const noteTextArea = document.getElementById('note-textarea');
 
 const persistOpenedQuestion = function(i) {
   localStorage.setItem('questionIndex', i);
@@ -17,7 +22,13 @@ const persistOpenedEditBox = function(i) {
 };
 
 const toggleNoteInput = function(i) {
-  noteInputs[i].classList.contains("hide") ? showElements(noteInputs[i]) : hideElements(noteInputs[i]);
+  if (noteAreas[i].contains(noteTextArea)) {
+    noteAreas[i].removeChild(noteTextArea);
+    noteTextArea.style.visibility = "hidden";
+  } else {
+    noteAreas[i].insertBefore(noteTextArea, deleteNoteForms[i].nextSibling);
+    noteTextArea.style.visibility = "visible";
+  }
 };
 
 const retrieveOpenedQuestion = function() {

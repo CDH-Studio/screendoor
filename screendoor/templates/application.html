@@ -245,7 +245,7 @@
                   <div class="tooltip">
                     <i class="material-icons {% if qualifier.status == 'FAIL' %}red-text{% elif qualifier.status == 'PASS' %}green-text{% else %}grey-text{% endif %}">{% if qualifier.status == 'FAIL' %}close{% elif qualifier.status == 'PASS' %}check_circle{% else %}help_outline{% endif %}</i>
                     <span class="tooltiptext">{% if qualifier.status == 'FAIL' %}Failed{% elif qualifier.status == 'PASS' %}Passed{% else %}Indeterminate{% endif %}: {{ qualifier.qualifier_text }}</span></div>
-                    {% endfor %}
+                  {% endfor %}
                 </div>
                 <div class="extract-previews col s11">
                   {% if answer.extract_set is not None %}
@@ -272,12 +272,28 @@
               </div>
             </div>
             <div class="question-answer-full row-closed row {% if answer.applicant_answer is True %}yes-answer-light {% else %}no-answer-light{% endif %}">
-              <div class="hide row question-row question-buttons">
-                <div class="col cell-header add-note">
+              <div class="row question-row question-buttons notes-row">
+                <div class="col add-note tooltip">
                   <i class="question-icons material-icons orange-text">note_add</i>
+                  <span class="tooltiptext">Add a note on this answer</span>
                 </div>
-                <div class="col notes-area">
-
+                {% csrf_token %}
+                <div class="col s10 notes-area">
+                  <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
+                    <input type="hidden" name="parent-answer" value="{{ answer.id }}">
+                    {% for note in answer.note_set %}
+                    <input type="hidden" name="note-id" value="{{ note.id }}">
+                    <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">
+                    {{ forloop.counter }}.
+                    {{ note.author }}:
+                    {{ note.note_text }} - {{ note.created }}
+                    {% endfor %}
+                    <i class="material-icons red-text delete-note">delete_forever</i>
+                    <span class="save-cancel-note">
+                      <i class="material-icons red-text cancel-note">cancel</i>
+                      <i class="material-icons green-text save-note">add_circle</i>
+                    </span>
+                  </form>
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
@@ -321,7 +337,7 @@
 
           {% endfor %}
         </ul>
-
+        <textarea class="note-textarea" id="note-textarea" name="note-input" placeholder="Enter your note here" required></textarea>
         {% comment %}
         <!--
 
@@ -642,7 +658,7 @@
 <!-- Script for extract origin highlighting -->
 <script src="{% static 'js/sentence-highlighting.js' %}"></script>
 <!-- Script for adding notes to positions -->
-<!-- <script src="{% static 'js/notes.js' %}"></script> -->
+<script src="{% static 'js/notes.js' %}"></script>
 <!-- Script for initializing modal pop-ups -->
 <script src="{% static 'js/sd-modal.js' %}"></script>
 <script src="{% static 'js/applicant-questions.js' %}"></script>
