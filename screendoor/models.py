@@ -213,22 +213,23 @@ class FormAnswer(models.Model):
 
 class Qualifier(models.Model):
     QUALIFIER_TYPES = [
-        ('RECENCY', 'A range that the most recent experience must be within'),
-        ('SIGNIFICANCE', 'A threshold that the aggregate experience must exceed')
+        ('RECENCY', 'Recency'),
+        ('SIGNIFICANCE', 'Significance')
     ]
     RESULT = [
-        ('Passed', "The applicant's experience met or exceeded the experience qualifier"),
-        ('Indeterminate', "The applicant's experience could not be adequetly quantified with the dates provided"),
-        ('Failed', "The dates that the applicant provided did not meet the experience qualifier")
+        ('PASS', "Passed"),
+        ('IND', "Indeterminate"),
+        ('FAIL', "Failed")
     ]
 
     parent_answer = models.ForeignKey(
         FormAnswer, on_delete=models.CASCADE, null=True, related_name='qualifier')
     qualifier_text = models.TextField(
         blank=True, null=True)
-    qualifier_type = models.CharField(max_length=200, null=True)
-    status = models.CharField(
+    qualifier_type = models.CharField(
         choices=QUALIFIER_TYPES, max_length=200, null=True)
+    status = models.CharField(
+        choices=RESULT, max_length=200, null=True)
 
     def __str__(self):
         return str(self.qualifier_text)
