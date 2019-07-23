@@ -174,7 +174,7 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
     requirement_list = re.split(
-        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)",
+        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►→]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)",
         requirement_block_text, 0,
         re.MULTILINE)
     return requirement_list
@@ -296,7 +296,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
+    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*.+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -342,9 +342,14 @@ def check_for_duplicates_and_errors(requirement_list):
         if len(item1) < 5:
             requirement_list[index1] = ""
         if item1.endswith("."):
-            requirement_list[index1] = item1.rsplit(".", 1)[0]
-        if "►" in item1:
-            requirement_list[index1] = item1.strip("►")
+            item1 = item1[:len(item1)-2]
+        if item1.startswith("."):
+            item1 = item1[1:]
+        item1 = item1.strip("►")
+        item1 = item1.strip("→")
+        item1 = item1.strip("*")
+        item1 = item1.strip("•")
+        requirement_list[index1] = item1
 
     return requirement_list
 
@@ -360,12 +365,12 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     definition_key = ["defined as", "acquired through", "acquired over", "refers to", "means more than",
                       "assessed based", "completion of grade", "may include", "defined by"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
-    joining_phrase_list = ["acceptable alternative", "select up to", "not limited to"]
+    joining_phrase_list = ["following combinations"]
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
                                "must meet all", "deciding factor", "provide appropriate", "being rejected",
                                "responsible for obtaining", "must be provided", "diversity is our strength",
-                               "Attention to detail", "Effective interpersonal relationships"]
-    x = 1
+                               "Attention to detail", "Effective interpersonal relationships", "when describing how",
+                               "must have been obtained", "applicants must"]
     write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
@@ -383,6 +388,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
                 clean_out_definitions(section[1], definitions), joining_phrase_list, forbidden_sentence_list)
     requirement_list = check_for_duplicates_and_errors(requirement_list)
 
+    x = 1
     for item in requirement_list:
         if item.strip() != "":
             item = scrub_extra_whitespace(item.strip())
@@ -457,6 +463,7 @@ def print_variables(position):
 
 
 def extract_non_text_block_information(position, pdf_poster_text):
+    os.chdir(os.getcwd())
     write_text_file("postertext", pdf_poster_text)
     header_text = pdf_poster_text.split("Important messages")[0]
     position.position_title = extract_job_title(header_text)
@@ -483,6 +490,7 @@ def extract_non_text_block_information(position, pdf_poster_text):
 
 
 def scrub_raw_text(pdf_poster_text):
+    os.chdir(os.getcwd())
     # Removes lines starting with https or mailto
     write_text_file("rawpostertext", pdf_poster_text)
     pdf_poster_text = re.sub(r"^\nhttp(?:(?!abc)(?!\n\n).)*\s*", '', pdf_poster_text, 20,
