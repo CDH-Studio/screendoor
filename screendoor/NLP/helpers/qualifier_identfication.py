@@ -151,7 +151,6 @@ def remove_overlapping_ranges(date_range_list):
         return date_range_list
 
     new_date_ranges = []
-    print (date_range_list)
     date_range_list.sort()
     new_date_ranges.append(date_range_list[0])
 

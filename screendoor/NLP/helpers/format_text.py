@@ -112,6 +112,20 @@ def remove_starting_bullet_point_chars(text):
     return text.strip()
 
 
+def strip_bullet_points(string):
+    string = string.replace("\no ", "\n• ")
+    string = string.replace("\n. \n", "\n")
+    string = string.replace("\n. ", "\n• ")
+    string = string.replace("&#61607;", "\n• ")
+    string = string.replace(" &#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; \n", "\n• ")
+    string = string.replace("\n&#9632; ", "\n• ")
+    string = string.replace(", \n", ", ")
+    string = string.replace("\n-", "\n• ")
+    string = string.replace("\n -", "\n• ")
+    return string
+
+
 # Remove faulty spacing, hanging punctuation, and other formatting issues
 # so the return value displays all nice
 def strip_faulty_formatting(text):
