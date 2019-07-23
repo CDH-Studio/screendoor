@@ -174,10 +174,9 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
     requirement_list = re.split(
-        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
+        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)",
         requirement_block_text, 0,
         re.MULTILINE)
-    print("SPLIT SENTENCES: \n" + str(requirement_list))
     return requirement_list
 
 
@@ -206,17 +205,19 @@ def clean_out_definitions(requirement_block_text, definitions):
 
 
 def extract_definitions(requirement_block_text, definition_key, definition_regex):
-    double_line_break_list = re.split(r"\n\s*\n", requirement_block_text)
+    sentences = sentence_split(requirement_block_text)
     definitions = []
-    for block in reversed(double_line_break_list):
-        print("BLOCK:\n" + block)
-        block = block.strip()
+    for sentence in reversed(sentences):
+        sentence = sentence.strip()
         for key in definition_key:
-            if key.lower() in block.lower():
+            if key.lower() in sentence.lower():
+                print("//////////////////////////////DEFINITION DEBUGGING//////////////////////////////")
+                print("SENTENCE:\n" + sentence)
                 print("Recognized with phrase:\n" + key)
-                definitions = definitions + sentence_split(block)
-        if re.search(definition_regex, block):
-            definitions = definitions + sentence_split(block)
+                print("////////////////////////////////////////////////////////////////////////////////")
+                definitions.append(sentence)
+        if re.search(definition_regex, sentence):
+            definitions.append(sentence)
 
     cleaned_definitions = []
     for definition in definitions:
@@ -250,7 +251,6 @@ def assign_description(item, definitions):
             key_phrase_list.append(first_few_words[0] + " " + first_few_words[1])
         else:
             key_phrase_list.append(first_few_words[0])
-    print("Recognized Key Statements" + str(key_phrase_list))
     if len(key_phrase_list) > 0:
         # If key phrase is in the statement, add definition
         definitions_to_append = ""
@@ -296,7 +296,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)|^►.+"
+    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -307,7 +307,8 @@ def identify_sections(requirement_block_text, requirement_type, definition_key):
 
 def is_definition(text, definition_key, definition_regex):
     pattern = re.compile(definition_regex, re.MULTILINE)
-
+    print("SECTION BEING PROCESSED: ")
+    print(text)
     for key in definition_key:
         if key in text:
             return True
@@ -342,6 +343,8 @@ def check_for_duplicates_and_errors(requirement_list):
             requirement_list[index1] = ""
         if item1.endswith("."):
             requirement_list[index1] = item1.rsplit(".", 1)[0]
+        if "►" in item1:
+            requirement_list[index1] = item1.strip("►")
 
     return requirement_list
 
@@ -354,8 +357,8 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     # Text before first header is labelled non-headered-text
     list_of_forbidden_sections = ["knowledge:", "abilities and skills:", "personal suitability:", "note:",
                                   "definitions:", "competencies", "Written Communication"]
-    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than",
-                      "assessed based", "completion of grade", "may include"]
+    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "means more than",
+                      "assessed based", "completion of grade", "may include", "defined by"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
     joining_phrase_list = ["acceptable alternative", "select up to", "not limited to"]
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
@@ -367,10 +370,10 @@ def generate_requirements(requirement_block_text, position, requirement_type,
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
+    print("SECTIONS IDENTIFIED:")
 
     # For each section...
     for section in sections:
-        print(section[0])
         # If it contains a definition...
         if is_definition(section[1].strip(), definition_key, definition_regex):
             definitions = extract_definitions(section[1], definition_key, definition_regex)
@@ -378,7 +381,6 @@ def generate_requirements(requirement_block_text, position, requirement_type,
         if is_pass_filter(section, list_of_forbidden_sections):
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions), joining_phrase_list, forbidden_sentence_list)
-    print(requirement_list)
     requirement_list = check_for_duplicates_and_errors(requirement_list)
 
     for item in requirement_list:
