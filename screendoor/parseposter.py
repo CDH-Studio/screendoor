@@ -153,7 +153,7 @@ def extract_req_list(pdf_poster_text, position):
 def find_next_header(text):
     text = text.split("(essential for the job)")[1]
     split_by_line_breaks = text.split("\n")
-    list_of_headers = ["The following may be", "Conditions of employment", "The following will be applied"]
+    list_of_headers = ["The following may be", "Conditions of employment", "The following will be applied", "Other information"]
 
     for line in split_by_line_breaks:
         for header in list_of_headers:
@@ -188,7 +188,7 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
     requirement_list = re.split(
-        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►→]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)|^[A-Za-z]+\d\s*:|^[A-Za-z]+\d\s*-",
+        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►→]\s*(?=[A-Z*])|(?<!e\.g)^[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)|^[A-Za-z]+\d\s*:|^[A-Za-z]+\d\s*-",
         requirement_block_text, 0,
         re.MULTILINE)
     return requirement_list
