@@ -227,9 +227,6 @@
             <!-- QUESTION PREVIEW -->
             <div class="question-preview-div hoverable row collapse question-row {% if answer.applicant_answer is True %}yes-answer {% else %}no-answer{% endif %}">
               <div class="row header-row question-row">
-                <div class="hide col cell-header add-note">
-                  <i class="question-icons material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Add note">note_add</i>
-                </div>
                 <div class="col cell-header question-icon-div">
                   <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
                 </div>
@@ -269,6 +266,11 @@
             </div>
 
             <div class="question-answer-full row-closed row {% if answer.applicant_answer is True %}yes-answer-light {% else %}no-answer-light{% endif %}">
+              <div class="row question-row question-buttons">
+                <div class="col hide cell-header add-note">
+                  <i class="question-icons material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Add note">note_add</i>
+                </div>
+              </div>
               <div class="row question-row question-response-extracts">
                 <div class="col s6 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span></div>
                 <div class="col s4 extracts-full">

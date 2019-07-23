@@ -70,7 +70,8 @@ const expandEducationHeaders = function(i) {
 const hiddenEducationInfo = document.getElementsByClassName("hidden-education-info");
 
 const openCloseQuestionFull = function(i) {
-  if (addNoteIcons[i].classList.contains("hide")) {
+  if (!applicantResponseFull[i].classList.contains("applicant-response-full-open")) {
+    questionPreviewDivs[i].classList.remove("hoverable");
     applicantResponseFull[i].classList.add("applicant-response-full-open");
     extractFull[i].classList.add("extracts-full-open");
 
@@ -79,17 +80,16 @@ const openCloseQuestionFull = function(i) {
     }
 
     questionAnswerFull[i].classList.remove("row-closed");
-    addNoteIcons[i].classList.remove("hide");
     questionIcons[i].classList.add("hide");
   } else {
     applicantResponseFull[i].classList.remove("applicant-response-full-open");
     extractFull[i].classList.remove("extracts-full-open");
+    questionPreviewDivs[i].classList.add("hoverable");
 
     for (let j = 0; j < extractFull[i].getElementsByTagName("i").length; j++) {
       extractFull[i].getElementsByTagName("i")[j].classList.add("hide");
     }
 
-    addNoteIcons[i].classList.add("hide");
     questionIcons[i].classList.remove("hide");
     questionAnswerFull[i].classList.add("row-closed");
   }

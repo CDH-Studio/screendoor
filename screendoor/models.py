@@ -196,6 +196,7 @@ class FormQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
+
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
@@ -222,7 +223,7 @@ class Qualifier(models.Model):
     ]
 
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True)
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='qualifier')
     qualifier_text = models.TextField(
         blank=True, null=True)
     qualifier_type = models.CharField(max_length=200, null=True)
