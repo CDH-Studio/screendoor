@@ -1,5 +1,7 @@
 /* ScreenDoor custom styles */
 
+/* MISC */
+
 html {
   min-width: 720px !important;
   background-color: #fafafa;
@@ -337,7 +339,7 @@ input[type=number]::-webkit-outer-spin-button {
      white-space: normal; *
      /
      /* font-size: 1.2rem; */
-  max-width: 93% !important;
+  max-width: 92% !important;
   width: auto;
   text-align: left;
   padding: 5px 5px 5px 5px;
@@ -394,31 +396,120 @@ tr {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.extract-previews-open {
-  text-overflow: initial !important;
-  overflow: initial !important;
-  white-space: normal !important;
-  max-height: 1000rem !important;
-  opacity: 1 !important;
-
-  -webkit-transition: opacity .5s;
-  -moz-transition: opacity .5s;
-  -o-transition: opacity .5s;
-  transition: opacity .5s;
+.complementary-response-header, .extract-full-header {
+  font-size: 1.1rem;
+  margin-bottom: 10px !important;
+  margin-top: -15px !important;
+  color: #616161 !important;
 }
 
-.extract-previews {
-  margin-left: 85px !important;
+.extract-full-header {
+  margin-left: -25px !important;
+}
+
+.applicant-response-full {
+  white-space: pre-wrap;
+  margin: 15px 15px !important;
+
   line-height: 1.6rem;
   opacity: 0;
   max-height: 0rem;
   overflow: hidden;
   text-overflow: hidden;
 
-  -webkit-transition: opacity .5s;
-  -moz-transition: opacity .5s;
-  -o-transition: opacity .5s;
-  transition: opacity .5s;
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+.applicant-response-full-open {
+  text-overflow: initial !important;
+  overflow: initial !important;
+  max-height: 1000rem !important;
+  opacity: 1 !important;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+.extract-previews-open {
+  margin-top: 15px;
+  text-overflow: initial !important;
+  overflow: initial !important;
+  white-space: normal !important;
+  max-height: 1000rem !important;
+  opacity: 1 !important;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+.extracts-full-open {
+  text-overflow: initial !important;
+  overflow: initial !important;
+  white-space: normal !important;
+  max-height: 1000rem !important;
+  opacity: 1 !important;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+.extract-previews {
+  margin-left: 25px !important;
+  line-height: 1.6rem;
+  opacity: 0;
+  max-height: 0rem;
+  overflow: hidden;
+  text-overflow: hidden;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+#answer-highlight {
+  -webkit-transition: background-color .5s;
+  -moz-transition: background-color .5s;
+  -o-transition: background-color .5s;
+  transition: background-color .5s;
+}
+
+.extracts-full {
+  line-height: 1.8rem;
+  opacity: 0;
+  max-height: 0rem;
+  overflow: hidden;
+  text-overflow: hidden;
+  margin: 15px 15px !important;
+  background-color: inherit;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+}
+
+.extracts-full i {
+  line-height: 1.6rem;
+  font-size: 1.2rem;
+  position: absolute;
+  margin-left: -25px;
+  max-height: inherit;
+  overflow: inherit;
+
+  -webkit-transition-property: none !important;
+  -moz-transition-property: none !important;
+  -o-transition-property: none !important;
+  transition-property: none !important;
 }
 
 .extract-previews i {
@@ -428,6 +519,11 @@ tr {
   margin-left: -25px;
   max-height: inherit;
   overflow: inherit;
+
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
 }
 
 
@@ -839,14 +935,6 @@ th {
   margin-bottom: 0px !important;
 }
 
-.question-preview-div {
-
-}
-
-.question-preview-div:hover {
-
-}
-
 .row.question-row.collapse.hoverable:hover {
   transform: scale(1.02);
   z-index: 3;
@@ -945,6 +1033,11 @@ div {
 
 .question-preview:nth-of-type(odd) {
   background-color: #fafafa;
+}
+
+.question-answer-full.row {
+  background-color: inherit;
+  margin-bottom: 0px !important;
 }
 
 .question-row.row.collapse.hoverable {

@@ -248,7 +248,7 @@
                 <!-- EXTRACT PREVIEWS -->
                 <div class="extract-previews col s11">
                   {% if answer.extract_set is not None %}
-                  {% for extract in answer.extract_set %}
+                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons red-text text-lighten-1">date_range</i>
                   {% elif extract.extract_type == 'HOW' %}
@@ -271,24 +271,45 @@
               </div>
             </div>
 
-            <div class="row question-row row-closed {% if answer.applicant_answer is True %}yes-answer {% else %}no-answer{% endif %}">
-              <div class="question-answer-full">
-                <div class="row question-response-extracts">
-                  <div class="col s6 applicant-response-full">
+            <div class="question-answer-full row-closed row {% if answer.applicant_answer is True %}yes-answer-light {% else %}no-answer-light{% endif %}">
+              <div class="row question-row question-response-extracts">
+                <div class="col s6 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span></div>
+                <div class="col s4 extracts-full">
+                  <p class="extract-full-header">{{ applicantText.extracts }}</p>
+                  <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
+                  <data class="answer-id" value="{{ answer.id }}" />
+                  {% if answer.extract_set is not None %}
+                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
 
-                  </div>
-                  <div class="col s6 extracts-full">
-
-                  </div>
+                  <!-- Data classes for sentence highlighting -->
+                  <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
+                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
+                  <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
+                  <data class="extract-string" value="{{ extract.extract_text }}"></data>
+                  <data class="extract-id" value="{{ extract.id }}"></data>
+                  <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
+                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
+                  <!-- Extracts full -->
+                  {% if extract.extract_type == 'WHEN' %}
+                  <i class="material-icons red-text text-lighten-1">date_range</i>
+                  {% elif extract.extract_type == 'HOW' %}
+                  <i class="material-icons brown-text text-lighten-1">work</i>
+                  {% endif %}
+                  <span class="extract-preview grey-text text-darken-1">
+                    <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
+                    <br>
+                  </span>
+                  {% endfor %}
+                  {% else %}
+                  <i class="material-icons extract-icon red-text text-darken-1">clear</i>
+                  <span class="extract-preview grey-text text-darken-1">
+                    {{ applicantText.no_analysis }}
+                  </span>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </li>
-
-          <!-- QUESTION TEXT -->
-
-          <!-- QUESTION MOUSE-OVER -->
-
 
           {% endfor %}
         </ul>
@@ -526,17 +547,6 @@
              <br>
              </a>
              </div>
-             <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}"></data>
-             <data class="answer-id" value="{{ answer.id }}"></data>
-             <div class="col s4 blue-text text-darken-2 extract-full">
-             {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
-             <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
-             <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
-             <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
-             <data class="extract-string" value="{{ extract.extract_text }}"></data>
-             <data class="extract-id" value="{{ extract.id }}"></data>
-             <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
-             <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
              {% if extract.extract_type == 'WHEN' %}
              <i class="material-icons extract-icon">date_range</i>
              {% elif extract.extract_type == 'HOW' %}
@@ -624,7 +634,7 @@
 <!-- Script for extract origin highlighting -->
 <script src="{% static 'js/sentence-highlighting.js' %}"></script>
 <!-- Script for adding notes to positions -->
-<script src="{% static 'js/notes.js' %}"></script>
+<!-- <script src="{% static 'js/notes.js' %}"></script> -->
 <!-- Script for initializing modal pop-ups -->
 <script src="{% static 'js/sd-modal.js' %}"></script>
 <script src="{% static 'js/applicant-questions.js' %}"></script>

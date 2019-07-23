@@ -1,3 +1,9 @@
+const applicantResponseFull = document.getElementsByClassName("applicant-response-full");
+
+const extractPreviews = document.getElementsByClassName("extract-previews");
+
+const extractFull = document.getElementsByClassName("extracts-full");
+
 const requirementAbbreviations = document.getElementsByClassName("requirement-abbreviation");
 const requirementTips = document.getElementsByClassName("tooltiptext");
 
@@ -10,7 +16,6 @@ const shortQuestionTexts = document.getElementsByClassName("short-question-text"
 
 const questionIcons = document.getElementsByClassName("question-icon-div");
 
-const extractPreviews = document.getElementsByClassName("extract-previews");
 
 const questionAnswerFull = document.getElementsByClassName("question-answer-full");
 
@@ -67,11 +72,17 @@ const hiddenEducationInfo = document.getElementsByClassName("hidden-education-in
 
 const openCloseQuestionFull = function(i) {
   if (addNoteIcons[i].classList.contains("hide")) {
+    applicantResponseFull[i].classList.add("applicant-response-full-open");
+    extractFull[i].classList.add("extracts-full-open");
+    questionAnswerFull[i].classList.remove("row-closed");
     addNoteIcons[i].classList.remove("hide");
     questionIcons[i].classList.add("hide");
   } else {
+    applicantResponseFull[i].classList.remove("applicant-response-full-open");
+    extractFull[i].classList.remove("extracts-full-open");
     addNoteIcons[i].classList.add("hide");
     questionIcons[i].classList.remove("hide");
+    questionAnswerFull[i].classList.add("row-closed");
   }
 };
 
