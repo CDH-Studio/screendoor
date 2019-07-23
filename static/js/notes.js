@@ -11,7 +11,9 @@ const noteDeleteAnswerCounters = document.getElementsByClassName("note-delete-an
 const noteRows = document.getElementsByClassName("notes-row");
 const noteAreas = document.getElementsByClassName("notes-area");
 
-const noteTextArea = document.getElementById('note-textarea');
+const noteTextArea = document.getElementsByClassName('note-box');
+
+const noteInputs = document.getElementsByClassName('note-input');
 
 const persistOpenedQuestion = function(i) {
   localStorage.setItem('questionIndex', i);
@@ -22,18 +24,16 @@ const persistOpenedEditBox = function(i) {
 };
 
 const toggleNoteInput = function(i) {
-  if (noteAreas[i].contains(noteTextArea)) {
-    noteAreas[i].removeChild(noteTextArea);
-    noteTextArea.style.visibility = "hidden";
+  if (noteTextArea[i].classList.contains("note-box-visible")) {
+    noteTextArea[i].classList.remove("note-box-visible");
   } else {
-    noteAreas[i].insertBefore(noteTextArea, deleteNoteForms[i].nextSibling);
-    noteTextArea.style.visibility = "visible";
+    noteTextArea[i].classList.add("note-box-visible");
   }
 };
 
 const retrieveOpenedQuestion = function() {
   if (localStorage.getItem('questionIndex')) {
-    questionHeaders[localStorage.getItem('questionIndex')].click();
+    questionPreviewDivs[localStorage.getItem('questionIndex')].click();
     localStorage.removeItem('questionIndex');
   }
   if (localStorage.getItem('boxOpen')) {
@@ -65,6 +65,9 @@ window.addEventListener('DOMContentLoaded', function() {
   retrieveOpenedQuestion();
   getScrollLocation();
   for (let i = 0; i < addNoteButtons.length; i++) {
+
+    i % 2 === 0 ? noteInputs[i].style.backgroundColor = "#ffffff" : noteInputs[i].style.backgroundColor = "#fafafa";
+
     addNoteButtons[i].addEventListener("click", () => { toggleNoteInput(i); });
     cancelNoteButtons[i].addEventListener("click", () => { cancelAddNote(i); });
     saveNoteButtons[i].addEventListener("click", () => { saveNote(i); });
