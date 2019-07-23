@@ -243,8 +243,6 @@
                 <div class="col {% if answer.parent_question.parent_requirement is not None %}
                             s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ answer.parent_question.short_question_text }}
                 </div>
-
-                <!-- EXTRACT PREVIEWS -->
                 <div class="extract-previews col s11">
                   {% if answer.extract_set is not None %}
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
