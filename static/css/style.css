@@ -309,8 +309,8 @@ input[type=number]::-webkit-outer-spin-button {
   font-weight: 400;
   font-size: 1rem;
   max-width: 4rem;
-  margin-left: -3px !important;
-  margin-right: -5px !important;
+  margin-left: 15px !important;
+  margin-right: 15px !important;
   width: 100%;
   max-height: 100%;
   text-overflow: ellipsis;
@@ -336,9 +336,9 @@ input[type=number]::-webkit-outer-spin-button {
   /* text-overflow: initial;
      overflow: initial;
      white-space: normal; *
-/
-  /* font-size: 1.2rem; */
-  max-width: 96% !important;
+     /
+     /* font-size: 1.2rem; */
+  max-width: 93% !important;
   width: auto;
   text-align: left;
   padding: 5px 5px 5px 5px;
@@ -587,36 +587,103 @@ th a {
   border-right: 4px #FFCDD2 solid;
 }
 
-.education-item {
-  padding-top: 0px !important;
-  padding-bottom: 0px !important;
-  padding-left: 15px !important;
-}
 
 .education-header {
-  white-space: nowrap;
-  text-overflow: ellipsis !important;
-  overflow: hidden;
-  max-height: 4rem;
+  max-height: 6xrem;
+  padding: 15px 15px;
+  margin: 0px 0px;
 
-  -webkit-transition: max-height 1s, white-space 1s;
-  -moz-transition: max-height 1s, white-space 1s;
-  -o-transition: max-height 1s, white-space 1s;
-  transition: max-height 1s, white-space 1s;
+  -webkit-transition: max-height 1s, white-space 1s, transform .3s;
+  -moz-transition: max-height 1s, white-space 1s, transform .3s;
+  -o-transition: max-height 1s, white-space 1s, transform .3s;
+  transition: max-height 1s, white-space 1s, transform .3s;
+}
+
+.education-header.body-row {
+  border-top: solid 0px #e0e0e0;
+  border-bottom: solid 0px #e0e0e0;
+}
+
+.hidden-education-info.body-row {
+  border-top: solid 0px #e0e0e0;
+  border-bottom: solid 0px #e0e0e0;
+}
+
+.specialization {
+  margin-left: 40px !important;
+}
+
+.program-length {
+  margin-left: -5px !important;
+}
+
+.expand-collapse-education, .expand-collapse-question {
+  position: absolute;
+  margin-top: -3px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.hidden-education-info .cell-body {
+  font-weight: 400 !important;
+  color: #616161 !important;
+}
+
+.education-item .cell-header:hover {
+
+}
+
+.education-item:hover {
+  transform: scale(1.02) !important;
+  z-index: 3 !important;
+  box-shadow: 0px 0px !important;
+}
+
+.education-header:hover {
+  max-height: 1000px !important;
+  cursor: pointer;
+
+  -webkit-transition: max-height 1s, white-space 1s, font-size .1s, transform .3s;
+  -moz-transition: max-height 1s, white-space 1s, font-size .1s, transform .3s;
+  -o-transition: max-height 1s, white-space 1s, font-size .1s, transform .3s;
+  transition: max-height 1s, white-space 1s, font-size .1s, transform .3s;
+}
+
+.education-item {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 15px;
+
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.education-list li {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-right: -10px;
+  margin-left: -10px;
+}
+
+.education-list li:nth-of-type(odd) {
+  background-color: #fafafa !important;
+}
+
+.education-icon {
+  margin-top: -3px;
+}
+
+
+.education-header .cell-header {
+  margin-bottom: -2px;
+  font-weight: 400;
+  font-size: 1.1rem;
 }
 
 .education-header p {
   text-overflow: ellipsis !important;
-}
-
-.education-header:hover {
-  white-space: normal;
-  max-height: 1000px;
-
-  -webkit-transition: max-height 1s, white-space 1s, font-size .1s;
-  -moz-transition: max-height 1s, white-space 1s, font-size .1s;
-  -o-transition: max-height 1s, white-space 1s, font-size .1s;
-  transition: max-height 1s, white-space 1s, font-size .1s;
 }
 
 .education-header-clicked {
@@ -732,6 +799,10 @@ th {
   line-height: 1.4rem;
 }
 
+.question-row:hover {
+  cursor: pointer;
+}
+
 .cell-body {
   margin-left: 18px;
   padding-right: 0px;
@@ -793,9 +864,9 @@ div {
 .header-row {
   margin-bottom: 0px;
   margin-top: -1px;
-  border-top: solid 1px #e0e0e0;
-  border-bottom: solid 1px #e0e0e0;
-  padding: 10px 5px 10px 5px;
+  border-top: solid 0px #e0e0e0;
+  border-bottom: solid 0px #e0e0e0;
+  padding-top: 15px;
 
   -webkit-transition: all 0.3s ease-out;
   -moz-transition: all 0.3s ease-out;

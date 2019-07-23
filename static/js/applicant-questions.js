@@ -7,6 +7,8 @@ const questionIcons = document.getElementsByClassName("question-icons");
 const extractPreviews = document.getElementsByClassName("extract-previews");
 const questionAnswerFull = document.getElementsByClassName("question-answer-full");
 
+const educationHeaders = document.getElementsByClassName("education-header");
+
 let abbreviations = [];
 let descriptions = [];
 
@@ -33,7 +35,44 @@ const contractRequirementTip = function(i) {
   });
 };
 
+const untruncateEducationHeader = function(i) {
+  for (let j = 1; j < educationHeaders[i].getElementsByTagName("div").length; j++) {
+    educationHeaders[i].getElementsByTagName("div")[j].classList.remove("truncation");
+
+  }
+};
+
+const truncateEducationHeader = function(i) {
+  for (let j = 1; j < educationHeaders[i].getElementsByTagName("div").length; j++) {
+    educationHeaders[i].getElementsByTagName("div")[j].classList.add("truncation");
+  }
+};
+
+const expandEducationHeaders = function(i) {
+  if (hiddenEducationInfo[i].classList.contains("row-closed")) {
+    hiddenEducationInfo[i].classList.remove("row-closed");
+  } else {
+    hiddenEducationInfo[i].classList.add("row-closed");
+  }
+};
+
+const hiddenEducationInfo = document.getElementsByClassName("hidden-education-info");
+
 window.addEventListener('DOMContentLoaded', (event) => {
+
+  for (let i = 0; i < educationHeaders.length; i++) {
+    educationHeaders[i].addEventListener("click", () => {
+      expandEducationHeaders(i);
+    });
+
+    educationHeaders[i].addEventListener("mouseover", () => {
+      untruncateEducationHeader(i);
+    });
+
+    educationHeaders[i].addEventListener('mouseleave', () => {
+      truncateEducationHeader(i);
+    });
+  }
 
   for (let i = 0; i < requirementAbbreviations.length; i++) {
     initializeText(i);
