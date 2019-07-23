@@ -277,7 +277,6 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .add-note {
-  margin-left: 5px;
   cursor: pointer;
 }
 
@@ -834,6 +833,10 @@ th {
   -moz-transition:  transform .3s;
   -o-transition:  transform .3s;
   transition: transform .3s;
+}
+
+.question-row.row-closed {
+  margin-bottom: 0px !important;
 }
 
 .question-preview-div {

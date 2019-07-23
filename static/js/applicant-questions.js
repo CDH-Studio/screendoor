@@ -1,10 +1,17 @@
 const requirementAbbreviations = document.getElementsByClassName("requirement-abbreviation");
 const requirementTips = document.getElementsByClassName("tooltiptext");
+
 const questionPreviews = document.getElementsByClassName("question-preview");
 const questionPreviewDivs = document.getElementsByClassName("question-preview-div");
+
+const addNoteIcons = document.getElementsByClassName("add-note");
+
 const shortQuestionTexts = document.getElementsByClassName("short-question-text");
-const questionIcons = document.getElementsByClassName("question-icons");
+
+const questionIcons = document.getElementsByClassName("question-icon-div");
+
 const extractPreviews = document.getElementsByClassName("extract-previews");
+
 const questionAnswerFull = document.getElementsByClassName("question-answer-full");
 
 const educationHeaders = document.getElementsByClassName("education-header");
@@ -58,7 +65,23 @@ const expandEducationHeaders = function(i) {
 
 const hiddenEducationInfo = document.getElementsByClassName("hidden-education-info");
 
+const openCloseQuestionFull = function(i) {
+  if (addNoteIcons[i].classList.contains("hide")) {
+    addNoteIcons[i].classList.remove("hide");
+    questionIcons[i].classList.add("hide");
+  } else {
+    addNoteIcons[i].classList.add("hide");
+    questionIcons[i].classList.remove("hide");
+  }
+};
+
 window.addEventListener('DOMContentLoaded', (event) => {
+
+  for (let i = 0; i < questionPreviews.length; i++) {
+    questionPreviews[i].addEventListener("click", () => {
+      openCloseQuestionFull(i);
+    });
+  }
 
   for (let i = 0; i < educationHeaders.length; i++) {
     educationHeaders[i].addEventListener("click", () => {
