@@ -237,9 +237,9 @@ class Qualifier(models.Model):
 
 class Note(models.Model):
     author = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='author')
+        get_user_model(), on_delete=models.CASCADE, related_name='note')
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True, related_name='notes')
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='note')
     note_text = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 

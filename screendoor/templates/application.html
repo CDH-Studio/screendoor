@@ -235,10 +235,17 @@
                   {{ answer.parent_question.parent_requirement.abbreviation }}
                 </div>
                 <data class="question-data-text" value=": {{ answer.short_question_text }} "></data>
-                <data class="tooltiptext" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
+                <data class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
                 {% endif %}
-                <div class="col {% if answer.parent_question.parent_requirement is not None %}
-                            s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ answer.parent_question.short_question_text }}
+                <div class="col {% if answer.qualifier_set.all is not None %}
+                            s9 {% elif answer.parent_question.parent_requirement is not None %} s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ answer.parent_question.short_question_text }}
+                </div>
+                <div class="col right">
+                  {% for qualifier in answer.qualifier_set.all %}
+                  <div class="tooltip">
+                    <i class="material-icons {% if qualifier.status == 'FAIL' %}red-text{% elif qualifier.status == 'PASS' %}green-text{% else %}grey-text{% endif %}">{% if qualifier.status == 'FAIL' %}close{% elif qualifier.status == 'PASS' %}check_circle{% else %}help_outline{% endif %}</i>
+                    <span class="tooltiptext">{% if qualifier.status == 'FAIL' %}Failed{% elif qualifier.status == 'PASS' %}Passed{% else %}Indeterminate{% endif %}: {{ qualifier.qualifier_text }}</span></div>
+                    {% endfor %}
                 </div>
                 <div class="extract-previews col s11">
                   {% if answer.extract_set is not None %}
@@ -250,8 +257,8 @@
                   {% endif %}
                   <span class="extract-preview grey-text text-darken-1">
                     {{ extract.extract_text|capfirst|linebreaksbr }}
-                    {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
                     <br>
+                    {% if extract.next_extract_index != extract.extract_sentence_index and not forloop.last %}
                     {% endif %}
                   </span>
                   {% endfor %}
@@ -264,16 +271,18 @@
                 </div>
               </div>
             </div>
-
             <div class="question-answer-full row-closed row {% if answer.applicant_answer is True %}yes-answer-light {% else %}no-answer-light{% endif %}">
-              <div class="row question-row question-buttons">
-                <div class="col hide cell-header add-note">
-                  <i class="question-icons material-icons orange-text tooltipped" data-position="bottom" data-tooltip="Add note">note_add</i>
+              <div class="hide row question-row question-buttons">
+                <div class="col cell-header add-note">
+                  <i class="question-icons material-icons orange-text">note_add</i>
+                </div>
+                <div class="col notes-area">
+
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
                 <div class="col s6 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span></div>
-                <div class="col s4 extracts-full">
+                <div class="col s5 extracts-full">
                   <p class="extract-full-header">{{ applicantText.extracts }}</p>
                   <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
                   <data class="answer-id" value="{{ answer.id }}" />
@@ -637,10 +646,4 @@
 <!-- Script for initializing modal pop-ups -->
 <script src="{% static 'js/sd-modal.js' %}"></script>
 <script src="{% static 'js/applicant-questions.js' %}"></script>
-<script>
- document.addEventListener('DOMContentLoaded', function() {
-   var tooltips = document.querySelectorAll('.tooltipped');
-   var tooltipInstances = M.Tooltip.init(tooltips, {});
- });
-</script>
 {% endblock %}

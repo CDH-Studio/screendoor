@@ -5,7 +5,7 @@ const extractPreviews = document.getElementsByClassName("extract-previews");
 const extractFull = document.getElementsByClassName("extracts-full");
 
 const requirementAbbreviations = document.getElementsByClassName("requirement-abbreviation");
-const requirementTips = document.getElementsByClassName("tooltiptext");
+const requirementTips = document.getElementsByClassName("requirement-text");
 
 const questionPreviews = document.getElementsByClassName("question-preview");
 const questionPreviewDivs = document.getElementsByClassName("question-preview-div");
@@ -100,6 +100,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
   for (let i = 0; i < questionPreviews.length; i++) {
     questionPreviewDivs[i].addEventListener("click", () => {
       openCloseQuestionFull(i);
+      extractPreviews[i].classList.remove("extract-previews-open");
+      questionIcons[i].style.fontSize = "1.8rem";
+      if (requirementAbbreviations[i]) {
+        requirementAbbreviations[i].classList.remove("hide");
+      }
     });
   }
 
@@ -138,9 +143,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
       scrollWidths[i] = shortQuestionTexts[i].scrollWidth;
 
       shortQuestionTexts[i].addEventListener("mouseover", () => {
-        if (offsets[i] < scrollWidths[i]) {
-          extractPreviews[i].classList.add("extract-extra-margin");
-        }
+        // if (offsets[i] < scrollWidths[i]) {
+        //   extractPreviews[i].classList.add("extract-extra-margin");
+        // }
       });
 
       shortQuestionTexts[i].addEventListener("mouseleave", () => {
