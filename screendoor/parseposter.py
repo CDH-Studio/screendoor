@@ -211,10 +211,6 @@ def extract_definitions(requirement_block_text, definition_key, definition_regex
         sentence = sentence.strip()
         for key in definition_key:
             if key.lower() in sentence.lower():
-                print("//////////////////////////////DEFINITION DEBUGGING//////////////////////////////")
-                print("SENTENCE:\n" + sentence)
-                print("Recognized with phrase:\n" + key)
-                print("////////////////////////////////////////////////////////////////////////////////")
                 definitions.append(sentence)
         if re.search(definition_regex, sentence):
             definitions.append(sentence)
@@ -307,8 +303,7 @@ def identify_sections(requirement_block_text, requirement_type, definition_key):
 
 def is_definition(text, definition_key, definition_regex):
     pattern = re.compile(definition_regex, re.MULTILINE)
-    print("SECTION BEING PROCESSED: ")
-    print(text)
+
     for key in definition_key:
         if key in text:
             return True
@@ -371,11 +366,9 @@ def generate_requirements(requirement_block_text, position, requirement_type,
                                "responsible for obtaining", "must be provided", "diversity is our strength",
                                "Attention to detail", "Effective interpersonal relationships", "when describing how",
                                "must have been obtained", "applicants must"]
-    write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
-    print("SECTIONS IDENTIFIED:")
 
     # For each section...
     for section in sections:
@@ -464,7 +457,6 @@ def print_variables(position):
 
 def extract_non_text_block_information(position, pdf_poster_text):
     os.chdir(os.getcwd())
-    write_text_file("postertext", pdf_poster_text)
     header_text = pdf_poster_text.split("Important messages")[0]
     position.position_title = extract_job_title(header_text)
 
@@ -492,7 +484,6 @@ def extract_non_text_block_information(position, pdf_poster_text):
 def scrub_raw_text(pdf_poster_text):
     os.chdir(os.getcwd())
     # Removes lines starting with https or mailto
-    write_text_file("rawpostertext", pdf_poster_text)
     pdf_poster_text = re.sub(r"^\nhttp(?:(?!abc)(?!\n\n).)*\s*", '', pdf_poster_text, 20,
                              flags=re.MULTILINE | re.DOTALL)
     pdf_poster_text = pdf_poster_text.strip()
