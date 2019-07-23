@@ -357,7 +357,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than",
                       "assessed based", "completion of grade", "may include"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
-    joining_phrase_list = ["acceptable alternative", "select up to", "not limited to", "least one of the"]
+    joining_phrase_list = ["acceptable alternative", "select up to", "not limited to"]
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
                                "must meet all", "deciding factor", "provide appropriate", "being rejected",
                                "responsible for obtaining", "must be provided", "diversity is our strength",
