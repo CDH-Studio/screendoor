@@ -1,7 +1,9 @@
 {% load static %}
 {% load string_interpolation %}
+<title>ScreenDoor</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
@@ -14,8 +16,12 @@
   </script>
   <nav>
     <div class="nav-wrapper">
-      <a id="toggle_sidenav" href="#"><i class="material-icons left menu-button">menu</i></a>
-      <a href="/" class="brand-logo left"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+      <a class="toggle-sidenav">
+        <i class="material-icons left menu-button">menu</i>
+      </a>
+      <a href="/" class="brand-logo left">
+        <img src="{% static 'img/ScreenDoor-White.png' %}">
+      </a>
     </div>
   </nav>
   </header>
@@ -23,21 +29,58 @@
   <!-- Beginning of sidebar menu -->
   <ul id="slide-out" class="sidenav sidenav-fixed hide">
     <br>
-    <li><a href="/"><i class="material-icons">account_circle</i>{{ baseVisibleText.welcome_user|interpolate:user.first_name }}</a></li>
+    <li>
+      <p>
+        <i class="material-icons sidenav-account-icon">account_circle</i>
+        <span class="sidenav-welcome">
+          {{ baseVisibleText.welcome_user|interpolate:user.first_name }}
+        </span>
+        <span class="menu-close-arrow">
+          <a class="toggle-sidenav">
+            <i class="material-icons grey-text text-darken-3">keyboard_arrow_left</i>
+          </a>
+        </span>
+      </p>
+    </li>
     <br>
     <!-- Display View Positions menu item in blue if user is at that page -->
     {% if request.path == '/positions' %}
-    <li><a href="{% url 'positions' %}" class="blue-text"><i class="material-icons blue-text">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
+    <li>
+      <a href="{% url 'positions' %}" class="blue-text">
+        <i class="material-icons blue-text">folder_open</i>
+        {{ baseVisibleText.view_positions }}
+      </a>
+    </li>
     {% else %}
-    <li><a href="{% url 'positions' %}"><i class="material-icons">folder_open</i>{{ baseVisibleText.view_positions }}</a></li>
+    <li>
+      <a href="{% url 'positions' %}">
+        <i class="material-icons">folder_open</i>
+        {{ baseVisibleText.view_positions }}
+      </a>
+    </li>
     {% endif %}
     <!-- Display create new position menu item in blue if user is at that page -->
     {% if request.path == '/createnewposition' %}
-    <li><a href="{% url 'importposition' %}" class="blue-text"><i class="material-icons blue-text">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
+    <li>
+      <a href="{% url 'importposition' %}" class="blue-text">
+        <i class="material-icons blue-text">create_new_folder</i>
+        {{ baseVisibleText.new_position }}
+      </a>
+    </li>
     {% else %}
-    <li><a href="{% url 'importposition' %}"><i class="material-icons">create_new_folder</i>{{ baseVisibleText.new_position }}</a></li>
+    <li>
+      <a href="{% url 'importposition' %}">
+        <i class="material-icons">create_new_folder</i>
+        {{ baseVisibleText.new_position }}
+      </a>
+    </li>
     {% endif %}
-    <li><a href="/logout"><i class="material-icons">arrow_back</i>{{ baseVisibleText.logout }}</a></li>
+    <li>
+      <a href="/logout">
+        <i class="material-icons">arrow_back</i>
+        {{ baseVisibleText.logout }}
+      </a>
+    </li>
   </ul>
   <!-- End of sidebar menu -->
   <!-- Beginning of page content -->
@@ -48,23 +91,14 @@
      document.write('<main id="base-main" style="padding-left: 0px;">');
    }
   </script>
+  <!-- Script for sidenav expand and collapse -->
+  <script src="{% static 'js/materialize/materialize.min.js' %}"></script>
+  <!-- Script for sidenav expand and collapse -->
+  <script src="{% static 'js/sd-sidenav.js' %}"></script>
   <div class="row">
     {% block content %}
     {% endblock  %}
   </div>
   </main>
   <!-- End of page content -->
-  <script>
-   /* if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
-    *   document.getElementById("base-main").style.paddingLeft = "300";
-    *   document.getElementById("base-header").style.paddingLeft = "300";
-    * } else {
-    *   document.getElementById("base-main").style.paddingLeft = "0";
-    *   document.getElementById("base-header").style.paddingLeft = "0";
-    * } */
-  </script>
-  <!-- MaterializeCSS JS library -->
-  <script src="{% static 'js/materialize.js' %}"></script>
-  <!-- Script for sidenav expand and collapse -->
-  <script src="{% static 'js/sd-sidenav.js' %}"></script>
 </body>

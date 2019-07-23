@@ -78,9 +78,8 @@ const confirmEditChanges = function() {
     hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
 
     cells.forEach(function(cell, i) {
-      cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
-        hiddenInputs[i].value = cell.value;
-      cell.lastChild.value != null ? cell.innerText = cell.lastChild.value : cell.innerText = cell.value;
+      hiddenInputs[i].value = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
+      cell.innerText = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
     });
     if (window.location.pathname.includes("/position")) {
       document.getElementById("save-position").submit();

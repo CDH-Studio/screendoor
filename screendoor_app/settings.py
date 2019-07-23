@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import ast
 from celery.schedules import crontab
 from screendoor.NLP.helpers.load_nlp import init_spacy_module
 
@@ -21,18 +22,17 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SCREENDOOR_SECRET_KEY', 'abdef')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = ast.literal_eval(os.getenv('DEBUG', 'True'))
+
 NLP_MODEL = init_spacy_module()
 # Quick-start development settings - unsuitable for production
 # See https://docs.d3jangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-t&#b2-=l%o=+a0-87weme6d&4pnn&$8a3x)v(my=yx7g5rp^s'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -137,11 +137,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
+STATIC_ROOT = os.path.join(BASE_DIR, "/static/")
+STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
-    '/screendoor/static/',
-]
+)
 
 # Email Authentication
 

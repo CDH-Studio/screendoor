@@ -1,3 +1,6 @@
+# Secrets
+django.env
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -138,3 +141,6 @@ screendoor/applications
 code/screendoor/temp/
 .map
 *.map
+/GPATH
+/GRTAGS
+/GTAGS

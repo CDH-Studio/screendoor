@@ -5,15 +5,17 @@
 <div class="container positions">
   <!-- Row for sorting options. Displays if positions are more than 1 -->
   {% if positions|length > 1 %}
-    <!-- If statements determine if selected sort is in blue text -->
+  <!-- If statements determine if selected sort is in blue text -->
   <div class="sort-positions">
-  <h6 class="btn-flat disabled sortby-button">{{ userVisibleText.sort_by }}</h6>
+    <h6 class="btn-flat disabled sortby-button">
+      {{ userVisibleText.sort_by }}
+    </h6>
     <a name="sort-method" href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}" class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
       {% if '-created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
-      {% endif %}{{ userVisibleText.date_uploaded }}</span>
+      {% endif %}{{ userVisibleText.date_uploaded }}
     </a>
     <a name="sort-method" href="{% if '-date_closed' in sort %}{% url 'sort_positions' 'date_closed' %}{% elif 'date_closed' in sort %}{% url 'sort_positions' '-date_closed' %}{% else %}{% url 'sort_positions' '-date_closed' %}{% endif %}" class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
       {% if '-date_closed' in sort %}
@@ -21,21 +23,21 @@
       {% elif 'date_closed' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}
-      {{ userVisibleText.date_closed }}</span>
+      {{ userVisibleText.date_closed }}
     </a>
     <a name="sort-method" href="{% if '-position_title' in sort %}{% url 'sort_positions' 'position_title' %}{% elif 'position_title' in sort %}{% url 'sort_positions' '-position_title' %}{% else %}{% url 'sort_positions' 'position_title' %}{% endif %}" class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
       {% if '-position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
-      {% endif %}{{ userVisibleText.position }}</span>
+      {% endif %}{{ userVisibleText.position }}
     </a>
     <a name="sort-method" href="{% if '-number_applicants' in sort %}{% url 'sort_positions' 'number_applicants' %}{% elif 'number_applicants' in sort %}{% url 'sort_positions' '-number_applicants' %}{% else %}{% url 'sort_positions' '-number_applicants' %}{% endif %}" class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
       {% if '-number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
-      {% endif %}{{ userVisibleText.no_applicants }}</span>
+      {% endif %}{{ userVisibleText.no_applicants }}
     </a>
     <a name="sort-method" href="{% if '-mean_score' in sort %}{% url 'sort_positions' 'mean_score' %}{% elif 'mean_score' in sort %}{% url 'sort_positions' '-mean_score' %}{% else %}{% url 'sort_positions' '-mean_score' %}{% endif %}" class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
       {% if '-mean_score' in sort %}
@@ -48,6 +50,7 @@
   </div>
   {% else %}
   <div class="sort-positions">
+    <br>
   </div>
   {% endif %}
   <!-- Beginning of Positions view -->
@@ -60,65 +63,108 @@
       <div class="card-content col s12 positions-card">
         <div class="row valign-wrapper">
           <!-- Link to position detail using GET request -->
-          <a class="position-list-title position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">{{ position.position_title }}</a>
+          <a class="position-list-title position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">
+            {{ position.position_title }}
+          </a>
           {% if position.applicants is not None %}
           <div class="col s6 right">
             <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
-               red
-               {% elif position.mean_score > 33 and position.mean_score <= 66 %}
-               orange
-               {% elif position.mean_score > 66 and position.mean_score <= 100 %}
-               green
-               {% endif %}">{{ userVisibleText.average_score }}: {{ position.mean_score }}</span>
-            <span class="applicant-summary-card white-text blue card-panel right">{{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}</span>
+                         red
+                         {% elif position.mean_score > 33 and position.mean_score <= 66 %}
+                         orange
+                         {% elif position.mean_score > 66 and position.mean_score <= 100 %}
+                         green
+                         {% endif %}">
+              {{ userVisibleText.average_score }}: {{ position.mean_score }}
+            </span>
+            <span class="applicant-summary-card white-text blue card-panel right">
+              {{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
+            </span>
           </div>
           {% endif %}
         </div>
         <!-- Position row 1 headers -->
-        <table class="highlight">
+        <table>
           <thead>
             <tr>
-              <th colspan="1">{{ positionText.classification }}</th>
-              <th colspan="2">{{ positionText.reference_number }}</th>
-              <th colspan="2">{{ positionText.selection_process_number }}</th>
+              <th colspan="1">
+                {{ positionText.classification }}
+              </th>
+              <th colspan="2">
+                {{ positionText.reference_number }}
+              </th>
+              <th colspan="2">
+                {{ positionText.selection_process_number }}
+              </th>
             </tr>
           </thead>
           <!-- Position row 1 body -->
           <tbody>
             <tr>
-              <td colspan="1">{{ position.classification }}</td>
-              <td colspan="2">{{ position.reference_number }}</td>
-              <td colspan="2">{{ position.selection_process_number }}</td>
+              <td colspan="1">
+                {{ position.classification }}
+              </td>
+              <td colspan="2">
+                {{ position.reference_number }}
+              </td>
+              <td colspan="2">
+                {{ position.selection_process_number }}
+              </td>
             </tr>
           </tbody>
           <!-- Position row 2 headers -->
           <thead>
             <tr>
-              <th colspan="1">{{ positionText.date_closed }}</th>
-              <th colspan="1">{{ positionText.number_of_positions }}</th>
-              <th colspan="1">{{ positionText.salary_range }}</th>
-              <th colspan="2">{{ positionText.open_to }}</th>
+              <th colspan="1">
+                {{ positionText.date_closed }}
+              </th>
+              <th colspan="1">
+                {{ positionText.number_of_positions }}
+              </th>
+              <th colspan="1">
+                {{ positionText.salary_range }}
+              </th>
+              <th colspan="2">
+                {{ positionText.open_to }}
+              </th>
             </tr>
           </thead>
           <!-- Position row 2 body -->
           <tbody>
             <tr>
-              <td colspan="1">{{ position.date_closed|date:"M d, Y" }}</td>
-              <td colspan="1">{{ position.num_positions }}</td>
-              <td colspan="1">${{ position.salary_min }} - ${{ position.salary_max }}</td>
-              <td colspan="2">{{ position.open_to }}</td>
+              <td colspan="1">
+                {{ position.date_closed|date:"M d, Y" }}
+              </td>
+              <td colspan="1">
+                {{ position.num_positions }}
+              </td>
+              <td colspan="1">
+                ${{ position.salary_min }} - ${{ position.salary_max }}
+              </td>
+              <td colspan="2">
+                {{ position.open_to }}
+              </td>
             </tr>
           </tbody>
         </table>
         <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
         <div class="row position-buttons left">
-          <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">{{ userVisibleText.view }}</a>
-          <a class="btn-flat blue-text position-button modal-trigger delete-button" href="#delete-modal">{{ userVisibleText.delete }}</a>
-          <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
+          <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">
+            {{ userVisibleText.view }}
+          </a>
+          <a class="btn-flat blue-text
+                    position-button modal-trigger delete-button" href="#delete-modal">
+            {{ userVisibleText.delete }}
+          </a>
+          <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
+            {{ userVisibleText.upload_applications }}
+          </a>
         </div>
         <!-- Date and time position was added -->
         <div class="row position-buttons right">
-          <h6 class="btn-flat black-text">Position added: {{ position.created }}</h6>
+          <h6 class="btn-flat black-text position-added">
+            Position added: {{ position.created }}
+          </h6>
         </div>
       </div>
     </div>
@@ -135,7 +181,6 @@
   <!-- End of Positions view -->
   <br>
 </div>
-
 <!-- Modal delete position confirmation pop-up -->
 <div id="delete-modal" class="modal">
   <div class="modal-content">
@@ -149,7 +194,9 @@
       {% csrf_token %}
       <input type="hidden" id="delete-confirm-id" name="position-id" value="">
       <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
-      <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
+      <a href="#!" class="modal-close btn-flat blue-text position-button">
+        {{ userVisibleText.cancel }}
+      </a>
     </div>
   </form>
 </div>
@@ -159,13 +206,17 @@
   <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
-      <h5>{{ applicationsForm.title }}</h5>
+      <h5>
+        {{ applicationsForm.title }}
+      </h5>
       <!-- p element contents defined by JavaScript based on the position for which user clicked "Upload Applications" -->
       <p id="upload-applications-text"></p>
       <!-- PDF/File input -->
       <div class="file-field input-field">
         <div class="btn-small">
-          <span>{{ applicationsForm.browse }}</span>
+          <span>
+            {{ applicationsForm.browse }}
+          </span>
           <!-- Input accepts multiple PDF file -->
           <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>
@@ -179,15 +230,15 @@
     <div class="modal-footer">
       <input type="hidden" id="upload-applications-id" name="position-id" value="">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
-      <a href="#!" class="modal-close btn-flat blue-text position-button">{{ userVisibleText.cancel }}</a>
+      <a href="#!" class="modal-close btn-flat blue-text position-button">
+        {{ userVisibleText.cancel }}
+      </a>
     </div>
   </form>
 </div>
 
-<!-- MaterializeCSS JS library  -->
-<script src="{% static 'js/materialize.js' %}"></script>
 <!-- Initialize modal pop ups -->
-<script src="{% static 'js/modal.js' %}"></script>
+<script src="{% static 'js/sd-modal.js' %}"></script>
 <!-- Misc helper functions -->
 <script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for positions list-specific functions -->

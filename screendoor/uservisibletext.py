@@ -308,6 +308,8 @@ class ApplicantViewText():
     extract = _("Extract")
     extracts = _("Extracts")
     no_analysis = _("No Analysis")
+    close = _("Close")
+    notes = _("Notes")
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
