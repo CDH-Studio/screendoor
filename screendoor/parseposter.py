@@ -174,7 +174,7 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
     requirement_list = re.split(
-        r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z*])|[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
+        r"^(?=\*+)(?!\s)|\n\n|\n[-.o•]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])",
         requirement_block_text, 0,
         re.MULTILINE)
     return requirement_list
@@ -205,27 +205,22 @@ def clean_out_definitions(requirement_block_text, definitions):
 
 
 def extract_definitions(requirement_block_text, definition_key, definition_regex):
-    single_line_break_list = sentence_split(requirement_block_text)
+    double_line_break_list = re.split(r"\n\s*\n", requirement_block_text)
     definitions = []
-    for sentence in single_line_break_list:
-        sentence = sentence.strip()
+    for block in reversed(double_line_break_list):
+        print("BLOCK:\n" + block)
+        block = block.strip()
         for key in definition_key:
-            if key in sentence.lower():
-                definitions.append(sentence)
-        if re.search(definition_regex, sentence):
-            definitions.append(sentence)
-
-    for idx, item in enumerate(definitions):
-        if idx + 1 != len(definitions):
-            for index, item2 in enumerate(definitions[idx + 1:]):
-                if fuzz.partial_ratio(item, item2) > 70:
-                    definitions[index] = ""
+            if key.lower() in block.lower():
+                print("Recognized with phrase:\n" + key)
+                definitions = definitions + sentence_split(block)
+        if re.search(definition_regex, block):
+            definitions = definitions + sentence_split(block)
 
     cleaned_definitions = []
     for definition in definitions:
         if definition != "":
             cleaned_definitions.append(definition)
-
     return cleaned_definitions
 
 
@@ -248,11 +243,13 @@ def assign_description(item, definitions):
 
         if first_few_words[0].lower() == "the":
             key_phrase_list.append(first_few_words[1])
+        elif first_few_words[0].isdigit():
+            key_phrase_list.append(first_few_words[0])
         elif first_few_words[1][0].isupper():
             key_phrase_list.append(first_few_words[0] + " " + first_few_words[1])
         else:
             key_phrase_list.append(first_few_words[0])
-
+    print("Recognized Key Statements" + str(key_phrase_list))
     if len(key_phrase_list) > 0:
         # If key phrase is in the statement, add definition
         definitions_to_append = ""
@@ -298,7 +295,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^Stream \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
+    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*[A-Z]+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)|^►.+"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -333,6 +330,21 @@ def write_text_file(filename, filetext):
     pass
 
 
+def check_for_duplicates_and_errors(requirement_list):
+    for index1, item1 in enumerate(requirement_list):
+        if index1+1 != len(requirement_list):
+            offset = index1+1
+            for index2, item2 in enumerate(requirement_list[offset:], offset):
+                if item1 == item2:
+                    requirement_list[index2] = ""
+        if len(item1) < 5:
+            requirement_list[index1] = ""
+        if item1.endswith("."):
+            requirement_list[index1] = item1.rsplit(".", 1)[0]
+
+    return requirement_list
+
+
 def generate_requirements(requirement_block_text, position, requirement_type,
                           requirement_abbreviation):
     requirement_list = []
@@ -340,15 +352,14 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     definitions = []
     # Text before first header is labelled non-headered-text
     list_of_forbidden_sections = ["knowledge:", "abilities and skills:", "personal suitability:", "note:",
-                                  "definitions:", "competencies"]
-    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than",
-                      "means"]
+                                  "definitions:", "competencies","Written Communication"]
+    definition_key = ["defined as", "acquired through", "acquired over", "refers to", "defined by", "means more than", "assessed based", "completion of grade", "may include"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
-    joining_phrase_list = ["The following combinations", "select up to", "not limited to"]
+    joining_phrase_list = ["The following combinations", "select up to", "not limited to", "alternatives"]
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
-                               "must meet all", "deciding factor", "provide appropriate", "being rejected"]
+                               "must meet all", "deciding factor", "provide appropriate", "being rejected", "responsible for obtaining", "must be provided", "diversity is our strength", "Attention to detail", "Effective interpersonal relationships"]
     x = 1
-    # write_text_file(requirement_type, requirement_block_text)
+    write_text_file(requirement_type, requirement_block_text)
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
@@ -363,6 +374,8 @@ def generate_requirements(requirement_block_text, position, requirement_type,
         if is_pass_filter(section, list_of_forbidden_sections):
             requirement_list = requirement_list + create_requirement_list(
                 clean_out_definitions(section[1], definitions), joining_phrase_list, forbidden_sentence_list)
+
+    requirement_list = check_for_duplicates_and_errors(requirement_list)
 
     for item in requirement_list:
         if item.strip() != "":
@@ -411,13 +424,12 @@ def extract_salary(pdf_poster_text):
 
 
 def extract_open_positions(pdf_poster_text):
-    if "Position:" in pdf_poster_text:
-        open_positions = text_between("Position: ", "\n", pdf_poster_text)
-        return open_positions
-    elif "Positions to be filled:" in pdf_poster_text:
+    if "Positions to be filled:" in pdf_poster_text:
         open_positions = text_between("Positions to be filled: ", "\n", pdf_poster_text)
         return open_positions
-
+    elif "Position:" in pdf_poster_text:
+        open_positions = text_between("Position: ", "\n", pdf_poster_text)
+        return open_positions
     return ""
 
 
@@ -436,7 +448,7 @@ def print_variables(position):
 
 
 def extract_non_text_block_information(position, pdf_poster_text):
-    # write_text_file("postertext", pdf_poster_text)
+    write_text_file("postertext", pdf_poster_text)
     header_text = pdf_poster_text.split("Important messages")[0]
     position.position_title = extract_job_title(header_text)
 
@@ -463,12 +475,13 @@ def extract_non_text_block_information(position, pdf_poster_text):
 
 def scrub_raw_text(pdf_poster_text):
     # Removes lines starting with https or mailto
-    # write_text_file("rawpostertext", pdf_poster_text)
-    pdf_poster_text = re.sub(r"^\s*https?://.*\n\n", '', pdf_poster_text, flags=re.MULTILINE)
+    write_text_file("rawpostertext", pdf_poster_text)
+    pdf_poster_text = re.sub(r"^\nhttp(?:(?!abc)(?!\n\n).)*\s*", '', pdf_poster_text, 20,
+                             flags=re.MULTILINE | re.DOTALL)
     pdf_poster_text = pdf_poster_text.strip()
-    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, 20, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
-    pdf_poster_text = re.sub(r"^\s*\d{1,2}\/\d{1,2}\/\d{4}.+\n", "", pdf_poster_text, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^\s*\d{1,2}\/\d{1,2}\/\d{4}.+\n", "", pdf_poster_text, 20, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
     pdf_poster_text = pdf_poster_text.strip()
