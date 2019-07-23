@@ -8,7 +8,6 @@ DISPLACY = False
 def print_if_debug(text):
     if DEBUG:
         print('~-+ ', text)
-       # print('~-+ ')
 
 
 # Attempts to filter out any bad subjects (note: absence of a subject assumes
