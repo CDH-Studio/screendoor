@@ -144,3 +144,6 @@ code/screendoor/temp/
 /GPATH
 /GRTAGS
 /GTAGS
+
+# nginx static files
+static/admin
