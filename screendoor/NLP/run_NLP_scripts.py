@@ -59,14 +59,14 @@ def analyze_question_qualifiers(question_text, date_ranges, closing_date, answer
                     status = determine_if_significant_criteria_met(date_ranges, quantifier,
                                                       is_years)
                 else:
-                    status = 'Indeterminate'
+                    status = 'IND'
             elif re.search(r'within|last', date.text):
                 qualifier_type = 'RECENCY'
                 if date_ranges != []:
                     status = determine_if_recent_criteria_met(date_ranges, closing_date,
                                                  quantifier, is_years)
                 else:
-                    status = 'Indeterminate'
+                    status = 'IND'
             else:
                 return
 
