@@ -216,9 +216,9 @@ class Qualifier(models.Model):
         ('SIGNIFICANCE', 'A threshold that the aggregate experience must exceed')
     ]
     RESULT = [
-        ('TRUE', "The applicant's experience met or exceeded the experience qualifier"),
-        ('UNSURE', "The applicant's experience could not be adequetly quantified with the dates provided"),
-        ('FALSE', "The dates that the applicant provided did not meet the experience qualifier")
+        ('Passed', "The applicant's experience met or exceeded the experience qualifier"),
+        ('Indeterminate', "The applicant's experience could not be adequetly quantified with the dates provided"),
+        ('Failed', "The dates that the applicant provided did not meet the experience qualifier")
     ]
 
     parent_answer = models.ForeignKey(
@@ -226,7 +226,8 @@ class Qualifier(models.Model):
     qualifier_text = models.TextField(
         blank=True, null=True)
     qualifier_type = models.CharField(max_length=200, null=True)
-    status = models.BooleanField()
+    status = models.CharField(
+        choices=QUALIFIER_TYPES, max_length=200, null=True)
 
     def __str__(self):
         return str(self.qualifier_text)

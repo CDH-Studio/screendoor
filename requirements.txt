@@ -44,6 +44,7 @@ geotext==0.4.0
 
 # NLP library
 spacy==2.1.4
+spacy_langdetect==0.1.2
 
 # Fuzzy Logic
 fuzzywuzzy==0.17.0
