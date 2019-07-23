@@ -436,7 +436,8 @@ tr {
 }
 
 .extract-previews-open {
-  margin-top: 15px;
+  margin-top: 25px;
+  margin-left: 25px;
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
@@ -460,6 +461,11 @@ tr {
   -moz-transition: all .5s;
   -o-transition: all .5s;
   transition: all .5s;
+}
+
+.extract-extra-margin {
+  margin-left: 100px !important;
+  padding-left: 55px !important;
 }
 
 .extract-previews {
@@ -499,7 +505,7 @@ tr {
 }
 
 .extracts-full i {
-  line-height: 1.6rem;
+  line-height: 1.8rem;
   font-size: 1.2rem;
   position: absolute;
   margin-left: -25px;
@@ -895,6 +901,9 @@ th {
 }
 
 .question-row:hover {
+}
+
+.question-preview-div {
   cursor: pointer;
 }
 

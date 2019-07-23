@@ -16,7 +16,6 @@ const shortQuestionTexts = document.getElementsByClassName("short-question-text"
 
 const questionIcons = document.getElementsByClassName("question-icon-div");
 
-
 const questionAnswerFull = document.getElementsByClassName("question-answer-full");
 
 const educationHeaders = document.getElementsByClassName("education-header");
@@ -74,12 +73,22 @@ const openCloseQuestionFull = function(i) {
   if (addNoteIcons[i].classList.contains("hide")) {
     applicantResponseFull[i].classList.add("applicant-response-full-open");
     extractFull[i].classList.add("extracts-full-open");
+
+    for (let j = 0; j < extractFull[i].getElementsByTagName("i").length; j++) {
+      extractFull[i].getElementsByTagName("i")[j].classList.remove("hide");
+    }
+
     questionAnswerFull[i].classList.remove("row-closed");
     addNoteIcons[i].classList.remove("hide");
     questionIcons[i].classList.add("hide");
   } else {
     applicantResponseFull[i].classList.remove("applicant-response-full-open");
     extractFull[i].classList.remove("extracts-full-open");
+
+    for (let j = 0; j < extractFull[i].getElementsByTagName("i").length; j++) {
+      extractFull[i].getElementsByTagName("i")[j].classList.add("hide");
+    }
+
     addNoteIcons[i].classList.add("hide");
     questionIcons[i].classList.remove("hide");
     questionAnswerFull[i].classList.add("row-closed");
@@ -89,7 +98,7 @@ const openCloseQuestionFull = function(i) {
 window.addEventListener('DOMContentLoaded', (event) => {
 
   for (let i = 0; i < questionPreviews.length; i++) {
-    questionPreviews[i].addEventListener("click", () => {
+    questionPreviewDivs[i].addEventListener("click", () => {
       openCloseQuestionFull(i);
     });
   }
@@ -121,8 +130,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
       shortQuestionTexts[i].classList.remove("hide");
     });
 
+    let offsets = [];
+    let scrollWidths = [];
+
     for (let i = 0; i < questionPreviews.length; i++) {
-      questionPreviews[i].addEventListener("click", () => {
+      offsets[i] = shortQuestionTexts[i].offsetWidth;
+      scrollWidths[i] = shortQuestionTexts[i].scrollWidth;
+
+      shortQuestionTexts[i].addEventListener("mouseover", () => {
+        if (offsets[i] < scrollWidths[i]) {
+          extractPreviews[i].classList.add("extract-extra-margin");
+        }
+      });
+
+      shortQuestionTexts[i].addEventListener("mouseleave", () => {
+        extractPreviews[i].classList.remove("extract-extra-margin");
+      });
+
+      questionPreviewDivs[i].addEventListener("click", () => {
         questionAnswerFull[i].classList.contains("row-closed") ? questionAnswerFull[i].classList.remove("row-closed") : questionAnswerFull[i].classList.add("row-closed");
       });
 
