@@ -150,6 +150,18 @@ def extract_req_list(pdf_poster_text, position):
     return education_reqs + experience_reqs + asset_experience_reqs
 
 
+def find_next_header(text):
+    text = text.split("(essential for the job)")[1]
+    split_by_line_breaks = text.split("\n")
+    list_of_headers = ["The following may be", "Conditions of employment", "The following will be applied"]
+
+    for line in split_by_line_breaks:
+        for header in list_of_headers:
+            if header.lower() in line.lower():
+                return header
+    return None
+
+
 def extract_asset(text):
     asset_block = ""
 
@@ -157,15 +169,17 @@ def extract_asset(text):
 
     if "(other qualifications)" in text:
         asset_block = text_between('(other qualifications)', "The following will be ", text)
-    # elif "(essential for the job)" in text:
-    # asset_block = text_between('(essential for the job)', "The following may be ", text)
+    elif "(essential for the job)" in text:
+        header = find_next_header(text)
+        asset_block = text_between('(essential for the job)', header, text)
 
     split_by_line_breaks = asset_block.split("\n")
 
     for sentence1 in split_by_line_breaks:
         if fuzz.ratio("Degree equivalency", sentence1) > 80:
             asset_block = asset_block.replace(sentence1, "\n")
-
+        if "Information on language requirements" in asset_block:
+            asset_block = asset_block.split("Information on language requirements")[1]
     asset_block = clean_block(asset_block)
 
     return asset_block
@@ -174,7 +188,7 @@ def extract_asset(text):
 def sentence_split(requirement_block_text):
     # Regex for identifying different sentences, consider the conditions separated by the | (OR) symbol.
     requirement_list = re.split(
-        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►→]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)",
+        r"^(?=\*+)(?!\s)|\n\n|(?<!or)\n[-.o•►→]\s*(?=[A-Z*])|(?<!e\.g)[;.]\s*\n|^[A-Za-z]+\d+\.(?=\s*[A-Z])|^[A-Z]+\d+(?=\s*[A-Z])|^(?=Experience)|^[A-Za-z]+\d\s*:|^[A-Za-z]+\d\s*-",
         requirement_block_text, 0,
         re.MULTILINE)
     return requirement_list
@@ -190,9 +204,12 @@ def create_requirement_list(requirement_block_text, joining_list, forbidden_list
             if forbidden in sentence.lower():
                 requirement_list[idx] = ""
         for joining_string in joining_list:
-            if joining_string in sentence:
-                requirement_list[idx] = "".join(requirement_list[idx:])
-                return requirement_list[:idx + 1]
+            if joining_string in sentence and ":" in sentence and idx + 1 != len(requirement_list):
+                offset = idx + 1
+                for index2, item2 in enumerate(requirement_list[offset:], offset):
+                    if item2.startswith(("•", ".")):
+                        requirement_list[idx] = requirement_list[idx] + "\n" + item2
+                        requirement_list[index2] = ""
 
     list(set(requirement_list))
     return requirement_list
@@ -292,7 +309,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+\d:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*.+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)"
+    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*.+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)|^.+ - .+:"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -337,7 +354,7 @@ def check_for_duplicates_and_errors(requirement_list):
         if len(item1) < 5:
             requirement_list[index1] = ""
         if item1.endswith("."):
-            item1 = item1[:len(item1)-2]
+            item1 = item1[:len(item1) - 2]
         if item1.startswith("."):
             item1 = item1[1:]
         item1 = item1.strip("►")
@@ -356,11 +373,12 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     definitions = []
     # Text before first header is labelled non-headered-text
     list_of_forbidden_sections = ["knowledge:", "abilities and skills:", "personal suitability:", "note:",
-                                  "definitions:", "competencies", "Written Communication"]
+                                  "definitions:", "competencies", "Written Communication", "abilities", "Adaptability",
+                                  "Leadership", "Reliability"]
     definition_key = ["defined as", "acquired through", "acquired over", "refers to", "means more than",
                       "assessed based", "completion of grade", "may include", "defined by"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
-    joining_phrase_list = ["following combinations"]
+    joining_phrase_list = ["following combinations", "such as"]
     forbidden_sentence_list = ["indeterminate", "refer to the link", "follow the link", "must always have a degree",
                                "must meet all", "deciding factor", "provide appropriate", "being rejected",
                                "responsible for obtaining", "must be provided", "diversity is our strength",
@@ -484,15 +502,20 @@ def extract_non_text_block_information(position, pdf_poster_text):
 def scrub_raw_text(pdf_poster_text):
     os.chdir(os.getcwd())
     # Removes lines starting with https or mailto
-    pdf_poster_text = re.sub(r"^\nhttp(?:(?!abc)(?!\n\n).)*\s*", '', pdf_poster_text, 20,
+    pdf_poster_text = re.sub(r"^\nhttp(?:(?!abc)(?!\n\n).)*\s*", '', pdf_poster_text, 50,
                              flags=re.MULTILINE | re.DOTALL)
     pdf_poster_text = pdf_poster_text.strip()
-    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, 20, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^mailto?:*[\r\n]*", '', pdf_poster_text, 50, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
-    pdf_poster_text = re.sub(r"^\s*\d{1,2}\/\d{1,2}\/\d{4}.+\n", "", pdf_poster_text, 20, flags=re.MULTILINE)
+    pdf_poster_text = re.sub(r"^\s*\d{1,2}\/\d{1,2}\/\d{4}.+\n", "", pdf_poster_text, 50, flags=re.MULTILINE)
+    pdf_poster_text = pdf_poster_text.strip()
+    pdf_poster_text = re.sub(
+        r"//www.+html",
+        "", pdf_poster_text, 50, flags=re.MULTILINE)
     pdf_poster_text = pdf_poster_text.strip()
     pdf_poster_text = re.sub(r'\n\n+', '\n\n', pdf_poster_text)
     pdf_poster_text = pdf_poster_text.strip()
+    pdf_poster_text = pdf_poster_text.replace("–", "-")
 
     return pdf_poster_text
 
