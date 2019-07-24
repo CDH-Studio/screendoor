@@ -1,19 +1,18 @@
 const addNoteButtons = document.getElementsByClassName("add-note");
-
-const cancelNoteButtons = document.getElementsByClassName("cancel-note");
-const saveNoteButtons = document.getElementsByClassName("save-note");
 const addNoteForms = document.getElementsByClassName("note-form");
 
-const deleteNoteForms = document.getElementsByClassName("delete-note-form");
 const deleteNoteButtons = document.getElementsByClassName("delete-note");
-const noteDeleteAnswerCounters = document.getElementsByClassName("note-delete-answer-counter");
+const deleteNoteForms = document.getElementsByClassName("delete-note-form");
 
-const noteRows = document.getElementsByClassName("notes-row");
+const cancelNoteButtons = document.getElementsByClassName("cancel-note");
+
 const noteAreas = document.getElementsByClassName("notes-area");
-
+const noteDeleteAnswerCounters = document.getElementsByClassName("note-delete-answer-counter");
+const noteInputs = document.getElementsByClassName('note-input');
+const noteRows = document.getElementsByClassName("notes-row");
 const noteTextArea = document.getElementsByClassName('note-box');
 
-const noteInputs = document.getElementsByClassName('note-input');
+const saveNoteButtons = document.getElementsByClassName("save-note");
 
 const persistOpenedQuestion = function(i) {
   localStorage.setItem('questionIndex', i);
@@ -26,8 +25,10 @@ const persistOpenedEditBox = function(i) {
 const toggleNoteInput = function(i) {
   if (noteTextArea[i].classList.contains("note-box-visible")) {
     noteTextArea[i].classList.remove("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "2.1rem";
   } else {
     noteTextArea[i].classList.add("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "3rem";
   }
 };
 
@@ -64,6 +65,7 @@ const cancelAddNote = function(i) {
 window.addEventListener('DOMContentLoaded', function() {
   retrieveOpenedQuestion();
   getScrollLocation();
+
   for (let i = 0; i < addNoteButtons.length; i++) {
 
     i % 2 === 0 ? noteInputs[i].style.backgroundColor = "#ffffff" : noteInputs[i].style.backgroundColor = "#fafafa";
@@ -72,6 +74,7 @@ window.addEventListener('DOMContentLoaded', function() {
     cancelNoteButtons[i].addEventListener("click", () => { cancelAddNote(i); });
     saveNoteButtons[i].addEventListener("click", () => { saveNote(i); });
   }
+
   for (let i = 0; i < deleteNoteButtons.length; i++) {
     deleteNoteButtons[i].addEventListener("click", () => { deleteNote(i); });
   }

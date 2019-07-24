@@ -280,9 +280,103 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Applicant View */
 
+.applicant-citizenship {
+  margin-top: 10px;
+  display: inline-flex;
+  margin-right: -30px !important;
+}
+
+.applicant-icon {
+  display: inline-block;
+  margin-top: 5px;
+  margin-left: 5px !important;
+}
+
+.classification-substantive {
+  display: inline-block;
+  margin-top: 5px !important;
+  max-width: 10rem !important;
+
+  transition: max-width .3s;
+  -webkit-transition: max-width .3s;
+  -moz-transition: max-width .3s;
+  -o-transition: max-width .3s;
+}
+
+.classification-current {
+  display: inline-block;
+  margin-top: 5px !important;
+  max-width:10rem !important;
+
+  transition: max-width .3s;
+  -webkit-transition: max-width .3s;
+  -moz-transition: max-width .3s;
+  -o-transition: max-width .3s;
+}
+
+.classification-substantive:hover {
+  max-width: 100rem !important;
+
+  transition: max-width .3s;
+  -webkit-transition: max-width .3s;
+  -moz-transition: max-width .3s;
+  -o-transition: max-width .3s;
+}
+
+.classification-current:hover {
+  max-width: 100rem !important;
+
+  transition: max-width .3s;
+  -webkit-transition: max-width .3s;
+  -moz-transition: max-width .3s;
+  -o-transition: max-width .3s;
+}
+
+.applicant-streams span {
+  margin-top: 5px !important;
+  display: inline-block !important;
+}
+
 .applicant-info-header div {
   margin-top: 25px;
   margin-bottom: -35px;
+}
+
+.applicant-header.header-row.row {
+  margin-top: 25px;
+}
+
+.applicant-header {
+  font-size: 1.2rem;
+  background-color: #fafafa;
+  padding: 10px 10px;
+  padding-bottom: 15px;
+  white-space: normal;
+  overflow: initial;
+  text-overflow: initial;
+  cursor: pointer;
+
+  -webkit-transition: transform .3s;
+  -moz-transition: transform .3s;
+  -o-transition: transform .3s;
+  transition: transform .3s;
+}
+
+.applicant-header.hoverable {
+  -webkit-transition: transform .3s;
+  -moz-transition: transform .3s;
+  -o-transition: transform .3s;
+  transition: transform .3s;
+}
+
+.applicant-header.hoverable:hover {
+  transform: scale(1.02) !important;
+  z-index: 3 !important;
+  box-shadow: 0px 0px !important;
+}
+
+.applicant-header i {
+  margin-left: -5px;
 }
 
 .expand-applicant-info {
@@ -314,11 +408,21 @@ input[type=number]::-webkit-outer-spin-button {
 
 .add-note {
   cursor: pointer;
+
+  transition: ofnt-size .3s;
+  -webkit-transition: padding .3s;
+  -moz-transition: padding .3s;
+  -o-transition: padding .3s;
 }
 
 .add-note i {
   margin: 5px 15px 10px 15px;
   font-size: 2rem;
+
+  transition: font-size .3s;
+  -webkit-transition: font-size .3s;
+  -moz-transition: font-size .3s;
+  -o-transition: font-size .3s;
 }
 
 .save-note, .cancel-note, .delete-note {
@@ -417,6 +521,7 @@ input[type=number]::-webkit-outer-spin-button {
   max-height: 100%;
   text-overflow: ellipsis;
   text-align: center;
+  padding: 3px 5px 3px 5px !important;
 
   /* BOTH of the following are required for text-overflow */
   white-space: nowrap;
@@ -443,8 +548,7 @@ input[type=number]::-webkit-outer-spin-button {
   max-width: 82% !important;
   width: auto;
   text-align: left;
-  padding: 5px 5px 5px 5px;
-  margin-left: 3px !important;
+  padding: 3px 13px 3px 13px !important;
 
   -webkit-transition: max-width .3s, font-size .3s;
   -moz-transition: max-width .3s, font-size .3s;
@@ -454,7 +558,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Tooltip container */
 .tooltip {
-  position: relative;
+  position: relative !important;
   display: inline-block;
   border-bottom: 0px dotted black; /* If you want dots under the hoverable text */
 }
@@ -475,7 +579,7 @@ input[type=number]::-webkit-outer-spin-button {
   visibility: hidden;
 
   /* Position the tooltip text - see examples below! */
-  position: absolute;
+  position: absolute !important;
   z-index: 1;
 
   transition: opacity .3s;
@@ -535,7 +639,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .answer-highlighted {
-  animation: highlight .1s forwards;
+  animation: highlight .05s forwards;
   /* background-color:  #2196F3; */
   padding-top: 3px;
   padding-bottom: 3px;
@@ -566,6 +670,10 @@ tr {
   margin-left: -25px !important;
 }
 
+
+.extract-full {
+  margin-left: -20px !important;
+}
 
 .answer-complementary-response {
   max-height: 0rem !important;
@@ -671,7 +779,7 @@ tr {
 }
 
 .extract-previews {
-  margin-left: 70px !important;
+  margin-left: 65px !important;
   line-height: 1.6rem;
   opacity: 0;
   max-height: 0rem;
@@ -780,8 +888,10 @@ th a {
 }
 
 .applicant-top-row {
-  padding: 0px 15px;
-  margin-bottom: -35px;
+  padding: 5px 5px;
+  margin-top: -5px;
+  margin-left: -15px !important;
+  margin-bottom: -15px;
 }
 
 .collapse-arrows {
@@ -906,7 +1016,50 @@ th a {
   border-bottom: solid 0px #e0e0e0;
 }
 
-.hidden-education-info.body-row {
+.hidden-applicant-info {
+  background-color: #fafafa;
+  max-height: 100rem;
+  overflow: initial;
+  text-overflow: initial;
+  white-space: normal;
+
+  -webkit-transition: max-height .3s, white-space .3s;
+  -moz-transition: max-height .3s, white-space .3s;
+  -o-transition: max-height .3s, white-space .3s;
+  transition: max-height .3s, white-space .3s;
+}
+
+.hidden-applicant-info.row-closed {
+  max-height: 0rem !important;
+  overflow: hide !important;
+  text-overflow: hide !important;
+  white-space: no-wrap !important;
+
+  -webkit-transition: max-height .3s, white-space .3s;
+  -moz-transition: max-height .3s, white-space .3s;
+  -o-transition: max-height .3s, white-space .3s;
+  transition: max-height .3s, white-space .3s;
+}
+
+.hidden-applicant-row {
+  font-weight: 400 !important;
+  color: #616161 !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+
+.hidden-applicant-row .cell-body {
+  margin-left: 5px !important;
+}
+
+.hidden-education-info.body-row, hidden-applicant-info.body-row {
+  border-top: solid 0px #e0e0e0;
+  border-bottom: solid 0px #e0e0e0;
+}
+
+.hidden-applicant-info .body-row {
   border-top: solid 0px #e0e0e0;
   border-bottom: solid 0px #e0e0e0;
 }
@@ -926,7 +1079,7 @@ th a {
   cursor: pointer;
 }
 
-.hidden-education-info .cell-body {
+.hidden-education-info .cell-body, .hidden-application-info .body-row .cell-body {
   font-weight: 400 !important;
   color: #616161 !important;
 }
@@ -935,7 +1088,7 @@ th a {
 
 }
 
-.education-item:hover {
+.education-item.hoverable:hover {
   transform: scale(1.02) !important;
   z-index: 3 !important;
   box-shadow: 0px 0px !important;
