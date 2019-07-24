@@ -495,7 +495,7 @@ def nlp(request):
     return redirect('positions')
 
 
-@login_required(login_url='login', redirect_field_name=None)
-def add_to_favorites(request, app_id):
-    user = request.GET.get('user')
-    applicant = request.GET.get('applicant')
+
+def add_to_favorites(request):
+    app_id = request.GET.get("app_id")
+    return JsonResponse({'app_id': app_id})

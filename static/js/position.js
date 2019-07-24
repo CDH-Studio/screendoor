@@ -8,15 +8,13 @@ const unfavourite = function(i, id) {
 };
 
 const favourite = function(i, id) {
-  console.log(id)
-  var opts = {
-    method: 'GET',
-    headers: {}
-  };
-  fetch('/add_to_favorites', opts).then(function (response) {return response.json();})
-    .then(function (body) {
-        alert("afdluibDVGIOJASD")
-    });
+  url = "/add_to_favorites?app_id=" + id
+  fetch(url).then(function(response) {
+    /* data being the json object returned from Django function */
+    response.json().then(function(data) {
+      document.getElementById(id).innerHTML = '<i class="material-icons yellow-text">star</i>'
+    }).catch(error => console.error());
+  });
 };
 
 window.addEventListener('DOMContentLoaded', (event) => {
