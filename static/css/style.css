@@ -31,6 +31,9 @@ input {
   }
 }
 
+data {
+  display: none;
+}
 
 /* Cards */
 
