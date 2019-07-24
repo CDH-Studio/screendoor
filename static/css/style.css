@@ -31,10 +31,6 @@ input {
   }
 }
 
-data {
-  display: none;
-}
-
 /* Cards */
 
 .card {
@@ -553,10 +549,6 @@ input[type=number]::-webkit-outer-spin-button {
   text-decoration: underline;
 }
 
-.extract-text {
-  margin-bottom: 8px !important;
-  line-height: 1.4rem;
-}
 
 
 tr {
@@ -714,32 +706,31 @@ tr {
   transition: opacity .3s, max-height .3s;
 }
 
+.extract-text {
+}
+
+
 .extracts-full i {
   line-height: 1.8rem;
   font-size: 1.2rem;
-  position: absolute;
-  margin-left: -25px;
-  max-height: inherit;
-  overflow: inherit;
-
-  -webkit-transition-property: none !important;
-  -moz-transition-property: none !important;
-  -o-transition-property: none !important;
-  transition-property: none !important;
+  position: relative;
+  top: 2px;
+  right: 5px;
 }
 
 .extract-previews i {
   line-height: 1.6rem;
   font-size: 1.2rem;
-  position: absolute;
-  margin-left: -25px;
-  max-height: inherit;
-  overflow: inherit;
+  position: relative;
+  top: 2px;
+  right: 5px;
+}
 
-  -webkit-transition: opacity .3s, max-height .3s;
-  -moz-transition: opacity .3s, max-height .3s;
-  -o-transition: opacity .3s, max-height .3s;
-  transition: opacity .3s, max-height .3s;
+
+data {
+  overflow: hidden !important;
+  max-height: 0px !important;
+  text-overflow: hidden !important;
 }
 
 
