@@ -141,7 +141,8 @@
             </div>
             <div class="hidden-education-info row body-row row-closed">
               <div class="specialization col s4 cell-body table-subhead">
-                {{ applicantText.specialization }}: <br>{% if education.specialization is not None %}{{ education.specialization }} years{% else %}N/A{% endif %}
+                {{ applicantText.specialization }}: <br>{% if education.specialization is not None %}{{ education.specialization }} years{% else %}N/A{% endif %}{{ education.specialization }}
+
               </div>
               <div class="program-length col s2 cell-body table-subhead">
                 {{ applicantText.program_length }}: <br>{% if education.program_length is not None %}{{ education.program_length }} years{% else %}N/A{% endif %}
@@ -178,7 +179,7 @@
                   <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
                 </div>
                 {% if answer.parent_question.parent_requirement is not None %}
-                <div class="col requirement-abbreviation applicant-summary-card-small list card-panel screendoor-color">
+                <div class="col requirement-abbreviation applicant-summary-card-small list card-panel blue">
                   {{ answer.parent_question.parent_requirement.abbreviation }}
                 </div>
                 <data class="question-data-text" value=": {{ answer.short_question_text }} "></data>
@@ -196,7 +197,6 @@
                   {% endfor %}
                 </div>
                 <div class="extract-previews col s11">
-                  {% if answer.extract_set is not None %}
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   {% if extract.extract_type == 'WHEN' %}
                   <i class="material-icons red-text text-lighten-1">date_range</i>
@@ -210,7 +210,6 @@
                     {% endif %}
                   </span>
                   {% endfor %}
-                  {% endif %}
                 </div>
               </div>
             </div>
@@ -252,11 +251,8 @@
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
-                {% if answer.applicant_complementary_response is not None %}
                 <div class="col s7 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span>
                 </div>
-                {% endif %}
-                {% if answer.extract_set is not None %}
                 <div class="col s4 extracts-full">
                   <p class="extract-full-header">{{ applicantText.extracts }}</p>
                   <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
@@ -285,11 +281,9 @@
                   </span>
                   {% endfor %}
                 </div>
-                {% endif %}
               </div>
             </div>
           </li>
-
           {% endfor %}
         </ul>
       </div>
