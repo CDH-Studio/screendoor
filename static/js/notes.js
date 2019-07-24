@@ -58,7 +58,7 @@ const deleteNote = function(i) {
 };
 
 const cancelAddNote = function(i) {
-  hideElements(noteInputs[i]);
+  toggleNoteInput(i);
 };
 
 window.addEventListener('DOMContentLoaded', function() {

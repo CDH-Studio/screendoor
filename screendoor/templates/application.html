@@ -17,10 +17,6 @@
         <!-- Application row 1 headers -->
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
-          <div class="applicant-collapse-buttons valign-wrapper">
-            <input type="button" class="btn-flat right" id="expand-all" value="{{ applicantText.expand_all }}">
-            <input type="button" class="btn-flat right" id="collapse-all" value="{{ applicantText.collapse_all }}">
-          </div>
           <h6 class="valign-wrapper">
             <i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
             {% comment %}
@@ -37,6 +33,36 @@
                          white-text applicant-question-total-detail">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
           </h6>
         </div>
+
+        <!-- Applicant info -->
+
+        {% comment %}
+
+        <!-- <div class="row header-row applicant-info-header">
+             <div class="col s11">
+             <h6>
+             Applicant Information <i class="expand-applicant-info material-icons grey-text text-darken-2">unfold_more</i>
+             </h6>
+             </div>
+             </div>
+
+             <div class="row applicant-info-header">
+             <div class="col">
+             <i class="education-icon collapse-arrows material-icons grey-text text-lighten-1 small">person</i>
+             </div>
+             <div class="cell-header truncation col s4">
+             {{ applicant.citizenship }}
+             </div>
+             <div class="col s4 cell-header truncation">
+             {% for classification in classifications %}{{ applicantText.substantive }}: {{ classification.classification_substantive }}, {{ applicantText.current }}: {{ classification.classification_current }}{% endfor %}
+             </div>
+             <div class="col s3 cell-header truncation">
+             {% for stream in streams reversed %}{{ stream.stream_name }}{% if forloop.counter < streams|length %} | {% endif %}{% endfor %}
+             </div>
+             </div> -->
+
+        {% endcomment %}
+
         <div class="collapse-table">
           <!-- Applicant Totals -->
           <div class="row collapse">
@@ -357,7 +383,7 @@
 <!-- Misc. helper functions -->
 <script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for expanding and collapsing table rows -->
-<script src="{% static 'js/tables.js' %}"></script>
+<!-- <script src="{% static 'js/tables.js' %}"></script> -->
 <!-- Script for local storage -->
 <script src="{% static 'js/localstorage.js' %}"></script>
 <!-- Script for extract origin highlighting -->

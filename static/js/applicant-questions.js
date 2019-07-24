@@ -97,6 +97,8 @@ const openCloseQuestionFull = function(i) {
 
 window.addEventListener('DOMContentLoaded', (event) => {
 
+  document.getElementsByTagName("html")[0].style.paddingBottom = "-5000px";
+
   for (let i = 0; i < questionPreviews.length; i++) {
     questionPreviewDivs[i].addEventListener("click", () => {
       openCloseQuestionFull(i);

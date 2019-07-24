@@ -31,7 +31,6 @@ input {
   }
 }
 
-
 /* Cards */
 
 .card {
@@ -281,6 +280,18 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Applicant View */
 
+.applicant-info-header div {
+  margin-top: 25px;
+  margin-bottom: -35px;
+}
+
+.expand-applicant-info {
+  position: absolute;
+  margin-top: -10px;
+  margin-left: 5px;
+
+}
+
 .table-arrows {
   font-size: 1.6rem;
 }
@@ -320,13 +331,13 @@ input[type=number]::-webkit-outer-spin-button {
    } */
 
 .save-note {
-   position: absolute;
+  position: absolute;
   margin-bottom: -30px;
   margin-left: 10px;
 }
 
 .cancel-note {
-   position: absolute
+  position: absolute
   margin-bottom: -40px;
   margin-left: 10px;
 }
@@ -538,10 +549,6 @@ input[type=number]::-webkit-outer-spin-button {
   text-decoration: underline;
 }
 
-.extract-text {
-  margin-bottom: 8px !important;
-  line-height: 1.4rem;
-}
 
 
 tr {
@@ -592,7 +599,7 @@ tr {
 .applicant-response-full-open {
   text-overflow: initial !important;
   overflow: initial !important;
-  max-height: 500rem !important;
+  max-height: 150rem !important;
   opacity: 1 !important;
 
   -webkit-transition: opacity .3s, max-height .3s;: all .5s;
@@ -699,32 +706,31 @@ tr {
   transition: opacity .3s, max-height .3s;
 }
 
+.extract-text {
+}
+
+
 .extracts-full i {
   line-height: 1.8rem;
   font-size: 1.2rem;
-  position: absolute;
-  margin-left: -25px;
-  max-height: inherit;
-  overflow: inherit;
-
-  -webkit-transition-property: none !important;
-  -moz-transition-property: none !important;
-  -o-transition-property: none !important;
-  transition-property: none !important;
+  position: relative;
+  top: 2px;
+  right: 5px;
 }
 
 .extract-previews i {
   line-height: 1.6rem;
   font-size: 1.2rem;
-  position: absolute;
-  margin-left: -25px;
-  max-height: inherit;
-  overflow: inherit;
+  position: relative;
+  top: 2px;
+  right: 5px;
+}
 
-  -webkit-transition: opacity .3s, max-height .3s;
-  -moz-transition: opacity .3s, max-height .3s;
-  -o-transition: opacity .3s, max-height .3s;
-  transition: opacity .3s, max-height .3s;
+
+data {
+  overflow: hidden !important;
+  max-height: 0px !important;
+  text-overflow: hidden !important;
 }
 
 
@@ -950,10 +956,10 @@ th a {
   margin-bottom: 0px;
   padding-left: 15px;
 
-  -webkit-transition: opacity .3s, max-height .3s;
-  -moz-transition: opacity .3s, max-height .3s;
-  -o-transition: opacity .3s, max-height .3s;
-  transition: opacity .3s, max-height .3s;
+  -webkit-transition: max-height 1s, white-space 1s, transform .3s;
+  -moz-transition: max-height 1s, white-space 1s, transform .3s;
+  -o-transition: max-height 1s, white-space 1s, transform .3s;
+  transition: max-height 1s, white-space 1s, transform .3s;
 }
 
 .education-list li {
