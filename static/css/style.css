@@ -567,6 +567,10 @@ tr {
 }
 
 
+.extract-full {
+  margin-left: -20px !important;
+}
+
 .answer-complementary-response {
   max-height: 0rem !important;
   overflow: hidden;
@@ -671,7 +675,7 @@ tr {
 }
 
 .extract-previews {
-  margin-left: 70px !important;
+  margin-left: 50px !important;
   line-height: 1.6rem;
   opacity: 0;
   max-height: 0rem;
@@ -935,7 +939,7 @@ th a {
 
 }
 
-.education-item:hover {
+.education-item.hoverable:hover {
   transform: scale(1.02) !important;
   z-index: 3 !important;
   box-shadow: 0px 0px !important;
