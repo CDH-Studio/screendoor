@@ -179,7 +179,7 @@
                   <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
                 </div>
                 {% if answer.parent_question.parent_requirement is not None %}
-                <div class="col requirement-abbreviation applicant-summary-card-small list card-panel blue">
+                <div class="col requirement-abbreviation applicant-summary-card-small list card-panel screendoor-color">
                   {{ answer.parent_question.parent_requirement.abbreviation }}
                 </div>
                 <data class="question-data-text" value=": {{ answer.short_question_text }} "></data>
