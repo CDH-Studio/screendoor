@@ -1262,3 +1262,11 @@ hr {
   width: 95%;
   margin-left: 0px;
 }
+
+.favourited {
+    cursor: pointer;
+}
+
+.not_favourited {
+    cursor: pointer;
+}

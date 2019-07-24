@@ -322,15 +322,25 @@ def position_detail_data(request, position_id, task_id):
     position = Position.objects.get(id=position_id)
     applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
         parent_position=position).count() > 0 else []
+    favorites = request.user.favorites.all()
+    applicant_dict = create_applicants_wth_favourite_information(applicants, favorites)
     for applicant in applicants:
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id,
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
             'sort': sort_by}
 
+def create_applicants_wth_favourite_information(applicants, favorites):
+    stitched_lists = {}
+    for applicant in applicants:
+        if applicant in favorites:
+            stitched_lists[applicant] = True
+        else:
+            stitched_lists[applicant] = False
+    return stitched_lists
 
 # Position detail view
 @login_required(login_url='login', redirect_field_name=None)
@@ -483,3 +493,9 @@ def nlp(request):
     qualifiers = answer.qualifier_set.all()
     breakpoint()
     return redirect('positions')
+
+
+@login_required(login_url='login', redirect_field_name=None)
+def add_to_favorites(request, app_id):
+    user = request.GET.get('user')
+    applicant = request.GET.get('applicant')

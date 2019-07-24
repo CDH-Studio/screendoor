@@ -283,7 +283,7 @@
         </thead>
       </table>
     </div>
-    {% for applicant in applicants %}
+    {% for applicant, favorite in applicants.items %}
     <!-- Applicant -->
     <div class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %}">
       <!-- Position row 1 body -->
@@ -291,7 +291,11 @@
         <tbody>
           <tr>
             <td colspan="2">
-              <i class="material-icons grey-text favourite-star">star_border</i>
+              {% if favorite %}
+                <span class="favourited" id="{{ applicant.applicant_id }}"><i class="material-icons yellow-text favourite-star">star</i></span>
+              {% else %}
+             <span class="not_favourited" id="{{ applicant.applicant_id }}"><i class="material-icons grey-text favourite-star" id="favourite">star_border</i></span>
+              {% endif %}
             </td>
             <td colspan="16">
               <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
@@ -458,4 +462,6 @@
 <!-- Script for editing table values -->
 <script src="{% static 'js/position-edit.js' %}"></script>
 <!-- Inline script requiring Django variables -->
+<script src="{% static 'js/position.js' %}"></script>
 {% endblock %}
+

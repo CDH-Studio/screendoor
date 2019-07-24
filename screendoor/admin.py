@@ -54,12 +54,16 @@ class AccountTokenInline(admin.TabularInline):
     model = EmailAuthenticateToken
     extra = 0
 
+class FavoritesInline(admin.TabularInline):
+    model = ScreenDoorUser.favorites.through
+    extra = 0
+
 
 class ScreenDoorUserAdmin(UserAdmin):
     add_form = ScreenDoorUserCreationForm
     model = ScreenDoorUser
     list_display = ['email', ]
-    inlines = [PositionInline, AccountTokenInline]
+    inlines = [PositionInline, AccountTokenInline, FavoritesInline]
 
 
 admin.site.register(ScreenDoorUser, ScreenDoorUserAdmin)

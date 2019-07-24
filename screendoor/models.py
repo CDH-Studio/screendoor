@@ -40,28 +40,6 @@ class Position(models.Model):
             self.save()
 
 
-class ScreenDoorUser(AbstractUser):
-    email_confirmed = models.BooleanField(default=False)
-    positions = models.ManyToManyField(Position, blank=True)
-
-    def confirm_email(self):
-        self.email_confirmed = True
-
-
-class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE, primary_key=False)
-    key = models.CharField(max_length=500, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def create_key(self):
-        initial_key = Fernet.generate_key()
-        byte_values = bytes(str(self.user.email) +
-                            str(datetime.datetime.now()), 'utf-8')
-        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
-        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
-
-
 class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
@@ -122,6 +100,29 @@ class Applicant(models.Model):
             Classification.objects.filter(parent_applicant=self))
         self.classification_names = "".join([(classification.classification_substantive or "") for classification in classifications]).join(
             " ").join([(classification.classification_current or "") for classification in classifications])
+
+
+
+class ScreenDoorUser(AbstractUser):
+    email_confirmed = models.BooleanField(default=False)
+    positions = models.ManyToManyField(Position, blank=True)
+    favorites = models.ManyToManyField(Applicant, blank=True)
+    def confirm_email(self):
+        self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def create_key(self):
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
+                            str(datetime.datetime.now()), 'utf-8')
+        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
 
 
 class RequirementMet(models.Model):
