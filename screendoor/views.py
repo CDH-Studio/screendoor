@@ -498,4 +498,15 @@ def nlp(request):
 
 def add_to_favorites(request):
     app_id = request.GET.get("app_id")
-    return JsonResponse({'app_id': app_id})
+    applicant = Applicant.objects.get(applicant_id=app_id)
+    favourite_status = request.GET.get("favouriteStatus")
+    print(favourite_status)
+    if favourite_status == "True":
+        print(request.user.favorites.all())
+        request.user.favorites.remove(applicant)
+        request.user.save()
+        print(request.user.favorites.all())
+    else:
+        request.user.favorites.add(applicant)
+
+    return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})

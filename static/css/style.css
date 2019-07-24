@@ -1263,10 +1263,6 @@ hr {
   margin-left: 0px;
 }
 
-.favourited {
-    cursor: pointer;
-}
-
-.not_favourited {
+.favourite_icon {
     cursor: pointer;
 }

@@ -285,17 +285,13 @@
     </div>
     {% for applicant, favorite in applicants.items %}
     <!-- Applicant -->
-    <div class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %}">
+    <div data-appId="{{ applicant.applicant_id }}" class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %} ">
       <!-- Position row 1 body -->
       <table class="applicant-table">
         <tbody>
           <tr>
             <td colspan="2">
-              {% if favorite %}
-                <span class="favourited" id="{{ applicant.applicant_id }}"><i class="material-icons yellow-text">star</i></span>
-              {% else %}
-             <span class="not_favourited" id="{{ applicant.applicant_id }}"><i class="material-icons grey-text">star_border</i></span>
-              {% endif %}
+              <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favorite }}"><i class="material-icons grey-text">star_border</i></span>
             </td>
             <td colspan="16">
               <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
