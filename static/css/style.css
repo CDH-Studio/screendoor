@@ -332,13 +332,13 @@ input[type=number]::-webkit-outer-spin-button {
    } */
 
 .save-note {
-   position: absolute;
+  position: absolute;
   margin-bottom: -30px;
   margin-left: 10px;
 }
 
 .cancel-note {
-   position: absolute
+  position: absolute
   margin-bottom: -40px;
   margin-left: 10px;
 }
@@ -604,7 +604,7 @@ tr {
 .applicant-response-full-open {
   text-overflow: initial !important;
   overflow: initial !important;
-  max-height: 500rem !important;
+  max-height: 150rem !important;
   opacity: 1 !important;
 
   -webkit-transition: opacity .3s, max-height .3s;: all .5s;
