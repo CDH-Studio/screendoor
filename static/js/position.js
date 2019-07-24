@@ -11,7 +11,6 @@ const favourite = function(i, id) {
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-        console.log(data)
         element = document.getElementById(id) // the outer span surrounding the icon
         if (data.favourite_status == "True") {
             element.innerHTML = '<i class="material-icons grey-text">star_border</i>'

@@ -502,10 +502,8 @@ def add_to_favorites(request):
     favourite_status = request.GET.get("favouriteStatus")
     print(favourite_status)
     if favourite_status == "True":
-        print(request.user.favorites.all())
         request.user.favorites.remove(applicant)
         request.user.save()
-        print(request.user.favorites.all())
     else:
         request.user.favorites.add(applicant)
 
