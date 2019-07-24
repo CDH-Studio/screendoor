@@ -25,7 +25,7 @@ let clickedHeaders = [];
 
 /* Education preview */
 const educationEllipses = document.getElementsByClassName("education-ellipsis");
-const educationHeaders = document.getElementsByClassName("education-header");
+// const educationHeaders = document.getElementsByClassName("education-header");
 const educationHeadersClicked = document.getElementsByClassName("education-header-clicked");
 let educationAcademicTruncated = [];
 let educationInstitutionTruncated = [];
@@ -76,7 +76,9 @@ const displayEllipsesIfNeeded = function(i) {
 
 /* Arrow indicates row is open or closed */
 const openCloseArrow = function(i) {
+  if (collapseArrows[i]) {
   collapseArrows[i].innerHTML == "keyboard_arrow_right" ? collapseArrows[i].innerHTML = "keyboard_arrow_down" : collapseArrows[i].innerHTML = "keyboard_arrow_right";
+  }
 };
 
 /* User wants to view question detail */

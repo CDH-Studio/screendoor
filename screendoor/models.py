@@ -11,10 +11,7 @@ class Position(models.Model):
     position_title = models.TextField(blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
-    salary_min = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
-    salary_max = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
+    salary = models.CharField(max_length=200, blank=True)
     classification = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     open_to = models.TextField(blank=True)
@@ -237,9 +234,9 @@ class Qualifier(models.Model):
 
 class Note(models.Model):
     author = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='author')
+        get_user_model(), on_delete=models.CASCADE, related_name='note')
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True, related_name='notes')
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='note')
     note_text = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 

@@ -412,6 +412,9 @@ def applicant_detail_data(request, applicant_id, position_id):
     answers = FormAnswer.objects.filter(
         parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
+        answer.qualifier_set = Qualifier.objects.filter(
+            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
+            parent_answer=answer).count() > 0 else None
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None

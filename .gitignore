@@ -141,9 +141,11 @@ screendoor/applications
 code/screendoor/temp/
 .map
 *.map
+
 /GPATH
 /GRTAGS
 /GTAGS
 
 # nginx static files
 static/admin
+django.env
