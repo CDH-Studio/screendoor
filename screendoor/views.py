@@ -353,8 +353,7 @@ def position_detail_data(request, position_id, task_id):
     print(other_users)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
-            'sort': sort_by, 'current_user': request.user, 'other_users': other_users}
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id, 'applicant_filter': applicant_filter}
+            'sort': sort_by, 'current_user': request.user, 'other_users': other_users, 'applicant_filter': applicant_filter}
 
 def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}

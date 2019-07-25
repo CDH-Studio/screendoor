@@ -1,6 +1,10 @@
 /* CONSTANTS AND VARIABLES */
-
-const favourites = document.getElementsByClassName("favourite-icon");
+const favourites = document.getElementsByClassName("favourite_icon");
+const addUser = document.getElementById("add-users-button");
+const userDisplayLocation = document.getElementById("userDisplay");
+const currentUser = document.getElementById("current-user");
+const userEmailField = document.getElementById("user-email-input");
+const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
 
 const unfavourite = function(i, id) {
   console.log(id);
@@ -19,34 +23,9 @@ const favourite = function(i, id) {
         element.children[0].innerText = 'star';
         element.setAttribute("data-favourite-status", "True");
       }
-const favourites = document.getElementsByClassName("favourite_icon");
-const addUser = document.getElementById("add-users-button");
-const userDisplayLocation = document.getElementById("userDisplay");
-const currentUser = document.getElementById("current-user");
-const userEmailField = document.getElementById("user-email-input");
-const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
-
-const unfavourite = function(i, id) {
-  console.log(id)
-};
-
-const favourite = function(i, id) {
-  url = "/add_to_favourites?app_id=" + id + "&favouriteStatus=" + document.getElementById(id).dataset.favouriteStatus
-  fetch(url).then(function(response) {
-    /* data being the json object returned from Django function */
-    response.json().then(function(data) {
-        element = document.getElementById(id) // the outer span surrounding the icon
-        if (data.favourite_status == "True") {
-            element.innerHTML = '<i class="material-icons grey-text">star_border</i>'
-             element.setAttribute("data-favourite-status", "False")
-        } else {
-            element.innerHTML = '<i class="material-icons yellow-text">star</i>'
-             element.setAttribute("data-favourite-status", "True")
-        }
     }).catch(error => console.error());
   });
 };
-
 
 const set_default_favourite_status = function(element) {
     favourite_status = element.dataset.favouriteStatus
@@ -116,10 +95,13 @@ const set_remove_button_handlers = function(position_id) {
     removeUserButtons = document.getElementsByClassName("remove-user");
     for (let i = 0; i < removeUserButtons.length; i++) {
         removeUserButtons[i].addEventListener("click", () => {
-        if (removeUserButtons[i] != undefined) {
-            remove_user_from_position(removeUserButtons[i].parentNode.id, position_id);
-        }
-    });
+            if (removeUserButtons[i] != undefined) {
+                remove_user_from_position(removeUserButtons[i].parentNode.id, position_id);
+            }
+        });
+    }
+};
+
 const setDefaultFavouriteStatus = function(element) {
   const favouriteStatus = element.dataset.favouriteStatus;
   if (favouriteStatus == "False") {
@@ -130,14 +112,16 @@ const setDefaultFavouriteStatus = function(element) {
 };
 
 window.addEventListener('DOMContentLoaded', (event) => {
-    // stores position id
-    position_id = userDisplayLocation.dataset.positionId
+  // stores position id
+  position_id = userDisplayLocation.dataset.positionId
+
   addUser.addEventListener("click", () => {
       add_user_to_position(position_id);
-    });
+  });
 
   for (let i = 0; i < favourites.length; i++) {
     set_default_favourite_status(favourites[i])
+  }
   for (let i = 0; i < favourites.length; i++) {
     setDefaultFavouriteStatus(favourites[i]);
     favourites[i].addEventListener("click", () => {
@@ -145,5 +129,4 @@ window.addEventListener('DOMContentLoaded', (event) => {
     });
   }
   set_remove_button_handlers(position_id)
-
 });
