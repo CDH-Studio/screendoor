@@ -1633,3 +1633,7 @@ hr {
 .favourite_icon {
     cursor: pointer;
 }
+
+.remove-user {
+ cursor: pointer;
+ }

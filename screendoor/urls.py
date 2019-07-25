@@ -24,6 +24,7 @@ urlpatterns = [
     path('position/delete', views.delete_position, name='delete'),
     path('position/upload-applications',
          views.upload_applications, name='upload-applications'),
+
     path('application/<app_id>', views.application, name='application'),
     path('sbr_pdf/<app_id>', views.render_pdf, name='sbr'),
     path('progress/<task_id>', views.task_status, name='task_status'),
@@ -31,6 +32,10 @@ urlpatterns = [
          name='nlp'),
     path('add-note', views.add_note, name='add-note'),
     path('delete-note', views.delete_note, name='delete-note'),
-    path('add_to_favorites', views.add_to_favorites, name='add_to_favorites'),
+    path('add_to_favourites', views.add_to_favourites, name='add_to_favourites'),
+    path('add_user_to_position',
+         views.add_user_to_position, name='add_user_to_position'),
+    path('remove_user_from_position',
+         views.remove_user_from_position, name='remove_user_from_position'),
 
 ]

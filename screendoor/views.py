@@ -19,7 +19,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract, Note, Qualifier
+    NlpExtract, Note, Qualifier, ScreenDoorUser
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -322,21 +322,24 @@ def position_detail_data(request, position_id, task_id):
     position = Position.objects.get(id=position_id)
     applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
         parent_position=position).count() > 0 else []
-    favorites = request.user.favorites.all()
-    applicant_dict = create_applicants_wth_favourite_information(applicants, favorites)
+    favourites = request.user.favourites.all()
+    applicant_dict = create_applicants_wth_favourite_information(applicants, favourites)
     for applicant in applicants:
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
+
+    other_users = [x for x in position.position_users.all() if not x == request.user]
+    print(other_users)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
-            'sort': sort_by}
+            'sort': sort_by, 'current_user': request.user, 'other_users': other_users}
 
-def create_applicants_wth_favourite_information(applicants, favorites):
+def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}
     for applicant in applicants:
-        if applicant in favorites:
+        if applicant in favourites:
             stitched_lists[applicant] = True
         else:
             stitched_lists[applicant] = False
@@ -384,6 +387,7 @@ def upload_applications(request):
     return redirect('home')
 
 
+
 def import_applications_redact(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)
@@ -409,7 +413,7 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
 
     applicant = Applicant.objects.get(id=applicant_id)
-    if [x for x in request.user.favorites.all() if x == applicant]:
+    if [x for x in request.user.favourites.all() if x == applicant]:
         is_favourited = True
     else:
         is_favourited = False
@@ -431,7 +435,7 @@ def applicant_detail_data(request, applicant_id, position_id):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
             'classifications': Classification.objects.filter(parent_applicant=applicant),
             'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, "favorite": is_favourited}
+            'answers': answers, "favourite": is_favourited}
 
 
 # View an application
@@ -506,14 +510,51 @@ def nlp(request):
 
 
 
-def add_to_favorites(request):
+def add_to_favourites(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
     favourite_status = request.GET.get("favouriteStatus")
-    if favourite_status == "True":
-        request.user.favorites.remove(applicant)
-        request.user.save()
-    else:
-        request.user.favorites.add(applicant)
 
+    if favourite_status == "True":
+        request.user.favourites.remove(applicant)
+    else:
+        request.user.favourites.add(applicant)
+
+    request.user.save()
     return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
+
+
+def add_user_to_position(request):
+    user_email = request.GET.get("email")
+    position_id= request.GET.get("id")
+    position = Position.objects.get(id=position_id)
+
+    try:
+        new_user = ScreenDoorUser.objects.get(email=user_email)
+        if new_user in position.position_users.all():
+            return JsonResponse(
+                {'exception': 'User already has access to this position.'})
+        position.position_users.add(new_user)
+        position.save()
+        return JsonResponse({'userName': new_user.username, 'userEmail': new_user.email})
+    except:
+        return JsonResponse({'exception': 'User does not exist.'})
+
+
+
+def remove_user_from_position(request):
+    user_email = request.GET.get("email")
+    position_id = request.GET.get("id")
+    position = Position.objects.get(id=position_id)
+
+    try:
+        user_to_remove = ScreenDoorUser.objects.get(email=user_email)
+        position.position_users.remove(user_to_remove)
+        position.save()
+        return JsonResponse({'userEmail': user_email})
+
+    except:
+        print("af;inapgoaubnfpowe bnaeipu")
+        return JsonResponse(
+            {})
+

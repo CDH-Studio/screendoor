@@ -55,7 +55,7 @@ class AccountTokenInline(admin.TabularInline):
     extra = 0
 
 class FavoritesInline(admin.TabularInline):
-    model = ScreenDoorUser.favorites.through
+    model = ScreenDoorUser.favourites.through
     extra = 0
 
 

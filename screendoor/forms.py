@@ -55,6 +55,15 @@ class ImportApplicationsForm(forms.ModelForm):
         return self.cleaned_data
 
 
+# For uploading completed applications to a position
+class AddUsersForm(forms.ModelForm):
+    title = ""
+
+    class Meta:
+        model = ScreenDoorUser
+        fields = ('email', )
+
+
 # For creating a new position
 class CreatePositionForm(forms.ModelForm):
     text = CreatePositionFormText.upload_new_position
