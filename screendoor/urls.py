@@ -18,8 +18,10 @@ urlpatterns = [
          views.position_detail, name='position'),
     path('position/<str:reference>/<int:position_id>/<uuid:task_id>',
          views.position_detail, name='position_upload'),
-    path('position/<str:reference>/<int:position_id>/<str:sort_by>',
+    path('position/<str:reference>/<int:position_id>/sort/<str:sort_by>',
          views.sort_applicants, name='sort_applicants'),
+    path('position/<str:reference>/<int:position_id>/filter/<str:applicant_filter>',
+         views.filter_applicants, name='filter_applicants'),
     path('position/edit', views.edit_position, name='edit'),
     path('position/delete', views.delete_position, name='delete'),
     path('position/upload-applications',
@@ -31,5 +33,6 @@ urlpatterns = [
          name='nlp'),
     path('add-note', views.add_note, name='add-note'),
     path('delete-note', views.delete_note, name='delete-note'),
+    path('add_to_favourites', views.add_to_favourites, name='add_to_favourites'),
 
 ]

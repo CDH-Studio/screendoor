@@ -16,36 +16,28 @@ def remove_bad_subjects(sent):
     # If a sentence fragment is verbless, it is most often a list heading.
     verbs = [x for x in sent if x.pos_ == 'VERB']
     if not verbs:
-        print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW verbless', sent))
+        #print_if_debug(('INCLUDED-WHEN EXCLUDED-HOW verbless', sent))
         return True
 
     identified_subjects = [x for x in sent if x.dep_ == 'nsubj' or x.dep_ == 'nsubjpass' and not x.pos_ == 'VERB']
 
     # If no subject is found, it is assumed to be a bullet point (and thus valid)
     if identified_subjects == []:
-        print_if_debug(('INCLUDED subject-less', sent))
+        #print_if_debug(('INCLUDED subject-less', sent))
         return True
     else:
-        v = [x for x in identified_subjects if x.pos_ == 'VERB']
-        print_if_debug(v)
+
         # Checks for both I (I worked on...) and 'as' (as a team lead, i worked on...)
-        pronoun_check = [item for sublist in [re.findall(r'\bI\b', x.text) for x in identified_subjects] for item in sublist]
+        primary_check = [item for sublist in [re.findall(r'\bI\b|\b[a|A]s\b', x.text) for x in identified_subjects] for item in sublist]
 
-        # TODO: identify qualifers such as "my role" "my responsabilities"(?) while excluding "my project" "my team"
-        possessive_check = [item for sublist in [re.findall(r'\b[a|A]s\b', x.text) for x in identified_subjects] for item in sublist]
+        # Checks for specific phrases that are neeced
+        secondary_check = [item for sublist in [re.findall(r'\b[m|M]y responsibilities\b', x.text) for x in identified_subjects] for item in sublist]
 
-        if not (pronoun_check + possessive_check == []):
-            print_if_debug(('INCLUDED Applicant subject', identified_subjects, sent))
+        if not (primary_check + secondary_check == []):
+            #print_if_debug(('INCLUDED Applicant subject', identified_subjects, sent))
             return True
-    #
-    # nouns_as_sentence_root = [x.text for x in sent if
-    #                               x.dep_ == 'ROOT' and x.pos_ == 'NOUN']
-    # # Prevents odd data from being pulled in.
-    # if nouns_as_sentence_root:
-    #     print_if_debug(('EXCLUDED edge case', identified_subjects, sent))
-    #     return False
 
-    print_if_debug(('EXCLUDED subject', identified_subjects, sent))
+    #print_if_debug(('EXCLUDED subject', identified_subjects, sent))
     return False
 
 
@@ -88,7 +80,7 @@ def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_ma
         match = get_first_elem_or_none(matches)
         while match:
             if match not in stored_matches:
-                print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
+                #print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
                 matches += match
                 return (((match[0], match[1]), match))
             matches = matches[1:len(matches)]

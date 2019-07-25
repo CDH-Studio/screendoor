@@ -37,28 +37,6 @@ class Position(models.Model):
             self.save()
 
 
-class ScreenDoorUser(AbstractUser):
-    email_confirmed = models.BooleanField(default=False)
-    positions = models.ManyToManyField(Position, blank=True)
-
-    def confirm_email(self):
-        self.email_confirmed = True
-
-
-class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE, primary_key=False)
-    key = models.CharField(max_length=500, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def create_key(self):
-        initial_key = Fernet.generate_key()
-        byte_values = bytes(str(self.user.email) +
-                            str(datetime.datetime.now()), 'utf-8')
-        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
-        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
-
-
 class Applicant(models.Model):
     parent_position = models.ForeignKey(
         Position, on_delete=models.CASCADE, null=True)
@@ -119,6 +97,29 @@ class Applicant(models.Model):
             Classification.objects.filter(parent_applicant=self))
         self.classification_names = "".join([(classification.classification_substantive or "") for classification in classifications]).join(
             " ").join([(classification.classification_current or "") for classification in classifications])
+
+
+class ScreenDoorUser(AbstractUser):
+    email_confirmed = models.BooleanField(default=False)
+    positions = models.ManyToManyField(Position, blank=True)
+    favourites = models.ManyToManyField(Applicant, blank=True)
+
+    def confirm_email(self):
+        self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def create_key(self):
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
+                            str(datetime.datetime.now()), 'utf-8')
+        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
 
 
 class RequirementMet(models.Model):
@@ -193,6 +194,7 @@ class FormQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
+
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
@@ -209,21 +211,23 @@ class FormAnswer(models.Model):
 
 class Qualifier(models.Model):
     QUALIFIER_TYPES = [
-        ('RECENCY', 'A range that the most recent experience must be within'),
-        ('SIGNIFICANCE', 'A threshold that the aggregate experience must exceed')
+        ('RECENCY', 'Recency'),
+        ('SIGNIFICANCE', 'Significance')
     ]
     RESULT = [
-        ('TRUE', "The applicant's experience met or exceeded the experience qualifier"),
-        ('UNSURE', "The applicant's experience could not be adequetly quantified with the dates provided"),
-        ('FALSE', "The dates that the applicant provided did not meet the experience qualifier")
+        ('PASS', "Passed"),
+        ('IND', "Indeterminate"),
+        ('FAIL', "Fail")
     ]
 
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True)
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='answers')
     qualifier_text = models.TextField(
         blank=True, null=True)
-    qualifier_type = models.CharField(max_length=200, null=True)
-    status = models.BooleanField()
+    qualifier_type = models.CharField(
+        choices=QUALIFIER_TYPES, max_length=200, null=True)
+    status = models.CharField(
+        choices=RESULT, max_length=200, null=True)
 
     def __str__(self):
         return str(self.qualifier_text)
@@ -231,9 +235,9 @@ class Qualifier(models.Model):
 
 class Note(models.Model):
     author = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='author')
+        get_user_model(), on_delete=models.CASCADE, related_name='note')
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True, related_name='notes')
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='note')
     note_text = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 

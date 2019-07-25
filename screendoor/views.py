@@ -19,7 +19,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract, Note
+    NlpExtract, Note, Qualifier
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -196,8 +196,7 @@ def edit_position(request):
                     request.POST.get("position-date-closed"))
                 position.num_positions = request.POST.get(
                     "position-num-positions")
-                position.salary_min = request.POST.get("position-salary-min")
-                position.salary_max = request.POST.get("position-salary-max")
+                position.salary = request.POST.get("position-salary")
                 position.open_to = request.POST.get("position-open-to")
                 position.description = request.POST.get("position-description")
                 counter = 1
@@ -255,6 +254,12 @@ def import_position(request):
 
 
 @login_required(login_url='login', redirect_field_name=None)
+def filter_applicants(request, reference, position_id, applicant_filter):
+    request.session['applicant_filter'] = applicant_filter
+    return redirect('position', reference=reference, position_id=position_id)
+
+
+@login_required(login_url='login', redirect_field_name=None)
 def sort_applicants(request, reference, position_id, sort_by):
     request.session['applicants_sort'] = sort_by
     return redirect('position', reference=reference, position_id=position_id)
@@ -281,6 +286,13 @@ def get_applicants_sort_method(request):
         return request.session['applicants_sort']
     except KeyError:
         return '-percentage_correct'
+
+
+def get_applicant_filter_method(request):
+    try:
+        return request.session['applicant_filter']
+    except KeyError:
+        return "all"
 
 
 # Data and visible text to render with positions list view
@@ -318,19 +330,37 @@ def user_has_position(request, reference, position_id):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position_id, task_id):
+    applicant_filter = get_applicant_filter_method(request)
     sort_by = get_applicants_sort_method(request)
     position = Position.objects.get(id=position_id)
-    applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
-        parent_position=position).count() > 0 else []
+    if applicant_filter == "all":
+        applicants = list(position.applicant_set.all().order_by(
+            sort_by)) if Applicant.objects.filter(parent_position=position).count() > 0 else []
+    elif applicant_filter == "favourites":
+        applicants = list(request.user.favourites.filter(
+            parent_position=position).order_by(sort_by)) if request.user.favourites.filter(
+            parent_position=position).count() > 0 else []
+    favourites = request.user.favourites.filter(parent_position=position)
+    applicant_dict = create_applicants_wth_favourite_information(
+        applicants, favourites)
     for applicant in applicants:
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicants, 'task_id': task_id,
-            'sort': sort_by}
+            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
+            'sort': sort_by, 'applicant_filter': applicant_filter}
 
+
+def create_applicants_wth_favourite_information(applicants, favourites):
+    stitched_lists = {}
+    for applicant in applicants:
+        if applicant in favourites:
+            stitched_lists[applicant] = True
+        else:
+            stitched_lists[applicant] = False
+    return stitched_lists
 
 # Position detail view
 @login_required(login_url='login', redirect_field_name=None)
@@ -397,11 +427,21 @@ def position_has_applicant(request, app_id):
 
 # Data for applicant view
 def applicant_detail_data(request, applicant_id, position_id):
+
     applicant = Applicant.objects.get(id=applicant_id)
+    if [x for x in request.user.favourites.all() if x == applicant]:
+        is_favourited = True
+    else:
+        is_favourited = False
+
+    print(is_favourited)
     position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(
         parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
+        answer.qualifier_set = Qualifier.objects.filter(
+            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
+            parent_answer=answer).count() > 0 else None
         answer.extract_set = NlpExtract.objects.filter(
             parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
             parent_answer=answer).count() > 0 else None
@@ -411,7 +451,7 @@ def applicant_detail_data(request, applicant_id, position_id):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
             'classifications': Classification.objects.filter(parent_applicant=applicant),
             'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, }
+            'answers': answers, "favourite": is_favourited}
 
 
 # View an application
@@ -449,10 +489,22 @@ def delete_note(request):
 @login_required(login_url='login', redirect_field_name=None)
 def render_pdf(request, app_id):
     applicant = position_has_applicant(request, app_id)
+    answers = FormAnswer.objects.filter(
+        parent_applicant=applicant).order_by("parent_question")
+    for answer in answers:
+        answer.qualifier_set = Qualifier.objects.filter(
+            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
+                parent_answer=answer).count() > 0 else None
+        answer.extract_set = NlpExtract.objects.filter(
+            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
+                parent_answer=answer).count() > 0 else None
+        answer.note_set = Note.objects.filter(
+            parent_answer=answer).order_by('created') if Note.objects.filter(
+                parent_answer=answer).count() > 0 else None
     if applicant is not None:
         response = HttpResponse(content_type="application/pdf")
         html = render_to_string("sbr_pdf.html", {
-            'applicant': applicant,
+            'applicant': applicant, 'answers': answers
         })
         font_config = FontConfiguration()
         HTML(string=html).write_pdf(response, font_config=font_config)
@@ -479,7 +531,20 @@ def task_status(request, task_id):
 
 
 def nlp(request):
-    text = u"""IT Service Management (ITSM) initiative aimed at improving the internal management capacity of the IT organization."""
-    from screendoor.NLP.howextraction import extract_how
-    extract_how(text)
+    answer = FormAnswer.objects.get(id=449)
+    qualifiers = answer.qualifier_set.all()
+    breakpoint()
     return redirect('positions')
+
+
+def add_to_favourites(request):
+    app_id = request.GET.get("app_id")
+    applicant = Applicant.objects.get(applicant_id=app_id)
+    favourite_status = request.GET.get("favouriteStatus")
+    if favourite_status == "True":
+        request.user.favourites.remove(applicant)
+        request.user.save()
+    else:
+        request.user.favourites.add(applicant)
+
+    return JsonResponse({'app_id': app_id, 'favourite_status': favourite_status})

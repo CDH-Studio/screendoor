@@ -1,6 +1,9 @@
 # Web framework
 Django>=2.0,<3.0
 
+# Python WSGI HTTP Server
+gunicorn==19.9.0
+
 # Async/task scheduling
 celery>=4.3.0
 
@@ -41,6 +44,7 @@ geotext==0.4.0
 
 # NLP library
 spacy==2.1.4
+spacy_langdetect==0.1.2
 
 # Fuzzy Logic
 fuzzywuzzy==0.17.0

@@ -1,15 +1,17 @@
 {% load static %}
 <!-- MaterializeCSS stylesheet -->
-<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
 <!-- Additional stylesheet -->
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 <!-- MaterializeCSS JS library -->
-<script src="{% static 'js/materialize.js' %}"></script>
+<script src="{% static 'js/materialize/materialize.min.js' %}"></script>
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
   <nav>
     <div class="nav-wrapper">
-      <a href="/" class="brand-logo left logged-out-logo"><img src="{% static 'img/ScreenDoor-White.png' %}"></a>
+      <a href="/" class="brand-logo left logged-out-logo">
+        <img src="{% static 'img/ScreenDoor-White.png' %}">
+      </a>
     </div>
   </nav>
   <!-- Page Layout here -->

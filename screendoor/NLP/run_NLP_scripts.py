@@ -14,16 +14,17 @@ def generate_nlp_extracts(comp_response_text, linked_question, linked_answer, cl
     # Create the NLP doc objects of both the originally formatted text,
     # and the secret reformatted text
     orig_doc = NLP_MODEL(comp_response_text)
+    if not orig_doc._.language.get('language') == 'en':
+        return
 
     reformatted_text = post_nlp_format_input(orig_doc)
     reformatted_text = replace_acronyms_with_full_month(strip_faulty_formatting(reformatted_text))
     doc = NLP_MODEL(reformatted_text)
-
-    # replace with position closing date!
     date_ranges = create_list_of_ranges(doc.ents, closing_date)
 
     if linked_question is not None:
-        analyze_question_qualifiers(linked_question.question_text, date_ranges, closing_date, linked_answer)
+        analyze_question_qualifiers(linked_question, date_ranges,
+                                    closing_date, linked_answer)
 
     dates_and_contexts = extract_when(orig_doc.text, doc)
 
@@ -54,18 +55,21 @@ def analyze_question_qualifiers(question_text, date_ranges, closing_date, answer
 
             if re.search(r'least|over|more|approximately', date.text):
                 qualifier_type = 'SIGNIFICANCE'
-
-                status = determine_if_significant_criteria_met(date_ranges, quantifier,
+                if date_ranges != []:
+                    status = determine_if_significant_criteria_met(date_ranges, quantifier,
                                                       is_years)
+                else:
+                    status = 'IND'
             elif re.search(r'within|last', date.text):
                 qualifier_type = 'RECENCY'
-                status = determine_if_recent_criteria_met(date_ranges, closing_date,
+                if date_ranges != []:
+                    status = determine_if_recent_criteria_met(date_ranges, closing_date,
                                                  quantifier, is_years)
+                else:
+                    status = 'IND'
             else:
                 return
 
-            if status is None:
-                status = False
             save_qualifier(sentence, qualifier_type, status, answer)
 
 

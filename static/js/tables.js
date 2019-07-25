@@ -25,7 +25,7 @@ let clickedHeaders = [];
 
 /* Education preview */
 const educationEllipses = document.getElementsByClassName("education-ellipsis");
-const educationHeaders = document.getElementsByClassName("education-header");
+// const educationHeaders = document.getElementsByClassName("education-header");
 const educationHeadersClicked = document.getElementsByClassName("education-header-clicked");
 let educationAcademicTruncated = [];
 let educationInstitutionTruncated = [];
@@ -33,14 +33,52 @@ let educationAreaStudyTruncated = [];
 
 /* HELPER FUNCTIONS */
 
+const slideCloseElements = function(...elements) {
+  for (let element of elements) {
+    if (element) {
+      element.classList.add("row-closed");
+      // element.ontransitionend = () => {
+      //   element.classList.add("invisible");
+      // };
+    }
+  }
+};
+
+const slideOpenElements = function(...elements) {
+  for (let element of elements) {
+    if (element) {
+      element.classList.remove("row-closed");
+      // element.classList.remove("invisible");
+      // element.ontransitionend = () => {
+      //   element.classList.remove("invisible");
+      // };
+    }
+  }
+};
+
+/* Toggles TBODY collapse and expand */
+const toggleRow = function(row) {
+  if (row) {
+    row.classList.contains("row-closed") ? slideOpenElements(row) : slideCloseElements(row);
+    try {
+      if (row.nextElementSibling.classList.contains("body-row")) {
+        row = row.nextElementSibling;
+        toggleRow(row);
+      }
+    } catch (TypeError) {}
+  }
+};
+
 /* Display ellipses if there is truncated text on row */
 const displayEllipsesIfNeeded = function(i) {
-  !isEllipsisActive(questionTruncated[i], questionTruncatedAnalysis[i]) ? hideElements(questionEllipses[i]) : showElements(questionEllipses[i]);
+  !isEllipsisActive(questionTruncated[i], questionTruncatedAnalysis[i]) ? slideCloseElements(questionEllipses[i]) : slideOpenElements(questionEllipses[i]);
 };
 
 /* Arrow indicates row is open or closed */
 const openCloseArrow = function(i) {
+  if (collapseArrows[i]) {
   collapseArrows[i].innerHTML == "keyboard_arrow_right" ? collapseArrows[i].innerHTML = "keyboard_arrow_down" : collapseArrows[i].innerHTML = "keyboard_arrow_right";
+  }
 };
 
 /* User wants to view question detail */
@@ -49,28 +87,28 @@ const expandCollapseQuestionHeaders = function(i) {
 };
 
 const expandQuestionHeaders = function(i) {
-  showElements(clickedHeaders[i]);
-  hideElements(previewFull[i], previewSmall[i]);
-  backgroundOffWhite(questionHeaders[i]);
+  slideOpenElements(clickedHeaders[i]);
+  slideCloseElements(previewFull[i], previewSmall[i]);
+  // backgroundOffWhite(questionHeaders[i]);
 };
 
 const collapseQuestionHeaders = function(i) {
-  showElements(previewSmall[i]);
-  hideElements(clickedHeaders[i]);
-  backgroundWhite(questionHeaders[i]);
+  slideOpenElements(previewSmall[i]);
+  slideCloseElements(clickedHeaders[i]);
+  // backgroundWhite(questionHeaders[i]);
   hideQuestionPreview(i);
 };
 
 /* User moves mouse over question ellipses */
 const showQuestionPreview = function(i) {
-  hideElements(analysisSpan[i], questionSpan[i]);
-  showElements(previewFull[i], questionSubheads[i]);
-  backgroundOffWhite(previewSmall[i]);
+  slideCloseElements(analysisSpan[i], questionSpan[i]);
+  slideOpenElements(previewFull[i], questionSubheads[i]);
+  // backgroundOffWhite(previewSmall[i]);
   unTruncate(questionTruncated[i]);
   growEllipsis(questionEllipses[i]);
 
   if (analysisSubheads[i]) {
-    showElements(analysisSubheads[i]);
+    slideOpenElements(analysisSubheads[i]);
   }
   if (questionTruncatedAnalysis[i]) {
     unTruncate(questionTruncatedAnalysis[i]);
@@ -79,14 +117,14 @@ const showQuestionPreview = function(i) {
 
 /* User moves mouse off question preview */
 const hideQuestionPreview = function(i) {
-  showElements(analysisSpan[i], questionSpan[i]);
-  hideElements(questionSubheads[i], previewFull[i]);
-  backgroundWhite(previewSmall[i]);
+  slideOpenElements(analysisSpan[i], questionSpan[i]);
+  slideCloseElements(questionSubheads[i], previewFull[i]);
+  // backgroundWhite(previewSmall[i]);
   truncate(questionTruncated[i]);
   shrinkEllipsis(questionEllipses[i]);
 
   if (analysisSubheads[i]) {
-    hideElements(analysisSubheads[i]);
+    slideCloseElements(analysisSubheads[i]);
   }
   if (questionTruncatedAnalysis[i]) {
     truncate(questionTruncatedAnalysis[i]);
@@ -96,13 +134,17 @@ const hideQuestionPreview = function(i) {
 /* User clicks an education row */
 const showEducationFull = function(i) {
   showElements(educationHeadersClicked[i]);
+  slideOpenElements(educationHeadersClicked[i]);
   hideElements(educationHeaders[i]);
+  slideCloseElements(educationHeaders[i]);
 };
 
 /* User clicks an expanded education row */
 const hideEducationFull = function(i) {
   hideElements(educationHeadersClicked[i]);
+  slideCloseElements(educationHeadersClicked[i]);
   showElements(educationHeaders[i]);
+  slideOpenElements(educationHeaders[i]);
 };
 
 /* User moves mouse over education ellipses */
@@ -110,27 +152,27 @@ const showEducationPreview = function(i) {
   if (isEllipsisActive(educationAreaStudyTruncated[i], educationInstitutionTruncated[i], educationAcademicTruncated[i])) {
     growEllipsis(educationEllipses[i]);
   }
-  backgroundOffWhite(educationHeaders[i]);
+  // backgroundOffWhite(educationHeaders[i]);
   unTruncate(educationAcademicTruncated[i], educationInstitutionTruncated[i], educationAreaStudyTruncated[i]);
 };
 
 /* User moves mouse off education preview */
 const hideEducationPreview = function(i) {
-  backgroundWhite(educationHeaders[i]);
+  // backgroundWhite(educationHeaders[i]);
   shrinkEllipsis(educationEllipses[i]);
   truncate(educationAcademicTruncated[i], educationAreaStudyTruncated[i], educationInstitutionTruncated[i]);
 };
 
 /* Row is currently expanded */
 const isOpen = function(row) {
-  return row.classList.contains("hide");
+  return !row.classList.contains("row-closed");
 };
 
 /* Recursively expands successive TBODY rows */
 const expandRow = function(row) {
-  row.classList.remove("hide");
+  row.classList.remove("row-closed");
   try {
-    if (row.nextElementSibling.tagName == "TBODY") {
+    if (row.nextElementSibling.classList.contains("body-row")) {
       row = row.nextElementSibling;
       expandRow(row);
     }
@@ -139,20 +181,22 @@ const expandRow = function(row) {
 
 /* Recursively collapses successive TBODY rows */
 const collapseRow = function(row) {
-  row.classList.add("hide");
-  try {
-    if (row.nextElementSibling.tagName == "TBODY") {
-      row = row.nextElementSibling;
-      collapseRow(row);
-    }
-  } catch (TypeError) {}
+  if (row) {
+    row.classList.add("row-closed");
+    try {
+      if (row.nextElementSibling.classList.contains("body-row")) {
+        row = row.nextElementSibling;
+        collapseRow(row);
+      }
+    } catch (TypeError) {}
+  }
 };
 
 /* Toggles TBODY collapse and expand */
 const expandOrCollapseRows = function(row) {
-  row.classList.contains("hide") ? row.classList.remove("hide") : row.classList.add("hide");
+  row.classList.contains("row-closed") ? row.classList.remove("row-closed") : row.classList.add("row-closed");
   try {
-    if (row.nextElementSibling.tagName == "TBODY") {
+    if (row.nextElementSibling.classList.contains("body-row")) {
       row = row.nextElementSibling;
       expandOrCollapseRows(row);
     }
@@ -257,7 +301,7 @@ const initializeRowListeners = function(i) {
 
   collapseElements[i].addEventListener("click", function() {
     openCloseArrow(i);
-    expandOrCollapseRows(row);
+    toggleRow(row);
   });
 };
 
@@ -273,7 +317,7 @@ const initializeQuestionListeners = function() {
     analysisSubheads[i] = document.getElementById("analysis-subhead" + i);
     clickedHeaders[i] = document.getElementById("clicked-header" + i);
 
-    hideElements(clickedHeaders[i], previewFull[i]);
+    slideCloseElements(clickedHeaders[i], previewFull[i]);
     displayEllipsesIfNeeded(i);
 
     /* User clicks question header */
@@ -328,10 +372,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   for (let i = 0; i < collapseElements.length; i++) {
     initializeRowListeners(i);
-    if (i > (window.location.pathname.includes("application") ? 3 : 2)) {
-      collapseArrows[i].innerHTML = "keyboard_arrow_right";
-      collapseRow(collapseElements[i].nextElementSibling);
-    }
+    // if (i > (window.location.pathname.includes("application") ? 3 : 2)) {
+    //   collapseArrows[i].innerHTML = "keyboard_arrow_right";
+    //   collapseRow(collapseElements[i].nextElementSibling);
+    // }
   }
 
   if (window.location.pathname.includes("application")) {

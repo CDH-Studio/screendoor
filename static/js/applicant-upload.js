@@ -8,7 +8,7 @@ const progressText = document.getElementById("progress-text");
 const loadingEllipses = document.getElementById("loading-ellipses");
 
 /* Constants derived from Django variables in hidden inputs */
-const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost:8000");
+const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
 const reloadUrl = document.getElementById("reload-url").value;
 const taskId = document.getElementById("task-id").value;
 

@@ -6,6 +6,7 @@ const extractStringEnds = document.getElementsByClassName("extract-ending-index"
 const extractStringNext = document.getElementsByClassName("extract-next-index");
 const extractText = document.getElementsByClassName("extract-string");
 const visibleExtracts = document.getElementsByClassName("extract-text");
+const extractDivs = document.getElementsByClassName("extract-full");
 const extractParentAnswerIds = document.getElementsByClassName("extract-parent-answer-id");
 const extractParentAnswerTexts = document.getElementsByClassName("extract-parent-answer");
 
@@ -16,20 +17,20 @@ const answerComplementaryResponseValue = document.getElementsByClassName("answer
 
 const underlineExtracts = function(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.add("extract-bold");
-  if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-    if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-      underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-    }
-  }
+  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
+  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
+  //     underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
+  //   }
+  // }
 };
 
 const clearExtractsUnderline = function(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.remove("extract-bold");
-  if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-    if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-      clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-    }
-  }
+  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
+  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
+  //     clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
+  //   }
+  // }
 };
 
 const highlightSentence = function(extractIndex, answerId) {
@@ -47,7 +48,7 @@ const highlightSentence = function(extractIndex, answerId) {
       const answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
       const answerAfter = answerText.slice(endIndex);
 
-      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + answerBefore + answerHighlight + answerAfter + "</a>";
+      answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
       document.getElementById('answer-highlight').classList.add("answer-highlighted");
     }
   }
@@ -59,17 +60,17 @@ const unHighlightSentence = function(extractIndex, answerId) {
 
   for (let i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
-      answerComplementaryResponse[i].innerHTML = "<a class='modal-trigger' href='#complementary-response-modal" + i + "' >" + extractParentAnswerTexts[extractIndex].value + "</a>";
+      answerComplementaryResponse[i].innerHTML = extractParentAnswerTexts[extractIndex].value;
     }
   }
 };
 
 const setHighlightListeners = function() {
   for (let i = 0; i < visibleExtracts.length; i++) {
-    visibleExtracts[i].addEventListener("mouseover", function() {
+    extractDivs[i].addEventListener("mouseover", function() {
       highlightSentence(i, extractParentAnswerIds[i].value);
     });
-    visibleExtracts[i].addEventListener("mouseout", function() {
+    extractDivs[i].addEventListener("mouseout", function() {
       unHighlightSentence(i, extractParentAnswerIds[i].value);
     });
   }

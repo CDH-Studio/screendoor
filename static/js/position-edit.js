@@ -1,5 +1,6 @@
 /* CONSTANTS AND VARIABLES */
 
+const card = window.location.pathname.includes("/position") ? document.getElementById("position-card") : null;
 const editButton = document.getElementById("edit-button");
 const saveButton = document.getElementById("save-button");
 const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
@@ -34,9 +35,6 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   if (name == "position-date-closed") {
     editableNode.type = "date";
     editableNode.value = text;
-  } else if (name.includes("salary")) {
-    editableNode.style.width = "60";
-    editableNode.type = "number";
   } else {
     editableNode.type = "text";
   }
@@ -59,9 +57,12 @@ const defineAdditionalButtons = function() {
   buttonRow.append(okButton, cancelButton);
 };
 
+const width = window.outerWidth < 1400 ? parseInt((window.innerWidth * 90) / 100).toString().concat("px") : 1250;
+
 const startEditing = function() {
   if (window.location.pathname.includes("/position")) {
     expandAllButton.click();
+    card.style.setProperty("width", width, "important");
   }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
@@ -78,9 +79,8 @@ const confirmEditChanges = function() {
     hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
 
     cells.forEach(function(cell, i) {
-      cell.lastChild.value != null ? hiddenInputs[i].value = cell.lastChild.value :
-        hiddenInputs[i].value = cell.value;
-      cell.lastChild.value != null ? cell.innerText = cell.lastChild.value : cell.innerText = cell.value;
+      hiddenInputs[i].value = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
+      cell.innerText = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
     });
     if (window.location.pathname.includes("/position")) {
       document.getElementById("save-position").submit();

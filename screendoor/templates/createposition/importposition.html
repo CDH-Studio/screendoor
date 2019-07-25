@@ -6,41 +6,55 @@
     <!--Beginning of upload position card -->
     <div class="row">
       {% if position is not None %}
-      <div class="card horizontal hoverable">
+      <div class="card horizontal">
         {% else %}
-        <div class="col s12 card horizontal hoverable">
+        <div class="col s12 card horizontal">
           {% endif %}
           <!-- Beginning of upload position form -->
           <form method="post" id="upload_position" enctype="multipart/form-data" action="">
             <div class="card-content col s12">
               <!-- Upload position title -->
               <div class="row">
-                <label class="card-title col s12" for="importposition">{{ form.text }}</label>
+                <label class="card-title col s12" for="importposition">
+                  {{ form.text }}
+                </label>
               </div>
               {% csrf_token %}
               <!-- Radio buttons to select PDF or URL -->
               <div class="row">
                 <!-- Upload position form error messages -->
                 {% if form.errors %}
-                <span class="error-text">{{ form.errors.pdf }}</span>
-                <span class="error-text">{{ form.errors.url_ref }}</span>
+                <span class="error-text">
+                  {{ form.errors.pdf }}
+                </span>
+                <span class="error-text">
+                  {{ form.errors.url_ref }}
+                </span>
                 {% endif %}
                 <!-- Upload position form instructions -->
-                <div class="col s12 grey-text"><p>{{ form.description }}</p></div>
+                <div class="col s12 grey-text">
+                  <p>
+                    {{ form.description }}
+                  </p>
+                </div>
                 <br>
                 <br>
                 <!-- PDF upload radio button -->
                 <div class="col s4">
                   <label>
                     <input name="upload_method" id="radio_pdf" type="radio" />
-                    <span>{{ form.pdf_name }}</span>
+                    <span>
+                      {{ form.pdf_name }}
+                    </span>
                   </label>
                 </div>
                 <!-- URL submit radio button -->
                 <div class="col s4">
                   <label>
                     <input name="upload_method" id="radio_url" type="radio" />
-                    <span>{{ form.url_name }}</span>
+                    <span>
+                      {{ form.url_name }}
+                    </span>
                   </label>
                 </div>
                 <br>
@@ -50,7 +64,9 @@
               <div class="row">
                 <div id="pdf_upload_form" class="col s12 file-field input-field hide">
                   <div class="btn-small">
-                    <span>{{ form.browse_text }}</span>
+                    <span>
+                      {{ form.browse_text }}
+                    </span>
                     <input type="file" name="pdf" id="pdf_input">
                   </div>
                   <div class="file-path-wrapper">
@@ -82,18 +98,27 @@
     {% if position is not None %}
     <div class="row">
       <div class="col s12">
-        <label><h5 class="center">{{ userVisibleText.we_think_this_is_correct }}</h5></label><br>
+        <label>
+          <h5 class="center">
+            {{ userVisibleText.we_think_this_is_correct }}
+          </h5>
+        </label>
+        <br>
       </div>
     </div>
     <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
       <div class="row">
         <!--Beginning of confirm position card -->
-        <div class="col card white hoverable">
+        <div class="col card white">
           <div class="card-content col s12">
             <div class="row valign-wrapper">
               <input type="hidden" name="position-id" value="{{ position.id }}">
               <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-              <h4 name="position-title" id="title" class="col s8 left position-header"><span class="edit" id="position-title">{{ position.position_title }}</span></h4>
+              <h4 name="position-title" id="title" class="col s8 left position-header">
+                <span class="edit" id="position-title">
+                  {{ position.position_title }}
+                </span>
+              </h4>
               <!-- Confirm/Edit button row -->
               <div class="col s4 right right-align" id="import-position-buttons">
                 {% csrf_token %}
@@ -105,64 +130,90 @@
             <table class="highlight">
               <thead>
                 <tr>
-                  <th colspan="1">{{ userVisibleText.classification }}</th>
-                  <th colspan="2">{{ userVisibleText.reference_number }}</th>
-                  <th colspan="2">{{ userVisibleText.selection_process_number }}</th>
+                  <th colspan="1">
+                    {{ userVisibleText.classification }}
+                  </th>
+                  <th colspan="2">
+                    {{ userVisibleText.reference_number }}
+                  </th>
+                  <th colspan="2">
+                    {{ userVisibleText.selection_process_number }}
+                  </th>
                 </tr>
               </thead>
               <!-- Position row 1 body -->
               <tbody>
                 <tr>
                   <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-                  <td name="position-classification" colspan="1">
-                    <span id="position-classification" class="edit">{{ position.classification }}</span>
+                  <td  colspan="1">
+                    <span id="position-classification" class="edit">
+                      {{ position.classification }}
+                    </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                  <td name="position-reference" colspan="2">
-                    <span id="position-reference" class="edit">{{ position.reference_number }}</span>
+                  <td  colspan="2">
+                    <span id="position-reference" class="edit">
+                      {{ position.reference_number }}
+                    </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-                  <td name="position-selection" colspan="2">
-                    <span id="position-selection" class="edit">{{ position.selection_process_number }}</span>
+                  <td colspan="2">
+                    <span id="position-selection" class="edit">
+                      {{ position.selection_process_number }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
               <!-- Position row 2 headers -->
               <thead>
                 <tr>
-                  <th colspan="1">{{ userVisibleText.date_closed }}</th>
-                  <th colspan="1">{{ userVisibleText.number_of_positions }}</th>
-                  <th colspan="1">{{ userVisibleText.salary_range }}</th>
-                  <th colspan="2">{{ userVisibleText.open_to }}</th>
+                  <th colspan="1">
+                    {{ userVisibleText.date_closed }}
+                  </th>
+                  <th colspan="1">
+                    {{ userVisibleText.number_of_positions }}
+                  </th>
+                  <th colspan="1">
+                    {{ userVisibleText.salary_range }}
+                  </th>
+                  <th colspan="2">
+                    {{ userVisibleText.open_to }}
+                  </th>
                 </tr>
               </thead>
               <!-- Position row 2 body -->
               <tbody>
                 <tr>
-                  <input type="hidden" class="hidden" name="position-date-closed" value='{{ position.date_closed|date:'Y-m-d' }}'>
+                  <input type="hidden" class="hidden" name="position-date-closed" value="{{ position.date_closed|date:'Y-m-d' }}">
                   <td name="position-date-closed" colspan="1">
-                    <span class="edit date" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
+                    <span class="edit date" id="position-date-closed">
+                      {{ position.date_closed|date:'Y-m-d' }}
+                    </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
                   <td name="position-num-positions" colspan="1">
-                    <span id="position-num-positions" class="edit">{{ position.num_positions }}</span>
+                    <span id="position-num-positions" class="edit">
+                      {{ position.num_positions }}
+                    </span>
                   </td>
-                  <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-                  <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-                  <td name="position-salary-range" colspan="1">
-                    $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> -
-                    $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+                  <input type="hidden" class="hidden" name="position-salary" value='{{ position.salary }}'>
+                  <td name="position-salary" colspan="1">
+                    <span id="position-salary" class="edit">{{ position.salary }}</span>
                   </td>
                   <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
                   <td name="position-open-to" colspan="2">
-                    <span id="position-open-to" class="edit">{{ position.open_to }}</span>
+                    <span id="position-open-to" class="edit">
+                      {{ position.open_to }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
               <!-- Position row 3 header -->
               <thead>
                 <tr>
-                  <th colspan="5">{{ userVisibleText.position_information }}</th>
+                  <th colspan="5">
+                    {{ userVisibleText.position_information }}
+                  </th>
                 </tr>
               </thead>
               <!-- Position row 3 body -->
@@ -170,13 +221,17 @@
                 <tr>
                   <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
                   <td name="position-description" colspan="5">
-                    <span id="position-description" class="edit">{{ position.description }}</span>
+                    <span id="position-description" class="edit">
+                      {{ position.description }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
             </table>
             <!-- Position education and experience rows -->
-            <h5>{{ userVisibleText.education_and_experience_criteria }}</h5>
+            <h5>
+              {{ userVisibleText.education_and_experience_criteria }}
+            </h5>
             <table class="highlight">
               {% for req in position.requirement_set.all|dictsort:"abbreviation" %}
               <!-- ifchanged executes only for distinct values without repetition -->
@@ -184,7 +239,9 @@
               <thead>
                 <tr>
                   <!-- Requirement type, e.g. education, experience, assets -->
-                  <th colspan="20">{{ req.requirement_type }}</th>
+                  <th colspan="20">
+                    {{ req.requirement_type }}
+                  </th>
                 </tr>
               </thead>
               {% endifchanged %}
@@ -192,11 +249,16 @@
                 <tr>
                   <!-- Requirement abbreviation, e.g. EX1, and description -->
                   <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
-                  <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="1">
-                    <span id="requirement_abbreviation" class="edit readonly">{{ req.abbreviation }}</span></td>
+                  <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="2">
+                    <span id="requirement_abbreviation" class="edit readonly">
+                      {{ req.abbreviation }}
+                    </span>
+                  </td>
                   <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
-                  <td name="position-requirement{{ forloop.counter }}" colspan="19">
-                    <span id="requirement_description" class="edit">{{ req.description|linebreaksbr }}</span>
+                  <td name="position-requirement{{ forloop.counter }}" colspan="18">
+                    <span id="requirement_description" class="edit">
+                      {{ req.description|linebreaksbr }}
+                    </span>
                   </td>
                 </tr>
               </tbody>

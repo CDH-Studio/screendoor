@@ -5,6 +5,7 @@ from datetime import *
 from .date_range import DateRange
 from dateutil.relativedelta import *
 from word2number import w2n
+from .when_extraction_helpers import get_valid_dates
 
 # regex statements to filter out noise from date entities
 months_regex = r'(?:\bjanuary\b|' \
@@ -31,12 +32,10 @@ special_words = r'(?:years|last|months|since)'
 # (Since 2011, last 4 years). Isolated dates (July 2015) are excluded.
 def create_list_of_ranges(doc_ents, closing_date):
     date_range_list = []
-    for ent in doc_ents:
-        if 'DATE' in ent.label_:
-            date_range = remove_noise_from_date(ent, closing_date)
-            if date_range is not None:
-                date_range_list.append(date_range)
-
+    for ent in get_valid_dates(doc_ents):
+        date_range = remove_noise_from_date(ent, closing_date)
+        if date_range is not None:
+            date_range_list.append(date_range)
     return date_range_list
 
 
@@ -44,16 +43,16 @@ def create_list_of_ranges(doc_ents, closing_date):
 # parsing dates of slight variations.
 def remove_noise_from_date(raw_date, closing_date):
     # Conflates any linking words (to, until) to hyphens to standardize input
-    text = re.sub(linked_words, '-', raw_date.text)
+    text = re.sub(linked_words, '-', raw_date)
 
     cleaned_string = ''
 
     # edge case prevention
-    if 'since' in raw_date.text.lower():
-        cleaned_string = handle_edge_case_since(raw_date.text, closing_date)
+    if 'since' in raw_date.lower():
+        cleaned_string = handle_edge_case_since(raw_date, closing_date)
     # edge case prevention
-    elif 'last' in raw_date.text.lower():
-        cleaned_string = handle_edge_case_last(raw_date.text, closing_date)
+    elif 'last' in raw_date.lower():
+        cleaned_string = handle_edge_case_last(raw_date, closing_date)
     else:
         # excludes any text not identified as meaningful
         regex = r'\d*|-|{0}|{1}|{2}'.format(months_regex, present_day_regex,
@@ -62,7 +61,7 @@ def remove_noise_from_date(raw_date, closing_date):
         for word in split_date:
             # check if the word isn't noise
             if [x for x in re.findall(regex, word.lower()) if x != ''] != []:
-                # Handles cases like 'November 09' (meant as November 2009, not november 9th)
+                #Handles cases like 'November 09' (meant as November 2009, not november 9th)
                 if word.isdigit() and len(word) == 2:
                     if int(word) < 50:
                         word = '20' + word
@@ -89,7 +88,7 @@ def handle_edge_case_since(token, closing_date):
 # Assumes that they mean ~stated date~ relative to present date (assumed as closing
 # date of position, to make the parsing independant of when the screening is done)
 def handle_edge_case_last(token, closing_date):
-    years = False
+    years= False
     if re.findall(r'years?', token.lower()):
         years = True
     quantifier = pull_number_from_date(token)
@@ -98,8 +97,7 @@ def handle_edge_case_last(token, closing_date):
         relative_date = closing_date + relativedelta(years=-quantifier)
     else:
         relative_date = closing_date + relativedelta(months=-quantifier)
-
-    return relative_date.strftime('%Y %m') + '-present'
+    return relative_date.strftime('%Y %m %d') + '-present'
 
 
 # When a user simply states an ambiguous date (such as July 2015, 2013, etc),
@@ -132,20 +130,16 @@ def create_date_range(cleaned_date, closing_date):
         for date_string in individual_dates:
             # Parses the date as either 'present' or the date listed
             if re.findall(present_day_regex, date_string.lower()):
-                # note: closing date stored as date, NOT datetime
-                date_object = datetime(year=closing_date.year,
-                                       month=closing_date.month,
-                                       day=closing_date.day)
+                date_object = datetime.now()
             else:
                 try:
                     date_object = parse(date_string.strip())
                 except ValueError:
                     return None
-            date_object = correct_ambiguity_to_closing_date(
-                date_string.strip(), date_object, closing_date)
+            date_object = correct_ambiguity_to_closing_date(date_string.strip(), date_object, closing_date)
             date_list.append(date_object)
-        if not date_list == []:
-            return DateRange(date_list[0:2])
+
+        return DateRange(date_list[0:2])
     return None
 
 
@@ -161,11 +155,8 @@ def remove_overlapping_ranges(date_range_list):
     new_date_ranges.append(date_range_list[0])
 
     for index in range(1, len(date_range_list)):
-        if is_delta_positive(
-                relativedelta(new_date_ranges[-1].get_date_upper(),
-                              date_range_list[index].get_date_lower())):
-            combined_range = combine_date_ranges(new_date_ranges[-1],
-                                                 date_range_list[index])
+        if is_delta_positive(relativedelta(new_date_ranges[-1].get_date_upper(), date_range_list[index].get_date_lower())):
+            combined_range = combine_date_ranges(new_date_ranges[-1], date_range_list[index])
             new_date_ranges[-1] = combined_range
         else:
             new_date_ranges.append(date_range_list[index])
@@ -177,16 +168,16 @@ def remove_overlapping_ranges(date_range_list):
 # date, and the higher of the two's upper date (e.g. 2013-2015 and 2012-2014
 # returns 2012-2015)
 def combine_date_ranges(date_range_one, date_range_two):
+
     date_lower = date_range_one.get_date_lower() if \
         date_range_one.get_date_lower() < date_range_two.get_date_lower() \
         else date_range_two.get_date_lower()
-    
+
     date_upper = date_range_one.get_date_upper() if \
         date_range_one.get_date_upper() > date_range_two.get_date_upper() \
         else date_range_two.get_date_upper()
 
     return DateRange([date_lower, date_upper])
-
 
 def is_delta_positive(delta):
     if delta.days > 0 or delta.months > 0 or delta.years > 0:
@@ -204,9 +195,8 @@ def determine_most_recent_date(date_range_list):
     most_recent_date = date_range_list[0].get_date_upper()
     for index in range(1, len(date_range_list)):
         # Whenever a more recent date is found, set the most recent date to that
-        diff = relativedelta(date_range_list[index].get_date_upper(),
-                             most_recent_date).years
-        if diff > 0:
+        diff = relativedelta(date_range_list[index].get_date_upper(), most_recent_date).years
+        if diff >0:
             most_recent_date = date_range_list[index].get_date_upper()
     return most_recent_date
 
@@ -214,20 +204,21 @@ def determine_most_recent_date(date_range_list):
 # Given a list of the applicant's experiences and the years/month threshold
 # needed to pass the recency qualifer, determine if the applicant
 # passed
-def determine_if_recent_criteria_met(date_range_list, closing_date,
-                                     recency_requirement, is_years):
+def determine_if_recent_criteria_met(date_range_list, closing_date, recency_requirement, is_years):
     most_recent_experience = determine_most_recent_date(date_range_list)
+    # if most_recent_experience is None:
+    #     return False
 
     if is_years:
         cutoff_date = closing_date + relativedelta(years=-recency_requirement)
         if relativedelta(most_recent_experience, cutoff_date).years >= 0:
-            return True
+            return 'PASS'
     else:
         cutoff_date = closing_date + relativedelta(months=-recency_requirement)
         if relativedelta(most_recent_experience, cutoff_date).months >= 0:
-            return True
+            return 'PASS'
 
-    return False
+    return 'FAIL'
 
 
 # Aggregate the experience an applicant has to a single value.
@@ -249,16 +240,15 @@ def add_all_identified_ranges_together(date_range_list):
 # Given a list of the applicant's experiences and the amount of years/months
 # needed to pass the significance qualifer, determine if the applicant
 # passed
-def determine_if_significant_criteria_met(date_range_list, needed_quantity,
-                                          is_years):
+def determine_if_significant_criteria_met(date_range_list, needed_quantity, is_years):
     date_range_list = remove_overlapping_ranges(date_range_list)
     total_experience = add_all_identified_ranges_together(date_range_list)
 
     if total_experience:
         if is_years:
-            return True if total_experience.years >= needed_quantity else False
+            return 'PASS' if total_experience.years >= needed_quantity else 'FAIL'
         else:
-            return True if total_experience.months >= needed_quantity else False
+            return 'PASS' if total_experience.months >= needed_quantity else 'FAIL'
 
 
 # Given a number within a date, either stated verbosely (three, seven)

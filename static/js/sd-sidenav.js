@@ -5,6 +5,8 @@ const elems = document.querySelectorAll('.sidenav-fixed'),
       instance = M.Sidenav.getInstance(elem);
 let sidebarIsOpen = false;
 
+const sidenavToggles = document.getElementsByClassName("toggle-sidenav");
+
 /* Is the window above 992 pixels */
 const isWindowFullSize = function() {
   return window.innerWidth > 992;
@@ -40,6 +42,8 @@ const openSideNav = function() {
   // instance.open();
   if (isWindowFullSize()) {
     addSidenavPadding();
+  } else {
+    instance.open();
   }
 };
 
@@ -51,6 +55,8 @@ const closeSideNav = function() {
   // instance.close();
   if (isWindowFullSize()) {
     removeSidenavPadding();
+  } else {
+    instance.close();
   }
 };
 
@@ -91,6 +97,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 /* Listen for menu button clicks */
-document.querySelector("#toggle_sidenav").addEventListener('click', function() {
-  toggleSidebar();
-});
+for (let i = 0; i < sidenavToggles.length; i++) {
+  sidenavToggles[i].addEventListener('click', function() {
+    toggleSidebar();
+  });
+}
