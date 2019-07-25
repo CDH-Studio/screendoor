@@ -82,7 +82,7 @@ input {
 }
 
 .sidenav {
-  color: #ffffff;
+  background-color: #ffffff !important;
   transition: width .3s;
   -webkit-transition: width .3s;
   -moz-transition: width .3s;

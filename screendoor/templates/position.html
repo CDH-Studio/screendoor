@@ -216,22 +216,18 @@
   <!-- End of position display -->
   {% endif %}
   <!-- Beginning of applicants display -->
-  {% if applicants %}
   <!-- Applications anchor -->
   <a id="applications"></a>
-  <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
-       {% csrf_token %}
-       <h6 class="btn-flat disabled sortby-button">Filter</h6>
-       <button type="submit" class="sort-button btn-flat" value="">Percentile</button>
-       </form> -->
   <!-- Application field headers -->
   <div class="col">
     <h6 class="btn-flat disabled sortby-button">
       Filter
     </h6>
-    <a name="filter-method" href="{% url 'filter_applicants' position.reference_number position.id 'favourites' %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
+    <a name="filter-method" href="{% if 'favourites' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'all' %}{% elif 'all' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'favourites' %}{% endif %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
       Favourites
     </a>
+  {% if applicants %}
+
     <div class="sort-positions">
       <table class="applicant-table">
         <thead class="applicant-table-header">

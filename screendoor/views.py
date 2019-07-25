@@ -292,7 +292,7 @@ def get_applicant_filter_method(request):
     try:
         return request.session['applicant_filter']
     except KeyError:
-        return None
+        return "all"
 
 
 # Data and visible text to render with positions list view
@@ -330,11 +330,17 @@ def user_has_position(request, reference, position_id):
 
 # Data and visible text to render with positions
 def position_detail_data(request, position_id, task_id):
+    applicant_filter = get_applicant_filter_method(request)
     sort_by = get_applicants_sort_method(request)
     position = Position.objects.get(id=position_id)
-    applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
-        parent_position=position).count() > 0 else []
-    favourites = request.user.favourites.all()
+    if applicant_filter == "all":
+        applicants = list(position.applicant_set.all().order_by(
+            sort_by)) if Applicant.objects.filter(parent_position=position).count() > 0 else []
+    elif applicant_filter == "favourites":
+        applicants = list(request.user.favourites.filter(
+            parent_position=position).order_by(sort_by)) if request.user.favourites.filter(
+            parent_position=position).count() > 0 else []
+    favourites = request.user.favourites.filter(parent_position=position)
     applicant_dict = create_applicants_wth_favourite_information(
         applicants, favourites)
     for applicant in applicants:
@@ -344,7 +350,7 @@ def position_detail_data(request, position_id, task_id):
             parent_applicant=applicant)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
-            'sort': sort_by}
+            'sort': sort_by, 'applicant_filter': applicant_filter}
 
 
 def create_applicants_wth_favourite_information(applicants, favourites):
