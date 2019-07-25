@@ -57,10 +57,11 @@ const defineAdditionalButtons = function() {
   buttonRow.append(okButton, cancelButton);
 };
 
+const width = window.outerWidth < 1400 ? parseInt((window.innerWidth * 90) / 100).toString().concat("px") : 1250;
+
 const startEditing = function() {
   if (window.location.pathname.includes("/position")) {
     expandAllButton.click();
-    const width = parseInt((window.outerWidth * 90) / 100).toString().concat("px");
     card.style.setProperty("width", width, "important");
   }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
