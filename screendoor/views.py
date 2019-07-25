@@ -19,7 +19,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract, Note, Qualifier
+    NlpExtract, Note, Qualifier, ScreenDoorUser
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -348,10 +348,12 @@ def position_detail_data(request, position_id, task_id):
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
+
+    other_users = [x for x in position.position_users.all() if not x == request.user]
+    print(other_users)
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
-            'sort': sort_by, 'applicant_filter': applicant_filter}
-
+            'sort': sort_by, 'current_user': request.user, 'other_users': other_users, 'applicant_filter': applicant_filter}
 
 def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}
@@ -537,14 +539,51 @@ def nlp(request):
     return redirect('positions')
 
 
+
 def add_to_favourites(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
     favourite_status = request.GET.get("favouriteStatus")
+
     if favourite_status == "True":
         request.user.favourites.remove(applicant)
-        request.user.save()
     else:
         request.user.favourites.add(applicant)
 
-    return JsonResponse({'app_id': app_id, 'favourite_status': favourite_status})
+    request.user.save()
+    return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
+
+
+def add_user_to_position(request):
+    user_email = request.GET.get("email")
+    position_id= request.GET.get("id")
+    position = Position.objects.get(id=position_id)
+
+    try:
+        new_user = ScreenDoorUser.objects.get(email=user_email)
+        if new_user in position.position_users.all():
+            return JsonResponse(
+                {'exception': 'User already has access to this position.'})
+        position.position_users.add(new_user)
+        position.save()
+        return JsonResponse({'userName': new_user.username, 'userEmail': new_user.email})
+    except:
+        return JsonResponse({'exception': 'User does not exist.'})
+
+
+
+def remove_user_from_position(request):
+    user_email = request.GET.get("email")
+    position_id = request.GET.get("id")
+    position = Position.objects.get(id=position_id)
+
+    try:
+        user_to_remove = ScreenDoorUser.objects.get(email=user_email)
+        position.position_users.remove(user_to_remove)
+        position.save()
+        return JsonResponse({'userEmail': user_email})
+
+    except:
+        return JsonResponse(
+            {})
+

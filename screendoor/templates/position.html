@@ -43,6 +43,7 @@
           <!-- Upload Applications and Delete buttons -->
           <div class="row left">
             <div class="position-view-buttons">
+                <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
               <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
               <a class="btn-flat blue-text modal-trigger" href="#delete-modal">
                 {{ userVisibleText.delete }}
@@ -439,6 +440,38 @@
       <!-- </div> -->
     </div>
   </div>
+</div>
+<div id="add-users-modal" class="modal">
+  <div class="modal-content">
+      <h5>
+        {{ userVisibleText.add_users }}
+      </h5>
+      <p id="add-users-text">
+        {{ userVisibleText.add_users }}
+      </p>
+      <!-- PDF/File input -->
+      <div class="user-input-field">
+          <input type="text" required name="user-email" maxlength="120" id="user-email-input" autofocus="">
+      </div>
+      <div id="userDisplay" data-position-id="{{ position.id }}">
+        <!-- Current user: can not be removed! -->
+        <div id="current-user" >
+          <p class="grey-text">you! {{ current_user.username }} - {{ current_user.email }}</p>
+        </div>
+
+        {% for user in other_users %}
+        <div class="user" id="{{ user.email }}" >
+          <p>{{ user.username }} - {{ user.email }}</p>
+          <i class="material-icons red-text remove-user">cancel</i>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <a class="red-text position-button" id="addUserMessagePrompt"></a>
+        <input type="submit" id="add-users-button" class="btn-flat blue-text position-button" name="add-users" value="add user">
+        <a href="#!" class="modal-close btn-flat blue-text position-button">exit</a>
+      </div>
+    </div>
 </div>
 <!-- Misc helper functions -->
 <script src="{% static 'js/helper-functions.js' %}"></script>

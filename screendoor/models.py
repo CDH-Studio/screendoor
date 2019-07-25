@@ -99,11 +99,12 @@ class Applicant(models.Model):
             " ").join([(classification.classification_current or "") for classification in classifications])
 
 
+
+
 class ScreenDoorUser(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
-    positions = models.ManyToManyField(Position, blank=True)
+    positions = models.ManyToManyField(Position, blank=True, related_name='position_users')
     favourites = models.ManyToManyField(Applicant, blank=True)
-
     def confirm_email(self):
         self.email_confirmed = True
 
