@@ -226,6 +226,7 @@ class PositionsViewText():
     classifications = _("Classifications")
     streams = _("Streams")
     score = _("Score")
+    add_users = _("Add Users")
 
 
 class ApplicantViewText():
