@@ -16,20 +16,20 @@ const answerComplementaryResponseValue = document.getElementsByClassName("answer
 
 const underlineExtracts = function(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.add("extract-bold");
-  if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-    if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-      underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-    }
-  }
+  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
+  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
+  //     underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
+  //   }
+  // }
 };
 
 const clearExtractsUnderline = function(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.remove("extract-bold");
-  if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-    if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-      clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-    }
-  }
+  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
+  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
+  //     clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
+  //   }
+  // }
 };
 
 const highlightSentence = function(extractIndex, answerId) {
