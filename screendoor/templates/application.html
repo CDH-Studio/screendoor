@@ -17,7 +17,7 @@
         <!-- Application row 1 headers -->
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
-          <h6 class="valign-wrapper">
+          <h6 class="valign-wrapper col">
             <span class="favourite-icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i></span>
             {{ applicant.applicant_id }}
             <span class="{% if applicant.percentage_correct <= 33 %}
@@ -28,6 +28,11 @@
                          applicant-summary-card list card-panel green
                          {% endif %}
                          white-text applicant-question-total-detail">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
+            <div class="tooltip pdf-icon col">
+              <a href="{% url 'sbr' applicant.applicant_id %}"> <i class="material-icons red-text">picture_as_pdf</i>
+                <span class="tooltiptext screening-pdf">Download Screening Evaluation Sheet PDF</span>
+              </a>
+            </div>
           </h6>
         </div>
         <div class="row applicant-header hoverable header-row">
