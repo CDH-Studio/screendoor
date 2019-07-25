@@ -58,7 +58,7 @@
             {% endif %}
             <td class="table-bottom-entry">
               {% for note in answer.note_set.all %}
-              <p style="font-size: 12px;"><span style="font-size: 10px;">{{ note.author }}: </span>{{ note.note_text }} - <strong>{{ note.created }}</strong></p>
+              <p style="font-size: 12px;"><span style="font-size: 10px;">{{ note.author }}: </span>{{ note.note_text }} - <span style="font-size: 10px;"><strong>{{ note.created }}</strong></span></p>
               {% endfor %}
             </td>
         </tr>

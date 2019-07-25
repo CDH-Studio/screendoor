@@ -678,6 +678,11 @@ tr {
   display: flex;
 }
 
+.pdf-icon {
+  margin-left: 0px;
+  margin-bottom: -2px;
+}
+
 .answer-complementary-response {
   max-height: 0rem !important;
   overflow: hidden;
@@ -891,8 +896,12 @@ th a {
 .applicant-top-row {
   padding: 5px 5px;
   margin-top: -5px;
-  margin-left: -15px !important;
+  margin-left: -25px !important;
   margin-bottom: -15px;
+}
+
+.tooltiptext.screening-pdf {
+
 }
 
 .collapse-arrows {
