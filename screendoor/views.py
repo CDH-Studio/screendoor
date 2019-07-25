@@ -584,7 +584,6 @@ def remove_user_from_position(request):
         return JsonResponse({'userEmail': user_email})
 
     except:
-        print("af;inapgoaubnfpowe bnaeipu")
         return JsonResponse(
             {})
 
