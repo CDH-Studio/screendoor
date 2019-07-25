@@ -27,13 +27,14 @@ const favourite = function(i, id) {
   });
 };
 
-const set_default_favourite_status = function(element) {
-    favourite_status = element.dataset.favouriteStatus
-    if (favourite_status == "False") {
-            element.innerHTML = '<i class="material-icons grey-text">star_border</i>'
-        } else {
-            element.innerHTML = '<i class="material-icons yellow-text">star</i>'
-        }
+
+const setDefaultFavouriteStatus = function(element) {
+  const favouriteStatus = element.dataset.favouriteStatus;
+  if (favouriteStatus == "False") {
+    element.children[0].innerText = 'star_border';
+  } else {
+    element.children[0].innerText = 'star';
+  }
 };
 
 
@@ -102,31 +103,21 @@ const set_remove_button_handlers = function(position_id) {
     }
 };
 
-const setDefaultFavouriteStatus = function(element) {
-  const favouriteStatus = element.dataset.favouriteStatus;
-  if (favouriteStatus == "False") {
-    element.children[0].innerText = 'star_border';
-  } else {
-    element.children[0].innerText = 'star';
-  }
-};
-
 window.addEventListener('DOMContentLoaded', (event) => {
   // stores position id
-  position_id = userDisplayLocation.dataset.positionId
-
-  addUser.addEventListener("click", () => {
+  if (userDisplayLocation != undefined) {
+    position_id = userDisplayLocation.dataset.positionId
+    addUser.addEventListener("click", () => {
       add_user_to_position(position_id);
-  });
-
-  for (let i = 0; i < favourites.length; i++) {
-    set_default_favourite_status(favourites[i])
+    });
+    set_remove_button_handlers(position_id)
   }
+
   for (let i = 0; i < favourites.length; i++) {
     setDefaultFavouriteStatus(favourites[i]);
     favourites[i].addEventListener("click", () => {
       favourite(i, favourites[i].id);
     });
   }
-  set_remove_button_handlers(position_id)
+
 });
