@@ -42,6 +42,8 @@ const openSideNav = function() {
   // instance.open();
   if (isWindowFullSize()) {
     addSidenavPadding();
+  } else {
+    instance.open();
   }
 };
 
@@ -53,6 +55,8 @@ const closeSideNav = function() {
   // instance.close();
   if (isWindowFullSize()) {
     removeSidenavPadding();
+  } else {
+    instance.close();
   }
 };
 
