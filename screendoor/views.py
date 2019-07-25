@@ -452,10 +452,22 @@ def delete_note(request):
 @login_required(login_url='login', redirect_field_name=None)
 def render_pdf(request, app_id):
     applicant = position_has_applicant(request, app_id)
+    answers = FormAnswer.objects.filter(
+        parent_applicant=applicant).order_by("parent_question")
+    for answer in answers:
+        answer.qualifier_set = Qualifier.objects.filter(
+            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
+                parent_answer=answer).count() > 0 else None
+        answer.extract_set = NlpExtract.objects.filter(
+            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
+                parent_answer=answer).count() > 0 else None
+        answer.note_set = Note.objects.filter(
+            parent_answer=answer).order_by('created') if Note.objects.filter(
+                parent_answer=answer).count() > 0 else None
     if applicant is not None:
         response = HttpResponse(content_type="application/pdf")
         html = render_to_string("sbr_pdf.html", {
-            'applicant': applicant,
+            'applicant': applicant, 'answers': answers
         })
         font_config = FontConfiguration()
         HTML(string=html).write_pdf(response, font_config=font_config)

@@ -233,7 +233,7 @@
                     </div>
                   </form>
                   <div class="notes">
-                    {% for note in answer.note_set %}
+                    {% for note in answer.note_set.all %}
                     <div class="note">
                       <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
                         {% csrf_token %}

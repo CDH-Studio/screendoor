@@ -46,9 +46,9 @@
             <th class="table-bottom-header"> No/Non</th>
             <th class="table-bottom-header"> Comments/Commentaires</th>
         </thead>
-        {% for answer in applicant.answers.all %}
+        {% for answer in answers %}
         <tr class="table-bottom-entry-row">
-            <td class="table-bottom-entry" name="question"> {{ answer.parent_question }}</td>
+            <td class="table-bottom-entry" name="question" style="font-size: 13px;"> {{ answer.parent_question }}</td>
             {% if answer.applicant_answer %}
             <td class="table-bottom-entry" name="yes"> &#10004;</td>
             <td class="table-bottom-entry" name="no"></td>
@@ -57,12 +57,10 @@
             <td class="table-bottom-entry" name="yes"> &#10004;</td>
             {% endif %}
             <td class="table-bottom-entry">
-              {% for note in answer.notes.all %}
-              <p>{{ note.note_text }}</p>
+              {% for note in answer.note_set.all %}
+              <p style="font-size: 12px;"><span style="font-size: 10px;">{{ note.author }}: </span>{{ note.note_text }} - <strong>{{ note.created }}</strong></p>
               {% endfor %}
             </td>
-
-
         </tr>
         {% endfor %}
     </table>
