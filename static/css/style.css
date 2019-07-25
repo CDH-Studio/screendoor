@@ -193,10 +193,10 @@ input[type=number]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-.edit input {
-  box-sizing: border-box !important;
-  padding: 0px !important;
-  margin: 0px !important;
+.edit > input {
+     width: 100% !important;
+     max-width: 1000px !important;
+     box-sizing: border-box !important;
 }
 
 /* Modals */

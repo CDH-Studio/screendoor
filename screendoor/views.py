@@ -196,8 +196,7 @@ def edit_position(request):
                     request.POST.get("position-date-closed"))
                 position.num_positions = request.POST.get(
                     "position-num-positions")
-                position.salary_min = request.POST.get("position-salary-min")
-                position.salary_max = request.POST.get("position-salary-max")
+                position.salary = request.POST.get("position-salary")
                 position.open_to = request.POST.get("position-open-to")
                 position.description = request.POST.get("position-description")
                 counter = 1
@@ -322,8 +321,9 @@ def position_detail_data(request, position_id, task_id):
     position = Position.objects.get(id=position_id)
     applicants = list(position.applicant_set.all().order_by(sort_by)) if Applicant.objects.filter(
         parent_position=position).count() > 0 else []
-    favorites = request.user.favorites.all()
-    applicant_dict = create_applicants_wth_favourite_information(applicants, favorites)
+    favourites = request.user.favourites.all()
+    applicant_dict = create_applicants_wth_favourite_information(
+        applicants, favourites)
     for applicant in applicants:
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
@@ -333,10 +333,11 @@ def position_detail_data(request, position_id, task_id):
             'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
             'sort': sort_by}
 
-def create_applicants_wth_favourite_information(applicants, favorites):
+
+def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}
     for applicant in applicants:
-        if applicant in favorites:
+        if applicant in favourites:
             stitched_lists[applicant] = True
         else:
             stitched_lists[applicant] = False
@@ -409,7 +410,7 @@ def position_has_applicant(request, app_id):
 def applicant_detail_data(request, applicant_id, position_id):
 
     applicant = Applicant.objects.get(id=applicant_id)
-    if [x for x in request.user.favorites.all() if x == applicant]:
+    if [x for x in request.user.favourites.all() if x == applicant]:
         is_favourited = True
     else:
         is_favourited = False
@@ -431,7 +432,7 @@ def applicant_detail_data(request, applicant_id, position_id):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
             'classifications': Classification.objects.filter(parent_applicant=applicant),
             'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, "favorite": is_favourited}
+            'answers': answers, "favourite": is_favourited}
 
 
 # View an application
@@ -517,15 +518,14 @@ def nlp(request):
     return redirect('positions')
 
 
-
-def add_to_favorites(request):
+def add_to_favourites(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
     favourite_status = request.GET.get("favouriteStatus")
     if favourite_status == "True":
-        request.user.favorites.remove(applicant)
+        request.user.favourites.remove(applicant)
         request.user.save()
     else:
-        request.user.favorites.add(applicant)
+        request.user.favourites.add(applicant)
 
-    return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
+    return JsonResponse({'app_id': app_id, 'favourite_status': favourite_status})

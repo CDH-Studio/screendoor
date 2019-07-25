@@ -13,7 +13,7 @@
     {% csrf_token %}
     <div class="row">
       <!--Beginning of position card -->
-      <div class="col card white">
+      <div id="position-card" class="col card white">
         <div class="card-content col s12">
           <div class="row valign-wrapper">
             <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
@@ -126,10 +126,9 @@
                   {{ position.num_positions }}
                 </span>
               </div>
-              <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-              <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-              <div class="col s3 cell-body" name="position-salary-range">
-                $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+              <input type="hidden" class="hidden" name="position-salary" value='{{ position.salary }}'>
+              <div class="col s3 cell-body" name="position-salary">
+                <span id="position-salary" class="edit">{{ position.salary }}</span>
               </div>
               <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
               <div class="col s6 cell-body" name="position-open-to">
@@ -162,7 +161,7 @@
           <h5 class="requirements-header">
             {{ positionText.education_and_experience_criteria }}
           </h5>
-          {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
+          {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}
           <!-- ifchanged executes only for distinct values without repetition -->
           {% ifchanged %}
           <div class="row collapse">
@@ -185,7 +184,7 @@
                 {{ req.abbreviation }}
               </span>
             </div>
-            <div class="col s10 cell-body req" name="position-requirement{{ forloop.counter }}">
+            <div class="col s9 cell-body req" name="position-requirement{{ forloop.counter }}">
               <span id="requirement_description" class="edit">
                 {{ req.description|linebreaksbr }}
               </span>
@@ -283,7 +282,7 @@
         </thead>
       </table>
     </div>
-    {% for applicant, favorite in applicants.items %}
+    {% for applicant, favourite in applicants.items %}
     <!-- Applicant -->
     <div data-appId="{{ applicant.applicant_id }}" class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %} ">
       <!-- Position row 1 body -->
@@ -291,7 +290,7 @@
         <tbody>
           <tr>
             <td colspan="2">
-              <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favorite }}"><i class="material-icons grey-text">star_border</i></span>
+              <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="material-icons grey-text">star_border</i></span>
             </td>
             <td colspan="16">
               <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
@@ -460,4 +459,3 @@
 <!-- Inline script requiring Django variables -->
 <script src="{% static 'js/position.js' %}"></script>
 {% endblock %}
-

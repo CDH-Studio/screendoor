@@ -99,11 +99,11 @@ class Applicant(models.Model):
             " ").join([(classification.classification_current or "") for classification in classifications])
 
 
-
 class ScreenDoorUser(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     positions = models.ManyToManyField(Position, blank=True)
-    favorites = models.ManyToManyField(Applicant, blank=True)
+    favourites = models.ManyToManyField(Applicant, blank=True)
+
     def confirm_email(self):
         self.email_confirmed = True
 
@@ -193,6 +193,7 @@ class FormQuestion(models.Model):
 
     def __str__(self):
         return self.question_text
+
 
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(

@@ -196,10 +196,9 @@
                       {{ position.num_positions }}
                     </span>
                   </td>
-                  <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-                  <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-                  <td name="position-salary-range" colspan="1">
-                $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+                  <input type="hidden" class="hidden" name="position-salary" value='{{ position.salary }}'>
+                  <td name="position-salary" colspan="1">
+                    <span id="position-salary" class="edit">{{ position.salary }}</span>
                   </td>
                   <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
                   <td name="position-open-to" colspan="2">
@@ -244,19 +243,19 @@
                     {{ req.requirement_type }}
                   </th>
                 </tr>
-              </thead>
+              </thead>z
               {% endifchanged %}
               <tbody>
                 <tr>
                   <!-- Requirement abbreviation, e.g. EX1, and description -->
                   <input type="hidden" class="hidden" name="position-requirement-abbreviation{{ forloop.counter }}" value='{{ req.abbreviation }}'>
-                  <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="1">
+                  <td name="position-requirement-abbreviation{{ forloop.counter }}" colspan="2">
                     <span id="requirement_abbreviation" class="edit readonly">
                       {{ req.abbreviation }}
                     </span>
                   </td>
                   <input type="hidden" class="hidden" name="position-requirement{{ forloop.counter }}" value='{{ req.description|linebreaksbr }}'>
-                  <td name="position-requirement{{ forloop.counter }}" colspan="19">
+                  <td name="position-requirement{{ forloop.counter }}" colspan="18">
                     <span id="requirement_description" class="edit">
                       {{ req.description|linebreaksbr }}
                     </span>

@@ -1,5 +1,6 @@
 /* CONSTANTS AND VARIABLES */
 
+const card = window.location.pathname.includes("/position") ? document.getElementById("position-card") : null;
 const editButton = document.getElementById("edit-button");
 const saveButton = document.getElementById("save-button");
 const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
@@ -34,9 +35,6 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   if (name == "position-date-closed") {
     editableNode.type = "date";
     editableNode.value = text;
-  } else if (name.includes("salary")) {
-    editableNode.style.width = "60";
-    editableNode.type = "number";
   } else {
     editableNode.type = "text";
   }
@@ -62,6 +60,8 @@ const defineAdditionalButtons = function() {
 const startEditing = function() {
   if (window.location.pathname.includes("/position")) {
     expandAllButton.click();
+    const width = parseInt((window.outerWidth * 90) / 100).toString().concat("px");
+    card.style.setProperty("width", width, "important");
   }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);

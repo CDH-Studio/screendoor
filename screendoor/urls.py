@@ -31,6 +31,6 @@ urlpatterns = [
          name='nlp'),
     path('add-note', views.add_note, name='add-note'),
     path('delete-note', views.delete_note, name='delete-note'),
-    path('add_to_favorites', views.add_to_favorites, name='add_to_favorites'),
+    path('add_to_favourites', views.add_to_favourites, name='add_to_favourites'),
 
 ]
