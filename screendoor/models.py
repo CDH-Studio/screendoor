@@ -11,10 +11,7 @@ class Position(models.Model):
     position_title = models.TextField(blank=True)
     date_closed = models.DateField(null=True, blank=True)
     num_positions = models.CharField(max_length=200, blank=True)
-    salary_min = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
-    salary_max = models.DecimalField(
-        decimal_places=2, max_digits=10, null=True, blank=True)
+    salary = models.CharField(max_length=200, blank=True)
     classification = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     open_to = models.TextField(blank=True)
@@ -38,28 +35,6 @@ class Position(models.Model):
             self.mean_score = sum([FormAnswer.objects.filter(parent_applicant=applicant, applicant_answer=True).count(
             ) * 100 // FormAnswer.objects.filter(parent_applicant=applicant).count() for applicant in self.applicant_set.all()]) // self.applicant_set.all().count()
             self.save()
-
-
-class ScreenDoorUser(AbstractUser):
-    email_confirmed = models.BooleanField(default=False)
-    positions = models.ManyToManyField(Position, blank=True)
-
-    def confirm_email(self):
-        self.email_confirmed = True
-
-
-class EmailAuthenticateToken(models.Model):
-    user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE, primary_key=False)
-    key = models.CharField(max_length=500, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def create_key(self):
-        initial_key = Fernet.generate_key()
-        byte_values = bytes(str(self.user.email) +
-                            str(datetime.datetime.now()), 'utf-8')
-        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
-        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
 
 
 class Applicant(models.Model):
@@ -122,6 +97,29 @@ class Applicant(models.Model):
             Classification.objects.filter(parent_applicant=self))
         self.classification_names = "".join([(classification.classification_substantive or "") for classification in classifications]).join(
             " ").join([(classification.classification_current or "") for classification in classifications])
+
+
+
+class ScreenDoorUser(AbstractUser):
+    email_confirmed = models.BooleanField(default=False)
+    positions = models.ManyToManyField(Position, blank=True)
+    favorites = models.ManyToManyField(Applicant, blank=True)
+    def confirm_email(self):
+        self.email_confirmed = True
+
+
+class EmailAuthenticateToken(models.Model):
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, primary_key=False)
+    key = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def create_key(self):
+        initial_key = Fernet.generate_key()
+        byte_values = bytes(str(self.user.email) +
+                            str(datetime.datetime.now()), 'utf-8')
+        encoded_bytes = Fernet(initial_key).encrypt(byte_values)
+        self.key = base64.b64encode(encoded_bytes).decode('utf-8')
 
 
 class RequirementMet(models.Model):
@@ -196,7 +194,6 @@ class FormQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
-
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')
@@ -219,11 +216,11 @@ class Qualifier(models.Model):
     RESULT = [
         ('PASS', "Passed"),
         ('IND', "Indeterminate"),
-        ('FAIL', "Failed")
+        ('FAIL', "Fail")
     ]
 
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True, related_name='qualifier')
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='answers')
     qualifier_text = models.TextField(
         blank=True, null=True)
     qualifier_type = models.CharField(

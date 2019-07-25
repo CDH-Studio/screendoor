@@ -18,7 +18,7 @@
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
           <h6 class="valign-wrapper">
-            <i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
+            <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favorite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i></span>
             {% comment %}
             {{ applicantText.applicant_information }}
             {% endcomment %}
@@ -302,6 +302,7 @@
 <!-- Script for initializing modal pop-ups -->
 <script src="{% static 'js/sd-modal.js' %}"></script>
 <script src="{% static 'js/applicant-questions.js' %}"></script>
+<script src="{% static 'js/position.js' %}"></script>
 <!-- Script for adding notes to positions -->
 <script src="{% static 'js/notes.js' %}"></script>
 {% endblock %}

@@ -1629,3 +1629,7 @@ hr {
   width: 95%;
   margin-left: 0px;
 }
+
+.favourite_icon {
+    cursor: pointer;
+}
