@@ -1474,6 +1474,10 @@ div {
   margin-left: -3px;
 }
 
+.favourite-icon {
+  cursor: pointer;
+}
+
 .card.applicant-list-item {
   box-shadow: 0px 0px;
   border-radius: 0px;
@@ -1628,8 +1632,4 @@ hr {
   border-bottom: 0px;
   width: 95%;
   margin-left: 0px;
-}
-
-.favourite_icon {
-    cursor: pointer;
 }

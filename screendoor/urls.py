@@ -20,6 +20,8 @@ urlpatterns = [
          views.position_detail, name='position_upload'),
     path('position/<str:reference>/<int:position_id>/<str:sort_by>',
          views.sort_applicants, name='sort_applicants'),
+    path('position/<str:reference>/<int:position_id>/<str:applicant_filter>',
+         views.filter_applicants, name='filter_applicants'),
     path('position/edit', views.edit_position, name='edit'),
     path('position/delete', views.delete_position, name='delete'),
     path('position/upload-applications',

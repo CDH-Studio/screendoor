@@ -254,6 +254,12 @@ def import_position(request):
 
 
 @login_required(login_url='login', redirect_field_name=None)
+def filter_applicants(request, reference, position_id, applicant_filter):
+    request.session['applicant_filter'] = applicant_filter
+    return redirect('position', reference=reference, position_id=position_id)
+
+
+@login_required(login_url='login', redirect_field_name=None)
 def sort_applicants(request, reference, position_id, sort_by):
     request.session['applicants_sort'] = sort_by
     return redirect('position', reference=reference, position_id=position_id)
@@ -280,6 +286,13 @@ def get_applicants_sort_method(request):
         return request.session['applicants_sort']
     except KeyError:
         return '-percentage_correct'
+
+
+def get_applicant_filter_method(request):
+    try:
+        return request.session['applicant_filter']
+    except KeyError:
+        return None
 
 
 # Data and visible text to render with positions list view

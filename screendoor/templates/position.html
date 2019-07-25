@@ -229,7 +229,7 @@
     <h6 class="btn-flat disabled sortby-button">
       Filter
     </h6>
-    <a name="filter-method" href="" class="sort-button btn-flat">
+    <a name="filter-method" href="{% url 'filter_applicants' position.reference_number position.id 'favourites' %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
       Favourites
     </a>
     <div class="sort-positions">
@@ -290,7 +290,7 @@
         <tbody>
           <tr>
             <td colspan="2">
-              <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="material-icons grey-text">star_border</i></span>
+              <span class="favourite-icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="material-icons grey-text">star_border</i></span>
             </td>
             <td colspan="16">
               <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
