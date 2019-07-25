@@ -19,9 +19,6 @@ const favourite = function(i, id) {
             element.innerHTML = '<i class="material-icons yellow-text">star</i>'
              element.setAttribute("data-favourite-status", "True")
         }
-//        console.log(element.parentNode.parentNode.parentNode.parentNode.parentNode)
-//        console.log(element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode)
-//        element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(element.parentNode.parentNode.parentNode.parentNode.parentNode)
     }).catch(error => console.error());
   });
 };

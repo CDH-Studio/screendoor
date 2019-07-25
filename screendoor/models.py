@@ -220,7 +220,7 @@ class Qualifier(models.Model):
     ]
 
     parent_answer = models.ForeignKey(
-        FormAnswer, on_delete=models.CASCADE, null=True)
+        FormAnswer, on_delete=models.CASCADE, null=True, related_name='answers')
     qualifier_text = models.TextField(
         blank=True, null=True)
     qualifier_type = models.CharField(

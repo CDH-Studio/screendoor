@@ -407,7 +407,14 @@ def position_has_applicant(request, app_id):
 
 # Data for applicant view
 def applicant_detail_data(request, applicant_id, position_id):
+
     applicant = Applicant.objects.get(id=applicant_id)
+    if [x for x in request.user.favorites.all() if x == applicant]:
+        is_favourited = True
+    else:
+        is_favourited = False
+
+    print(is_favourited)
     position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(
         parent_applicant=applicant).order_by("parent_question")
@@ -424,7 +431,7 @@ def applicant_detail_data(request, applicant_id, position_id):
     return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
             'classifications': Classification.objects.filter(parent_applicant=applicant),
             'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, }
+            'answers': answers, "favorite": is_favourited}
 
 
 # View an application
