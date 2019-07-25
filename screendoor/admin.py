@@ -10,6 +10,7 @@ class RequirementInline(admin.TabularInline):
     model = Requirement
     extra = 0
 
+
 class QualifierInline(admin.TabularInline):
     model = Qualifier
     extra = 0
@@ -26,6 +27,7 @@ class PositionAdmin(admin.ModelAdmin):
 
 class ApplicantAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine]
+
 
 class AnswerAdmin(admin.ModelAdmin):
     inlines = [QualifierInline]
@@ -45,6 +47,7 @@ admin.site.register(NlpExtract)
 admin.site.register(Note)
 admin.site.register(Qualifier)
 
+
 class PositionInline(admin.TabularInline):
     model = ScreenDoorUser.positions.through
     extra = 0
@@ -54,7 +57,8 @@ class AccountTokenInline(admin.TabularInline):
     model = EmailAuthenticateToken
     extra = 0
 
-class FavoritesInline(admin.TabularInline):
+
+class FavouritesInline(admin.TabularInline):
     model = ScreenDoorUser.favourites.through
     extra = 0
 
@@ -63,7 +67,7 @@ class ScreenDoorUserAdmin(UserAdmin):
     add_form = ScreenDoorUserCreationForm
     model = ScreenDoorUser
     list_display = ['email', ]
-    inlines = [PositionInline, AccountTokenInline, FavoritesInline]
+    inlines = [PositionInline, AccountTokenInline, FavouritesInline]
 
 
 admin.site.register(ScreenDoorUser, ScreenDoorUserAdmin)

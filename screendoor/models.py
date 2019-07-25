@@ -195,6 +195,7 @@ class FormQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
+
 class FormAnswer(models.Model):
     parent_question = models.ForeignKey(
         FormQuestion, on_delete=models.CASCADE, null=True, related_name='answer')

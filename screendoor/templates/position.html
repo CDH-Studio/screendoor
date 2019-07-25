@@ -13,7 +13,7 @@
     {% csrf_token %}
     <div class="row">
       <!--Beginning of position card -->
-      <div class="col card white">
+      <div id="position-card" class="col card white">
         <div class="card-content col s12">
           <div class="row valign-wrapper">
             <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
@@ -39,10 +39,6 @@
               </span>
               {% endif %}
             </div>
-          </div>
-          <!-- Add Users buttons-->
-          <div class="addUsers">
-              <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
           </div>
           <!-- Upload Applications and Delete buttons -->
           <div class="row left">
@@ -130,10 +126,9 @@
                   {{ position.num_positions }}
                 </span>
               </div>
-              <input type="hidden" class="hidden" name="position-salary-min" value='{{ position.salary_min }}'>
-              <input type="hidden" class="hidden" name="position-salary-max" value='{{ position.salary_max }}'>
-              <div class="col s3 cell-body" name="position-salary-range">
-                $<span id="position-salary-min" class="edit">{{ position.salary_min }}</span> - $<span id="position-salary-max" class="edit">{{ position.salary_max }}</span>
+              <input type="hidden" class="hidden" name="position-salary" value='{{ position.salary }}'>
+              <div class="col s3 cell-body" name="position-salary">
+                <span id="position-salary" class="edit">{{ position.salary }}</span>
               </div>
               <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
               <div class="col s6 cell-body" name="position-open-to">
@@ -166,7 +161,7 @@
           <h5 class="requirements-header">
             {{ positionText.education_and_experience_criteria }}
           </h5>
-          {% for req in position.requirement_set.all|dictsort:'requirement_type'|dictsort:'abbreviation' %}
+          {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}
           <!-- ifchanged executes only for distinct values without repetition -->
           {% ifchanged %}
           <div class="row collapse">
@@ -189,7 +184,7 @@
                 {{ req.abbreviation }}
               </span>
             </div>
-            <div class="col s10 cell-body req" name="position-requirement{{ forloop.counter }}">
+            <div class="col s9 cell-body req" name="position-requirement{{ forloop.counter }}">
               <span id="requirement_description" class="edit">
                 {{ req.description|linebreaksbr }}
               </span>
@@ -221,22 +216,18 @@
   <!-- End of position display -->
   {% endif %}
   <!-- Beginning of applicants display -->
-  {% if applicants %}
   <!-- Applications anchor -->
   <a id="applications"></a>
-  <!-- <form action="" method="POST" enctype="multipart/form-data" class="sort-applications right">
-       {% csrf_token %}
-       <h6 class="btn-flat disabled sortby-button">Filter</h6>
-       <button type="submit" class="sort-button btn-flat" value="">Percentile</button>
-       </form> -->
   <!-- Application field headers -->
   <div class="col">
     <h6 class="btn-flat disabled sortby-button">
       Filter
     </h6>
-    <a name="filter-method" href="" class="sort-button btn-flat">
+    <a name="filter-method" href="{% if 'favourites' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'all' %}{% elif 'all' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'favourites' %}{% endif %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
       Favourites
     </a>
+  {% if applicants %}
+
     <div class="sort-positions">
       <table class="applicant-table">
         <thead class="applicant-table-header">
@@ -295,7 +286,7 @@
         <tbody>
           <tr>
             <td colspan="2">
-              <span class="favourite_icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="material-icons grey-text">star_border</i></span>
+              <span class="favourite-icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="material-icons grey-text">star_border</i></span>
             </td>
             <td colspan="16">
               <a href="{% url 'application' applicant.applicant_id %}" class="application-button modal-trigger blue-text sort-applications">
@@ -449,38 +440,6 @@
     </div>
   </div>
 </div>
-<div id="add-users-modal" class="modal">
-  <div class="modal-content">
-      <h5>
-        {{ userVisibleText.add_users }}
-      </h5>
-      <p id="add-users-text">
-        {{ userVisibleText.add_users }}
-      </p>
-      <!-- PDF/File input -->
-      <div class="user-input-field">
-          <input type="text" required name="user-email" maxlength="120" id="user-email-input" autofocus="">
-      </div>
-      <div id="userDisplay" data-position-id="{{ position.id }}">
-        <!-- Current user: can not be removed! -->
-        <div id="current-user" >
-          <p class="grey-text">you! {{ current_user.username }} - {{ current_user.email }}</p>
-        </div>
-
-        {% for user in other_users %}
-        <div class="user" id="{{ user.email }}" >
-          <p>{{ user.username }} - {{ user.email }}</p>
-          <i class="material-icons red-text remove-user">cancel</i>
-        </div>
-        {% endfor %}
-      </div>
-      <div class="modal-footer">
-        <a class="red-text position-button" id="addUserMessagePrompt"></a>
-        <input type="submit" id="add-users-button" class="btn-flat blue-text position-button" name="add-users" value="add user">
-        <a href="#!" class="modal-close btn-flat blue-text position-button">exit</a>
-      </div>
-    </div>
-</div>
 <!-- Misc helper functions -->
 <script src="{% static 'js/helper-functions.js' %}"></script>
 <!-- Script for initializing modal pop-ups -->
@@ -496,4 +455,3 @@
 <!-- Inline script requiring Django variables -->
 <script src="{% static 'js/position.js' %}"></script>
 {% endblock %}
-
