@@ -183,7 +183,7 @@
                 <data class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
                 {% endif %}
                 <div class="col {% if answer.qualifier_set.all is not None %}
-                            s9 {% elif answer.parent_question.parent_requirement is not None %} s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ answer.parent_question.short_question_text }}
+                            s9 {% elif answer.parent_question.parent_requirement is not None %} s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
                 </div>
                 <div class="col right">
                   {% for qualifier in answer.qualifier_set.all %}
@@ -265,7 +265,7 @@
                   <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
                   <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
                   <!-- Extracts full -->
-                  <span class="extract-full">
+                  <div class="extract-full">
                     {% if extract.extract_type == 'WHEN' %}
                     <i class="material-icons red-text text-lighten-1">date_range</i>
                     {% elif extract.extract_type == 'HOW' %}
@@ -275,7 +275,7 @@
                       <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
                       <br>
                     </span>
-                  </span>
+                  </div>
                   {% endfor %}
                 </div>
               </div>

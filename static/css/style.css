@@ -639,8 +639,9 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .answer-highlighted {
-  animation: highlight .05s forwards;
-  /* background-color:  #2196F3; */
+  /* animation: highlight .01s forwards; */
+  background-color:  #2196F3;
+  color: #ffffff;
   padding-top: 3px;
   padding-bottom: 3px;
 }
@@ -673,6 +674,8 @@ tr {
 
 .extract-full {
   margin-left: -20px !important;
+  margin-bottom: 10px;
+  display: flex;
 }
 
 .answer-complementary-response {
@@ -689,10 +692,11 @@ tr {
 }
 
 .applicant-response-full {
+  font-size: 1.05rem;
   white-space: pre-wrap;
   margin: 15px 15px !important;
 
-  line-height: 1.6rem;
+  line-height: 1.5rem !important;
   opacity: 0;
   max-height: 0rem;
   overflow: hidden;
@@ -800,7 +804,8 @@ tr {
 }
 
 .extracts-full {
-  line-height: 1.8rem;
+  font-size: 1.05rem;
+  line-height: 1.6rem;
   opacity: 0;
   max-height: 0rem;
   overflow: hidden;
@@ -814,15 +819,11 @@ tr {
   transition: opacity .3s, max-height .3s;
 }
 
-.extract-text {
-}
-
-
 .extracts-full i {
-  line-height: 1.8rem;
+  line-height: 1.6rem;
   font-size: 1.2rem;
   position: relative;
-  top: 2px;
+  top: 0px;
   right: 5px;
 }
 
