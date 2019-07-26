@@ -468,24 +468,24 @@ def application(request, app_id):
     return redirect('home')
 
 
-# Add a note to an applicant answer
-@login_required(login_url='login', redirect_field_name=None)
-def add_note(request):
-    if request.POST.get("note-input"):
-        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-        note = Note(author=request.user, parent_answer=answer,
-                    note_text=request.POST.get("note-input"))
-        note.save()
-        return redirect('application', answer.parent_applicant.applicant_id)
-
-# Delete a note
-@login_required(login_url='login', redirect_field_name=None)
-def delete_note(request):
-    if request.POST.get("note-id"):
-        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-        note = Note.objects.get(id=request.POST.get("note-id"))
-        note.delete()
-        return redirect('application', answer.parent_applicant.applicant_id)
+# # Add a note to an applicant answer
+# @login_required(login_url='login', redirect_field_name=None)
+# def add_note(request):
+#     if request.POST.get("note-input"):
+#         answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
+#         note = Note(author=request.user, parent_answer=answer,
+#                     note_text=request.POST.get("note-input"))
+#         note.save()
+#         return redirect('application', answer.parent_applicant.applicant_id)
+#
+# # Delete a note
+# @login_required(login_url='login', redirect_field_name=None)
+# def delete_note(request):
+#     if request.POST.get("note-id"):
+#         answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
+#         note = Note.objects.get(id=request.POST.get("note-id"))
+#         note.delete()
+#         return redirect('application', answer.parent_applicant.applicant_id)
 
 
 @login_required(login_url='login', redirect_field_name=None)
@@ -532,14 +532,7 @@ def task_status(request, task_id):
     return None
 
 
-def nlp(request):
-    answer = FormAnswer.objects.get(id=449)
-    qualifiers = answer.qualifier_set.all()
-    breakpoint()
-    return redirect('positions')
-
-
-
+# Ajax url
 def add_to_favourites(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
@@ -553,7 +546,7 @@ def add_to_favourites(request):
     request.user.save()
     return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
 
-
+# Ajax url
 def add_user_to_position(request):
     user_email = request.GET.get("email")
     position_id= request.GET.get("id")
@@ -571,7 +564,7 @@ def add_user_to_position(request):
         return JsonResponse({'exception': 'User does not exist.'})
 
 
-
+# Ajax url
 def remove_user_from_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
@@ -585,5 +578,16 @@ def remove_user_from_position(request):
 
     except:
         return JsonResponse(
+            {})
+
+
+# Ajax url
+def add_note(request):
+    return JsonResponse(
+            {})
+
+# Ajax url
+def remove_note(request):
+    return JsonResponse(
             {})
 
