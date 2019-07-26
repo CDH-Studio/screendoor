@@ -63,6 +63,9 @@ def extract_experience(essential_block):
             if fuzz.ratio("experience", sentence1.lower()) > 80:
                 experience = essential_block.split(sentence1, 1)[1]
 
+    if experience == "":
+        experience = essential_block
+
     experience = clean_block(experience)
 
     return experience
@@ -138,22 +141,47 @@ def extract_text_blocks(pdf_poster_text):
 
 def extract_req_list(pdf_poster_text, position):
     # Extracts text blocks like education, experience and assets
+
+    position.save()
+
     text_blocks = extract_text_blocks(pdf_poster_text)
 
     education_reqs = generate_requirements(text_blocks[0], position,
                                            "Education", "ED")
+
     experience_reqs = generate_requirements(text_blocks[1], position,
                                             "Experience", "EXP")
     asset_experience_reqs = generate_requirements(text_blocks[2], position,
                                                   "Asset", "AEXP")
 
-    return education_reqs + experience_reqs + asset_experience_reqs
+    for education_req in education_reqs:
+        print("ABBREVIATION: " + education_req.abbreviation)
+        print("DESCRIPTION: " + education_req.description)
+        education_req.position = position
+        education_req.save()
+
+    for experience_req in experience_reqs:
+        print("ABBREVIATION: " + experience_req.abbreviation)
+        print("DESCRIPTION: " + experience_req.description)
+        experience_req.position = position
+        experience_req.save()
+
+    for asset_experience_req in asset_experience_reqs:
+        print("ABBREVIATION: " + asset_experience_req.abbreviation)
+        print("DESCRIPTION: " + asset_experience_req.description)
+        asset_experience_req.position = position
+        asset_experience_req.save()
+
+    position.save()
+
+    return position
 
 
 def find_next_header(text):
     text = text.split("(essential for the job)")[1]
     split_by_line_breaks = text.split("\n")
-    list_of_headers = ["The following may be", "Conditions of employment", "The following will be applied", "Other information"]
+    list_of_headers = ["The following may be", "Conditions of employment", "The following will be applied",
+                       "Other information"]
 
     for line in split_by_line_breaks:
         for header in list_of_headers:
@@ -309,7 +337,7 @@ def extract_sections_without_headers(requirement_block_text, requirement_type, h
 
 def identify_sections(requirement_block_text, requirement_type, definition_key):
     # Regex for identifying different types of headers, consider the conditions separated by the | (OR) symbol.
-    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^[A-Z][a-z]+:\s*|^[A-Za-z]+:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*.+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)|^.+ - .+:"
+    header_pattern = r"^[A-Za-z]+ \d:.+\n|^\s*[A-Z].{0,40}:\s*(?!.)|^\s*[A-Z][a-z]+\s*\n|^►.+:|^\**[A-Z][a-z]+:\s*|^[A-Za-z]+:|^(?<!.\n)[A-Z][a-z A-Z]{0,30}(?![.;:])\n|^[A-Z]+\s*-\s*.+\n|^education:|^experience:|^[A-Z]+\s*\(.+\)|^.+ - .+:"
     list_of_headers = extract_headers(requirement_block_text, header_pattern)
     if is_header_present(requirement_block_text, header_pattern):
         return extract_sections_with_headers(requirement_block_text, list_of_headers)
@@ -374,7 +402,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
     # Text before first header is labelled non-headered-text
     list_of_forbidden_sections = ["knowledge:", "abilities and skills:", "personal suitability:", "note:",
                                   "definitions:", "competencies", "Written Communication", "abilities", "Adaptability",
-                                  "Leadership", "Reliability"]
+                                  "Leadership", "Reliability", "Degree:"]
     definition_key = ["defined as", "acquired through", "acquired over", "refers to", "means more than",
                       "assessed based", "completion of grade", "may include", "defined by"]
     definition_regex = r"^\**\s*.{,30}:(?=...)"
@@ -383,7 +411,7 @@ def generate_requirements(requirement_block_text, position, requirement_type,
                                "must meet all", "deciding factor", "provide appropriate", "being rejected",
                                "responsible for obtaining", "must be provided", "diversity is our strength",
                                "Attention to detail", "Effective interpersonal relationships", "when describing how",
-                               "must have been obtained", "applicants must"]
+                               "must have been obtained", "applicants must", "satisfactory score"]
 
     # Identify Sections
     sections = identify_sections(requirement_block_text, requirement_type, definition_key)
@@ -524,13 +552,7 @@ def find_essential_details(pdf_poster_text, position):
     # The mother of all methods, find_essential_details uses all the other methods to parse the job poster.
     position = extract_non_text_block_information(position, pdf_poster_text)
 
-    list_of_requirements = extract_req_list(pdf_poster_text, position)
-
-    position.save()
-
-    for item in list_of_requirements:
-        item.position = position
-        item.save()
+    position = extract_req_list(pdf_poster_text, position)
 
     dictionary = {
         'position': position
