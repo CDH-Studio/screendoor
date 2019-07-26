@@ -11,6 +11,11 @@ body {
 
 }
 
+.card {
+  background-color: #fff;
+}
+
+
 form {
   font-weight: normal !important;
 }
@@ -194,9 +199,9 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .edit > input {
-     width: 100% !important;
-     max-width: 1000px !important;
-     box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 1000px !important;
+  box-sizing: border-box !important;
 }
 
 /* Modals */
@@ -205,9 +210,19 @@ input[type=number]::-webkit-outer-spin-button {
   padding-right: 20px !important;
 }
 
-.modal-content {
-  padding-left: 35px !important;
-  padding-right: 35px !important;
+#delete-modal .modal-content {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+#upload-applications-modal .modal-content {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+#processing-modal .modal-content {
+  padding-left: 35px;
+  padding-right: 35px;
 }
 
 .modal-complementary-response {
@@ -1439,7 +1454,44 @@ div {
   transition: max-height .3s, white-space .2s;
 }
 
+.add-user-text {
+  /* margin-top: -10px; */
+}
+
+.add-user-row {
+  margin-left: -12px !important;
+}
+
+#add-users-button {
+
+}
+
+#add-users-modal .modal-content {
+  padding-left: 35px;
+  padding-right: 35px;
+}
+
+#add-users-modal .modal-footer {
+  /* padding: 0px !important;
+     margin-top: -15px;
+     margin-bottom: -15px; */
+}
+
+#add-users-modal .modal-content {
+  /* padding: 10px;
+     margin: 10px; */
+}
+
 /* Position detail */
+
+.remove-user {
+  cursor: pointer;
+  position: absolute;
+}
+
+.position-view-buttons {
+  margin-left: -10px;
+}
 
 .position-edit-btn {
   margin-bottom: -15px;

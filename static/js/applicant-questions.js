@@ -177,16 +177,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
     });
 
     questionIconDivs[i].addEventListener("mouseover", () => {
-      extractPreviews[i].classList.add("extract-previews-open");
-      questionIcons[i].style.fontSize = "3rem";
-      if (requirementAbbreviations[i]) {
-        requirementAbbreviations[i].classList.add("hide");
+      if (questionIcons[i].innerText == "question_answer") {
+        extractPreviews[i].classList.add("extract-previews-open");
+        questionIcons[i].style.fontSize = "3rem";
+        if (requirementAbbreviations[i]) {
+          requirementAbbreviations[i].classList.add("hide");
+        }
       }
     });
 
     questionPreviews[i].addEventListener("mouseleave", () => {
       extractPreviews[i].classList.remove("extract-previews-open");
-      questionIcons[i].style.fontSize = "1.8rem";
+      questionIcons[i].style.fontSize = "1.9rem";
       if (requirementAbbreviations[i]) {
         requirementAbbreviations[i].classList.remove("hide");
       }

@@ -1,10 +1,10 @@
 /* CONSTANTS AND VARIABLES */
 const favourites = document.getElementsByClassName("favourite-icon");
 const addUser = document.getElementById("add-users-button");
-const userDisplayLocation = document.getElementById("userDisplay");
+const userDisplayLocation = document.getElementById("user-display");
 const currentUser = document.getElementById("current-user");
 const userEmailField = document.getElementById("user-email-input");
-const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+const addUserMessagePrompt = document.getElementById("add-user-message-prompt");
 
 const unfavourite = function(i, id) {
   console.log(id);

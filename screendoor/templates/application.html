@@ -178,7 +178,7 @@
             <div class="question-preview-div hoverable row collapse question-row {% if answer.applicant_answer is True %}yes-answer {% else %}no-answer{% endif %}">
               <div class="row header-row question-row">
                 <div class="col cell-header question-icon-div">
-                  <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
+                  <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">{% if answer.applicant_answer is False %}close{% elif answer.applicant_answer is True and answer.applicant_complementary_response is None %}check{% else %}question_answer{% endif %}</i>
                 </div>
                 {% if answer.parent_question.parent_requirement is not None %}
                 <div class="col requirement-abbreviation applicant-summary-card-small list card-panel screendoor-color">
@@ -253,10 +253,10 @@
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
-                <div class="col s7 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span>
+                <div class="col s7 applicant-response-full"><p class="complementary-response-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.complementary_response }}{% endif %}</p><span class="answer-complementary-response">{% if answer.applicant_complementary_response is not None %}{{ answer.applicant_complementary_response }}{% endif %}</span>
                 </div>
                 <div class="col s4 extracts-full">
-                  <p class="extract-full-header">{{ applicantText.extracts }}</p>
+                  <p class="extract-full-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.extracts }}{% endif %}</p>
                   <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
                   <data class="answer-id" value="{{ answer.id }}" />
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
