@@ -251,7 +251,9 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     questionPreviews[i].addEventListener("mouseleave", () => {
-      shortQuestionTexts[i].classList.remove("short-question-text-open");
+      if (!applicantResponseFull[i].classList.contains("applicant-response-full-open")) {
+        shortQuestionTexts[i].classList.remove("short-question-text-open");
+      }
       extractPreviews[i].classList.remove("extract-previews-open");
       questionIcons[i].style.fontSize = "1.9rem";
     });

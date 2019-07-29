@@ -1280,6 +1280,10 @@ th {
   max-height: 500px;
 }
 
+.short-question-text-open:hover {
+
+}
+
 .short-question-text:hover {
   white-space: normal;
   -webkit-transition: max-height 1s, white-space 1s, font-size .1s;
