@@ -1,5 +1,6 @@
 from io import BytesIO
 from string import digits
+from urllib import parse
 
 from celery.result import AsyncResult
 from dateutil import parser as dateparser
@@ -26,7 +27,6 @@ from .tasks import process_applications
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
     ApplicantViewText
 
-
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
 # The @login_required decorator redirects unauthenticated sessions to 'settings.LOGIN_URL' or the specified URL
@@ -37,8 +37,10 @@ from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText,
 def index(request):
     return redirect('positions')
     # Returns main page
-    return render(request, 'index.html',
-                  {'user': request.user, 'baseVisibleText': InterfaceText})
+    return render(request, 'index.html', {
+        'user': request.user,
+        'baseVisibleText': InterfaceText
+    })
 
 
 # Renders account registration form
@@ -54,9 +56,13 @@ def register_form(request):
             # Send confirmation e-mail
             send_user_email(request, user)
             # Redirects to...
-            return render(request, 'registration/register.html',
-                          {'register_form': register_form,
-                           'account_created': format(CreateAccountFormText.account_created % user)})
+            return render(
+                request, 'registration/register.html', {
+                    'register_form':
+                    register_form,
+                    'account_created':
+                    format(CreateAccountFormText.account_created % user)
+                })
     # Returns form page
     return render(request, 'registration/register.html',
                   {'register_form': register_form})
@@ -66,11 +72,14 @@ def register_form(request):
 def create_account(request):
     # Creates account and saves email, password, username to database
     user = get_user_model().objects.create_user(
-        request.POST['email'].lower(), password=request.POST['password1'], email=request.POST['email'].lower())
+        request.POST['email'].lower(),
+        password=request.POST['password1'],
+        email=request.POST['email'].lower())
     # Extrapolate first and last name from e-mail account (experimental)
     user.first_name = request.POST['email'].split('.')[0].title()
-    user.last_name = request.POST['email'].split(
-        '.')[1].split('@')[0].title().translate({ord(n): None for n in digits})
+    user.last_name = request.POST['email'].split('.')[1].split(
+        '@')[0].title().translate({ord(n): None
+                                   for n in digits})
     # Set user as inactive until e-mail confirmation
     user.email_confirmed = False
     # Save updated user info to database
@@ -144,15 +153,21 @@ def login_form(request):
             user = authenticate_user(request.GET.get('key'))
             if (user is not None):
                 # Display account confirmation message
-                return render(request, 'registration/login.html',
-                              {'login_form': form,
-                               'account_confirmed': format(LoginFormText.account_confirmed % user.email)})
+                return render(
+                    request, 'registration/login.html', {
+                        'login_form':
+                        form,
+                        'account_confirmed':
+                        format(LoginFormText.account_confirmed % user.email)
+                    })
             # Display validation error message
-            return render(request, 'registration/login.html',
-                          {'login_form': form, 'validation_error': LoginFormText.validation_error})
+            return render(
+                request, 'registration/login.html', {
+                    'login_form': form,
+                    'validation_error': LoginFormText.validation_error
+                })
         # Display login page
-        return render(request, 'registration/login.html',
-                      {'login_form': form})
+        return render(request, 'registration/login.html', {'login_form': form})
     # If the user is already logged in, redirect to home
     return redirect('home')
 
@@ -172,8 +187,8 @@ def parse_position_return_dictionary(create_position_form):
 
 # Adds position to user data
 def save_position_to_user(request):
-    request.user.positions.add(Position.objects.get(
-        id=request.session['position_id']))
+    request.user.positions.add(
+        Position.objects.get(id=request.session['position_id']))
 
 
 @login_required(login_url='login', redirect_field_name=None)
@@ -206,20 +221,19 @@ def edit_position(request):
                     counter += 1
                     requirement.save()
                 position.save()
-                return redirect('position', position.reference_number, position.id)
+                return redirect('position', position.reference_number,
+                                position.id)
             except TypeError:
                 # In case of errors, return the current position with no edits
                 # TODO: implement validation for position editing and error messages
-                return Position.objects.get(
-                    id=request.POST.get("position-id"))
+                return Position.objects.get(id=request.POST.get("position-id"))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
 @login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
     if request.method == 'POST':
-        create_position_form = CreatePositionForm(
-            request.POST, request.FILES)
+        create_position_form = CreatePositionForm(request.POST, request.FILES)
         # Is the form data valid
         if create_position_form.is_valid():
             dictionary = parse_position_return_dictionary(create_position_form)
@@ -232,15 +246,20 @@ def import_position(request):
                 # Persist position ID in session for saving and editing
                 request.session['position_id'] = position.id
                 # Successful render of a position
-                return render(request, 'createposition/importposition.html',
-                              {'position': position, 'form': create_position_form,
-                               'baseVisibleText': InterfaceText,
-                               'userVisibleText': PositionText})
+                return render(
+                    request, 'createposition/importposition.html', {
+                        'position': position,
+                        'form': create_position_form,
+                        'baseVisibleText': InterfaceText,
+                        'userVisibleText': PositionText
+                    })
             # Display errors
-            return render(request, 'createposition/importposition.html',
-                          {'form': create_position_form,
-                           'baseVisibleText': InterfaceText,
-                           'userVisibleText': PositionText})
+            return render(
+                request, 'createposition/importposition.html', {
+                    'form': create_position_form,
+                    'baseVisibleText': InterfaceText,
+                    'userVisibleText': PositionText
+                })
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
@@ -249,7 +268,8 @@ def import_position(request):
     # Default view for GET request
     create_position_form = CreatePositionForm()
     return render(request, 'createposition/importposition.html', {
-        'form': CreatePositionForm, 'baseVisibleText': InterfaceText
+        'form': CreatePositionForm,
+        'baseVisibleText': InterfaceText
     })
 
 
@@ -305,12 +325,16 @@ def positions_list_data(request):
     for position in positions:
         position.applicants = Applicant.objects.filter(
             parent_position=position) if Applicant.objects.filter(
-            parent_position=position).count() > 0 else None
+                parent_position=position).count() > 0 else None
     # Return data for display
     return {
-        'baseVisibleText': InterfaceText, 'positionText': PositionText, 'userVisibleText': PositionsViewText,
-        'applicationsForm': ImportApplicationsForm, 'positions': positions,
-        'sort': sort_by}
+        'baseVisibleText': InterfaceText,
+        'positionText': PositionText,
+        'userVisibleText': PositionsViewText,
+        'applicationsForm': ImportApplicationsForm,
+        'positions': positions,
+        'sort': sort_by
+    }
 
 
 # View of all positions associated with a user account
@@ -322,8 +346,8 @@ def positions(request):
 
 # Return whether the position exists and the user has access to it
 def user_has_position(request, reference, position_id):
-    if Position.objects.filter(reference_number=reference).exists() and request.user.positions.filter(
-            reference_number=reference).exists():
+    if Position.objects.filter(reference_number=reference).exists(
+    ) and request.user.positions.filter(reference_number=reference).exists():
         return Position.objects.get(id=position_id)
     return None
 
@@ -335,11 +359,13 @@ def position_detail_data(request, position_id, task_id):
     position = Position.objects.get(id=position_id)
     if applicant_filter == "all":
         applicants = list(position.applicant_set.all().order_by(
-            sort_by)) if Applicant.objects.filter(parent_position=position).count() > 0 else []
+            sort_by)) if Applicant.objects.filter(
+                parent_position=position).count() > 0 else []
     elif applicant_filter == "favourites":
-        applicants = list(request.user.favourites.filter(
-            parent_position=position).order_by(sort_by)) if request.user.favourites.filter(
-            parent_position=position).count() > 0 else []
+        applicants = list(
+            request.user.favourites.filter(parent_position=position).order_by(
+                sort_by)) if request.user.favourites.filter(
+                    parent_position=position).count() > 0 else []
     favourites = request.user.favourites.filter(parent_position=position)
     applicant_dict = create_applicants_wth_favourite_information(
         applicants, favourites)
@@ -349,11 +375,24 @@ def position_detail_data(request, position_id, task_id):
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
 
-    other_users = [x for x in position.position_users.all() if not x == request.user]
+    other_users = [
+        x for x in position.position_users.all() if not x == request.user
+    ]
     print(other_users)
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'positionText': PositionText,
-            'userVisibleText': PositionsViewText, 'position': position, 'applicants': applicant_dict, 'task_id': task_id,
-            'sort': sort_by, 'current_user': request.user, 'other_users': other_users, 'applicant_filter': applicant_filter}
+    return {
+        'baseVisibleText': InterfaceText,
+        'applicationsForm': ImportApplicationsForm,
+        'positionText': PositionText,
+        'userVisibleText': PositionsViewText,
+        'position': position,
+        'applicants': applicant_dict,
+        'task_id': task_id,
+        'sort': sort_by,
+        'current_user': request.user,
+        'other_users': other_users,
+        'applicant_filter': applicant_filter
+    }
+
 
 def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}
@@ -364,6 +403,7 @@ def create_applicants_wth_favourite_information(applicants, favourites):
             stitched_lists[applicant] = False
     return stitched_lists
 
+
 # Position detail view
 @login_required(login_url='login', redirect_field_name=None)
 def position_detail(request, reference, position_id, task_id=None):
@@ -371,7 +411,8 @@ def position_detail(request, reference, position_id, task_id=None):
     try:
         position = user_has_position(request, reference, position_id)
         if position is not None:
-            return render(request, 'position.html', position_detail_data(request, position.id, task_id))
+            return render(request, 'position.html',
+                          position_detail_data(request, position.id, task_id))
     except ObjectDoesNotExist:
         # TODO: add error message that position cannot be retrieved
         return redirect('home')
@@ -394,14 +435,17 @@ def upload_applications(request):
         if form.is_valid():
             position_id = int(request.POST.get("position-id"))
             files = request.FILES.getlist('pdf')
-            file_names = [FileSystemStorage().save(file.name, file)
-                          for file in files]
-            file_paths = [FileSystemStorage().url(file_name)
-                          for file_name in file_names]
+            file_names = [
+                FileSystemStorage().save(file.name, file) for file in files
+            ]
+            file_paths = [
+                FileSystemStorage().url(file_name) for file_name in file_names
+            ]
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
-        return redirect('position_upload', Position.objects.get(id=position_id).reference_number, position_id,
-                        task_result.id)
+        return redirect('position_upload',
+                        Position.objects.get(id=position_id).reference_number,
+                        position_id, task_result.id)
     # TODO: render error message that application could not be added
     return redirect('home')
 
@@ -412,18 +456,22 @@ def import_applications_redact(request):
         if form.is_valid():
             redact_applications()
             # Call application parser logic here##
-            return render(request, 'importapplications/applications.html#applications', {
-                'form': form})
+            return render(request,
+                          'importapplications/applications.html#applications',
+                          {'form': form})
     form = ImportApplicationsForm()
-    return render(request, 'importapplications/applications.html', {
-        'form': form})
+    return render(request, 'importapplications/applications.html',
+                  {'form': form})
 
 
 # Verify that the applicant exists and belongs to position that user has access to
 def position_has_applicant(request, app_id):
-    if Applicant.objects.filter(applicant_id=app_id).exists() and user_has_position(request, Applicant.objects.get(
-        applicant_id=app_id).parent_position.reference_number, Applicant.objects.get(
-            applicant_id=app_id).parent_position.id):
+    if Applicant.objects.filter(
+            applicant_id=app_id).exists() and user_has_position(
+                request,
+                Applicant.objects.get(
+                    applicant_id=app_id).parent_position.reference_number,
+                Applicant.objects.get(applicant_id=app_id).parent_position.id):
         return Applicant.objects.get(applicant_id=app_id)
 
 
@@ -442,18 +490,39 @@ def applicant_detail_data(request, applicant_id, position_id):
         parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.qualifier_set = Qualifier.objects.filter(
-            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
-            parent_answer=answer).count() > 0 else None
+            parent_answer=answer).order_by(
+                'qualifier_type') if Qualifier.objects.filter(
+                    parent_answer=answer).count() > 0 else None
         answer.extract_set = NlpExtract.objects.filter(
-            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
-            parent_answer=answer).count() > 0 else None
+            parent_answer=answer).order_by(
+                'next_extract_index',
+                '-extract_type') if NlpExtract.objects.filter(
+                    parent_answer=answer).count() > 0 else None
         answer.note_set = Note.objects.filter(
             parent_answer=answer).order_by('created') if Note.objects.filter(
                 parent_answer=answer).count() > 0 else None
-    return {'baseVisibleText': InterfaceText, 'applicationsForm': ImportApplicationsForm, 'position': position, 'applicant': applicant, 'educations': Education.objects.filter(parent_applicant=applicant),
-            'classifications': Classification.objects.filter(parent_applicant=applicant),
-            'streams': Stream.objects.filter(parent_applicant=applicant), 'applicantText': ApplicantViewText,
-            'answers': answers, "favourite": is_favourited}
+    return {
+        'baseVisibleText':
+        InterfaceText,
+        'applicationsForm':
+        ImportApplicationsForm,
+        'position':
+        position,
+        'applicant':
+        applicant,
+        'educations':
+        Education.objects.filter(parent_applicant=applicant),
+        'classifications':
+        Classification.objects.filter(parent_applicant=applicant),
+        'streams':
+        Stream.objects.filter(parent_applicant=applicant),
+        'applicantText':
+        ApplicantViewText,
+        'answers':
+        answers,
+        "favourite":
+        is_favourited
+    }
 
 
 # View an application
@@ -461,31 +530,13 @@ def applicant_detail_data(request, applicant_id, position_id):
 def application(request, app_id):
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
-        return render(request, 'application.html',
-                      applicant_detail_data(request, applicant.id,
-                                            Applicant.objects.get(applicant_id=app_id).parent_position.id))
+        return render(
+            request, 'application.html',
+            applicant_detail_data(
+                request, applicant.id,
+                Applicant.objects.get(applicant_id=app_id).parent_position.id))
     # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
-
-
-# Add a note to an applicant answer
-@login_required(login_url='login', redirect_field_name=None)
-def add_note(request):
-    if request.POST.get("note-input"):
-        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-        note = Note(author=request.user, parent_answer=answer,
-                    note_text=request.POST.get("note-input"))
-        note.save()
-        return redirect('application', answer.parent_applicant.applicant_id)
-
-# Delete a note
-@login_required(login_url='login', redirect_field_name=None)
-def delete_note(request):
-    if request.POST.get("note-id"):
-        answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-        note = Note.objects.get(id=request.POST.get("note-id"))
-        note.delete()
-        return redirect('application', answer.parent_applicant.applicant_id)
 
 
 @login_required(login_url='login', redirect_field_name=None)
@@ -495,18 +546,22 @@ def render_pdf(request, app_id):
         parent_applicant=applicant).order_by("parent_question")
     for answer in answers:
         answer.qualifier_set = Qualifier.objects.filter(
-            parent_answer=answer).order_by('qualifier_type') if Qualifier.objects.filter(
-                parent_answer=answer).count() > 0 else None
+            parent_answer=answer).order_by(
+                'qualifier_type') if Qualifier.objects.filter(
+                    parent_answer=answer).count() > 0 else None
         answer.extract_set = NlpExtract.objects.filter(
-            parent_answer=answer).order_by('next_extract_index', '-extract_type') if NlpExtract.objects.filter(
-                parent_answer=answer).count() > 0 else None
+            parent_answer=answer).order_by(
+                'next_extract_index',
+                '-extract_type') if NlpExtract.objects.filter(
+                    parent_answer=answer).count() > 0 else None
         answer.note_set = Note.objects.filter(
             parent_answer=answer).order_by('created') if Note.objects.filter(
                 parent_answer=answer).count() > 0 else None
     if applicant is not None:
         response = HttpResponse(content_type="application/pdf")
         html = render_to_string("sbr_pdf.html", {
-            'applicant': applicant, 'answers': answers
+            'applicant': applicant,
+            'answers': answers
         })
         font_config = FontConfiguration()
         HTML(string=html).write_pdf(response, font_config=font_config)
@@ -532,15 +587,8 @@ def task_status(request, task_id):
     return None
 
 
-def nlp(request):
-    answer = FormAnswer.objects.get(id=449)
-    qualifiers = answer.qualifier_set.all()
-    breakpoint()
-    return redirect('positions')
-
-
-
-def add_to_favourites(request):
+# Ajax url
+def change_favourites_status(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
     favourite_status = request.GET.get("favouriteStatus")
@@ -551,12 +599,16 @@ def add_to_favourites(request):
         request.user.favourites.add(applicant)
 
     request.user.save()
-    return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
+    return JsonResponse({
+        'app_id': app_id,
+        'favourite_status': favourite_status
+    })
 
 
+# Ajax url
 def add_user_to_position(request):
     user_email = request.GET.get("email")
-    position_id= request.GET.get("id")
+    position_id = request.GET.get("id")
     position = Position.objects.get(id=position_id)
 
     try:
@@ -566,12 +618,15 @@ def add_user_to_position(request):
                 {'exception': 'User already has access to this position.'})
         position.position_users.add(new_user)
         position.save()
-        return JsonResponse({'userName': new_user.username, 'userEmail': new_user.email})
+        return JsonResponse({
+            'userName': new_user.username,
+            'userEmail': new_user.email
+        })
     except:
         return JsonResponse({'exception': 'User does not exist.'})
 
 
-
+# Ajax url
 def remove_user_from_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
@@ -584,6 +639,38 @@ def remove_user_from_position(request):
         return JsonResponse({'userEmail': user_email})
 
     except:
-        return JsonResponse(
-            {})
+        return JsonResponse({})
 
+
+# Ajax url
+def add_note(request):
+    note_text = parse.unquote_plus(request.GET.get("noteText"))
+    answer_id = request.GET.get("parentAnswerId")
+
+    try:
+        answer = FormAnswer.objects.get(id=answer_id)
+        note = Note(author=request.user,
+                    parent_answer=answer,
+                    note_text=note_text)
+        note.save()
+        print(note)
+        return JsonResponse({
+            'noteId': note.id,
+            'noteAuthor': note.author.username,
+            'noteCreated': note.created,
+            'noteText': note.note_text
+        })
+
+    except:
+        return JsonResponse({})
+
+
+# Ajax url
+def remove_note(request):
+    note_id = request.GET.get("noteId")
+    try:
+        note = Note.objects.get(id=note_id)
+        note.delete()
+        return JsonResponse({'noteId': note_id})
+    except:
+        return JsonResponse({})
