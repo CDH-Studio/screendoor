@@ -1097,9 +1097,22 @@ th a {
   margin-left: -5px !important;
 }
 
-.expand-collapse-education, .expand-collapse-question {
+#expand-collapse-applicant {
+  margin-top: 7px;
+  margin-left: 20px;
+  padding-right: 0px !important;
   position: absolute;
-  margin-top: -3px;
+}
+
+.expand-collapse-education-item {
+  margin-left: -15px;
+  padding-right: 0px !important;
+  position: absolute;
+}
+
+#expand-collapse-education, #expand-collapse-questions {
+  position: absolute;
+  margin-top: -4px;
   margin-left: 5px;
   cursor: pointer;
 }
