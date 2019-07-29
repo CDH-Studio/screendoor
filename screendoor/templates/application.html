@@ -69,6 +69,9 @@
               {% endfor %}
             </span>
           </div>
+          <div class="col">
+            <i id="expand-collapse-applicant" class="material-icons grey-text text-lighten-1">expand_more</i>
+          </div>
         </div>
 
         <div class="hidden-applicant-info row row-closed">
@@ -107,7 +110,7 @@
         <div class="row header-row">
           <div class="col s11">
             <h6>
-              {{ applicantText.education }} <i class="expand-collapse-education material-icons grey-text text-darken-2">unfold_more</i>
+              {{ applicantText.education }} <i id="expand-collapse-education" class="material-icons grey-text text-darken-2">unfold_more</i>
             </h6>
           </div>
         </div>
@@ -119,41 +122,48 @@
             <div class="row">
               <div class="row education-header">
                 <div class="col cell-header">
-                  <i class="education-icon collapse-arrows material-icons grey-text text-lighten-5 text-darken-{{ forloop.counter }} small">school</i>
+                  <i class="education-icon collapse-arrows material-icons grey-text text-lighten-{{ forloop.counterreverse }} text-darken-{{ forloop.counter }} small">school</i>
                 </div>
                 <!-- Displays academic level full width if no institution and area of study (i.e., for secondary school) -->
                 <div id="education-academic-truncated{{ forloop.counter0 }}"
                      class="cell-header truncation col {% if education.institution is None and education.area_of_study is None %}
-                         s10
+                         s4
                          {% else %}
                          s4
                          {% endif %}">{{ education.academic_level }}
                 </div>
-                {% if education.institution is not None %}
                 <div id="education-institution-truncated{{ forloop.counter0 }}" class="col s4 cell-header truncation">
+                  {% if education.institution is not None %}
                   {{ education.institution }}
+                  {% else %}
+                  <span style="visibility: hidden;">.</span>
+                  {% endif %}
                 </div>
-                {% endif %}
-                {% if education.area_of_study is not None %}
                 <div id="education-areastudy-truncated{{ forloop.counter0 }}" class="col s3 cell-header truncation">
+                  {% if education.area_of_study is not None %}
                   {{ education.area_of_study }}
+                  {% else %}
+                  <span style="visibility: hidden;">.</span>
+                  {% endif %}
                 </div>
-                {% endif %}
+                <div class="col">
+                  <i class="{% if education.institution is None and education.area_of_study is None %}expand-collapse-pushed {% endif %}expand-collapse-education-item material-icons grey-text text-lighten-1">expand_more</i>
+                </div>
               </div>
             </div>
             <div class="hidden-education-info row body-row row-closed">
               <div class="specialization col s4 cell-body table-subhead">
-                {{ applicantText.specialization }}: <br>{% if education.specialization is not None %}{{ education.specialization }} years{% else %}N/A{% endif %}{{ education.specialization }}
+                {{ applicantText.specialization }}: <br>{% if education.specialization is not None %}{{ education.specialization }} years{% else %}{{ applicantText.na }}{% endif %}
 
               </div>
               <div class="program-length col s2 cell-body table-subhead">
-                {{ applicantText.program_length }}: <br>{% if education.program_length is not None %}{{ education.program_length }} years{% else %}N/A{% endif %}
+                {{ applicantText.program_length }}: <br>{% if education.program_length is not None %}{{ education.program_length }} years{% else %}{{ applicantText.na }}{% endif %}
               </div>
               <div class="years-completed col s2 cell-body table-subhead">
-                {{ applicantText.years_completed }}: <br>{% if education.num_years_completed is not None %}{{ education.num_years_completed }}{% else %}N/A{% endif %}
+                {{ applicantText.years_completed }}: <br>{% if education.num_years_completed is not None %}{{ education.num_years_completed }}{% else %}{{ applicantText.na }}{% endif %}
               </div>
-              <div class="graduation-date col s3 cell-body table-subhead">
-                {{ applicantText.graduation_date }}: <br>{% if education.graduation_date is not None %}{{ education.graduation_date }}{% else %}N/A{% endif %}
+              <div class="graduation-date col s2 cell-body table-subhead">
+                {{ applicantText.graduation_date }}: <br>{% if education.graduation_date is not None %}{{ education.graduation_date }}{% else %}{{ applicantText.na }}{% endif %}
               </div>
             </div>
           </li>
@@ -165,7 +175,7 @@
           <div class="col s11 cell-header">
             <h6>
               <br>
-              {{ applicantText.questions }} <i class="expand-collapse-question material-icons grey-text text-darken-2">unfold_more</i>
+              {{ applicantText.questions }} <i id="expand-collapse-questions" class="material-icons grey-text text-darken-2">unfold_more</i>
             </h6>
           </div>
         </div>
@@ -178,7 +188,7 @@
             <div class="question-preview-div hoverable row collapse question-row {% if answer.applicant_answer is True %}yes-answer {% else %}no-answer{% endif %}">
               <div class="row header-row question-row">
                 <div class="col cell-header question-icon-div">
-                  <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">question_answer</i>
+                  <i class="question-icons material-icons {% if answer.applicant_answer is True %}{% if forloop.counter|divisibleby:'2' %}green-text {% else %} green-text text-darken-1 {% endif %}{% else %}{% if forloop.counter|divisibleby:'2' %} red-text {% else %} red-text text-darken-1 {% endif %}{% endif %}">{% if answer.applicant_answer is False %}close{% elif answer.applicant_answer is True and answer.applicant_complementary_response is None %}check{% else %}question_answer{% endif %}</i>
                 </div>
                 {% if answer.parent_question.parent_requirement is not None %}
                 <div class="col requirement-abbreviation applicant-summary-card-small list card-panel screendoor-color">
@@ -188,8 +198,13 @@
                 <data class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
                 {% endif %}
                 <div class="col {% if answer.qualifier_set.all is not None %}
-                            s9 {% elif answer.parent_question.parent_requirement is not None %} s10 {% else %} s11 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
+                            s9 {% elif answer.parent_question.parent_requirement is not None %} s9 {% else %} s10 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
                 </div>
+
+                <div class="col right">
+                  <i class="expand-collapse-questions material-icons grey-text text-lighten-1">expand_more</i>
+                </div>
+
                 <div class="col right">
                   {% for qualifier in answer.qualifier_set.all %}
                   <div class="tooltip">
@@ -198,6 +213,8 @@
                   </div>
                   {% endfor %}
                 </div>
+
+
                 <div class="extract-previews col s11">
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
                   {% if extract.extract_type == 'WHEN' %}
@@ -243,10 +260,10 @@
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
-                <div class="col s7 applicant-response-full"><p class="complementary-response-header">{{ applicantText.complementary_response }}</p><span class="answer-complementary-response">{{ answer.applicant_complementary_response }}</span>
+                <div class="col s7 applicant-response-full"><p class="complementary-response-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.complementary_response }}{% endif %}</p><span class="answer-complementary-response">{% if answer.applicant_complementary_response is not None %}{{ answer.applicant_complementary_response }}{% endif %}</span>
                 </div>
                 <div class="col s4 extracts-full">
-                  <p class="extract-full-header">{{ applicantText.extracts }}</p>
+                  <p class="extract-full-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.extracts }}{% endif %}</p>
                   <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
                   <data class="answer-id" value="{{ answer.id }}" />
                   {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}

@@ -108,7 +108,7 @@ def generate_confirmation_url(request, user):
     token.create_key()
     token.save()
     # TODO: generate first part of URL programmatically not as hardcoded string
-    return "http://localhost:8000/confirm?key=" + str(token.key)
+    return "http://localhost/confirm?key=" + str(token.key)
 
 
 # Clears any GET data, i.e. account confirmation token string from URL
@@ -263,7 +263,7 @@ def import_position(request):
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
-            edit_position(request)
+            # edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
