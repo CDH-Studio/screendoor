@@ -29,8 +29,7 @@ urlpatterns = [
     path('application/<app_id>', views.application, name='application'),
     path('sbr_pdf/<app_id>', views.render_pdf, name='sbr'),
     path('progress/<task_id>', views.task_status, name='task_status'),
-
-    path('add_to_favourites', views.add_to_favourites, name='add_to_favourites'),
+    path('change_favourites_status', views.change_favourites_status, name='change_favourites_status'),
     path('add_user_to_position',
          views.add_user_to_position, name='add_user_to_position'),
     path('remove_user_from_position',

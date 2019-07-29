@@ -468,26 +468,6 @@ def application(request, app_id):
     return redirect('home')
 
 
-# # Add a note to an applicant answer
-# @login_required(login_url='login', redirect_field_name=None)
-# def add_note(request):
-#     if request.POST.get("note-input"):
-#         answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-#         note = Note(author=request.user, parent_answer=answer,
-#                     note_text=request.POST.get("note-input"))
-#         note.save()
-#         return redirect('application', answer.parent_applicant.applicant_id)
-#
-# # Delete a note
-# @login_required(login_url='login', redirect_field_name=None)
-# def delete_note(request):
-#     if request.POST.get("note-id"):
-#         answer = FormAnswer.objects.get(id=request.POST.get("parent-answer"))
-#         note = Note.objects.get(id=request.POST.get("note-id"))
-#         note.delete()
-#         return redirect('application', answer.parent_applicant.applicant_id)
-
-
 @login_required(login_url='login', redirect_field_name=None)
 def render_pdf(request, app_id):
     applicant = position_has_applicant(request, app_id)
@@ -533,7 +513,7 @@ def task_status(request, task_id):
 
 
 # Ajax url
-def add_to_favourites(request):
+def change_favourites_status(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
     favourite_status = request.GET.get("favouriteStatus")
@@ -544,7 +524,10 @@ def add_to_favourites(request):
         request.user.favourites.add(applicant)
 
     request.user.save()
-    return JsonResponse({'app_id': app_id, 'favourite_status':favourite_status})
+    return JsonResponse({
+        'app_id': app_id, 
+        'favourite_status':favourite_status
+    })
 
 # Ajax url
 def add_user_to_position(request):
@@ -555,13 +538,19 @@ def add_user_to_position(request):
     try:
         new_user = ScreenDoorUser.objects.get(email=user_email)
         if new_user in position.position_users.all():
-            return JsonResponse(
-                {'exception': 'User already has access to this position.'})
+            return JsonResponse({
+                'exception': 'User already has access to this position.'
+            })
         position.position_users.add(new_user)
         position.save()
-        return JsonResponse({'userName': new_user.username, 'userEmail': new_user.email})
+        return JsonResponse({
+            'userName': new_user.username, 
+            'userEmail': new_user.email
+        })
     except:
-        return JsonResponse({'exception': 'User does not exist.'})
+        return JsonResponse({
+            'exception': 'User does not exist.'
+        })
 
 
 # Ajax url
@@ -577,17 +566,38 @@ def remove_user_from_position(request):
         return JsonResponse({'userEmail': user_email})
 
     except:
-        return JsonResponse(
-            {})
+        return JsonResponse({})
 
 
 # Ajax url
 def add_note(request):
-    return JsonResponse(
-            {})
+    note_text = request.GET.get("noteText")
+    answer_id = request.GET.get("parentAnswerId")
+
+    try:
+        answer = FormAnswer.objects.get(id=answer_id)
+        note = Note(author=request.user, parent_answer=answer, note_text=note_text)
+        note.save()
+        print(note)
+        return JsonResponse({
+            'noteId': note.id, 
+            'noteAuthor': note.author.username, 
+            'noteCreated': note.created,
+            'noteText': note.note_text
+        })
+
+    except:
+        return JsonResponse({})
 
 # Ajax url
 def remove_note(request):
-    return JsonResponse(
-            {})
-
+    note_id = request.GET.get("noteId")
+    try:
+        note = Note.objects.get(id=note_id)
+        note.delete()
+        return JsonResponse({
+            'noteId': note_id
+        })
+    except:
+        return JsonResponse({})
+    

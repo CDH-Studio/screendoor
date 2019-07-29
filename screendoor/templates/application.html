@@ -223,23 +223,20 @@
                 </div>
                 <div class="col s10 notes-area">
                   <div class="note-box">
-                    <textarea class="note-input" id="note-input-{{ forloop.counter0 }}" placeholder="Enter your note here" required></textarea>
+                    <textarea class="note-input" id="note-input-{{ forloop.counter0 }}" data-parent-answer = "{{ answer.id }}" placeholder="Enter your note here" required></textarea>
                     <span class="save-cancel-note">
-                      <i class="material-icons green-text save-note">add_box</i>
+                      <i class="material-icons green-text save-note" data-answer-num="{{ forloop.counter0 }}">add_box</i>
                       <i class="material-icons red-text cancel-note">cancel</i>
                     </span>
                   </div>
 
-                  <div class="notes">
-                    {% for note in answer.note_set.all %}
-                    <div class="note" data-note-id="{{ note.id }}" data-parent-answer= "{{ answer.id }}">
-                      <!-- <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                      <input type="hidden" name="note-id" value="{{ note.id }}">
-                      <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">{{ forloop.counter }}. -->
+                  <div class="notes" id= "notes-{{ forloop.counter0 }}">
+                    {% for note in answer.note_set.all|dictsort:"created" reversed %}
+                    <div class="note" id="{{ note.id }}" data-parent-answer= "{{ answer.id }}">
                       <span class="note-text">{{ note.note_text }}</span>
                       <br>
                       <span class="note-author grey-text">{{ note.author }}, </span><span class="note-created grey-text">{{ note.created }}</span>
-                      <i class="material-icons red-text delete-note">delete_forever</i>
+                      <i class="material-icons red-text delete-note" data-note-id="{{ note.id }}" data-answer-num="{{ forloop.parentloop.counter0 }}">delete_forever</i>
                     </div>
                     {% endfor %}
                   </div>

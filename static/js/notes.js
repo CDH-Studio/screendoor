@@ -1,8 +1,7 @@
-const addNoteButtons = document.getElementsByClassName('add-note')
+const addNoteButtons = document.getElementsByClassName('add-note');
 // const addNoteForms = document.getElementsByClassName('note-form');
 
-const deleteNoteButtons = document.getElementsByClassName('delete-note');
-// const deleteNoteForms = document.getElementsByClassName('delete-note-form');
+// const removeNoteForms = document.getElementsByClassName('delete-note-form');
 
 const cancelNoteButtons = document.getElementsByClassName('cancel-note');
 
@@ -44,22 +43,81 @@ const retrieveOpenedQuestion = function() {
   }
 };
 
-const saveNote = function(i) {
-  url = '/add_note';
+const saveNote = function(i, answerNum) {
+  console.log(answerNum);
+  const noteInputId = 'note-input-' + i;
+  const noteInputField = document.getElementById(noteInputId);
+  const answerId = noteInputField.dataset.parentAnswer;
+  const url = '/add_note?noteText=' + noteInputField.value +
+    '&parentAnswerId=' + answerId;
+
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      console.log('aDFAFAFA');
+      // Reformat the date string to accord with the template default
+      const options = {day: '2-digit', year: 'numeric',
+        month: 'long', hour: 'numeric', minute: 'numeric'};
+      const rawDateCreated = new Date(data.noteCreated);
+      const dateCreated = rawDateCreated.toLocaleDateString('en-US', options);
+      const datestring = dateCreated.replace('AM', 'a.m.')
+          .replace('PM', 'p.m.');
+
+      // Create note DOM element
+      note = document.createElement('div');
+      note.classList.add('note');
+      note.id = data.noteId;
+      note.setAttribute('data-parent-answer', answerId);
+      note.innerHTML = '<span class="note-text">' + data.noteText + '</span>';
+      note.innerHTML += ('<br>');
+      note.innerHTML += ('<span class="note-author grey-text">' +
+        data.noteAuthor + ', </span><span class="note-created grey-text">' +
+        datestring + '</span>');
+      note.innerHTML += ('<i class="material-icons red-text delete-note"' +
+        'data-note-id="' + data.noteId + '" data-answer-num="' + answerNum +
+        '">delete_forever</i>');
+
+      // Add the new element to its holder block
+      const notesBlockId = 'notes-' + answerNum;
+      const notesBlock = document.getElementById(notesBlockId);
+      notesBlock.insertBefore(note, notesBlock.childNodes[0]);
+
+      // Add event handler to new remove button
+      addRemoveNoteHandlers();
     }).catch((error) => console.error());
   });
 };
 
-const deleteNote = function(i) {
-  url = '/delete_note';
+const addRemoveNoteHandlers = function() {
+  const removeNoteButtons = document.getElementsByClassName('delete-note');
+  console.log(removeNoteButtons);
+  for (let i = 0; i < removeNoteButtons.length; i++) {
+    const noteId = removeNoteButtons[i].dataset.noteId;
+    const answerNum = removeNoteButtons[i].dataset.answerNum;
+    removeNoteButtons[i].addEventListener('click', () => {
+      removeNote(noteId, answerNum);
+    });
+  }
+};
+
+const removeNote = function(noteId, answerNum) {
+  const url = '/remove_note?noteId=' + noteId;
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      console.log('aDFAFAFA');
+      // retrieve the block holding the note
+
+
+      console.log(noteId);
+      console.log(answerNum);
+      const notesBlockId = 'notes-' + answerNum;
+      const notesBlock = document.getElementById(notesBlockId);
+
+
+      // find and remove the note from the block
+      const note = document.getElementById(noteId);
+      console.log(notesBlock);
+      console.log(note);
+      notesBlock.removeChild(note);
     }).catch((error) => console.error());
   });
 };
@@ -79,17 +137,16 @@ window.addEventListener('DOMContentLoaded', function() {
     addNoteButtons[i].addEventListener('click', () => {
       toggleNoteInput(i);
     });
+
     cancelNoteButtons[i].addEventListener('click', () => {
       cancelAddNote(i);
     });
+
+    const answerNum = saveNoteButtons[i].dataset.answerNum;
     saveNoteButtons[i].addEventListener('click', () => {
-      saveNote(i);
+      saveNote(i, answerNum);
     });
   }
 
-  for (let i = 0; i < deleteNoteButtons.length; i++) {
-    deleteNoteButtons[i].addEventListener('click', () => {
-      deleteNote(i);
-    });
-  }
+  addRemoveNoteHandlers();
 });
