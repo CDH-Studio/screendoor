@@ -149,3 +149,7 @@ code/screendoor/temp/
 # nginx static files
 static/admin
 django.env
+node_modules
+.eslintrc.js
+package.json
+package-lock.json
