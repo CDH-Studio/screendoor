@@ -235,31 +235,21 @@
                   <span class="tooltiptext">Add a note on this answer</span>
                 </div>
                 <div class="col s10 notes-area">
-                  <form method="post" action="{% url 'add-note' %}" class="note-form" name="note-form" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="parent-answer" value="{{ answer.id }}">
+                  <div class="note-box">
+                    <textarea class="note-input" id="note-input-{{ forloop.counter0 }}" data-parent-answer = "{{ answer.id }}" placeholder="Enter your note here" required></textarea>
+                    <span class="save-cancel-note">
+                      <i class="material-icons green-text save-note" data-answer-num="{{ forloop.counter0 }}">add_box</i>
+                      <i class="material-icons red-text cancel-note">cancel</i>
+                    </span>
+                  </div>
 
-                    <div class="note-box">
-                      <textarea class="note-input" name="note-input" placeholder="Enter your note here" required></textarea>
-                      <span class="save-cancel-note">
-                        <i class="material-icons green-text save-note">add_box</i>
-                        <i class="material-icons red-text cancel-note">cancel</i>
-                      </span>
-                    </div>
-                  </form>
-                  <div class="notes">
-                    {% for note in answer.note_set.all %}
-                    <div class="note">
-                      <form method="post" action="{% url 'delete-note' %}" class="delete-note-form" name="delete-note-form" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input type="hidden" name="parent-answer" value="{{ answer.id }}">
-                        <input type="hidden" name="note-id" value="{{ note.id }}">
-                        <input type="hidden" class="note-delete-answer-counter" value="{{ forloop.parentloop.counter0 }}">{{ forloop.counter }}.
-                        <span class="note-text">{{ note.note_text }}</span>
-                        <br>
-                        <span class="note-author grey-text">{{ note.author }}, </span><span class="note-created grey-text">{{ note.created }}</span>
-                        <i class="material-icons red-text delete-note">delete_forever</i>
-                      </form>
+                  <div class="notes" id= "notes-{{ forloop.counter0 }}">
+                    {% for note in answer.note_set.all|dictsort:"created" reversed %}
+                    <div class="note" id="{{ note.id }}" data-parent-answer= "{{ answer.id }}">
+                      <span class="note-text">{{ note.note_text }}</span>
+                      <br>
+                      <span class="note-author grey-text">{{ note.author }}, </span><span class="note-created grey-text">{{ note.created }}</span>
+                      <i class="material-icons red-text delete-note" data-note-id="{{ note.id }}" data-answer-num="{{ forloop.parentloop.counter0 }}">delete_forever</i>
                     </div>
                     {% endfor %}
                   </div>
