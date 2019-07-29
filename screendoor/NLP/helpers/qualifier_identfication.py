@@ -24,7 +24,7 @@ months_regex = r'(?:\bjanuary\b|' \
 
 present_day_regex = r'(?:present|today|current|now)'
 
-linked_words = r'\band\b|\bto\b|\buntil\b'
+linked_words = r'\band\b|\bto\b|\buntil\b|–'
 
 special_words = r'(?:years|last|months|since)'
 
@@ -213,12 +213,15 @@ def determine_most_recent_date(date_range_list):
 def determine_if_recent_criteria_met(date_range_list, closing_date, recency_requirement, is_years):
     most_recent_experience = determine_most_recent_date(date_range_list)
 
-    cutoff_date = closing_date + relativedelta(years=-recency_requirement)
+    if is_years:
+        cutoff_date = closing_date + relativedelta(years=-recency_requirement)
+    else:
+        cutoff_date = closing_date + relativedelta(months=-recency_requirement)
     delta = relativedelta(most_recent_experience, cutoff_date)
     if is_delta_positive(delta):
-            return 'Passed'
+            return 'PASS'
 
-    return 'Failed'
+    return 'FAIL'
 
 
 # Aggregate the experience an applicant has to a single value.
@@ -246,12 +249,11 @@ def determine_if_significant_criteria_met(date_range_list, needed_quantity, is_y
     total_experience = add_all_identified_ranges_together(date_range_list)
 
     if total_experience:
-        breakpoint()
         if is_years:
-            return 'Passed' if total_experience.years >= needed_quantity else 'Failed'
+            return 'PASS' if total_experience.years >= needed_quantity else 'FAIL'
         else:
             years_as_months = total_experience.years * 12
-            return 'Passed' if total_experience.months + years_as_months >= needed_quantity else 'Failed'
+            return 'PASS' if total_experience.months + years_as_months >= needed_quantity else 'FAIL'
 
 
 # Given a number within a date, either stated verbosely (three, seven)
