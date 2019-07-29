@@ -587,6 +587,20 @@ def task_status(request, task_id):
     return None
 
 
+from dateutil.parser import *
+def nlp_test(request):
+    from screendoor.NLP.run_NLP_scripts import generate_nlp_extracts
+    generate_nlp_extracts("Western Quebec Career Center - 09 2016 to 05 2018 (ongoing) - studying administration course - two year program. I have taken Microsoft Office Suite, which covered Word, Excel, Outlook, PowerPoint, and Access", 
+    """Stream 1 and 2: 
+Do you have significant * experience in the use of Microsoft office suite (Outlook, Excel, Word 
+and PowerPoint)? 
+*significant experience will be evaluated against depth and breadth of activities, the level of 
+responsibilities, and the complexity, diversity and volume of handled cases/tasks. This scope 
+would be normally obtained through at least twelve (12) consecutive months experience.""", 
+    "", parse('December 21 2015'))
+    return None
+
+
 # Ajax url
 def change_favourites_status(request):
     app_id = request.GET.get("app_id")
