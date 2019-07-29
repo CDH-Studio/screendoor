@@ -194,7 +194,7 @@
                 <data class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
                 {% endif %}
                 <div class="col {% if answer.qualifier_set.all is not None %}
-                            s8 {% elif answer.parent_question.parent_requirement is not None %} s9 {% else %} s10 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
+                            s9 {% elif answer.parent_question.parent_requirement is not None %} s9 {% else %} s10 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
                 </div>
 
                 <div class="col right">

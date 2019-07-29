@@ -168,6 +168,7 @@ const expandEducationHeaders = function(i) {
 };
 
 const openQuestionFull = function(i) {
+  shortQuestionTexts[i].classList.add("short-question-text-open");
   questionPreviewDivs[i].classList.remove("hoverable");
   applicantResponseFull[i].classList.add("applicant-response-full-open");
   extractFull[i].classList.add("extracts-full-open");
@@ -180,6 +181,7 @@ const openQuestionFull = function(i) {
 };
 
 const closeQuestionFull = function(i) {
+  shortQuestionTexts[i].classList.remove("short-question-text-open");
   applicantResponseFull[i].classList.remove("applicant-response-full-open");
   extractFull[i].classList.remove("extracts-full-open");
   questionPreviewDivs[i].classList.add("hoverable");
@@ -235,26 +237,23 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   for (let i = 0; i < questionPreviews.length; i++) {
+
     shortQuestionTexts[i].addEventListener("mouseleave", () => {
       extractPreviews[i].classList.remove("extract-extra-margin");
     });
 
     questionIconDivs[i].addEventListener("mouseover", () => {
       if (questionIcons[i].innerText == "question_answer") {
+        shortQuestionTexts[i].classList.add("short-question-text-open");
         extractPreviews[i].classList.add("extract-previews-open");
         questionIcons[i].style.fontSize = "3rem";
-        if (requirementAbbreviations[i]) {
-          requirementAbbreviations[i].classList.add("hide");
-        }
       }
     });
 
     questionPreviews[i].addEventListener("mouseleave", () => {
+      shortQuestionTexts[i].classList.remove("short-question-text-open");
       extractPreviews[i].classList.remove("extract-previews-open");
       questionIcons[i].style.fontSize = "1.9rem";
-      if (requirementAbbreviations[i]) {
-        requirementAbbreviations[i].classList.remove("hide");
-      }
     });
 
     questionPreviewDivs[i].addEventListener("click", () => {
