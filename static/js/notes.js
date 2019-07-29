@@ -5,12 +5,12 @@ const noteTextArea = document.getElementsByClassName("note-box");
 const saveNoteButtons = document.getElementsByClassName("save-note");
 
 const toggleNoteInput = function(i) {
-  if (noteTextArea[i].classList.contains("note-box-visible")) {
-    noteTextArea[i].classList.remove("note-box-visible");
-    addNoteButtons[i].children[0].style.fontSize = "2.1rem";
+  if (noteTextArea[i].classList.contains('note-box-visible')) {
+    noteTextArea[i].classList.remove('note-box-visible');
+    addNoteButtons[i].children[0].style.fontSize = '2.1rem';
   } else {
-    noteTextArea[i].classList.add("note-box-visible");
-    addNoteButtons[i].children[0].style.fontSize = "3rem";
+    noteTextArea[i].classList.add('note-box-visible');
+    addNoteButtons[i].children[0].style.fontSize = '3rem';
   }
 };
 
@@ -32,6 +32,7 @@ const saveNote = function(i, answerNum) {
   const url = "/add_note?noteText=" + encodeURIComponent(noteInputField.value) +
         "&parentAnswerId=" + answerId;
   noteInputField.value = "";
+
 
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
