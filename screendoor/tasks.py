@@ -24,8 +24,7 @@ def process_applications(self, file_paths, position_id):
     task_id = self.request.id
     applicant_counter = 0
     batch_counter = 0
-    self.update_state(state='PENDING', meta={
-        'total': 0})
+    self.update_state(state='PENDING', meta={'total': 0})
     total_applicants = int(get_total_applicants(file_paths, task_id))
     position = Position.objects.get(id=position_id)
     applications = []
@@ -33,8 +32,8 @@ def process_applications(self, file_paths, position_id):
         batch_counter += 1
         print("BATCH " + str(batch_counter) + ": READING TABLES")
         data_frame_list = tabula_read_pdf(file_path)
-        applications = clean_and_parse(
-            data_frame_list, position, task_id, total_applicants, applicant_counter)
+        applications = clean_and_parse(data_frame_list, position, task_id,
+                                       total_applicants, applicant_counter)
         applicant_counter += len(applications)
         os.remove(file_path)
         for application in applications:
@@ -45,13 +44,15 @@ def process_applications(self, file_paths, position_id):
         print("BATCH " + str(batch_counter) + ": TABLES SUCCESSFULLY READ")
     position.update_applicant_fields()
 
+
 # Scheduled tasks
+
 
 # Once per day
 @shared_task
 def delete_authorization_tokens():
-    EmailAuthenticateToken.objects.filter(
-        created=datetime.now() - timedelta(days=2)).delete()
+    EmailAuthenticateToken.objects.filter(created=datetime.now() -
+                                          timedelta(days=2)).delete()
 
 
 # Once per day

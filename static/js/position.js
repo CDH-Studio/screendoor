@@ -1,4 +1,5 @@
 /* CONSTANTS AND VARIABLES */
+
 const favouriteIcons = document.getElementsByClassName('favourite-icon');
 const addUser = document.getElementById('add-users-button');
 const userDisplayLocation = document.getElementById('userDisplay');

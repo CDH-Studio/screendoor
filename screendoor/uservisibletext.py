@@ -37,8 +37,7 @@ class ErrorMessages():
     url_upload_not_supported_yet = _(
         'URL uploading not currently supported. Please upload a pdf file.')
     # Translators: An error that should not be possible, a user must submit either a pdf or url.
-    no_pdf_or_url_submitted = _(
-        'No pdf or url submitted')
+    no_pdf_or_url_submitted = _('No pdf or url submitted')
 
 
 class InterfaceText():
@@ -57,7 +56,8 @@ class ImportApplicationsText():
     title = _('Upload Completed Applications')
     # Translators: text for importing job applications for a position
     description = _(
-        'Click "Browse" and select one or more completed applications for position %s, then click "Upload." Note that PDFs are the only file format supported.')
+        'Click "Browse" and select one or more completed applications for position %s, then click "Upload." Note that PDFs are the only file format supported.'
+    )
     # Translators: text for importing job applications for a position
     upload = _('Upload')
     # Translators: text for importing job applications for a position
@@ -75,7 +75,8 @@ class ImportApplicationsText():
 class PositionText():
     # Translators: Confirming Position Information
     we_think_this_is_correct = _(
-        'We think this is the position. Can you take a look and make sure it is correct?')
+        'We think this is the position. Can you take a look and make sure it is correct?'
+    )
     # Translators: Confirming Position Information
     classification = _('Classification')
     # Translators: Confirming Position Inforation
@@ -112,7 +113,8 @@ class PositionText():
     processing_detail_1 = _(
         "ScreenDoor is processing the following applications:")
     processing_detail_2 = _(
-        "Their current status will appear below, or you can leave this page and return to view the processed applications shortly.")
+        "Their current status will appear below, or you can leave this page and return to view the processed applications shortly."
+    )
     ok = _("OK")
     cancel = _("Cancel")
     applicant_id = _("Applicant ID")
@@ -171,7 +173,8 @@ class LoginFormText():
     account_confirmed = _("Account %s confirmed. Please sign in below.")
     # Translators: LoginForm
     validation_error = _(
-        "Validation token error: invalid link or account is already confirmed.")
+        "Validation token error: invalid link or account is already confirmed."
+    )
 
 
 class PositionsViewText():
@@ -227,6 +230,9 @@ class PositionsViewText():
     streams = _("Streams")
     score = _("Score")
     add_users = _("Add Users")
+    add_user = _("Add another user to this position")
+    current_users = _("Current users")
+    you = _("you")
 
 
 class ApplicantViewText():
@@ -311,6 +317,8 @@ class ApplicantViewText():
     no_analysis = _("No Analysis")
     close = _("Close")
     notes = _("Notes")
+    na = _("N/A")
+
 
 # translate command (in web sh): python manage.py makemessages -l pl
 # note: Translators: is specific syntax that makes the comment appear in the translation file
