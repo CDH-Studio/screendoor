@@ -1,26 +1,11 @@
 const addNoteButtons = document.getElementsByClassName('add-note');
-// const addNoteForms = document.getElementsByClassName('note-form');
-
-// const removeNoteForms = document.getElementsByClassName('delete-note-form');
 
 const cancelNoteButtons = document.getElementsByClassName('cancel-note');
 
-// const noteAreas = document.getElementsByClassName('notes-area');
-// const noteDeleteAnswerCounters = document.getElementsByClassName
-// ('note-delete-answer-counter');
 const noteInputs = document.getElementsByClassName('note-input');
-// const noteRows = document.getElementsByClassName('notes-row');
 const noteTextArea = document.getElementsByClassName('note-box');
 
 const saveNoteButtons = document.getElementsByClassName('save-note');
-
-// const persistOpenedQuestion = function(i) {
-//   localStorage.setItem('questionIndex', i);
-// };
-
-// const persistOpenedEditBox = function(i) {
-//   localStorage.setItem('boxOpen', i);
-// };
 
 const toggleNoteInput = function(i) {
   if (noteTextArea[i].classList.contains('note-box-visible')) {
@@ -89,7 +74,6 @@ const saveNote = function(i, answerNum) {
 
 const addRemoveNoteHandlers = function() {
   const removeNoteButtons = document.getElementsByClassName('delete-note');
-  console.log(removeNoteButtons);
   for (let i = 0; i < removeNoteButtons.length; i++) {
     const noteId = removeNoteButtons[i].dataset.noteId;
     const answerNum = removeNoteButtons[i].dataset.answerNum;
@@ -105,18 +89,11 @@ const removeNote = function(noteId, answerNum) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
       // retrieve the block holding the note
-
-
-      console.log(noteId);
-      console.log(answerNum);
       const notesBlockId = 'notes-' + answerNum;
       const notesBlock = document.getElementById(notesBlockId);
 
-
       // find and remove the note from the block
       const note = document.getElementById(noteId);
-      console.log(notesBlock);
-      console.log(note);
       notesBlock.removeChild(note);
     }).catch((error) => console.error());
   });
