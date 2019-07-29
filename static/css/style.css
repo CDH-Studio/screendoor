@@ -1108,6 +1108,10 @@ th a {
   position: absolute;
 }
 
+.expand-collapse-pushed {
+  margin-right: -500px !important;
+}
+
 .expand-collapse-education-item {
   margin-left: -15px;
   padding-right: 0px !important;

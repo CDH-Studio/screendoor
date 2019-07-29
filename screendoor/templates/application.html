@@ -127,24 +127,28 @@
                 <!-- Displays academic level full width if no institution and area of study (i.e., for secondary school) -->
                 <div id="education-academic-truncated{{ forloop.counter0 }}"
                      class="cell-header truncation col {% if education.institution is None and education.area_of_study is None %}
-                         s10
+                         s4
                          {% else %}
                          s4
                          {% endif %}">{{ education.academic_level }}
                 </div>
-                {% if education.institution is not None %}
                 <div id="education-institution-truncated{{ forloop.counter0 }}" class="col s4 cell-header truncation">
+                  {% if education.institution is not None %}
                   {{ education.institution }}
+                  {% else %}
+                  <span style="visibility: hidden;">.</span>
+                  {% endif %}
                 </div>
-                {% endif %}
-                {% if education.area_of_study is not None %}
                 <div id="education-areastudy-truncated{{ forloop.counter0 }}" class="col s3 cell-header truncation">
+                  {% if education.area_of_study is not None %}
                   {{ education.area_of_study }}
+                  {% else %}
+                  <span style="visibility: hidden;">.</span>
+                  {% endif %}
                 </div>
                 <div class="col">
-                  <i class="expand-collapse-education-item material-icons grey-text text-lighten-1">expand_more</i>
+                  <i class="{% if education.institution is None and education.area_of_study is None %}expand-collapse-pushed {% endif %}expand-collapse-education-item material-icons grey-text text-lighten-1">expand_more</i>
                 </div>
-                {% endif %}
               </div>
             </div>
             <div class="hidden-education-info row body-row row-closed">
