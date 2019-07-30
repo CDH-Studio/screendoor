@@ -31,7 +31,7 @@ def remove_bad_subjects(sent):
         primary_check = [item for sublist in [re.findall(r'\bI\b|\b[a|A]s\b', x.text) for x in identified_subjects] for item in sublist]
 
         # Checks for specific phrases that are neeced
-        secondary_check = [item for sublist in [re.findall(r'\b[m|M]y responsibilities\b', x.text) for x in identified_subjects] for item in sublist]
+        secondary_check = [item for sublist in [re.findall(r'\b[m|M]y responsibilities|[m|M]y tasks\b', x.text) for x in identified_subjects] for item in sublist]
 
         if not (primary_check + secondary_check == []):
             #print_if_debug(('INCLUDED Applicant subject', identified_subjects, sent))
