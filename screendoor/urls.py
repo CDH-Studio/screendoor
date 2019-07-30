@@ -36,4 +36,5 @@ urlpatterns = [
          views.remove_user_from_position, name='remove_user_from_position'),
     path('add_note', views.add_note, name='add_note'),
     path('remove_note', views.remove_note, name='remove_note'),
+    path('nlp_test', views.nlp_test, name='nlp_test')
 ]

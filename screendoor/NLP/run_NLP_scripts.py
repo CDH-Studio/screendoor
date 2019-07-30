@@ -21,7 +21,6 @@ def generate_nlp_extracts(comp_response_text, linked_question, linked_answer, cl
     reformatted_text = replace_acronyms_with_full_month(strip_faulty_formatting(reformatted_text))
     doc = NLP_MODEL(reformatted_text)
     date_ranges = create_list_of_ranges(doc.ents, closing_date)
-
     if linked_question is not None:
         analyze_question_qualifiers(linked_question, date_ranges,
                                     closing_date, linked_answer)

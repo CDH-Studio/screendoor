@@ -85,30 +85,44 @@ def init_spacy_module():
             {'ENT_TYPE': 'DATE'}]},
 
         # Example catches:
+        #   since 2011
+        {'label': 'DATE5A', 'pattern': [
+            {'LOWER': 'since'},
+            {'SHAPE': 'dddd'}]},
+
+        # Example catches:
         #   from 2011-2015
-        #   between March 2011 - April 2015
         {'label': 'DATE6', 'pattern': [
             {'LOWER': {'REGEX': 'from|between|starting'}, 'OP': '?'},
-            {'POS': 'NUM', 'SHAPE': 'dddd'},
+            {'SHAPE': 'dddd'},
             {'LOWER': '-'},
-            {'POS': 'NUM', 'SHAPE': 'dddd'}]},
+            {'SHAPE': 'dddd'}]},
+
+        # Example catches:
+        #   09 2016 to 05 2018
+        {'label': 'DATE7', 'pattern': [
+            {'SHAPE': 'dd'},
+            {'SHAPE': 'dddd'},
+            {'LOWER': {'REGEX': '-|to'}},
+            {'SHAPE': 'dd'},
+            {'SHAPE': 'dddd'}]},
 
         # Example catches:
         #   3-year
-        {'label': 'DATE7', 'pattern': [
-            {'LOWER': {'REGEX': '\d*-year'}}]},
+        {'label': 'DATE8', 'pattern': [
+            {'LOWER': {'REGEX': r'\d*-year'}}]},
 
         # Example catches:
         #   07/2015 - 09/2016
-        {'label': 'DATE8', 'pattern': [
-            {'LOWER': {'REGEX': '\d*\/\d*'}},
+        {'label': 'DATE9', 'pattern': [
+            {'LOWER': {'REGEX': r'\d*\/\d*'}},
             {'LOWER': '-'},
-            {'LOWER': {'REGEX': '\d*\/\d*'}}]},
+            {'LOWER': {'REGEX': r'\d*\/\d*'}}]},
 
         # Example catches:
         #   Jan 06 - March 15
         # (yes, people actually write dates like that)
-        {'label': 'DATE9', 'pattern': [
+        {'label': 'DATE10', 'pattern': [
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'},
             {'LOWER': '-'},
@@ -125,7 +139,5 @@ def init_spacy_module():
     # merges all entities into single entities. Want it after the NER process
     merge_ents = nlp.create_pipe('merge_entities')
     nlp.add_pipe(merge_ents, last=True)
-
     nlp.add_pipe(LanguageDetector(), name='language_detector', last=True)
-
     return nlp
