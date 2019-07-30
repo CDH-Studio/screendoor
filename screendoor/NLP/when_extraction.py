@@ -228,6 +228,7 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
     char_index = -1 * len(list(nlp_doc.sents)[0].text)
     sentence_index = -1
     sentence_has_valid_subject = True
+    matches = []
 
     for token in nlp_doc:
         # If sentence changed, check if the sentences subject is valid
@@ -250,10 +251,11 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
                 extract = strip_faulty_formatting(construct_context(token_head, dates))
                 # Note: full sentence retrieved to minimize corruption caused by
                 # differing word location in searched text
-                match = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract)
+                match = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract, matches)
                 if match:
                     dates_and_their_contexts.append((
                         (token.text + ": " + extract), match[0][0], match[1][1], sentence_index))
+                    matches.append(match[1])
                 else:
                     dates_and_their_contexts.append(((token.text + ": " + extract), 0, 0, sentence_index))
         stored_sentence = token.sent
