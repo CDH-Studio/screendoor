@@ -11,7 +11,7 @@
         <div class="col s12 card horizontal">
           {% endif %}
           <!-- Beginning of upload position form -->
-          <form method="post" id="upload_position" enctype="multipart/form-data" action="">
+          <form method="post" id="upload-position" enctype="multipart/form-data" action="">
             <div class="card-content col s12">
               <!-- Upload position title -->
               <div class="row">
@@ -80,13 +80,13 @@
               </div>
               <!-- URL input -->
               <div class="row">
-                <div id="url_upload_form" class="input-field col s12 hide">
+                <div id="url_upload_form" class="col s12 hide">
                   <input id="url_input" name="url_ref" type="url">
                   <label for="url">{{ form.url_text }}</label>
                 </div>
               </div>
               <!-- Submit button -->
-              <input class="right btn hide" name="upload-position" id="position_submit_button" type="submit" value="{{ form.submit_text }}">
+              <button class="right btn hide" name="upload-position" id="position_submit_button"> {{ form.submit_text }}</button>
             </div>
             <!-- End of form -->
           </form>
