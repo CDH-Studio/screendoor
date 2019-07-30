@@ -54,17 +54,15 @@ def construct_how_extract(sent):
 # (e.g. I acquired x  VS  the project acquired x)
 def extract_how(original_text, doc, taken_sentence_indexes):
     experiences = []
-    matches = []
     for idx, sent in enumerate(doc.sents):
         if idx not in taken_sentence_indexes:
             experience = strip_faulty_formatting(construct_how_extract(sent))
             if experience:
                 # retrieve the location of the extract in the original formatted
                 # text (for display purposes)
-                match = fuzzy_search_extract_in_orig_doc(original_text, experience, matches)
+                match = fuzzy_search_extract_in_orig_doc(original_text, experience)
                 if match:
                     experiences.append((experience, match[0][0], match[0][1], idx))
-                    matches.append(match[1])
                 else:
                     # Should never get here!
                     experiences.append((experience, -1, -1, idx))

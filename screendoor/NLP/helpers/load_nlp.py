@@ -129,6 +129,16 @@ def init_spacy_module():
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'}]},
 
+        # Example catches:
+        #   minimum of 12 months
+        #   minimum of 1 year
+        # (NOTE: edge case prevention)
+        {'label': 'DATE11', 'pattern': [
+            {'LOWER': 'minimum'},
+            {'LOWER': 'of'},
+             {'POS': 'NUM'},
+            {'LOWER': {'REGEX': 'years|months|year'}}]},
+
     ]
 
     # want it last, as overwrite ents are on (otherwise the standard NER

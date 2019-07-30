@@ -3,7 +3,7 @@ from spacy import displacy
 from fuzzysearch import find_near_matches
 
 # IMPORTANT NOTE: DISABLE THESE FOR PRODUCTION, ONLY FOR DEBUGGING
-DEBUG = False
+DEBUG = True
 DISPLACY = False
 def print_if_debug(text):
     if DEBUG:
@@ -68,7 +68,7 @@ def visualize_dep_tree_if_debugging(doc):
 
 
 # Returns the location of the found extract in the original document
-def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_matches):
+def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text):
     # Note; scripts return blanks instead of null values
     if searched_text != '':
         matches = []
@@ -78,12 +78,7 @@ def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_ma
             matches = find_near_matches(searched_text, original_doc_text, max_l_dist=threshold)
 
         match = get_first_elem_or_none(matches)
-        while match:
-            if match not in stored_matches:
-                #print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
-                matches += match
-                return (((match[0], match[1]), match))
-            matches = matches[1:len(matches)]
-            match = get_first_elem_or_none(matches)
+        if match:
+            return (((match[0], match[1]), match))
 
     return None

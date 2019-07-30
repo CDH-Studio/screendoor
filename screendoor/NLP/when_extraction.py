@@ -90,8 +90,8 @@ def determine_next_word_to_navigate_to(token, dates):
     punctuation_less_children = [x for x in token.children if x not in punctuation_to_append_to_extract]
 
     # Edge case prevention: relative clause as the only remaining valid option
-    if ('relcl' in [x.dep_ for x in punctuation_less_children] and len(
-            punctuation_less_children) <= 1):
+    if (any(dep in ['relcl', 'prep', 'prt'] for dep in [x.dep_ for x in punctuation_less_children]) 
+            and len(punctuation_less_children) <= 1):
         possible_paths = punctuation_less_children
 
     return get_first_elem_or_none(possible_paths)
@@ -228,7 +228,6 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
     char_index = -1 * len(list(nlp_doc.sents)[0].text)
     sentence_index = -1
     sentence_has_valid_subject = True
-    matches = []
 
     for token in nlp_doc:
         # If sentence changed, check if the sentences subject is valid
@@ -251,11 +250,10 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
                 extract = strip_faulty_formatting(construct_context(token_head, dates))
                 # Note: full sentence retrieved to minimize corruption caused by
                 # differing word location in searched text
-                match = fuzzy_search_extract_in_orig_doc(orig_doc_text, token.sent.text, matches)
+                match = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract)
                 if match:
                     dates_and_their_contexts.append((
                         (token.text + ": " + extract), match[0][0], match[1][1], sentence_index))
-                    matches.append(match[1])
                 else:
                     dates_and_their_contexts.append(((token.text + ": " + extract), 0, 0, sentence_index))
         stored_sentence = token.sent
