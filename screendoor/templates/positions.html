@@ -58,113 +58,87 @@
   {% for position in positions %}
   <!-- Beginning of single position display -->
   <div class="row">
-    <!--Beginning of confirm position card -->
-    <div class="col card white hoverable">
-      <div class="card-content col s12 positions-card">
-        <div class="row valign-wrapper">
-          <!-- Link to position detail using GET request -->
-          <a class="position-list-title position-title grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">
-            {{ position.position_title }}
-          </a>
-          {% if position.applicants is not None %}
-          <div class="col s6 right">
-            <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
-                         red
-                         {% elif position.mean_score > 33 and position.mean_score <= 66 %}
-                         orange
-                         {% elif position.mean_score > 66 and position.mean_score <= 100 %}
-                         green
-                         {% endif %}">
-              {{ userVisibleText.average_score }}: {{ position.mean_score }}
-            </span>
-            <span class="applicant-summary-card white-text blue card-panel right">
-              {{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
-            </span>
+    <div class="col s12">
+      <!--Beginning of confirm position card -->
+      <div class="card white positions-card hoverable">
+        <div class="card-content">
+          <div class="row valign-wrapper">
+            <!-- Link to position detail using GET request -->
+            <a class="col {% if position.number_applicants > 1 %}s8 {% else %} s12 {% endif %} left position-title position-list-title left-align position-header grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">
+              {{ position.position_title }}
+            </a>
+            {% if position.applicants is not None %}
+            <div class="col s5 right">
+              <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
+                           red
+                           {% elif position.mean_score > 33 and position.mean_score <= 66 %}
+                           orange
+                           {% elif position.mean_score > 66 and position.mean_score <= 100 %}
+                           green
+                           {% endif %}">
+                {{ userVisibleText.average_score }}: {{ position.mean_score }}
+              </span>
+              <span class="applicant-summary-card white-text blue card-panel right">
+                {{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
+              </span>
+            </div>
+            {% endif %}
           </div>
-          {% endif %}
-        </div>
-        <!-- Position row 1 headers -->
-        <table>
-          <thead>
-            <tr>
-              <th colspan="1">
-                {{ positionText.classification }}
-              </th>
-              <th colspan="2">
-                {{ positionText.reference_number }}
-              </th>
-              <th colspan="2">
-                {{ positionText.selection_process_number }}
-              </th>
-            </tr>
-          </thead>
-          <!-- Position row 1 body -->
-          <tbody>
-            <tr>
-              <td colspan="1">
-                {{ position.classification }}
-              </td>
-              <td colspan="2">
-                {{ position.reference_number }}
-              </td>
-              <td colspan="2">
-                {{ position.selection_process_number }}
-              </td>
-            </tr>
-          </tbody>
-          <!-- Position row 2 headers -->
-          <thead>
-            <tr>
-              <th colspan="1">
-                {{ positionText.date_closed }}
-              </th>
-              <th colspan="1">
-                {{ positionText.number_of_positions }}
-              </th>
-              <th colspan="1">
-                {{ positionText.salary_range }}
-              </th>
-              <th colspan="2">
-                {{ positionText.open_to }}
-              </th>
-            </tr>
-          </thead>
-          <!-- Position row 2 body -->
-          <tbody>
-            <tr>
-              <td colspan="1">
-                {{ position.date_closed|date:"M d, Y" }}
-              </td>
-              <td colspan="1">
-                {{ position.num_positions }}
-              </td>
-              <td colspan="1">
-                {{ position.salary }}
-              </td>
-              <td colspan="2">
-                {{ position.open_to }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
-        <div class="row position-buttons left">
-          <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">
-            {{ userVisibleText.view }}
-          </a>
-          <a class="btn-flat blue-text
-                    position-button modal-trigger delete-button" href="#delete-modal">
-            {{ userVisibleText.delete }}
-          </a>
-          <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
-            {{ userVisibleText.upload_applications }}
-          </a>
-        </div>
-        <!-- Date and time position was added -->
-        <div class="row position-buttons right">
-          <h6 class="btn-flat black-text position-added">
-            Position added: {{ position.created }}
-          </h6>
+
+          <!-- New position area -->
+          <div class="row position-information-list">
+            <div class="row body-row position-row">
+              <div class="col s3 cell-body">
+                <span class="position-heading">{{ positionText.classification }}:</span> <br><span class="position-preview-cell">{{ position.classification }}</span>
+              </div>
+              <div class="col s3 cell-body">
+                <span class="position-heading">{{ positionText.reference_number }}:</span> <br><span class="position-preview-cell">{{ position.reference_number }}</span>
+              </div>
+              <div class="col s4 cell-body">
+                <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br><span class="position-preview-cell">{{ position.selection_process_number }}</span>
+              </div>
+              <div class="col s2 cell-body">
+                <span class="position-heading">{{ positionText.date_closed }}:</span> <br><span class="position-preview-cell">{{ position.date_closed|date:'Y-m-d' }}</span>
+              </div>
+            </div>
+            <div class="row body-row position-row">
+              <div class="col s3 cell-body">
+                <span class="position-heading">{{ positionText.number_of_positions }}:</span> <br><span class="position-preview-cell">{{ position.num_positions }}</span>
+              </div>
+              <div class="col s3 cell-body">
+                <span class="position-heading">{{ positionText.salary_range }}:</span> <br><span class="position-preview-cell">{{ position.salary|strip }}</span>
+              </div>
+              <div class="col s6 cell-body">
+                <span class="position-heading">{{ positionText.open_to }}:</span> <br><span class="position-preview-celll">{{ position.open_to|strip }}</span>
+              </div>
+            </div>
+            <div class="row body-row position-row">
+              <div class="col s12 cell-body">
+                <span class="position-heading">{{ positionText.position_information }}:</span> <br><span class="position-preview-cell">{{ position.description|strip }}</span>
+              </div>
+            </div>
+
+
+            <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
+            <div class="row position-buttons left">
+              <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">
+                {{ userVisibleText.view }}
+              </a>
+              <a class="btn-flat blue-text
+                        position-button modal-trigger delete-button" href="#delete-modal">
+                {{ userVisibleText.delete }}
+              </a>
+              <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
+                {{ userVisibleText.upload_applications }}
+              </a>
+            </div>
+            <!-- Date and time position was added -->
+            <div class="row position-buttons right">
+              <h6 class="btn-flat black-text position-added">
+                Position added: {{ position.created }}
+              </h6>
+            </div>
+          </div>
         </div>
       </div>
     </div>

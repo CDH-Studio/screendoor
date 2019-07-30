@@ -11,11 +11,6 @@ const cells = Array.from(document.getElementsByClassName("edit"));
 let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-  var datepickers = document.querySelectorAll('.datepicker');
-  var datepickerInstances = M.Datepicker.init(datepickers, {});
-});
-
 /* HELPER FUNCTIONS */
 
 /* Appends edit cells containing existing position data */
@@ -42,7 +37,6 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   return editableNode;
 };
 
-
 const defineAdditionalButtons = function() {
   okButton.value = document.getElementById("ok-button-text") ? document.getElementById("ok-button-text").value : null;
   okButton.id = "ok-button";
@@ -61,7 +55,6 @@ const width = window.outerWidth < 1400 ? parseInt((window.innerWidth * 90) / 100
 
 const startEditing = function() {
   if (window.location.pathname.includes("/position")) {
-    expandAllButton.click();
     card.style.setProperty("width", width, "important");
   }
   showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
@@ -98,15 +91,15 @@ const cancelEditChanges = function() {
 };
 
 /* LISTENERS */
-window.addEventListener('DOMContentLoaded', (event) => {
+window.addEventListener('DOMContentLoaded', () => {
   /* Defines additional buttons that do not appear on page load */
   if (document.getElementById("edit-button")) {
     defineAdditionalButtons();
-  /* User presses the edit button to change position information */
-  editButton.addEventListener("click", startEditing);
+    /* User presses the edit button to change position information */
+    editButton.addEventListener("click", startEditing);
 
-  /* User presses the OK button to confirm editing changes */
-  okButton.addEventListener("click", confirmEditChanges);
+    /* User presses the OK button to confirm editing changes */
+    okButton.addEventListener("click", confirmEditChanges);
   }
 
   if (cancelButton) {

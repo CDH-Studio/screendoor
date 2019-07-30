@@ -42,3 +42,33 @@ def strip_all_asterix(string):
 @stringfilter
 def next_extract_index(extract_id):
     return None
+
+
+@register.filter()
+@stringfilter
+def strip(string):
+    return string.strip()
+
+
+@register.filter()
+def has_education(list):
+    for item in list:
+        if item.requirement_type == "Education":
+            return True
+    return False
+
+
+@register.filter()
+def has_experience(list):
+    for item in list:
+        if item.requirement_type == "Experience":
+            return True
+    return False
+
+
+@register.filter()
+def has_assets(list):
+    for item in list:
+        if item.requirement_type == "Asset":
+            return True
+    return False
