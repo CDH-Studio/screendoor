@@ -19,14 +19,14 @@
             <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
             <input type="hidden" name="position-id" value="{{ position.id }}">
             <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-            <h4 name="position-title" id="title" class="col s7 left left-align position-header grey-text text-darken-3">
+            <h5 name="position-title" id="title" class="col {% if applicants %}s8 {% else %} s12 {% endif %} left left-align position-header grey-text text-darken-3">
               <span class="edit" id="position-title">
                 {{ position.position_title }}
               </span>
-            </h4>
+            </h5>
             <!-- Applicants summary information -->
-            <div class="applicant-summary-cards col s6 right">
-              {% if applicants %}
+            {% if applicants %}
+            <div class="applicant-summary-cards col s5 right">
               <span class="applicant-summary-card card-panel white-text blue right {% if position.mean_score <= 33 %}
                            red
                            {% elif position.mean_score > 33 and position.mean_score <= 66 %}
@@ -37,13 +37,13 @@
               <span class="applicant-summary-card white-text blue card-panel right">
                 {{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
               </span>
-              {% endif %}
             </div>
+            {% endif %}
           </div>
           <!-- Upload Applications and Delete buttons -->
           <div class="row left">
             <div class="position-view-buttons">
-                <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
+              <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
               <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
               <a class="btn-flat blue-text modal-trigger" href="#delete-modal">
                 {{ userVisibleText.delete }}
@@ -53,115 +53,49 @@
             </div>
           </div>
 
-          <!-- Existing table view -->
-          <!-- Position row 1 headers -->
-          <div class="collapse-table">
-            <div class="row collapse">
-              <div class="col cell-header">
-                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
+          <!-- New position area -->
+          <div class="row position-information">
+            <div class="row body-row position-row">
+              <div class="col s3 cell-body position-cell">
+                <span class="position-heading">{{ positionText.classification }}:</span> <br>{{ position.classification }}
               </div>
-              <div class="col s2 cell-header">
-                {{ positionText.classification }}
+              <div class="col s3 cell-body position-cell">
+                <span class="position-heading">{{ positionText.reference_number }}:</span> <br>{{ position.reference_number }}
               </div>
-              <div class="col s3 cell-header">
-                {{ positionText.reference_number }}
+              <div class="col s4 cell-body position-cell">
+                <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br>{{ position.selection_process_number }}
               </div>
-              <div class="col s3 cell-header">
-                {{ positionText.selection_process_number }}
-              </div>
-              <div class="col s3 cell-header">
-                {{ positionText.date_closed }}
+              <div class="col s2 cell-body position-cell">
+                <span class="position-heading">{{ positionText.date_closed }}:</span> <br>{{ position.date_closed|date:'Y-m-d' }}
               </div>
             </div>
-            <!-- Position row 1 body -->
-            <div class="row body-row">
-              <div class="col cell-body"></div>
-              <input type="hidden" class="hidden" name="position-classification" value="{{ position.classification }}">
-              <div class="col s2 cell-body">
-                <span id="position-classification" class="edit">
-                  {{ position.classification }}
-                </span>
+            <div class="row body-row position-row">
+              <div class="col s3 cell-body position-cell">
+                <span class="position-heading">{{ positionText.number_of_positions }}:</span> <br>{{ position.num_positions }}
               </div>
-              <div class="col s3 cell-body">
-                <input type="hidden" class="hidden" name="position-reference" value="{{ position.reference_number }}">
-                <span id="position-reference" class="edit">
-                  {{ position.reference_number }}
-                </span>
+              <div class="col s3 cell-body position-cell">
+                <span class="position-heading">{{ positionText.salary_range }}:</span> <br>{{ position.salary }}
               </div>
-              <input type="hidden" class="hidden" name="position-selection" value="{{ position.selection_process_number }}">
-              <div class="col s3 cell-body">
-                <span id="position-selection" class="edit">
-                  {{ position.selection_process_number }}
-                </span>
-              </div>
-              <input type="hidden" class="hidden" name="position-date-closed" value="{{ position.date_closed|date:'Y-m-d' }}">
-              <div class="col s3 cell-body" name="position-date-closed">
-                <span class="edit date" id="position-date-closed">
-                  {{ position.date_closed|date:'Y-m-d' }}
-                </span>
+              <div class="col s6 cell-body position-cell">
+                <span class="position-heading">{{ positionText.open_to }}:</span> <br> {{ position.open_to }}
               </div>
             </div>
-            <!-- Position row 2 headers -->
-            <div class="row collapse">
-              <div class="col cell-header">
-                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-              </div>
-              <div class="col s2 cell-header">
-                {{ positionText.number_of_positions }}
-              </div>
-              <div class="col s3 cell-header">
-                {{ positionText.salary_range }}
-              </div>
-              <div class="col s6 cell-header">
-                {{ positionText.open_to }}
-              </div>
-
-            </div>
-            <!-- Position row 2 body -->
-            <div class="row body-row">
-              <div class="col cell-body"></div>
-
-              <input type="hidden" class="hidden" name="position-num-positions" value='{{ position.num_positions }}'>
-              <div class="col s2 cell-body" name="position-num-positions">
-                <span class="edit date" id="position-num-positions">
-                  {{ position.num_positions }}
-                </span>
-              </div>
-              <input type="hidden" class="hidden" name="position-salary" value='{{ position.salary }}'>
-              <div class="col s3 cell-body" name="position-salary">
-                <span id="position-salary" class="edit">{{ position.salary }}</span>
-              </div>
-              <input type="hidden" class="hidden" name="position-open-to" value='{{ position.open_to }}'>
-              <div class="col s6 cell-body" name="position-open-to">
-                <span id="position-open-to" class="edit">
-                  {{ position.open_to }}
-                </span>
-              </div>
-            </div>
-            <!-- Position row 3 header -->
-            <div class="row collapse">
-              <div class="col cell-header">
-                <i class="collapse-arrows material-icons grey-text text-darken-2">keyboard_arrow_down</i>
-              </div>
-              <div class="col s11 cell-header">
-                {{ positionText.position_information }}
-              </div>
-            </div>
-            <!-- Position row 3 body -->
-            <div class="row body-row">
-              <div class="col cell-body"></div>
-              <input type="hidden" class="hidden" name="position-description" value='{{ position.description }}'>
-              <div class="col s11 cell-body" name="position-description">
-                <span id="position-description" class="edit">
-                  {{ position.description }}
-                </span>
+            <div class="row body-row position-row">
+              <div class="col s12 cell-body">
+                <span class="position-heading">{{ positionText.position_information }}:</span> <br><span class="position-cell">{{ position.description }}</span>
               </div>
             </div>
           </div>
-          <!-- Position education and experience rows -->
-          <h5 class="requirements-header">
+
+
+          <h6>
             {{ positionText.education_and_experience_criteria }}
-          </h5>
+            <i id="expand-collapse-criteria" class="material-icons grey-text text-darken-2">unfold_more</i>
+          </h6>
+
+
+          {% comment %}
+          <!-- Position education and experience rows -->
           {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}
           <!-- ifchanged executes only for distinct values without repetition -->
           {% ifchanged %}
@@ -192,6 +126,11 @@
             </div>
           </div>
           {% endfor %}
+          {% endcomment %}
+
+          <!-- Area that will be replaced          -->
+
+
 
           <!-- Date and time position was added -->
           <div class="row position-bottom-buttons">
