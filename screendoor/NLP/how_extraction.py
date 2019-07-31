@@ -67,7 +67,7 @@ def extract_how(original_text, doc, taken_sentence_indexes):
                     matches.append(match[1])
                 else:
                     # Should never get here!
-                    experiences.append((experience, -1, -1, idx))
+                    experiences.append((experience, 0, 0, idx))
     print_if_debug('\n')
 
     for extract_text, start, end, sent_i in experiences:
