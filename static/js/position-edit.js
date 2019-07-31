@@ -1,22 +1,46 @@
 /* CONSTANTS AND VARIABLES */
 
-const card = window.location.pathname.includes("/position") ? document.getElementById("position-card") : null;
+const card = document.getElementById("position-card");
 const editButton = document.getElementById("edit-button");
 const saveButton = document.getElementById("save-button");
 const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
 const cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
-const hiddenInputs = document.getElementsByClassName("hidden");
-const form = window.location.pathname.includes("/createnewposition") ? document.getElementById("save-edit-position") : document.getElementById("save-position");
+const form = document.getElementById("edit-position");
 const cells = Array.from(document.getElementsByClassName("edit"));
 let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
+
+const getEditData = function() {
+  const params = Object.create(null);
+  params["positionId"] = document.getElementById("position-id").value;
+  cells.forEach(function(cell) {
+    params[cell.id] = cell.textContent;
+  });
+  return params;
+};
+
+/* AJAX FUNCTIONS */
+
+const editPosition = function() {
+  const url = "/edit-position";
+  const data = JSON.stringify(getEditData());
+
+  fetch(url, {
+    method: "POST", // or "PUT"
+    body: data, // data can be `string` or {object}!
+    headers:{
+      "Content-Type": "application/json"
+    }
+  })
+    .catch(error => console.error("Error:", error));
+};
 
 /* HELPER FUNCTIONS */
 
 /* Appends edit cells containing existing position data */
 const defineEditCells = function(cell, name, isReadOnly) {
-  let input = createReturnTextInput(cell.innerText, name, isReadOnly);
-  cell.innerText = null;
+  let input = createReturnTextInput(cell.textContent, name, isReadOnly);
+  cell.textContent = null;
   cell.appendChild(input);
 };
 
@@ -26,14 +50,13 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   editableNode.readOnly = isReadOnly;
   editableNode.name = name;
   editableNode.className = "editing";
-  editableNode.value = text;
   if (name == "position-date-closed") {
     editableNode.type = "date";
-    editableNode.value = text;
   } else {
     editableNode.type = "text";
   }
-  editableNode.setAttribute("required", "");;
+  editableNode.value = text.trim();
+  editableNode.setAttribute("required", "");
   return editableNode;
 };
 
@@ -51,58 +74,64 @@ const defineAdditionalButtons = function() {
   buttonRow.append(okButton, cancelButton);
 };
 
-const width = window.outerWidth < 1400 ? parseInt((window.innerWidth * 90) / 100).toString().concat("px") : 1250;
+const setCardSize = function() {
+  const percentage = window.location.pathname.includes("/createnewposition") ? 70 : 88;
+  const width = window.outerWidth < 1800 ? parseInt((window.innerWidth * percentage) / 100).toString().concat("px") : 1250;
+  card.style.setProperty("width", width, "important");
+  card.style.setProperty("min-width", "700px", "important");
+};
 
 const startEditing = function() {
-  if (window.location.pathname.includes("/position")) {
-    card.style.setProperty("width", width, "important");
-  }
-  showElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
+  /* From position-tables.js */
+  expandAllRequirements();
+  setCardSize();
+  window.addEventListener("resize", setCardSize);
+  /* From helper-functions.js */
+  showElements(okButton, cancelButton);
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
 
   cells.forEach(function(cell, i) {
-    cellText[i] = cells[i].innerText;
+    cellText[i] = cells[i].textContent;
     cell.classList.contains("readonly") ? defineEditCells(cell, cell.id, true) : defineEditCells(cell, cell.id, false);
   });
 };
 
+const stopEditing = function() {
+  showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
+  hideElements(okButton, cancelButton);
+  card.style.setProperty("width", "auto", "important");
+  card.style.setProperty("min-width", "700px", "important");
+};
+
 const confirmEditChanges = function() {
   if (form.reportValidity()) {
-    showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null);
-    hideElements(okButton, window.location.pathname.includes("/createnewposition") ? cancelButton : null);
+    stopEditing();
 
-    cells.forEach(function(cell, i) {
-      hiddenInputs[i].value = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
-      cell.innerText = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
+    cells.forEach(function(cell) {
+      cell.textContent = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
     });
-    if (window.location.pathname.includes("/position")) {
-      document.getElementById("save-position").submit();
-    }
+    editPosition();
   }
 };
 
 const cancelEditChanges = function() {
-  showElements(editButton, saveButton);
-  hideElements(okButton, cancelButton);
+  stopEditing();
 
   cells.forEach(function(cell, i) {
-    cell.innerText = cellText[i];
+    cell.textContent = cellText[i];
   });
 };
 
 /* LISTENERS */
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
   /* Defines additional buttons that do not appear on page load */
   if (document.getElementById("edit-button")) {
     defineAdditionalButtons();
     /* User presses the edit button to change position information */
     editButton.addEventListener("click", startEditing);
-
     /* User presses the OK button to confirm editing changes */
     okButton.addEventListener("click", confirmEditChanges);
-  }
 
-  if (cancelButton) {
     /* User presses the cancel button to cancel editing changes and revert to original */
     cancelButton.addEventListener("click", cancelEditChanges);
   }

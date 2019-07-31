@@ -525,7 +525,7 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-transition: max-height .3s, opacity .3s, visibility .3s;
   opacity: 1;
   visibility: visible !important;
-  max-height: 500px !important;
+  max-height: 500rem !important;
   overflow: initial !important;
   text-overflow: initial !important;
 }
@@ -718,7 +718,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 100rem !important;
+  max-height: 500rem !important;
 }
 
 .applicant-response-full {
@@ -741,7 +741,7 @@ tr {
 .applicant-response-full-open {
   text-overflow: initial !important;
   overflow: initial !important;
-  max-height: 150rem !important;
+  max-height: 500rem !important;
   opacity: 1 !important;
 
   -webkit-transition: opacity .3s, max-height .3s, visibility .3s;
@@ -785,7 +785,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 100rem !important;
+  max-height: 500rem !important;
   opacity: 1 !important;
 
   -webkit-transition: opacity .3s, max-height .3s;
@@ -798,7 +798,7 @@ tr {
   text-overflow: initial !important;
   overflow: initial !important;
   white-space: normal !important;
-  max-height: 100rem !important;
+  max-height: 500rem !important;
   opacity: 1 !important;
 
   -webkit-transition: opacity .3s, max-height .3s;
@@ -1425,7 +1425,7 @@ div {
   margin-top: 0px;
   margin-bottom: 0px;
   border-bottom: solid 0px #e0e0e0;
-  max-height: 500px;
+  max-height: 500rem;
   padding: 10px 0px 10px 5px;
   overflow: hidden;
 
@@ -1439,7 +1439,7 @@ div {
   margin-top: 0px;
   margin-bottom: 0px;
   border-bottom: solid 0px #e0e0e0;
-  max-height: 500px;
+  max-height: 500rem;
   padding: 10px 0px 10px 5px;
   overflow: hidden;
 
@@ -1629,11 +1629,6 @@ div {
   -moz-transition: box-shadow .1s, transform .3s;
   -o-transition: box-shadow .1s, transform .3s;
   transition: box-shadow  .1s, transform .3s;
-}
-
-.card {
-  max-width: 100%;
-
 }
 
 .position-import-cell {
