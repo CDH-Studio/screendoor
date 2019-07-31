@@ -8,7 +8,7 @@ import re
 # path we want to create. Mostly for content like "and" and "to".
 prepend_relations = ['aux', 'auxpass', 'nsubj', 'nsubjpass', 'mark',
                              'advmod', 'amod', 'compound', 'poss', 'nmod',
-                             'compound', 'neg']
+                             'compound', 'neg', 'quantmod', 'nummod']
 
 append_relations = ['cc', 'prt', 'case', 'nummod']
 
@@ -29,8 +29,8 @@ accepted_left_relations = ['xcomp', 'attr', 'relcl', 'conj', 'advcl', 'meta']
 # any other word).
 def add_punctuation_to_extract(token, extract, dates):
     punctuation_to_add_to_extract = [x for x in token.children if x.dep_ == 'punct' and
-                                     x.i == token.nbor().i and x.text not in dates
-                                     and x.text not in ['(']]
+                                     x.i == token.nbor().i 
+                                     and x.text not in ['(', ')']]
 
     if punctuation_to_add_to_extract:
         extract += ' ' + ' '.join([x.text for x in punctuation_to_add_to_extract])
@@ -42,16 +42,17 @@ def add_punctuation_to_extract(token, extract, dates):
 def prepend_text_to_extract(token, extract, dates):
     words_to_prepend_to_extract = [x for x in token.lefts if
                                    x.dep_ in prepend_relations and
-                                   not x.tag_ == 'XX' and x.text not in dates]
+                                   not x.tag_ == 'XX']
 
     # Makes sure that the prepend words get added before the last word, rather
     # than naively just adding to the start of the entire constructed extract.
+
     if len(extract.split()) > 1:
         first, *middle, last = extract.split()
         return first + ' ' + \
-               ' '.join(middle) + ' ' + \
-               ' '.join([x.text for x in words_to_prepend_to_extract]) + \
-               ' ' + last
+            ' '.join(middle) + ' ' + \
+            ' '.join([x.text for x in words_to_prepend_to_extract]) + \
+            ' ' + last
     else:
         return ' '.join([x.text for x in words_to_prepend_to_extract]) + \
                ' ' + extract
@@ -62,7 +63,7 @@ def prepend_text_to_extract(token, extract, dates):
 def append_text_to_extract(token, extract, dates):
     words_to_append_to_extract = [x for x in token.children if
                                   x.dep_ in append_relations and
-                                  x == token.nbor() and x.text not in dates]
+                                  x == token.nbor()]
 
     return extract + ' ' + ' '.join([x.text for x in words_to_append_to_extract])
 
@@ -72,7 +73,7 @@ def append_text_to_extract(token, extract, dates):
 def check_for_additional_iterations(token, dates):
     words_for_additional_iteration = [x for x in token.rights if
                                       x.dep_ in additional_iteration_relations and
-                                      not x.i > token.i + 7 and x.text not in dates]
+                                      not x.i > token.i + 7]
 
     return get_first_elem_or_none(words_for_additional_iteration)
 
@@ -81,15 +82,14 @@ def check_for_additional_iterations(token, dates):
 # dep_tree navigation.
 def determine_next_word_to_navigate_to(token, dates):
     possible_paths = [x for x in token.lefts if
-                      x.dep_ in accepted_left_relations and x.text not in dates] + \
+                      x.dep_ in accepted_left_relations  and token.i - x.i < 5] + \
                      [x for x in token.rights if
-                      x.dep_ in accepted_right_relations and x.text not in dates]
+                      x.dep_ in accepted_right_relations]
     punctuation_to_append_to_extract = [x for x in token.children if x.dep_ == 'punct' and
-                   x.i == token.nbor().i and x.text not in dates
+                   x.i == token.nbor().i 
                    and x.text not in ['(']]
     punctuation_less_children = [x for x in token.children if x not in punctuation_to_append_to_extract]
-
-    # Edge case prevention: relative clause as the only remaining valid option
+    # Edge case prevention: awkward deps as the only remaining valid option
     if (any(dep in ['relcl', 'prep', 'prt'] for dep in [x.dep_ for x in punctuation_less_children]) 
             and len(punctuation_less_children) <= 1):
         possible_paths = punctuation_less_children
@@ -113,11 +113,11 @@ def construct_context(token, dates):
 
     while not (list(children) == []):
         # Adds all the text in the right place to the extract.
-        extract = add_punctuation_to_extract(token, extract, dates)
-        extract = append_text_to_extract(token, extract, dates)
-        # prevents reprinting of prepended text on initial loop
         if (token.text != initial_token.text):
             extract = prepend_text_to_extract(token, extract, dates)
+        extract = add_punctuation_to_extract(token, extract, dates)
+        extract = append_text_to_extract(token, extract, dates)
+        
 
         # Stores any additional iterations for later retrieval.
         split_branch = check_for_additional_iterations(token, dates)
@@ -252,6 +252,7 @@ def construct_dict_of_extracts(orig_doc_text, nlp_doc):
                 # Note: full sentence retrieved to minimize corruption caused by
                 # differing word location in searched text
                 match = fuzzy_search_extract_in_orig_doc(orig_doc_text, extract, matches)
+                extract = extract.replace(token.text, '')
                 if match:
                     dates_and_their_contexts.append((
                         (token.text + ": " + extract), match[0][0], match[1][1], sentence_index))
