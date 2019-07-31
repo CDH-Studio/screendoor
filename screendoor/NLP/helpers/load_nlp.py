@@ -13,7 +13,7 @@ def init_spacy_module():
                    r'\bjuly\b|\bjul\b|\bjul\.|' \
                    r'\baugust\b|\baug\b|\baug\.|' \
                    r'\bseptember\b|\bsept\b|\bsept\.|\bsep\b|\bsep\.|' \
-                   r'\boctober\b|\bnov\b|\bnov\.|' \
+                   r'\boctober\b|\boct\b|\boct\.|' \
                    r'\bnovember\b|\bnov\b|\bnov\.|' \
                    r'\bdecember\b|\bdec\b|\bdec\.|' \
                    r'\bpresent\b'
