@@ -1,6 +1,55 @@
 from django.utils.translation import gettext as _
 
 
+class ToolTips():
+    view_positions_tooltip = _('Go to the view positions page.')
+    new_position_tooltip = _('Go to create new position page.')
+    logout_tooltip = _('Sign out of ScreenDoor.')
+    expand_collapse_tooltip = _('Expand/collapse.')
+    applicant_number_tooltip = _('Number of applicants processed for this position.')
+    average_score_tooltip = _('Average amount of yes/no answers applicants responded yes to.')
+    add_users_tooltip = _('Add/remove other users to this position.')
+    upload_applications_tooltip = _('Upload new applicants to this position.')
+    delete_tooltip = _('Delete this position and all applicants from ScreenDoor.')
+    classification_tooltip = _('Classification(s) of this job position.')
+    reference_number_tooltip  = _('Reference number of this job position.')
+    selection_process_number_tooltip = _('Selection process number of this job position.')
+    date_closed_tooltip = _('The date this job position stopped accepting applications.')
+    num_positions_tooltip = _('Number of total positions to be filled for this job position.')
+    salary_range_tooltip = _('Salary range(s) for this job position.')
+    open_to_tooltip = _('Eligible applicants for this job position.')
+    position_information_tooltip = _('Other information about this job position.')
+    education_and_experience_criteria_tooltip = _('Requirements defined by the statement of merit for this job position.')
+    experience_criteria_tooltip = _('Mandatory requirement(s) defined by the statement of merit for this job position.')
+    education_criteria_tooltip = _('Education requirement(s) defined by the statement of merit for this job position.')
+    assets_criteria_tooltip_ = ('Optional requirement(s) defined by the statement of merit for this job position.')
+    applicant_id_tooltip = _('A random id assigned to each applicant.')
+    classifications_tooltip = _('Classifications this applicant holds.')
+    streams_tooltip = _('Streams this applicant is applying to.')
+    score_tooltip = _('How many yes/no questions this applicant replied yes to.')
+    pdf_tooltip = _('View a pdf of this applicant.')
+    prioity_tooltip = _('Whether this applicant has prioity for this position.')
+    veteran_preference_tooltip = _('Whether this applicant has veteran preference for this job position.')
+    french_working_ability_tooltip = _("Applicant's self reported level of French ability.")
+    english_working_ability_tooltip = _("Applicant's self reported level of English ability.")
+    first_official_language_tooltip = _("Applicant's first official language.")
+    written_exam_language_tooltip = _("What language the applicant wishes to write examinations in.")
+    correspondance_language_tooltip = _("What language the applicant wishes to communicate in.")
+    interview_language_tooltip = _("What language wishes to conduct their interview in.")
+    applicant_education_tooltip = _("Education qualfications of the candidate.")
+    questions_tooltip = _("Screening Questions tied to this position.")
+    qualifier_tooltip = _("""Whether the identified information met the requirements stated by the question.
+    Passed: The applicant's experience explicitly met the requirement.
+    Failed: The applicant's experience did not explicity meet the requirement.
+    Indeterminate: The applicant's experience could not be determined from the provided information.
+    NOTE: Ambigious dates (e.g. over 10 years) excluded.""")
+    question_requirement_tooltip = _("Position requirement tied to this question.")
+    complementary_response_tooltip = _("Additional detail given by the applicant to explain their experience.")
+    extracts_tooltip = _("Analysis of the applicant's complementary response provided by ScreenDoor's Natural Language Processing (NLP) model.")
+    how_extract_tooltip = _("An action, duty, or task identified by the NLP model. Statements that do not refer to the applicant are exluded.")
+    when_extract_tooltip = _("A date identified by the NLP model, and how that date is used in the statement. Dates that do not refer to an applicant's experience are excluded.")
+
+
 class StandardFormText():
     # Translators: StandardFormText
     username_or_email_label = _('Username/Email Address')
