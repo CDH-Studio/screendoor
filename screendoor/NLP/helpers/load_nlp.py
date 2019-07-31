@@ -2,6 +2,7 @@ import spacy
 from spacy.pipeline import EntityRuler
 from spacy_langdetect import LanguageDetector
 
+
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
     months_regex = r'\bjanuary\b|\bjan\b|\bjan\.|' \
@@ -13,7 +14,7 @@ def init_spacy_module():
                    r'\bjuly\b|\bjul\b|\bjul\.|' \
                    r'\baugust\b|\baug\b|\baug\.|' \
                    r'\bseptember\b|\bsept\b|\bsept\.|\bsep\b|\bsep\.|' \
-                   r'\boctober\b|\boct\b|\boct\.|' \
+                   r'\boctober\b|\bnov\b|\bnov\.|' \
                    r'\bnovember\b|\bnov\b|\bnov\.|' \
                    r'\bdecember\b|\bdec\b|\bdec\.|' \
                    r'\bpresent\b'
@@ -45,7 +46,7 @@ def init_spacy_module():
             {'LOWER': 'from'},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
-            {'LOWER': 'to'},
+            {'LOWER': 'to|-|–'},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
         ]},
@@ -63,7 +64,7 @@ def init_spacy_module():
         {'label': 'DATE3', 'pattern': [
             {'LOWER': {'REGEX': 'from|between|starting'}, 'OP': '?'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
-            {'LOWER': {'REGEX': 'until|to'}},
+            {'LOWER': {'REGEX': 'until|to|-|–'}},
             {'LOWER': {'REGEX': 'present|current|today|now'}}]},
 
         # Example catches:
@@ -74,7 +75,7 @@ def init_spacy_module():
         {'label': 'DATE4', 'pattern': [
             {'LOWER': {'REGEX': 'from'}, 'OP': '?'},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
-            {'LOWER': '-'},
+            {'LOWER': {'REGEX': '-|–'}},
             {'LOWER': {'REGEX': 'present|current|today|now'}}]},
 
         # Example catches:
@@ -103,21 +104,21 @@ def init_spacy_module():
         {'label': 'DATE7', 'pattern': [
             {'SHAPE': 'dd'},
             {'SHAPE': 'dddd'},
-            {'LOWER': {'REGEX': '-|to'}},
+            {'LOWER': {'REGEX': '-|to|–'}},
             {'SHAPE': 'dd'},
             {'SHAPE': 'dddd'}]},
 
         # Example catches:
         #   3-year
         {'label': 'DATE8', 'pattern': [
-            {'LOWER': {'REGEX': r'\d*-year'}}]},
+            {'LOWER': {'REGEX': '\d*-year'}}]},
 
         # Example catches:
         #   07/2015 - 09/2016
         {'label': 'DATE9', 'pattern': [
-            {'LOWER': {'REGEX': r'\d*\/\d*'}},
-            {'LOWER': '-'},
-            {'LOWER': {'REGEX': r'\d*\/\d*'}}]},
+            {'LOWER': {'REGEX': '\d*\/\d*'}},
+            {'LOWER': '-|–'},
+            {'LOWER': {'REGEX': '\d*\/\d*'}}]},
 
         # Example catches:
         #   Jan 06 - March 15
@@ -125,7 +126,7 @@ def init_spacy_module():
         {'label': 'DATE10', 'pattern': [
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'},
-            {'LOWER': '-'},
+            {'LOWER': '-|–'},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'}]},
 
@@ -136,7 +137,7 @@ def init_spacy_module():
         {'label': 'DATE11', 'pattern': [
             {'LOWER': 'minimum'},
             {'LOWER': 'of'},
-             {'POS': 'NUM'},
+            {'POS': 'NUM'},
             {'LOWER': {'REGEX': 'years|months|year'}}]},
 
     ]

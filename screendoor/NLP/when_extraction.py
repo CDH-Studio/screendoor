@@ -66,7 +66,6 @@ def construct_extract_indices(token, dates):
 
     # Note: .children, .lefts, and .rights return generators, not lists.
     children = list(token.children)
-    initial_token = token
     stored_additional_iterations = []
 
     while not (list(children) == []):
@@ -100,7 +99,8 @@ def construct_extract_indices(token, dates):
             token = possible_paths
             children = list(token.children)
 
-            extract.update_indices_with_index(token.i)
+            if token.text not in dates:
+                    extract.update_indices_with_index(token.i)
         else:
             children = []
 
@@ -117,7 +117,8 @@ def construct_extract_indices(token, dates):
                 if token.tag_ == 'VBG':
                     break
 
-                extract.update_indices_with_index(token.i)
+                if token.text not in dates:
+                    extract.update_indices_with_index(token.i)
 
             # Reset the additional iteration to prevent infinite loops.
             stored_additional_iterations = []
@@ -220,10 +221,9 @@ def construct_date_and_context(orig_doc_text, nlp_doc):
 
                 # Retrieve the extract in the reprocessed doc, and format it
                 # to look correct
-                unformatted_extract = nlp_doc[
+                extract = nlp_doc[
                     indices.get_lower_bound():
                     indices.get_upper_bound()].text
-                extract = strip_faulty_formatting(unformatted_extract)
 
                 # Find the extract's location in the original doc
                 match = fuzzy_search_extract_in_orig_doc(
