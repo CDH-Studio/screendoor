@@ -1631,11 +1631,6 @@ div {
   transition: box-shadow  .1s, transform .3s;
 }
 
-.card {
-  max-width: 100%;
-
-}
-
 .position-import-cell {
     font-size: 1.1rem;
 

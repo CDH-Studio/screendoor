@@ -9,7 +9,8 @@
     ←  {{ positionText.back_to_positions }}
   </a>
   <h6 class="btn-flat disabled"></h6>
-  <form method="post" action="{% url 'edit' %}" id="save-position" enctype="multipart/form-data">
+  <form method="post" action="javascript:void(0);" id="edit-position" enctype="multipart/form-data">
+    <input type="hidden" id="position-id" name="position-id" value="{{ position.id }}">
     {% csrf_token %}
     <div class="row">
       <!--Beginning of position card -->
@@ -17,7 +18,6 @@
         <div id="position-card" class="card white">
           <div class="card-content">
             <div class="row valign-wrapper">
-              <input type="hidden" formaction="{% url 'edit' %}" name="save-position" value="true">
               <input type="hidden" name="position-id" value="{{ position.id }}">
               <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
               <h5 name="position-title" id="title" class="col {% if applicants %}s8 {% else %} s12 {% endif %} left left-align position-header grey-text text-darken-3">
@@ -43,12 +43,16 @@
             </div>
             <!-- Upload Applications and Delete buttons -->
             <div class="row left">
-              <div class="position-view-buttons">
+              <div id="import-position-buttons" class="position-view-buttons">
                 <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
                 <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
                 <a class="btn-flat blue-text modal-trigger" href="#delete-modal">
                   {{ userVisibleText.delete }}
                 </a>
+                <input type="button" id="edit-button" name="edit" class="btn-flat blue-text" value="{{ positionText.edit }}">
+                <input type="button" id="save-button" name="save" class="btn-flat blue-text hide" value="{{ positionText.save }}">
+                <data id="ok-button-text" value="{{ positionText.ok }}"></data>
+                <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
               </div>
             </div>
 
@@ -56,31 +60,31 @@
             <div class="row position-information">
               <div class="row body-row position-row">
                 <div class="col s3 cell-body">
-                  <span class="position-heading">{{ positionText.classification }}:</span> <br><span class="position-cell edit">{{ position.classification }}</span>
+                  <span class="position-heading">{{ positionText.classification }}:</span> <br><span id="position-classification"  class="position-cell edit">{{ position.classification }}</span>
                 </div>
                 <div class="col s3 cell-body">
-                  <span class="position-heading">{{ positionText.reference_number }}:</span> <br><span class="position-cell edit">{{ position.reference_number }}</span>
+                  <span class="position-heading">{{ positionText.reference_number }}:</span> <br><span id="position-reference" class="position-cell edit">{{ position.reference_number }}</span>
                 </div>
                 <div class="col s4 cell-body">
-                  <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br><span class="position-cell edit">{{ position.selection_process_number }}</span>
+                  <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br><span id="position-selection" class="position-cell edit">{{ position.selection_process_number }}</span>
                 </div>
                 <div class="col s2 cell-body">
-                  <span class="position-heading">{{ positionText.date_closed }}:</span> <br><span class="position-cell edit">{{ position.date_closed|date:'Y-m-d' }}</span>
+                  <span class="position-heading">{{ positionText.date_closed }}:</span> <br><span class="position-cell edit" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
                 </div>
               </div>
               <div class="row body-row position-row">
-                <div class="col s3 cell-body" class="position-heading">{{ positionText.number_of_positions }}:</span> <br><span class="position-cell edit">{{ position.num_positions }}</span>
+                <div class="col s3 cell-body" class="position-heading">{{ positionText.number_of_positions }}:</span> <br><span class="position-cell edit" id="position-num-positions">{{ position.num_positions }}</span>
                 </div>
                 <div class="col s3 cell-body">
-                  <span class="position-heading">{{ positionText.salary_range }}:</span> <br><span class="position-cell edit">{{ position.salary|strip }}</span>
+                  <span class="position-heading">{{ positionText.salary_range }}:</span> <br><span id="position-salary" class="position-cell edit">{{ position.salary|strip }}</span>
                 </div>
                 <div class="col s6 cell-body">
-                  <span class="position-heading">{{ positionText.open_to }}:</span> <br><span class="position-cell edit">{{ position.open_to|strip }}</span>
+                  <span class="position-heading">{{ positionText.open_to }}:</span> <br><span id="position-open-to" class="position-cell edit">{{ position.open_to|strip }}</span>
                 </div>
               </div>
               <div class="row body-row position-row">
                 <div class="col s12 cell-body">
-                  <span class="position-heading">{{ positionText.position_information }}:</span> <br><span class="position-cell edit">{{ position.description|strip }}</span>
+                  <span class="position-heading">{{ positionText.position_information }}:</span> <br><span id="position-description" class="position-cell edit">{{ position.description|strip }}</span>
                 </div>
               </div>
             </div>
@@ -107,10 +111,10 @@
                   </i>
                 </li>
                 <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Education" %}
+                  {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
                   <div class="requirement-point row">
                     <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                    <div id="education-description-{{ forloop.counter }}" class="requirement-description col s11 edit">{{ req.description }}</div>
                   </div>
                   {% endif %}
                   {% endfor %}
@@ -129,10 +133,10 @@
                   </i>
                 </li>
                 <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Experience" %}
+                  {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
                   <div class="requirement-point row">
                     <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                    <div id="experience-description-{{ forloop.counter }}" class="requirement-description col s11 edit">{{ req.description }}</div>
                   </div>
                   {% endif %}
                   {% endfor %}
@@ -151,28 +155,19 @@
                   </i>
                 </li>
                 <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Asset" %}
+                  {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
                   <div class="requirement-point row">
                     <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                    <div id="asset-description-{{ forloop.counter }}" class="requirement-description col s11 edit">{{ req.description }}</div>
                   </div>
                   {% endif %}
                   {% endfor %}
                 </div>
                 {% endif %}
-
               </ul>
             </div>
-
             <!-- Date and time position was added -->
             <div class="row position-bottom-buttons">
-              <div class="col s6 left" id="import-position-buttons">
-                <input type="button" id="edit-button" name="edit" class="position-edit-btn btn-flat blue-text" value="{{ userVisibleText.edit }}">
-                <input type="button" id=cancel-button" name="edit" class="hide position-edit-btn btn-flat blue-text" value="{{ userVisibleText.cancel }}">
-                <input type="button" id="save-button" name="save" class="btn-pad btn-flat blue-text hide" value="Save">
-                <data id="ok-button-text" value="{{ positionText.ok }}"></data>
-                <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
-              </div>
               <h6 class="position-created btn-flat right black-text">
                 {{ userVisibleText.position_added }}: {{ position.created }}
               </h6>
@@ -454,7 +449,8 @@
 <script src="{% static 'js/localstorage.js' %}"></script>
 <!-- Script for applicant upload loading screen -->
 <script src="{% static 'js/applicant-upload.js' %}"></script>
-<!-- Script for editing table values -->
 <script src="{% static 'js/position-edit.js' %}"></script>
-<script src="{% static 'js/position.js' %}"></script>
+<script src="{% static 'js/position-tables.js' %}"></script>
+<script src="{% static 'js/favourites.js' %}"></script>
+<script src="{% static 'js/add-users.js' %}"></script>
 {% endblock %}
