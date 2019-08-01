@@ -25,7 +25,7 @@ from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
-    ApplicantViewText
+    ApplicantViewText, ToolTips
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
@@ -521,7 +521,9 @@ def applicant_detail_data(request, applicant_id, position_id):
         'answers':
         answers,
         "favourite":
-        is_favourited
+        is_favourited,
+        "toolTips":
+        ToolTips
     }
 
 

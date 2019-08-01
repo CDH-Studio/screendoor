@@ -76,31 +76,31 @@
 
         <div class="hidden-applicant-info row row-closed">
           <div class="hidden-applicant-row row body-row">
-            <div class="priority col s3 cell-body">
+            <div class="specialization col s3 cell-body">
               {{ applicantText.priority }}: <br>{{ applicant.priority }}
             </div>
-            <div class="preference col s3 cell-body">
+            <div class="program-length col s3 cell-body">
               {{ applicantText.veteran_preference }}: <br>{{ applicant.veteran_preference }}
             </div>
-            <div class="french-working-ability col s3 cell-body">
+            <div class="years-completed col s3 cell-body">
               {{ applicantText.french_working_ability }}: <br>{{ applicant.french_working_ability }}
             </div>
-            <div class="english-working-ability col s2 cell-body">
+            <div class="graduation-date col s2 cell-body">
               {{ applicantText.english_working_ability }}: <br>{{ applicant.english_working_ability }}
             </div>
           </div>
 
           <div class="hidden-applicant-row row body-row">
-            <div class="first-official-language col s3 cell-body">
+            <div class="specialization col s3 cell-body">
               {{ applicantText.first_official_language }}: <br>{{ applicant.first_official_language }}
             </div>
-            <div class="written-exam-language col s3 cell-body">
+            <div class="program-length col s3 cell-body">
               {{ applicantText.written_exam_language }}: <br>{{ applicant.written_exam }}
             </div>
-            <div class="correspondence-language col s3 cell-body">
+            <div class="years-completed col s3 cell-body">
               {{ applicantText.correspondence_language }}: <br>{{ applicant.correspondence }}
             </div>
-            <div class="interview-language col s2 cell-body">
+            <div class="graduation-date col s2 cell-body">
               {{ applicantText.interview_language }}: <br>{{ applicant.interview }}
             </div>
           </div>
@@ -236,7 +236,7 @@
               <div class="row question-row question-buttons notes-row">
                 <div class="col add-note tooltip">
                   <i class="material-icons orange-text">note_add</i>
-                  <span class="tooltiptext">Add a note on this answer</span>
+                  <span class="tooltiptext">{{ toolTips.add_note_tooltip }}</span>
                 </div>
                 <div class="col s10 notes-area">
                   <div class="note-box">
@@ -260,35 +260,48 @@
                 </div>
               </div>
               <div class="row question-row question-response-extracts">
-                <div class="col s7 applicant-response-full"><p class="complementary-response-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.complementary_response }}{% endif %}</p><span class="answer-complementary-response">{% if answer.applicant_complementary_response is not None %}{{ answer.applicant_complementary_response }}{% endif %}</span>
-                </div>
-                <div class="col s4 extracts-full">
-                  <p class="extract-full-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.extracts }}{% endif %}</p>
-                  <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
-                  <data class="answer-id" value="{{ answer.id }}" />
-                  {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
-
-                  <!-- Data classes for sentence highlighting -->
-                  <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
-                  <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
-                  <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
-                  <data class="extract-string" value="{{ extract.extract_text }}"></data>
-                  <data class="extract-id" value="{{ extract.id }}"></data>
-                  <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
-                  <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
-                  <!-- Extracts full -->
-                  <div class="extract-full">
-                    {% if extract.extract_type == 'WHEN' %}
-                    <i class="material-icons red-text text-lighten-1">date_range</i>
-                    {% elif extract.extract_type == 'HOW' %}
-                    <i class="material-icons brown-text text-lighten-1">work</i>
-                    {% endif %}
-                    <span class="grey-text text-darken-1">
-                      <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
-                      <br>
-                    </span>
+                <div class="col s7">
+                  <span class="complementary-response-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.complementary_response }}{% endif %}</span>
+                  <div class="tooltip">
+                    <i class="material-icons blue-text tooltip-icon">help</i>
+                    <span class="long-tooltiptext">{{ toolTips.complementary_response_tooltip }}</span>
                   </div>
-                  {% endfor %}
+                  <div class="applicant-response-full"><span class="answer-complementary-response">{% if answer.applicant_complementary_response is not None %}{{ answer.applicant_complementary_response }}{% endif %}</span>
+                  </div>
+                </div>
+                <div class="col s4">
+                  <span class="extract-full-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.extracts }}{% endif %}</span>
+                  <div class="tooltip">
+                    <i class="material-icons blue-text tooltip-icon">help</i>
+                    <span class="long-tooltiptext">{{ toolTips.extracts_tooltip }} </span>
+                  </div>
+                  <div class="extracts-full">
+                    <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
+                    <data class="answer-id" value="{{ answer.id }}" />
+                    {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
+
+                    <!-- Data classes for sentence highlighting -->
+                    <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
+                    <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
+                    <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
+                    <data class="extract-string" value="{{ extract.extract_text }}"></data>
+                    <data class="extract-id" value="{{ extract.id }}"></data>
+                    <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
+                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
+                    <!-- Extracts full -->
+                    <div class="extract-full">
+                      {% if extract.extract_type == 'WHEN' %}
+                      <i class="material-icons red-text text-lighten-1">date_range</i>
+                      {% elif extract.extract_type == 'HOW' %}
+                      <i class="material-icons brown-text text-lighten-1">work</i>
+                      {% endif %}
+                      <span class="grey-text text-darken-1">
+                        <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
+                        <br>
+                      </span>
+                    </div>
+                    {% endfor %}
+                  </div>
                 </div>
               </div>
             </div>
