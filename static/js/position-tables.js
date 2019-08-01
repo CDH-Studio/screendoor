@@ -41,12 +41,30 @@ const expandCollapseRequirement = function(i) {
   hiddenRequirementSections[i].classList.contains("row-closed") ? expandRequirement(i) : collapseRequirement(i);
 };
 
-window.addEventListener("DOMContentLoaded", () => {
+let listenerList = [];
+
+const addRequirementListeners = function() {
+  listenerList = [];
   for (let i = 0; i < requirementTypes.length; i++) {
-    requirementTypes[i].addEventListener("click", () =>{
+    const expandCollapseListener = () => {
       expandCollapseRequirement(i);
-    });
+    };
+    requirementTypes[i].addEventListener("click", expandCollapseListener);
+    requirementTypes[i].style.cursor = "pointer";
+    listenerList.push(expandCollapseListener);
   }
+};
+
+const removeRequirementListeners = function() {
+  for (let i = 0; i < requirementTypes.length; i++) {
+    const expandCollapseListener = listenerList[i];
+    requirementTypes[i].removeEventListener("click", expandCollapseListener);
+    requirementTypes[i].style.cursor = "default";
+  }
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  addRequirementListeners();
 
   expandAllRequirementsButton.addEventListener("click", () => {
     expandCollapseAllRequirements();

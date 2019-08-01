@@ -173,7 +173,7 @@
                 <ul class="requirement-list">
                   {% if position.requirement_set.all|has_education %}
                   <!-- Position education and experience rows -->
-                  <li id="req-education" class="requirement-type row hoverable">
+                  <li id="req-education" class="requirement-type row hoverable" data-requirement-type="Education">
                     <i class="requirement-icons material-icons grey-text">school
                     </i>
                     <span class="requirement-type-text">
@@ -183,11 +183,11 @@
                       expand_more
                     </i>
                   </li>
-                  <div class="hidden-requirement-info row body-row row-closed">
+                  <div id="education-requirements" class="hidden-requirement-info row body-row row-closed">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
-                    <div class="requirement-point education-requirement row">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description education-description col s11 edit" id="education-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description education-description col s10 edit" id="education-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -195,7 +195,7 @@
                   {% endif %}
 
                   {% if position.requirement_set.all|has_experience %}
-                  <li id="req-experience" class="requirement-type row hoverable">
+                  <li id="req-experience" class="requirement-type row hoverable" data-requirement-type="Experience">
                     <i class="requirement-icons material-icons grey-text">build
                     </i>
                     <span class="requirement-type-text">
@@ -205,9 +205,9 @@
                       expand_more
                     </i>
                   </li>
-                  <div class="hidden-requirement-info experience-requirement row body-row row-closed">
+                  <div id="experience-requirements" class="hidden-requirement-info row body-row row-closed">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
-                    <div class="requirement-point row">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
                       <div class="requirement-description experience-description col s11 edit" id="experience-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
@@ -217,7 +217,7 @@
                   {% endif %}
 
                   {% if position.requirement_set.all|has_assets %}
-                  <li id="req-asset" class="requirement-type row hoverable">
+                  <li id="req-asset" class="requirement-type row hoverable" data-requirement-type="Asset">
                     <i class="requirement-icons material-icons grey-text">done_all
                     </i>
                     <span class="requirement-type-text">
@@ -227,9 +227,9 @@
                       expand_more
                     </i>
                   </li>
-                  <div class="hidden-requirement-info asset-requirement row body-row row-closed">
+                  <div id="asset-requirements" class="hidden-requirement-info row body-row row-closed">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
-                    <div class="requirement-point row">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
                       <div class="requirement-description asset-description col s11 edit" id="asset-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
