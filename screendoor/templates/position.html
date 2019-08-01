@@ -44,13 +44,13 @@
             <!-- Upload Applications and Delete buttons -->
             <div class="row left">
               <div id="import-position-buttons" class="position-view-buttons">
-                <a class="btn-flat blue-text modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
-                <a class="btn-flat blue-text modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
-                <a class="btn-flat blue-text modal-trigger" href="#delete-modal">
+                <a class="btn-flat blue-text waves-effect modal-trigger" href="#add-users-modal">{{ userVisibleText.add_users }}</a>
+                <a class="btn-flat blue-text waves-effect modal-trigger" href="#upload-applications-modal">{{ userVisibleText.upload_applications }}</a>
+                <a class="btn-flat blue-text waves-effect modal-trigger" href="#delete-modal">
                   {{ userVisibleText.delete }}
                 </a>
-                <input type="button" id="edit-button" name="edit" class="btn-flat blue-text" value="{{ positionText.edit }}">
-                <input type="button" id="save-button" name="save" class="btn-flat blue-text hide" value="{{ positionText.save }}">
+                <button id="edit-button" name="edit" class="btn-flat blue-text waves-effect ">{{ positionText.edit }}</button>
+                <button id="save-button" name="save" class="btn-flat blue-text waves-effect hide">{{ positionText.save }}</button>
                 <data id="ok-button-text" value="{{ positionText.ok }}"></data>
                 <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
               </div>

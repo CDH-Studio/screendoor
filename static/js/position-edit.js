@@ -261,7 +261,7 @@ const startEditing = function() {
 const stopEditing = function() {
   addRequirementListeners(); // From position-tables.js
   showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null); // From helper-functions.js
-  hideElements(okButton, cancelButton);
+  hideElements(okButton, cancelButton); // From helper-functions.js
   card.style.setProperty("max-width", "auto", "important");
   card.style.setProperty("min-width", "700px", "important");
   removeReqButtons();
