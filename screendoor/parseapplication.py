@@ -99,7 +99,6 @@ def retrieve_question(table, all_questions):
             '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return other_question
-    # print("NOT A MATCH, THERE WAS AN ERROR IN MATCHING ANSWER")
     return None
 
 
@@ -138,7 +137,6 @@ def does_exist(question, all_questions):
             '\n', " ").replace(" ", "")
         if fuzz.ratio(question_text, other_question_text) > 95:
             return True
-    # print("QUESTION DOES NOT EXIST")
 
     return False
 
@@ -434,7 +432,6 @@ def get_education(item, educations):
 ###################
 
 def parse_stream(item):
-    print(item)
     stream_list = []
     for index, row in item.iterrows():
         key = item.iloc[index, 0]

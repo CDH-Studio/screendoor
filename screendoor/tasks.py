@@ -37,7 +37,6 @@ def process_applications(self, file_paths, position_id):
         applicant_counter += len(applications)
         os.remove(file_path)
         for application in applications:
-            print("APPLICANT COUNTER: " + str(applicant_counter))
             application.parent_position = position
             application.update_question_fields()
             application.save()

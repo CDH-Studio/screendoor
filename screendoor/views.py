@@ -342,7 +342,6 @@ def position_detail_data(request, position_id, task_id):
     other_users = [
         x for x in position.position_users.all() if not x == request.user
     ]
-    print(other_users)
     return {
         'baseVisibleText': InterfaceText,
         'applicationsForm': ImportApplicationsForm,
@@ -634,7 +633,6 @@ def add_note(request):
                     parent_answer=answer,
                     note_text=note_text)
         note.save()
-        print(note)
         return JsonResponse({
             'noteId': note.id,
             'noteAuthor': note.author.username,
