@@ -262,22 +262,25 @@
               <div class="row question-row question-response-extracts">
                 <div class="col s7">
                   <span class="complementary-response-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.complementary_response }}{% endif %}</span>
+                  {% if answer.applicant_complementary_response is not None %}
                   <div class="tooltip">
                     <i class="material-icons blue-text tooltip-icon">help</i>
                     <span class="long-tooltiptext">{{ toolTips.complementary_response_tooltip }}</span>
                   </div>
+                  {% endif %}
                   <div class="applicant-response-full"><span class="answer-complementary-response">{% if answer.applicant_complementary_response is not None %}{{ answer.applicant_complementary_response }}{% endif %}</span>
                   </div>
                 </div>
                 <div class="col s4">
                   <span class="extract-full-header">{% if answer.applicant_complementary_response is not None %}{{ applicantText.extracts }}{% endif %}</span>
-                  <div class="tooltip">
+                  {% if answer.applicant_complementary_response is not None %}<div class="tooltip">
                     <i class="material-icons blue-text tooltip-icon">help</i>
                     <span class="long-tooltiptext">{{ toolTips.extracts_tooltip }} </span>
                   </div>
+                  {% endif %}
                   <div class="extracts-full">
                     <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
-                    <data class="answer-id" value="{{ answer.id }}" />
+                    <data class="answer-id" value="{{ answer.id }}" >
                     {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
 
                     <!-- Data classes for sentence highlighting -->
