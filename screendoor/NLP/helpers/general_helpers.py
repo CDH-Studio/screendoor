@@ -73,17 +73,27 @@ def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_ma
     if searched_text != '':
         matches = []
         threshold = 1
-        while matches == [] and threshold < 15:
+        while matches == [] and threshold < 10:
             threshold += 2
             matches = find_near_matches(searched_text, original_doc_text, max_l_dist=threshold)
 
         match = get_first_elem_or_none(matches)
+        if len(matches) == 1:
+            return (((match[0], match[1]), match))
         while match:
-            if match not in stored_matches:
-                #print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
+            if not check_if_stored_already(match, stored_matches):
+                print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
                 matches += match
                 return (((match[0], match[1]), match))
             matches = matches[1:len(matches)]
             match = get_first_elem_or_none(matches)
 
     return None
+
+
+def check_if_stored_already(match_to_test, matches):
+    for match in matches:
+        #checks if the bounds are within another match
+        if match_to_test[0] >= match[0] and match_to_test[0] <= match[1]:
+            return True
+    return False

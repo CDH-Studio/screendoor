@@ -1,4 +1,5 @@
 {% extends '../base_logged_in.html' %}
+{% load string_interpolation %}
 {% load static %}
 {% block content %}
 <div class="container valign-wrapper form-cards">
@@ -108,143 +109,152 @@
     </div>
 
 
-    <form method="post" id="save-edit-position" enctype="multipart/form-data" action="">
+    <form method="post" id="edit-position" enctype="multipart/form-data" action="">
       <div class="row">
-        <!--Beginning of confirm position card -->
-        <div class="col card white">
-          <div class="card-content col s12">
-            <div class="row valign-wrapper">
-              <input type="hidden" name="position-id" value="{{ position.id }}">
-              <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-              <h4 name="position-title" id="title" class="col s8 left position-header">
-                <span class="edit" id="position-title">
-                  {{ position.position_title }}
-                </span>
-              </h4>
-              <!-- Confirm/Edit button row -->
-              <div class="col s4 right right-align" id="import-position-buttons">
-                {% csrf_token %}
-                <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
-                <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
-              </div>
-            </div>
-            <!-- New position area -->
-            <div class="row position-information position-upload-information">
-              <div class="row body-row position-row">
-                <div class="col s3 cell-body">
-                  <span class="position-heading">{{ userVisibleText.classification }}:</span> <br><span class="position-import-cell edit">{{ position.classification }}</span>
-                </div>
-                <div class="col s3 cell-body">
-                  <span class="position-heading">{{ userVisibleText.reference_number }}:</span> <br><span class="position-import-cell edit">{{ position.reference_number }}</span>
-                </div>
-                <div class="col s4 cell-body">
-                  <span class="position-heading">{{ userVisibleText.selection_process_number }}:</span> <br><span class="position-import-cell edit">{{ position.selection_process_number }}</span>
-                </div>
-                <div class="col s2 cell-body">
-                  <span class="position-heading">{{ userVisibleText.date_closed }}:</span> <br><span class="position-import-cell edit">{{ position.date_closed|date:'Y-m-d' }}</span>
-                </div>
-              </div>
-              <div class="row body-row position-row">
-                <div class="col s3 cell-body" class="position-heading">{{ userVisibleText.number_of_positions }}:</span> <br><span class="position-import-cell edit">{{ position.num_positions }}</span>
-                </div>
-                <div class="col s3 cell-body">
-                  <span class="position-heading">{{ userVisibleText.salary_range }}:</span> <br><span class="position-import-cell edit">{{ position.salary }}</span>
-                </div>
-                <div class="col s6 cell-body">
-                  <span class="position-heading">{{ userVisibleText.open_to }}:</span> <br><span class="position-import-cell edit">{{ position.open_to }}</span>
-                </div>
-              </div>
-              <div class="row body-row position-row">
-                <div class="col s12 cell-body">
-                  <span class="position-heading">{{ userVisibleText.position_information }}:</span> <br><span class="position-import-cell edit">{{ position.description }}</span>
-                </div>
-              </div>
-            </div>
-
-            <h6>
-              {{ userVisibleText.education_and_experience_criteria }}
-              <i id="expand-collapse-criteria" class="material-icons grey-text text-darken-2">unfold_more</i>
-            </h6>
-            <div class="requirements">
-              <!-- Education Headers -->
-              <ul class="requirement-list">
-                <!-- Position education and experience rows -->
-                <li id="req-education" class="requirement-type row hoverable">
-                  <i class="requirement-icons material-icons grey-text">school
-                  </i>
-                  <span class="requirement-type-text">
-                    {{ userVisibleText.education }}
+        <div class="col s12">
+          <!--Beginning of confirm position card -->
+          <div id="position-card" class="card white">
+            <div class="card-content">
+              <div class="row valign-wrapper">
+                <input type="hidden" id="position-id" name="position-id" value="{{ position.id }}">
+                <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
+                <!-- Position title -->
+                <h4 name="position-title" id="title" class="col s8 left position-header">
+                  <span class="edit" id="position-title">
+                    {{ position.position_title }}
                   </span>
-                  <i class="expand-requirement right material-icons grey-text text-lighten-1">
-                    expand_more
-                  </i>
-                </li>
-                <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Education" %}
-                  <div class="requirement-point row">
-                    <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                </h4>
+                <!-- Confirm/Edit button row -->
+                <div class="col s4 right right-align" id="import-position-buttons">
+                  {% csrf_token %}
+                  <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
+                  <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
+                </div>
+              </div>
+              <!-- New position area -->
+              <div class="row position-information position-upload-information">
+                <div class="row body-row position-row">
+                  <div class="col s3 cell-body">
+                    <span class="position-heading">{{ userVisibleText.classification }}:</span> <br><span id="position-classification" class="position-import-cell edit">{{ position.classification }}</span>
+                  </div>
+                  <div class="col s3 cell-body">
+                    <span class="position-heading">{{ userVisibleText.reference_number }}:</span> <br><span id="position-reference" class="position-import-cell edit">{{ position.reference_number }}</span>
+                  </div>
+                  <div class="col s4 cell-body">
+                    <span class="position-heading">{{ userVisibleText.selection_process_number }}:</span> <br><span id="position-selection" class="position-import-cell edit">{{ position.selection_process_number }}</span>
+                  </div>
+                  <div class="col s2 cell-body">
+                    <span class="position-heading">{{ userVisibleText.date_closed }}:</span> <br><span class="position-import-cell edit" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
+                  </div>
+                </div>
+                <div class="row body-row position-row">
+                  <div class="col s3 cell-body" class="position-heading">{{ userVisibleText.number_of_positions }}:</span> <br><span id="position-num-positions" class="position-import-cell edit">{{ position.num_positions }}</span>
+                  </div>
+                  <div class="col s3 cell-body">
+                    <span class="position-heading">{{ userVisibleText.salary_range }}:</span> <br><span id="position-salary" class="position-import-cell edit">{{ position.salary }}</span>
+                  </div>
+                  <div class="col s6 cell-body">
+                    <span class="position-heading">{{ userVisibleText.open_to }}:</span> <br><span id="position-open-to" class="position-import-cell edit">{{ position.open_to }}</span>
+                  </div>
+                </div>
+                <div class="row body-row position-row">
+                  <div class="col s12 cell-body">
+                    <span class="position-heading">{{ userVisibleText.position_information }}:</span> <br><span id="position-description" class="position-import-cell edit">{{ position.description }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <h6>
+                {{ userVisibleText.education_and_experience_criteria }}
+                <i id="expand-collapse-criteria" class="material-icons grey-text text-darken-2">unfold_more</i>
+              </h6>
+              <div class="requirements">
+                <!-- Education Headers -->
+                <ul class="requirement-list">
+                  {% if position.requirement_set.all|has_education %}
+                  <!-- Position education and experience rows -->
+                  <li id="req-education" class="requirement-type row hoverable">
+                    <i class="requirement-icons material-icons grey-text">school
+                    </i>
+                    <span class="requirement-type-text">
+                      {{ userVisibleText.education }}
+                    </span>
+                    <i class="expand-requirement right material-icons grey-text text-lighten-1">
+                      expand_more
+                    </i>
+                  </li>
+                  <div class="hidden-requirement-info row body-row row-closed">
+                    {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
+                    <div class="requirement-point education-requirement row">
+                      <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
+                      <div class="requirement-description education-description col s11 edit" id="education-description-{{ forloop.counter }}">{{ req.description }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
                   </div>
                   {% endif %}
-                  {% endfor %}
-                </div>
 
-                <li id="req-experience" class="requirement-type row hoverable">
-                  <i class="requirement-icons material-icons grey-text">build
-                  </i>
-                  <span class="requirement-type-text">
-                    {{ userVisibleText.experience }}
-                  </span>
-                  <i class="expand-requirement right material-icons grey-text text-lighten-1">
-                    expand_more
-                  </i>
-                </li>
-                <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Experience" %}
-                  <div class="requirement-point row">
-                    <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                  {% if position.requirement_set.all|has_experience %}
+                  <li id="req-experience" class="requirement-type row hoverable">
+                    <i class="requirement-icons material-icons grey-text">build
+                    </i>
+                    <span class="requirement-type-text">
+                      {{ userVisibleText.experience }}
+                    </span>
+                    <i class="expand-requirement right material-icons grey-text text-lighten-1">
+                      expand_more
+                    </i>
+                  </li>
+                  <div class="hidden-requirement-info experience-requirement row body-row row-closed">
+                    {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
+                    <div class="requirement-point row">
+                      <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
+                      <div class="requirement-description experience-description col s11 edit" id="experience-description-{{ forloop.counter }}">{{ req.description }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
                   </div>
                   {% endif %}
-                  {% endfor %}
-                </div>
 
-                <li id="req-asset" class="requirement-type row hoverable">
-                  <i class="requirement-icons material-icons grey-text">done_all
-                  </i>
-                  <span class="requirement-type-text">
-                    {{ userVisibleText.assets }}
-                  </span>
-                  <i class="expand-requirement right material-icons grey-text text-lighten-1">
-                    expand_more
-                  </i>
-                </li>
-                <div class="hidden-requirement-info row body-row row-closed">
-                  {% for req in position.requirement_set.all|dictsortreversed:'requirement_type'|dictsort:'abbreviation' %}{% if req.requirement_type == "Asset" %}
-                  <div class="requirement-point row">
-                    <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                    <div class="requirement-description col s11 edit">{{ req.description }}</div>
+                  {% if position.requirement_set.all|has_assets %}
+                  <li id="req-asset" class="requirement-type row hoverable">
+                    <i class="requirement-icons material-icons grey-text">done_all
+                    </i>
+                    <span class="requirement-type-text">
+                      {{ userVisibleText.assets }}
+                    </span>
+                    <i class="expand-requirement right material-icons grey-text text-lighten-1">
+                      expand_more
+                    </i>
+                  </li>
+                  <div class="hidden-requirement-info asset-requirement row body-row row-closed">
+                    {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
+                    <div class="requirement-point row">
+                      <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
+                      <div class="requirement-description asset-description col s11 edit" id="asset-description-{{ forloop.counter }}">{{ req.description }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
                   </div>
                   {% endif %}
-                  {% endfor %}
-                </div>
-              </ul>
+                </ul>
+              </div>
             </div>
           </div>
+          {% endif %}
         </div>
       </div>
-      {% endif %}
     </form>
   </div>
-</div>
-<data id="ok-button-text" value="{{ form.ok_text }}"></data>
-<data id="cancel-button-text" value="{{ form.cancel_text }}"></data>
-<!-- End of position display -->
-<!-- Misc helper functions -->
-<script src="{% static 'js/helper-functions.js' %}"></script>
-<!-- Script for editing table values -->
-<script src="{% static 'js/position-edit.js' %}"></script>
-<!-- Script for local storage items -->
-<script src="{% static 'js/localstorage.js' %}"></script>
-<script src="{% static 'js/position.js' %}"></script>
-{% endblock %}
+  <data id="ok-button-text" value="{{ form.ok_text }}"></data>
+  <data id="cancel-button-text" value="{{ form.cancel_text }}"></data>
+  <!-- End of position display -->
+  <!-- Misc helper functions -->
+  <script src="{% static 'js/helper-functions.js' %}"></script>
+  <!-- Script for local storage items -->
+  <script src="{% static 'js/localstorage.js' %}"></script>
+  <!-- Expanding and collapsing education and experience rows -->
+  <script src="{% static 'js/position-tables.js' %}"></script>
+  <!-- Script for editing table values -->
+  <script src="{% static 'js/position-edit.js' %}"></script>
+  {% endblock %}

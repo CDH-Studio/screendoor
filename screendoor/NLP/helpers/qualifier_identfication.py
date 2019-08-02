@@ -19,6 +19,7 @@ months_regex = r'(?:\bjanuary\b|' \
                r'\bjuly\b|' \
                r'\baugust\b|' \
                r'\bseptember\b|' \
+               r'\boctober\b|' \
                r'\bnovember\b|' \
                r'\bdecember\b)'
 

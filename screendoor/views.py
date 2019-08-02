@@ -1,6 +1,9 @@
+import json
+import sys, traceback
 from io import BytesIO
 from string import digits
 from urllib import parse
+import dateutil
 
 from celery.result import AsyncResult
 from dateutil import parser as dateparser
@@ -20,7 +23,7 @@ from weasyprint.fonts import FontConfiguration
 
 from .forms import ScreenDoorUserCreationForm, LoginForm, CreatePositionForm, ImportApplicationsForm
 from .models import EmailAuthenticateToken, Position, Applicant, Education, FormAnswer, Stream, Classification, \
-    NlpExtract, Note, Qualifier, ScreenDoorUser
+    NlpExtract, Note, Qualifier, ScreenDoorUser, Requirement
 from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
@@ -191,44 +194,6 @@ def save_position_to_user(request):
         Position.objects.get(id=request.session['position_id']))
 
 
-@login_required(login_url='login', redirect_field_name=None)
-def edit_position(request):
-    if request.method == 'POST':
-        # User wants to edit a position
-        if request.POST.get("save-position"):
-            try:
-                # Populate the fields with hidden input data from position template
-                position = Position.objects.get(
-                    id=request.POST.get("position-id"))
-                position.position_title = request.POST.get("position-title")
-                position.classification = request.POST.get(
-                    "position-classification")
-                position.reference_number = request.POST.get(
-                    "position-reference")
-                position.selection_process_number = request.POST.get(
-                    "position-selection")
-                position.date_closed = dateparser.parse(
-                    request.POST.get("position-date-closed"))
-                position.num_positions = request.POST.get(
-                    "position-num-positions")
-                position.salary = request.POST.get("position-salary")
-                position.open_to = request.POST.get("position-open-to")
-                position.description = request.POST.get("position-description")
-                counter = 1
-                for requirement in position.requirement_set.all().reverse():
-                    requirement.description = request.POST.get(
-                        "position-requirement" + str(counter))
-                    counter += 1
-                    requirement.save()
-                position.save()
-                return redirect('position', position.reference_number,
-                                position.id)
-            except TypeError:
-                # In case of errors, return the current position with no edits
-                # TODO: implement validation for position editing and error messages
-                return Position.objects.get(id=request.POST.get("position-id"))
-
-
 # Displays form allowing users to upload job posting PDF files and URLs
 @login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
@@ -263,7 +228,6 @@ def import_position(request):
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
             save_position_to_user(request)
-            # edit_position(request)
             return redirect('home')
     # Default view for GET request
     create_position_form = CreatePositionForm()
@@ -590,16 +554,19 @@ def task_status(request, task_id):
 
 
 from dateutil.parser import *
+
+
 def nlp_test(request):
     from screendoor.NLP.run_NLP_scripts import generate_nlp_extracts
-    generate_nlp_extracts("Western Quebec Career Center - 09 2016 to 05 2018 (ongoing) - studying administration course - two year program. I have taken Microsoft Office Suite, which covered Word, Excel, Outlook, PowerPoint, and Access", 
-    """Stream 1 and 2: 
-Do you have significant * experience in the use of Microsoft office suite (Outlook, Excel, Word 
-and PowerPoint)? 
-*significant experience will be evaluated against depth and breadth of activities, the level of 
-responsibilities, and the complexity, diversity and volume of handled cases/tasks. This scope 
-would be normally obtained through at least twelve (12) consecutive months experience.""", 
-    "", parse('December 21 2015'))
+    generate_nlp_extracts(
+        "Western Quebec Career Center - 09 2016 to 05 2018 (ongoing) - studying administration course - two year program. I have taken Microsoft Office Suite, which covered Word, Excel, Outlook, PowerPoint, and Access",
+        """Stream 1 and 2:
+Do you have significant * experience in the use of Microsoft office suite (Outlook, Excel, Word
+and PowerPoint)?
+*significant experience will be evaluated against depth and breadth of activities, the level of
+responsibilities, and the complexity, diversity and volume of handled cases/tasks. This scope
+would be normally obtained through at least twelve (12) consecutive months experience.""",
+        "", parse('December 21 2015'))
     return None
 
 
@@ -690,3 +657,45 @@ def remove_note(request):
         return JsonResponse({'noteId': note_id})
     except:
         return JsonResponse({})
+
+
+# Ajax url
+@csrf_exempt
+def edit_position(request):
+    try:
+        position_dictionary = json.loads(request.body.decode('utf-8'))
+        position_id = int(position_dictionary["positionId"])
+        position = Position.objects.get(id=position_id)
+        position.position_title = position_dictionary["position-title"]
+        position.classification = position_dictionary[
+            "position-classification"]
+        position.reference_number = position_dictionary["position-reference"]
+        position.selection_process_number = position_dictionary[
+            "position-selection"]
+        position.date_closed = dateutil.parser.parse(
+            position_dictionary["position-date-closed"])
+        position.num_positions = position_dictionary["position-num-positions"]
+        position.salary = position_dictionary["position-salary"]
+        position.open_to = position_dictionary["position-open-to"]
+        position.description = position_dictionary["position-description"]
+        count = Requirement.objects.filter(position=position).count()
+        position.save()
+        for requirement in Requirement.objects.filter(position=position):
+            if requirement.requirement_type == "Education":
+                requirement.description = position_dictionary[
+                    "education-description-" + str(count)]
+                count -= 1
+            elif requirement.requirement_type == "Experience":
+                requirement.description = position_dictionary[
+                    "experience-description-" + str(count)]
+                count -= 1
+            elif requirement.requirement_type == "Asset":
+                requirement.description = position_dictionary[
+                    "asset-description-" + str(count)]
+                count -= 1
+            requirement.save()
+        return JsonResponse({'message': 'success'})
+    except:
+        print("ERROR!")
+        traceback.print_exc(file=sys.stdout)
+        return JsonResponse({'message': 'failure'})
