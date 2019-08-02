@@ -295,6 +295,7 @@ def positions_list_data(request):
         'baseVisibleText': InterfaceText,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
+        'toolTipText': ToolTips,
         'applicationsForm': ImportApplicationsForm,
         'positions': positions,
         'sort': sort_by
@@ -348,6 +349,7 @@ def position_detail_data(request, position_id, task_id):
         'applicationsForm': ImportApplicationsForm,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
+        'toolTipText': ToolTips,
         'position': position,
         'applicants': applicant_dict,
         'task_id': task_id,

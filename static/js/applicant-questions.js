@@ -24,6 +24,8 @@ const expandCollapseApplicantButton = document.getElementById("expand-collapse-a
 const expandCollapseEducationButtons = document.getElementsByClassName("expand-collapse-education-item");
 const expandCollapseQuestionButtons = document.getElementsByClassName("expand-collapse-questions");
 
+const streams = document.getElementsByClassName("stream");
+
 const abbreviations = [];
 const descriptions = [];
 const substantiveClassificationAbbrev = [];
@@ -84,6 +86,14 @@ const expandOrCollapseAllEducation = function() {
 const initializeText = function(i) {
   abbreviations[i] = requirementAbbreviations[i].innerText;
   descriptions[i] = requirementTips[i].value;
+};
+
+const expandStream = function() {
+  document.getElementById("stream-div").classList.remove("truncation");
+};
+
+const collapseStream = function() {
+  // document.getElementById("stream-div").classList.add("truncation");
 };
 
 const expandCurrentClassification = function(i) {
@@ -210,6 +220,16 @@ const openCloseQuestionFull = function(i) {
 };
 
 window.addEventListener("DOMContentLoaded", () => {
+  for (let i = 0; i < streams.length; i++) {
+    streams[i].addEventListener("mouseover", () => {
+      expandStream(i);
+    });
+
+    streams[i].addEventListener("mouseleave", () => {
+      collapseStream(i);
+    });
+  }
+
   for (let i = 0; i < substantiveClassifications.length; i++) {
     substantiveClassificationAbbrev[i] = substantiveClassifications[
       i

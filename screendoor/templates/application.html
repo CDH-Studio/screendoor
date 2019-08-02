@@ -18,24 +18,28 @@
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
           <h6 class="valign-wrapper col">
-            <span class="favourite-icon" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i></span>
+            <div class="col favourite-icon tooltip" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
+              <span class="tooltiptext">Favourite/unfavourite this applicant</span> </div>
             {{ applicant.applicant_id }}
-            <span class="{% if applicant.percentage_correct <= 33 %}
-                         applicant-summary-card list card-panel red
-                         {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
-                         applicant-summary-card list card-panel orange
-                         {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
-                         applicant-summary-card list card-panel green
-                         {% endif %}
-                         white-text applicant-question-total-detail">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)</span>
+            <div class="col tooltip {% if applicant.percentage_correct <= 33 %}
+                        applicant-summary-card list card-panel red
+                        {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
+                        applicant-summary-card list card-panel orange
+                        {% elif applicant.percentage_correct > 66 and applicant.percentage_correct <= 100 %}
+                        applicant-summary-card list card-panel green
+                        {% endif %}
+                        white-text applicant-question-total-detail">{{ applicant.number_yes_responses }}/{{ applicant.number_questions }} ({{ applicant.percentage_correct }}%)
+              <div class="tooltiptext">This applicant answered yes to {{ applicant.number_yes_responses }} out of {{ applicant.number_questions }} questions ({{ applicant.percentage_correct }}%)</div>
+            </div>
             <div class="tooltip pdf-icon col">
-              <a href="{% url 'sbr' applicant.applicant_id %}"> <i class="material-icons red-text">picture_as_pdf</i>
-                <span class="tooltiptext screening-pdf">Download Screening Evaluation Sheet PDF</span>
+              <a href="{% url 'sbr' applicant.applicant_id %}">
+                <i class="material-icons red-text">picture_as_pdf</i>
+                <span class="tooltiptext screening-pdf">{{ toolTips.screening_evaluation_sheet }}</span>
               </a>
             </div>
           </h6>
         </div>
-        <div class="row applicant-header hoverable header-row">
+        <div id="applicant-header" class="row applicant-header hoverable header-row">
           <div class="col applicant-icon">
             <i class="collapse-arrows material-icons grey-text text-lighten-1 small">person</i>
           </div>
@@ -60,11 +64,14 @@
               {% endfor %}
             </span>
           </div>
-          <div class="col s3 truncation">
+          <div id="stream-div" class="col s3">
             <span class="applicant-streams">
               {% for stream in streams reversed %}
               {% if stream is not None %}
-              <span class="applicant-summary-card-small list card-panel blue lighten-{{ forloop.revcounter }} darken-{{ forloop.counter }} white-text">Stream {{ forloop.counter }}</span>
+              <div class="tooltip">
+                <span class="stream applicant-summary-card-small list card-panel blue lighten-{{ forloop.revcounter }} darken-{{ forloop.counter }} white-text" data-stream-description="{{ stream.stream_description }}">{{ applicantText.stream }} {{ forloop.counter }}</span>
+                <span class="tooltiptext">{{ stream.stream_description }}</span>
+              </div>
               {% endif %}
               {% endfor %}
             </span>
@@ -281,29 +288,29 @@
                   <div class="extracts-full">
                     <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
                     <data class="answer-id" value="{{ answer.id }}" >
-                    {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
+                      {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
 
-                    <!-- Data classes for sentence highlighting -->
-                    <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
-                    <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
-                    <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
-                    <data class="extract-string" value="{{ extract.extract_text }}"></data>
-                    <data class="extract-id" value="{{ extract.id }}"></data>
-                    <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
-                    <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
-                    <!-- Extracts full -->
-                    <div class="extract-full">
-                      {% if extract.extract_type == 'WHEN' %}
-                      <i class="material-icons red-text text-lighten-1">date_range</i>
-                      {% elif extract.extract_type == 'HOW' %}
-                      <i class="material-icons brown-text text-lighten-1">work</i>
-                      {% endif %}
-                      <span class="grey-text text-darken-1">
-                        <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
-                        <br>
-                      </span>
-                    </div>
-                    {% endfor %}
+                      <!-- Data classes for sentence highlighting -->
+                      <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
+                      <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
+                      <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
+                      <data class="extract-string" value="{{ extract.extract_text }}"></data>
+                      <data class="extract-id" value="{{ extract.id }}"></data>
+                      <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
+                      <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
+                      <!-- Extracts full -->
+                      <div class="extract-full">
+                        {% if extract.extract_type == 'WHEN' %}
+                        <i class="material-icons red-text text-lighten-1">date_range</i>
+                        {% elif extract.extract_type == 'HOW' %}
+                        <i class="material-icons brown-text text-lighten-1">work</i>
+                        {% endif %}
+                        <span class="grey-text text-darken-1">
+                          <span class="extract-text">{{ extract.extract_text|capfirst|linebreaksbr }}</span>
+                          <br>
+                        </span>
+                      </div>
+                      {% endfor %}
                   </div>
                 </div>
               </div>
