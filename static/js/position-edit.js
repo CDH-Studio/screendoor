@@ -18,7 +18,6 @@ let resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : nul
 let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
 
-/* Returns a dictionary of cell data to be sent via AJAX */
 const getEditData = function() {
   const params = Object.create(null);
   params["positionId"] = document.getElementById("position-id").value;

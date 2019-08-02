@@ -1,6 +1,28 @@
 from django.utils.translation import gettext as _
 
 
+class ToolTips():
+    favourite = _("Favourite or unfavourite applicant")
+    pdf = _("Download PDF Screening Evaluation Sheet")
+    screening_evaluation_sheet = _("Download Screening Evaluation Sheet PDF")
+    qualifier_tooltip = _(
+        """Whether the identified information met the requirements stated by the question.
+    Passed: The applicant's experience explicitly met the requirement.
+    Failed: The applicant's experience did not explicity meet the requirement.
+    Indeterminate: The applicant's experience could not be determined from the provided information.
+    NOTE: Ambigious dates (e.g. over 10 years) excluded.""")
+    complementary_response_tooltip = _(
+        """Additional information given by the applicant to explain/clarify their experience(s).
+                      Only present if the applicant responded "yes" to the question."""
+    )
+    extracts_tooltip = _(
+        """Relevant dates and experiences from Complementary Response, provided by ScreenDoor's Natural Language Processing (NLP)."""
+    )
+    add_note_tooltip = _("Add a note on this answer")
+    # how_extract_tooltip = _("An action, duty, or task identified by the NLP model. Statements that do not refer to the applicant are exluded.")
+    # when_extract_tooltip = _("A date identified by the NLP model, and how that date is used in the statement. Dates that do not refer to an applicant's experience are excluded.")
+
+
 class StandardFormText():
     # Translators: StandardFormText
     username_or_email_label = _('Username/Email Address')
@@ -120,7 +142,7 @@ class PositionText():
     applicant_id = _("Applicant ID")
     classifications = _("Classifications")
     streams = _("Streams")
-    score = _("Score")
+    score = _("Tabulation")
     pdf = _("PDF")
 
 
@@ -183,7 +205,7 @@ class PositionsViewText():
     # Translators: Position View
     position = _("Position")
     # Translators: Position View
-    score = _("Avg Score")
+    score = _("Average")
     # Translators: Position View
     no_applicants = _("Applicants")
     # Translators: Position View
@@ -220,15 +242,15 @@ class PositionsViewText():
     # Translators: Position View
     applicant = _("Applicant")
     # Translators: Position View
-    average_score = _("Average Score")
+    average_score = _("Average Tabulation")
     # Translators: Position View
     no_applicants = _("No. Applicants")
     # Translators: Position View
-    avg_score = _("Avg. Score")
+    avg_score = _("Average Tabulation")
     id = _("ID")
     classifications = _("Classifications")
     streams = _("Streams")
-    score = _("Score")
+    score = _("Tabulation")
     add_users = _("Add Users")
     add_user = _("Add another user to this position")
     current_users = _("Current users")
@@ -304,6 +326,7 @@ class ApplicantViewText():
     analysis = _("Analysis")
     # Translators: Applicant View
     streams = _("Streams")
+    stream = _("Stream")
     # Translators: Applicant View
     substantive = _("Substantive")
     # Translators: Applicant View

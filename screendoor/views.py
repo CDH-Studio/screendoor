@@ -28,7 +28,7 @@ from .parseposter import parse_upload
 from .redactor import redact_applications
 from .tasks import process_applications
 from .uservisibletext import InterfaceText, CreateAccountFormText, PositionText, PositionsViewText, LoginFormText, \
-    ApplicantViewText
+    ApplicantViewText, ToolTips
 
 # Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for
 # the requested page, or raising an exception such as Http404.
@@ -295,6 +295,7 @@ def positions_list_data(request):
         'baseVisibleText': InterfaceText,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
+        'toolTipText': ToolTips,
         'applicationsForm': ImportApplicationsForm,
         'positions': positions,
         'sort': sort_by
@@ -348,6 +349,7 @@ def position_detail_data(request, position_id, task_id):
         'applicationsForm': ImportApplicationsForm,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
+        'toolTipText': ToolTips,
         'position': position,
         'applicants': applicant_dict,
         'task_id': task_id,
@@ -485,7 +487,9 @@ def applicant_detail_data(request, applicant_id, position_id):
         'answers':
         answers,
         "favourite":
-        is_favourited
+        is_favourited,
+        "toolTips":
+        ToolTips
     }
 
 
@@ -710,7 +714,6 @@ def edit_position(request):
                                           description=value)
                 requirement.save()
                 asset_count += 1
-
         return JsonResponse({'message': 'success'})
     except:
         print("ERROR!")

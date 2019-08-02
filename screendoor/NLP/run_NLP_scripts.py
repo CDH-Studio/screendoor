@@ -52,7 +52,7 @@ def analyze_question_qualifiers(question_text, date_ranges, closing_date, answer
             quantifier = pull_number_from_date(date.text)
             is_years = is_qualifying_years(date)
 
-            if re.search(r'least|over|more|approximately', date.text):
+            if re.search(r'least|over|more|approximately|minimum', date.text):
                 qualifier_type = 'SIGNIFICANCE'
                 if date_ranges != []:
                     status = determine_if_significant_criteria_met(date_ranges, quantifier,

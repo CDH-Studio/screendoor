@@ -66,6 +66,7 @@ const removeRequirementListeners = function() {
 window.addEventListener("DOMContentLoaded", () => {
   addRequirementListeners();
 
+
   expandAllRequirementsButton.addEventListener("click", () => {
     expandCollapseAllRequirements();
   });
