@@ -187,7 +187,7 @@
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description education-description col s10 edit" id="education-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description education-description col s10 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -209,7 +209,7 @@
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description experience-description col s11 edit" id="experience-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description experience-description col s11 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -231,7 +231,7 @@
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description asset-description col s11 edit" id="asset-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description asset-description col s11 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}

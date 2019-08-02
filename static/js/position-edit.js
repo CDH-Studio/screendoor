@@ -6,28 +6,29 @@ const saveButton = document.getElementById("save-button");
 const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
 const cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
 const form = document.getElementById("edit-position");
-let cells = Array.from(document.getElementsByClassName("edit"));
-
 const requirementTypeHeaders = document.getElementsByClassName("requirement-type");
-const requirementSections = document.getElementsByClassName("hidden-requirement-info");
-
+let cells = Array.from(document.getElementsByClassName("edit"));
 let requirementPoints = document.getElementsByClassName("requirement-point");
-let requirementDescriptions = document.getElementsByClassName("requirement-description");
-let requirementAbbreviations = document.getElementsByClassName("requirement-abbrev");
-
 let educationRequirementDiv = document.getElementById("education-requirements");
 let experienceRequirementDiv = document.getElementById("experience-requirements");
 let assetRequirementDiv = document.getElementById("asset-requirements");
-
 let resetEducation = educationRequirementDiv ? educationRequirementDiv.cloneNode(true) : null;
 let resetExperience = experienceRequirementDiv ? experienceRequirementDiv.cloneNode(true) : null;
 let resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : null;
-
 let buttonRow = document.getElementById("import-position-buttons");
 let cellText = [];
 
-/* AJAX FUNCTIONS */
+/* Returns a dictionary of cell data to be sent via AJAX */
+const getEditData = function() {
+  const params = Object.create(null);
+  params["positionId"] = document.getElementById("position-id").value;
+  cells.forEach(function(cell) {
+    params[cell.id] = cell.textContent;
+  });
+  return params;
+};
 
+/* Sends data from edited cells via AJAX POST request */
 const editPosition = function() {
   const url = "/edit-position";
   const data = JSON.stringify(getEditData());
@@ -41,6 +42,7 @@ const editPosition = function() {
   }).catch(error => console.error("Error:", error));
 };
 
+/* Rearrange requirement abbreviations (i.e. EXP1) to ensure order is maintained */
 const rearrangeAbbreviations = function() {
   const educationRequirements = document.querySelectorAll("div[data-requirement-type='Education']");
   const experienceRequirements = document.querySelectorAll("div[data-requirement-type='Experience']");
@@ -57,6 +59,43 @@ const rearrangeAbbreviations = function() {
   }
 };
 
+/* Ensure consistency in the IDs of requirement delete buttons */
+const reinitializeDeleteButtonIds = function() {
+  requirementPoints = document.getElementsByClassName("requirement-point");
+  const removeButtons = document.getElementsByClassName("remove-requirement-button");
+  for (let i = 0; i < requirementPoints.length; i++) {
+    removeButtons[i].id = "remove-button-" + i;
+  }
+};
+
+/* Reinitialize data for requirement point divs */
+const reinitializeRequirementPointData = function() {
+  for (let i = 0; i < requirementPoints.length; i++) {
+    const abbreviation = requirementPoints[i].children[1].textContent;
+    requirementPoints[i].dataset.requirementAbbrev = abbreviation;
+    requirementPoints[i].dataset.requirementId = i;
+    requirementPoints[i].children[0].dataset.requirementAbbrev = abbreviation;
+    requirementPoints[i].children[0].dataset.requirementId = i;
+  }
+};
+
+/* Reinitialize IDs of cells to ensure consistency after changes made */
+const reinitializeRequirementIds = function() { // LAST
+  requirementPoints = document.getElementsByClassName("requirement-point");
+  const requirementCells = document.getElementsByClassName("edit requirement-description");
+  for (let i = 0; i < requirementCells.length; i++) {
+    const abbreviation = requirementPoints[i].dataset.requirementAbbrev;
+    const requirementNumber = parseInt(abbreviation.match(/\d+/g).map(Number));
+    const requirementType = requirementPoints[i].dataset.requirementType;
+    requirementCells[i].id = requirementType.toLowerCase() + "-" + requirementNumber.toString();
+    if (requirementCells[i].children[0]) {
+      requirementCells[i].children[0].name = requirementCells[i].id;
+    }
+  }
+  cells = Array.from(document.getElementsByClassName("edit"));
+};
+
+/* Remove a requirement and reinitialize abbreviations and IDs */
 const removeRequirement = function(requirementId) {
   for (let i = 0; i < requirementPoints.length; i++) {
     if (requirementPoints[i].dataset.requirementId == requirementId)  {
@@ -65,20 +104,12 @@ const removeRequirement = function(requirementId) {
   }
   requirementPoints = document.getElementsByClassName("requirement-point");
   rearrangeAbbreviations();
-  // initRemoveButtonHandlers();
+  reinitializeDeleteButtonIds();
+  reinitializeRequirementPointData();
+  reinitializeRequirementIds();
 };
 
-const initRemoveButtonHandlers = function() {
-  const removeButtons = document.getElementsByClassName("remove-requirement-button");
-  console.log(removeButtons);
-  console.log(removeButtons.length);
-  for (let i = 0; i < removeButtons.length; i++) {
-    removeButtons[i].addEventListener("click", () => {
-      removeRequirement(i);
-    });
-  }
-};
-
+/* Return a new blank requirement item */
 const newRequirement = function(requirementType) {
   for (let i = requirementPoints.length - 1; i > 0; i--) {
     if (requirementPoints[i].dataset.requirementType == requirementType) {
@@ -86,18 +117,28 @@ const newRequirement = function(requirementType) {
       const requirementNumber = parseInt(abbreviation.match(/\d+/g).map(Number));
       const newAbbreviation = abbreviation.replace(/[0-9]/g, "") + (requirementNumber + 1).toString();
       const newNode = requirementPoints[i].cloneNode(true);
-      newNode.dataset.requirementId = parseInt(newNode.dataset.requirementId + 1).toString();
+      newNode.dataset.requirementId = (parseInt(newNode.dataset.requirementId) + 1).toString();
+      const oldButtonId = newNode.children[0].id;
+      const oldButtonIdNumber = parseInt(oldButtonId.match(/\d+/g).map(Number));
+      newNode.dataset.requirementAbbrev = newAbbreviation;
+      newNode.children[0].id = oldButtonId.replace(/[0-9]/g, "") + (oldButtonIdNumber + 1).toString();
+      newNode.children[0].dataset.requirementAbbrev = newAbbreviation;
+      newNode.children[0].dataset.requirementId = (oldButtonIdNumber + 1).toString();
       newNode.children[0].addEventListener("click", () => {
         removeRequirement(newNode.dataset.requirementId);
       });
       newNode.children[1].textContent = newAbbreviation;
       newNode.children[2].children[0].value = "";
-      newNode.children[2].id = requirementType.toLowerCase() + "-description-" + parseInt(requirementNumber + 1);
+      const inputName = newNode.children[2].children[0].name;
+      const inputNameNumber = parseInt(inputName.match(/\d+/g).map(Number));
+      newNode.children[2].id = inputName.replace(/[0-9]/g, "") + (inputNameNumber + 1).toString();
+      newNode.children[2].children[0].name = inputName.replace(/[0-9]/g, "") + (inputNameNumber + 1).toString();
       return newNode;
     }
   }
 };
 
+/* Add a requirement based on its type and reinitialize IDs to ensure consistency */
 const addRequirement = function(requirementType) {
   switch (requirementType) {
   case "Education":
@@ -110,8 +151,13 @@ const addRequirement = function(requirementType) {
     assetRequirementDiv.appendChild(newRequirement(requirementType));
     break;
   }
+  rearrangeAbbreviations();
+  reinitializeDeleteButtonIds();
+  reinitializeRequirementPointData();
+  reinitializeRequirementIds();
 };
 
+/* Returns a button used to remove a requirement */
 const removeRequirementButton = function(i) {
   const removeButton = document.createElement("i");
   removeButton.classList.add("material-icons", "col", "red-text", "remove-requirement-button", "left");
@@ -120,6 +166,7 @@ const removeRequirementButton = function(i) {
   return removeButton;
 };
 
+/* Returns a button used to add a requirement */
 const addRequirementButton = function(i) {
   const addButton = document.createElement("i");
   addButton.classList.add("material-icons", "orange-text", "add-requirement-button");
@@ -128,6 +175,7 @@ const addRequirementButton = function(i) {
   return addButton;
 };
 
+/* Adds buttons to requirement headers allowing the user to click to add requirements */
 const addButtonsToRequirementHeaders = function() {
   for (let i = 0; i < requirementTypeHeaders.length; i++) {
     const requirementButton = addRequirementButton(i);
@@ -139,12 +187,14 @@ const addButtonsToRequirementHeaders = function() {
   }
 };
 
+/* Removes buttons from requirement headers */
 const removeButtonsFromRequirementHeaders = function() {
   for (let i = 0; i < requirementTypeHeaders.length; i++) {
     requirementTypeHeaders[i].removeChild(document.getElementById("add-button-" + i));
   }
 };
 
+/* Adds buttons to requirement items allowing user to delete them */
 const addButtonsToRequirements = function() {
   for (let i = 0; i < requirementPoints.length; i++) {
     const removeButton = removeRequirementButton(i);
@@ -158,38 +208,32 @@ const addButtonsToRequirements = function() {
   }
 };
 
+/* Removes delete buttons from requirement items */
 const removeButtonsFromRequirements = function() {
+  requirementPoints = document.getElementsByClassName("requirement-point");
   for (let i = 0; i < requirementPoints.length; i++) {
     try {
       if (document.getElementById("remove-button-" + i)) {
         requirementPoints[i].removeChild(document.getElementById("remove-button-" + i));
       }
     } catch (NotFoundError) {
-      null;
+      console.error();
     }
   }
 };
 
+/* Adds all necessary buttons for adding and removing requirements */
 const addReqButtons = function() {
   addButtonsToRequirements();
   addButtonsToRequirementHeaders();
 };
 
+/* Removes all requirement-related buttons */
 const removeReqButtons = function() {
   removeButtonsFromRequirements();
   removeButtonsFromRequirementHeaders();
 };
 
-const getEditData = function() {
-  const params = Object.create(null);
-  params["positionId"] = document.getElementById("position-id").value;
-  cells.forEach(function(cell) {
-    params[cell.id] = cell.textContent;
-  });
-  return params;
-};
-
-/* HELPER FUNCTIONS */
 
 /* Appends edit cells containing existing position data */
 const defineEditCells = function(cell, name, isReadOnly) {
@@ -214,13 +258,14 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   return editableNode;
 };
 
+/* Create confirm and cancel buttons for editing */
 const defineAdditionalButtons = function() {
-  okButton.value = document.getElementById("ok-button-text") ? document.getElementById("ok-button-text").value : null;
+  window.location.pathname.includes("/createnewposition") ? okButton.value = document.getElementById("ok-button-text").value : okButton.textContent = document.getElementById("ok-button-text").value;
   okButton.id = "ok-button";
   okButton.name = "save-edits";
   okButton.type = "button";
   okButton.classList.add("hide");
-  cancelButton.value = document.getElementById("cancel-button-text") ? document.getElementById("cancel-button-text").value : null;
+  window.location.pathname.includes("/createnewposition") ? cancelButton.value = document.getElementById("cancel-button-text").value : cancelButton.textContent = document.getElementById("cancel-button-text").value;
   cancelButton.id = "cancel-button";
   cancelButton.name = "cancel-edits";
   cancelButton.type = "button";
@@ -228,6 +273,7 @@ const defineAdditionalButtons = function() {
   buttonRow.append(okButton, cancelButton);
 };
 
+/* Adjust card size based on browser window width */
 const setCardSize = function() {
   let percentage = 0;
   if (window.location.pathname.includes("/createnewposition")) {
@@ -242,9 +288,11 @@ const setCardSize = function() {
   card.style.setProperty("min-width", "700px", "important");
 };
 
+/* Convert text fields into editable inputs */
 const startEditing = function() {
   removeRequirementListeners(); // From position-tables.js
   expandAllRequirements(); // From position-tables.js
+  reinitializeRequirementIds();
   setCardSize();
   window.addEventListener("resize", setCardSize);
   document.getElementById("base-header").addEventListener("transitionend", setCardSize);
@@ -258,6 +306,7 @@ const startEditing = function() {
   addReqButtons();
 };
 
+/* Tasks associated with stopping edit, either via cancel or confirm */
 const stopEditing = function() {
   addRequirementListeners(); // From position-tables.js
   showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null); // From helper-functions.js
@@ -267,6 +316,7 @@ const stopEditing = function() {
   removeReqButtons();
 };
 
+/* Confirm changes to position and send data via AJAX */
 const confirmEditChanges = function() {
   if (form.reportValidity()) {
     stopEditing();
@@ -278,6 +328,7 @@ const confirmEditChanges = function() {
   }
 };
 
+/* Cancel edits and return position to original imported state */
 const cancelEditChanges = function() {
   if (educationRequirementDiv) {
     educationRequirementDiv.replaceWith(resetEducation);
