@@ -307,6 +307,8 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 5px !important;
 }
 
+
+
 .classification-substantive {
   display: inline-block;
   margin-top: 5px !important;
@@ -347,9 +349,9 @@ input[type=number]::-webkit-outer-spin-button {
   -o-transition: max-width .3s;
 }
 
-.applicant-streams span {
+.applicant-streams .applicant-summary-card-small {
   margin-top: 5px !important;
-  display: inline-block !important;
+  display: inline-block;
 }
 
 .applicant-info-header div {
@@ -583,9 +585,28 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Tooltip container */
 .tooltip {
-  position: relative !important;
+  position: relative;
   display: inline-block;
   border-bottom: 0px dotted black; /* If you want dots under the hoverable text */
+  z-index: 5;
+}
+
+/* Tooltip container */
+.tooltip-icon {
+  font-size: 1.1rem;
+  position: relative;
+  cursor: pointer;
+  left: 3;
+  top: 2;
+}
+
+
+#position-detail-pdf {
+  padding-left: 15px;
+}
+
+#position-detail-pdf .tooltiptext {
+  margin-left: -64px; /* Use half of the width (120/2 = 60), to center the tooltip */
 }
 
 /* Tooltip text */
@@ -605,7 +626,7 @@ input[type=number]::-webkit-outer-spin-button {
 
   /* Position the tooltip text - see examples below! */
   position: absolute !important;
-  z-index: 1;
+  z-index: 5;
 
   transition: opacity .3s, visibility .3s;
   -webkit-transition: opacity .3s, visibility .3s;
@@ -613,7 +634,43 @@ input[type=number]::-webkit-outer-spin-button {
   -o-transition: opacity .3s, visibility .3s;
 }
 
-.tooltip .tooltiptext::after {
+.tooltip .long-tooltiptext {
+  font-size: .9rem;
+  width: 300px;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -147px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  opacity: 0;
+  background-color: #212121;
+  color: #fff;
+  text-align: center;
+  padding: 10px 10px;
+  border-radius: 3px;
+  visibility: hidden;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute !important;
+  z-index: 5;
+
+  transition: opacity .3s, visibility .3s;
+  -webkit-transition: opacity .3s, visibility .3s;
+  -moz-transition: opacity .3s, visibility .3s;
+  -o-transition: opacity .3s, visibility .3s;
+}
+
+#favourite-tooltip-icon {
+  left: 13;
+}
+
+#position-detail-favourite .tooltiptext {
+  margin-left: -63px; /* Use half of the width (120/2 = 60), to center the tooltip */
+}
+
+.tooltiptext.screening-pdf {
+  margin-left: -72px; /* Use half of the width (120/2 = 60), to center the tooltip */
+}
+
+.tooltip .tooltiptext::after, .tooltip .long-tooltiptext::after {
   content: " ";
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
@@ -622,12 +679,26 @@ input[type=number]::-webkit-outer-spin-button {
   border-width: 5px;
   border-style: solid;
   border-color: #212121 transparent transparent transparent;
+    z-index: 5;
+}
+
+.score-text a {
+  margin-left: 0px;
+}
+
+#tabulation-tooltip-icon {
+    margin-left: -20px !important;
+}
+
+#tabulation-tooltip .tooltiptext {
+  margin-left: -85px; /* Use half of the width (120/2 = 60), to center the tooltip */
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
+.tooltip:hover .tooltiptext, .tooltip:hover .long-tooltiptext {
   opacity: .8;
-  visibility: visible;
+  visibility: visible !important;
+    z-index: 5;
 }
 
 .question-icons {
@@ -686,14 +757,15 @@ tr {
 }
 
 .complementary-response-header, .extract-full-header {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  margin-left: 15px !important;
   margin-bottom: 10px !important;
-  margin-top: -15px !important;
+  margin-top: -10px !important;
   color: #616161 !important;
 }
 
 .extract-full-header {
-  margin-left: -25px !important;
+  margin-left: -10px !important;
 }
 
 
@@ -735,7 +807,7 @@ tr {
   -webkit-transition: opacity .3s, max-height .3s, visibility .3s;
   -moz-transition: opacity .3s, max-height .3s, visibility .3s;
   -o-transition: opacity .3s, max-height .3s, visibility .3s;
-  transition: opacity .3s, max-height .3s, visibility .3s;
+  transition: opacity .3s, max-height .3s, visibility .3s; */
 }
 
 .applicant-response-full-open {
@@ -877,10 +949,6 @@ th a {
   color: #111111;
 }
 
-.applicant-id-text {
-
-}
-
 .applicant-sort-arrow {
   display: inline;
   position: absolute;
@@ -925,10 +993,6 @@ th a {
   margin-bottom: -15px;
 }
 
-.tooltiptext.screening-pdf {
-
-}
-
 .collapse-arrows {
   font-size: 1.2rem;
 }
@@ -952,6 +1016,8 @@ th a {
 .applicant-question-total-detail {
   margin-left: 15px !important;
   margin-top: 5px !important;
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
 }
 
 .truncation {
@@ -1780,6 +1846,13 @@ div {
 
 .favourite-icon {
   cursor: pointer;
+  margin-left: -10px;
+  margin-right: -12px;
+}
+
+.favourite-icon-position {
+  cursor: pointer;
+  margin-right: -12px;
 }
 
 .card.applicant-list-item {
