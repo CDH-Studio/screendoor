@@ -182,7 +182,7 @@
                       expand_more
                     </i>
                   </li>
-                  <div id="education-requirements" class="hidden-requirement-info row body-row row-closed">
+                  <div id="education-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
@@ -202,7 +202,7 @@
                       expand_more
                     </i>
                   </li>
-                  <div id="experience-requirements" class="hidden-requirement-info row body-row row-closed">
+                  <div id="experience-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
@@ -222,7 +222,7 @@
                       expand_more
                     </i>
                   </li>
-                  <div id="asset-requirements" class="hidden-requirement-info row body-row row-closed">
+                  <div id="asset-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
