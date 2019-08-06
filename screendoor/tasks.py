@@ -58,4 +58,4 @@ def delete_authorization_tokens():
 # Once per day
 @shared_task
 def delete_orphaned_positions():
-    Position.objects.filter(screendooruser=None).delete()
+    Position.objects.filter(position_users=None).delete()
