@@ -87,8 +87,6 @@ def upload_applications(request):
         form = ImportApplicationsForm(request.POST, request.FILES)
         # form.add_error('pdf', 'ad')
         if form.is_valid():
-            # check if
-            
             files = request.FILES.getlist('pdf')
             file_names = [
                 FileSystemStorage().save(file.name, file) for file in files
@@ -97,6 +95,8 @@ def upload_applications(request):
                 FileSystemStorage().url(file_name) for file_name in file_names
             ]
             total_applicants = int(get_total_applicants(file_paths))
+            # if there are no applications, assume the file is not the correct
+            # pdf type.
             if total_applicants == 0:
                 form.add_error('pdf', ErrorMessages.incorrect_applicant_pdf_file)
                 return position_detail_with_upload_error(request, 

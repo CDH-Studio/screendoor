@@ -118,22 +118,40 @@ def edit_position(request):
         position.salary = position_dictionary["position-salary"]
         position.open_to = position_dictionary["position-open-to"]
         position.description = position_dictionary["position-description"]
-        count = Requirement.objects.filter(position=position).count()
         position.save()
+
         for requirement in Requirement.objects.filter(position=position):
-            if requirement.requirement_type == "Education":
-                requirement.description = position_dictionary[
-                    "education-description-" + str(count)]
-                count -= 1
-            elif requirement.requirement_type == "Experience":
-                requirement.description = position_dictionary[
-                    "experience-description-" + str(count)]
-                count -= 1
-            elif requirement.requirement_type == "Asset":
-                requirement.description = position_dictionary[
-                    "asset-description-" + str(count)]
-                count -= 1
-            requirement.save()
+            requirement.delete()
+
+        education_count = 1
+        experience_count = 1
+        asset_count = 1
+
+        for key, value in position_dictionary.items():
+            if "education" in key:
+                requirement = Requirement(position=position,
+                                          requirement_type="Education",
+                                          abbreviation="ED" +
+                                          str(education_count),
+                                          description=value)
+                requirement.save()
+                education_count += 1
+            elif "experience" in key:
+                requirement = Requirement(position=position,
+                                          requirement_type="Experience",
+                                          abbreviation="EXP" +
+                                          str(experience_count),
+                                          description=value)
+                requirement.save()
+                experience_count += 1
+            elif "asset" in key:
+                requirement = Requirement(position=position,
+                                          requirement_type="Asset",
+                                          abbreviation="AEXP" +
+                                          str(asset_count),
+                                          description=value)
+                requirement.save()
+                asset_count += 1
         return JsonResponse({'message': 'success'})
     except:
         print("ERROR!")
