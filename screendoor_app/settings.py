@@ -175,10 +175,10 @@ CELERYD_STATE_DB = '/tmp/celery_state'
 CELERY_BEAT_SCHEDULE = {
     'delete_authorization_tokens': {
         'task': 'screendoor.tasks.delete_authorization_tokens',
-        'schedule': crontab(minute=0, hour=14)
+        'schedule': crontab(hour="*/48")
     },
     'delete_orphaned_positions': {
         'task': 'screendoor.tasks.delete_orphaned_positions',
-        'schedule': crontab(minute=0, hour=14),
+        'schedule': crontab(hour="*/1")
     }
 }

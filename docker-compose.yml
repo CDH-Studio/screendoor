@@ -65,7 +65,7 @@ services:
   # Scheduled task management for Django
   celery_beat:
     build: .
-    command: bash -c "sleep 10 && celery beat -A screendoor_app -l info"
+    command: bash -c "sleep 10 && celery beat -A screendoor_app --pidfile= -l info"
     volumes:
       - .:/code
     depends_on:
