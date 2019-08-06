@@ -19,6 +19,7 @@ class ToolTips():
         """Relevant dates and experiences from Complementary Response, provided by ScreenDoor's Natural Language Processing (NLP)."""
     )
     add_note_tooltip = _("Add a note on this answer")
+    tabulation_tooltip = _("Number of yes responses out of total questions")
     # how_extract_tooltip = _("An action, duty, or task identified by the NLP model. Statements that do not refer to the applicant are exluded.")
     # when_extract_tooltip = _("A date identified by the NLP model, and how that date is used in the statement. Dates that do not refer to an applicant's experience are excluded.")
 
@@ -55,6 +56,9 @@ class ErrorMessages():
     # Translators: When a user tries to upload a pdf we cant parse.
     incorrect_pdf_file = _(
         'Unable to parse pdf. Please enter a pdf from jobs.gc.ca.')
+    # Translators: When a user tries to upload a pdf we cant parse.
+    incorrect_applicant_pdf_file = _(
+        'Unable to parse pdf. Please enter a pdf containing a batch of applications.')
     # Translators: When a user tries to upload a url.
     url_upload_not_supported_yet = _(
         'URL uploading not currently supported. Please upload a pdf file.')

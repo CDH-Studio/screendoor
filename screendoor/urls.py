@@ -1,7 +1,7 @@
 from django.urls import path
 
 from screendoor.views.base_views import index, register_form, login_form, logout_view, login_form
-from screendoor.views.main_views import positions, position_detail, delete_position, application, render_pdf
+from screendoor.views.main_views import positions, position_detail, position_detail_with_upload_error, delete_position, application, render_pdf
 from screendoor.views.helper_views import sort_positions, sort_applicants, filter_applicants
 from screendoor.views.import_pdfs import upload_applications, import_position, task_status
 from screendoor.views.ajax_paths import change_favourites_status, add_user_to_position, remove_user_from_position, add_note, remove_note, edit_position

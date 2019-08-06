@@ -6,11 +6,11 @@ const totalNumberSpan = document.getElementById("total-number");
 const progressBar = document.getElementById("progress-bar");
 const progressText = document.getElementById("progress-text");
 const loadingEllipses = document.getElementById("loading-ellipses");
+const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
 const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
 const reloadUrl = document.getElementById("reload-url").value;
-const taskId = document.getElementById("task-id").value;
 
 /* Variable representing ajax request timer */
 let updateTimer = null;
@@ -78,7 +78,7 @@ const displayProgress = function(queryUrl) {
 
 /* Execute and run timer if applicant file upload is taking place */
 const initializeApplicantUploadProgress = function() {
-  document.getElementById('files-processing').innerHTML = localStorage.getItem('applicationFiles');
+  document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar();
   uploadModal.openInstant();
   try {
@@ -93,9 +93,17 @@ const initializeApplicantUploadProgress = function() {
 
 /* Show upload progress if there is a valid task ID */
 window.addEventListener("load", function() {
+  cancelUploadButton.addEventListener("click", () => {
+    document.getElementById("upload-applications-error-text").style.display = "none";
+  });
+
+  if (document.getElementById("upload-applications-error-text") && document.getElementById("upload-applications-error-text").value != "None") {
+    uploadApplicantModal.openInstant();
+  }
   if (document.getElementById("task-id") && document.getElementById("task-id").value != "None") {
     initializeApplicantUploadProgress();
   } else {
     hideProgressBar();
   }
 });
+

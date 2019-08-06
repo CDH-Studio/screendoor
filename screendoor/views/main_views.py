@@ -10,7 +10,7 @@ from weasyprint.fonts import FontConfiguration
 from screendoor.forms import ImportApplicationsForm
 from screendoor.models import Position, Applicant, Education, FormAnswer, Stream, Classification, \
     NlpExtract, Note, Qualifier
-from screendoor.uservisibletext import InterfaceText, PositionText, PositionsViewText, ApplicantViewText
+from screendoor.uservisibletext import InterfaceText, PositionText, PositionsViewText, ApplicantViewText, ToolTips
 from .helper_views import get_positions_sort_method, get_applicants_sort_method, get_applicant_filter_method, user_has_position, position_has_applicant, create_applicants_wth_favourite_information
 
 
@@ -44,7 +44,7 @@ def positions(request):
 
 
 # Data and visible text to render with positions
-def position_detail_data(request, position_id, task_id):
+def position_detail_data(request, position_id, task_id, error_msg):
     applicant_filter = get_applicant_filter_method(request)
     sort_by = get_applicants_sort_method(request)
     position = Position.objects.get(id=position_id)
@@ -71,7 +71,7 @@ def position_detail_data(request, position_id, task_id):
     ]
     return {
         'baseVisibleText': InterfaceText,
-        'form': ImportApplicationsForm,
+        'applicationsForm': ImportApplicationsForm,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
         'position': position,
@@ -80,7 +80,9 @@ def position_detail_data(request, position_id, task_id):
         'sort': sort_by,
         'current_user': request.user,
         'other_users': other_users,
-        'applicant_filter': applicant_filter
+        'applicant_filter': applicant_filter,
+        'toolTips': ToolTips,
+        'errorMsg': error_msg
     }
 
 
@@ -92,7 +94,22 @@ def position_detail(request, reference, position_id, task_id=None):
         position = user_has_position(request, reference, position_id)
         if position is not None:
             return render(request, 'position.html',
-                          position_detail_data(request, position.id, task_id))
+                          position_detail_data(request, position.id, task_id, None))
+    except ObjectDoesNotExist:
+        # TODO: add error message that position cannot be retrieved
+        return redirect('home')
+
+# Position detail view, which renders the upload application modal with the presence of an error message
+# the above either renders the default page, or the processing view, depending on the prescence of the task id
+# jank!
+@login_required(login_url='login', redirect_field_name=None)
+def position_detail_with_upload_error(request, reference, position_id, error_msg=None):
+    # GET request
+    try:
+        position = user_has_position(request, reference, position_id)
+        if position is not None:
+            return render(request, 'position.html',
+                          position_detail_data(request, position.id, None, error_msg))
     except ObjectDoesNotExist:
         # TODO: add error message that position cannot be retrieved
         return redirect('home')
@@ -152,7 +169,9 @@ def applicant_detail_data(request, applicant_id, position_id):
         'answers':
         answers,
         "favourite":
-        is_favourited
+        is_favourited,
+        "toolTips":
+        ToolTips
     }
 
 
