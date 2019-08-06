@@ -1,21 +1,22 @@
+"use strict";
+
 /* CONSTANTS AND VARIABLES */
 
 /* Same length */
-const extractStringStarts = document.getElementsByClassName("extract-string-index");
-const extractStringEnds = document.getElementsByClassName("extract-ending-index");
-const extractStringNext = document.getElementsByClassName("extract-next-index");
-const extractText = document.getElementsByClassName("extract-string");
-const visibleExtracts = document.getElementsByClassName("extract-text");
-const extractDivs = document.getElementsByClassName("extract-full");
-const extractParentAnswerIds = document.getElementsByClassName("extract-parent-answer-id");
-const extractParentAnswerTexts = document.getElementsByClassName("extract-parent-answer");
+var extractStringStarts = document.getElementsByClassName("extract-string-index");
+var extractStringEnds = document.getElementsByClassName("extract-ending-index");
+var extractStringNext = document.getElementsByClassName("extract-next-index");
+var extractText = document.getElementsByClassName("extract-string");
+var visibleExtracts = document.getElementsByClassName("extract-text");
+var extractDivs = document.getElementsByClassName("extract-full");
+var extractParentAnswerIds = document.getElementsByClassName("extract-parent-answer-id");
+var extractParentAnswerTexts = document.getElementsByClassName("extract-parent-answer");
 
 /* Same length */
-const answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
-const answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
+var answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
+var answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
 
-
-const underlineExtracts = function(extractIndex, direction) {
+var underlineExtracts = function underlineExtracts(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.add("extract-bold");
   // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
   //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
@@ -24,7 +25,7 @@ const underlineExtracts = function(extractIndex, direction) {
   // }
 };
 
-const clearExtractsUnderline = function(extractIndex, direction) {
+var clearExtractsUnderline = function clearExtractsUnderline(extractIndex, direction) {
   visibleExtracts[extractIndex].classList.remove("extract-bold");
   // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
   //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
@@ -33,20 +34,20 @@ const clearExtractsUnderline = function(extractIndex, direction) {
   // }
 };
 
-const highlightSentence = function(extractIndex, answerId) {
+var highlightSentence = function highlightSentence(extractIndex, answerId) {
   underlineExtracts(extractIndex, "backwards");
   underlineExtracts(extractIndex, "forwards");
 
-  for (let i = 0; i < answerComplementaryResponse.length; i++) {
+  for (var i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
 
-      let startIndex = parseInt(extractStringStarts[extractIndex].value);
-      let endIndex = parseInt(extractStringEnds[extractIndex].value);
-      const answerText = answerComplementaryResponseValue[i].value;
+      var startIndex = parseInt(extractStringStarts[extractIndex].value);
+      var endIndex = parseInt(extractStringEnds[extractIndex].value);
+      var answerText = answerComplementaryResponseValue[i].value;
 
-      const answerBefore = answerText.slice(0, startIndex);
-      const answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
-      const answerAfter = answerText.slice(endIndex);
+      var answerBefore = answerText.slice(0, startIndex);
+      var answerHighlight = "<span id='answer-highlight' class='answer-highlight'>" + answerText.slice(startIndex, endIndex) + "</span>";
+      var answerAfter = answerText.slice(endIndex);
 
       answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
       document.getElementById('answer-highlight').classList.add("answer-highlighted");
@@ -54,27 +55,31 @@ const highlightSentence = function(extractIndex, answerId) {
   }
 };
 
-const unHighlightSentence = function(extractIndex, answerId) {
+var unHighlightSentence = function unHighlightSentence(extractIndex, answerId) {
   clearExtractsUnderline(extractIndex, "backwards");
   clearExtractsUnderline(extractIndex, "forwards");
 
-  for (let i = 0; i < answerComplementaryResponse.length; i++) {
+  for (var i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
       answerComplementaryResponse[i].innerHTML = extractParentAnswerTexts[extractIndex].value;
     }
   }
 };
 
-const setHighlightListeners = function() {
-  for (let i = 0; i < visibleExtracts.length; i++) {
-    extractDivs[i].addEventListener("mouseover", function() {
+var setHighlightListeners = function setHighlightListeners() {
+  var _loop = function _loop(i) {
+    extractDivs[i].addEventListener("mouseover", function () {
       highlightSentence(i, extractParentAnswerIds[i].value);
     });
-    extractDivs[i].addEventListener("mouseout", function() {
+    extractDivs[i].addEventListener("mouseout", function () {
       unHighlightSentence(i, extractParentAnswerIds[i].value);
     });
+  };
+
+  for (var i = 0; i < visibleExtracts.length; i++) {
+    _loop(i);
   }
-  for (let i = 0; i < answerComplementaryResponse.length; i++) {
+  for (var i = 0; i < answerComplementaryResponse.length; i++) {
     answerComplementaryResponse[i].answerId = document.getElementsByClassName("answer-id")[i];
   }
 };

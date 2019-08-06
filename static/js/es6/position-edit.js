@@ -1,80 +1,76 @@
-"use strict";
-
 /* CONSTANTS AND VARIABLES */
 
-var card = document.getElementById("position-card");
-var editButton = document.getElementById("edit-button");
-var saveButton = document.getElementById("save-button");
-var okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
-var cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
-var form = document.getElementById("edit-position");
-var requirementTypeHeaders = document.getElementsByClassName("requirement-type");
-var cells = Array.from(document.getElementsByClassName("edit"));
-var requirementPoints = document.getElementsByClassName("requirement-point");
-var educationRequirementDiv = document.getElementById("education-requirements");
-var experienceRequirementDiv = document.getElementById("experience-requirements");
-var assetRequirementDiv = document.getElementById("asset-requirements");
-var resetEducation = educationRequirementDiv ? educationRequirementDiv.cloneNode(true) : null;
-var resetExperience = experienceRequirementDiv ? experienceRequirementDiv.cloneNode(true) : null;
-var resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : null;
-var buttonRow = document.getElementById("import-position-buttons");
-var cellText = [];
+const card = document.getElementById("position-card");
+const editButton = document.getElementById("edit-button");
+const saveButton = document.getElementById("save-button");
+const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
+const cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
+const form = document.getElementById("edit-position");
+const requirementTypeHeaders = document.getElementsByClassName("requirement-type");
+let cells = Array.from(document.getElementsByClassName("edit"));
+let requirementPoints = document.getElementsByClassName("requirement-point");
+let educationRequirementDiv = document.getElementById("education-requirements");
+let experienceRequirementDiv = document.getElementById("experience-requirements");
+let assetRequirementDiv = document.getElementById("asset-requirements");
+let resetEducation = educationRequirementDiv ? educationRequirementDiv.cloneNode(true) : null;
+let resetExperience = experienceRequirementDiv ? experienceRequirementDiv.cloneNode(true) : null;
+let resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : null;
+let buttonRow = document.getElementById("import-position-buttons");
+let cellText = [];
 
-var getEditData = function getEditData() {
-  var params = Object.create(null);
+const getEditData = function() {
+  const params = Object.create(null);
   params["positionId"] = document.getElementById("position-id").value;
-  cells.forEach(function (cell) {
+  cells.forEach(function(cell) {
     params[cell.id] = cell.textContent;
   });
   return params;
 };
 
 /* Sends data from edited cells via AJAX POST request */
-var editPosition = function editPosition() {
-  var url = "/edit-position";
-  var data = JSON.stringify(getEditData());
+const editPosition = function() {
+  const url = "/edit-position";
+  const data = JSON.stringify(getEditData());
 
   fetch(url, {
     method: "POST", // or "PUT"
     body: data, // data can be `string` or {object}!
-    headers: {
+    headers:{
       "Content-Type": "application/json"
     }
-  }).catch(function (error) {
-    return console.error("Error:", error);
-  });
+  }).catch(error => console.error("Error:", error));
 };
 
 /* Rearrange requirement abbreviations (i.e. EXP1) to ensure order is maintained */
-var rearrangeAbbreviations = function rearrangeAbbreviations() {
-  var educationRequirements = document.querySelectorAll("div[data-requirement-type='Education']");
-  var experienceRequirements = document.querySelectorAll("div[data-requirement-type='Experience']");
-  var assetRequirements = document.querySelectorAll("div[data-requirement-type='Asset']");
+const rearrangeAbbreviations = function() {
+  const educationRequirements = document.querySelectorAll("div[data-requirement-type='Education']");
+  const experienceRequirements = document.querySelectorAll("div[data-requirement-type='Experience']");
+  const assetRequirements = document.querySelectorAll("div[data-requirement-type='Asset']");
 
-  for (var i = 0; i < educationRequirements.length; i++) {
-    educationRequirements[i].children[1].textContent = "ED" + (i + 1);
+  for (let i = 0; i < educationRequirements.length; i++) {
+    educationRequirements[i].children[1].textContent = "ED" + (i+1);
   }
-  for (var _i = 0; _i < experienceRequirements.length; _i++) {
-    experienceRequirements[_i].children[1].textContent = "EXP" + (_i + 1);
+  for (let i = 0; i < experienceRequirements.length; i++) {
+    experienceRequirements[i].children[1].textContent = "EXP" + (i+1);
   }
-  for (var _i2 = 0; _i2 < assetRequirements.length; _i2++) {
-    assetRequirements[_i2].children[1].textContent = "AEXP" + (_i2 + 1);
+  for (let i = 0; i < assetRequirements.length; i++) {
+    assetRequirements[i].children[1].textContent = "AEXP" + (i+1);
   }
 };
 
 /* Ensure consistency in the IDs of requirement delete buttons */
-var reinitializeDeleteButtonIds = function reinitializeDeleteButtonIds() {
+const reinitializeDeleteButtonIds = function() {
   requirementPoints = document.getElementsByClassName("requirement-point");
-  var removeButtons = document.getElementsByClassName("remove-requirement-button");
-  for (var i = 0; i < requirementPoints.length; i++) {
+  const removeButtons = document.getElementsByClassName("remove-requirement-button");
+  for (let i = 0; i < requirementPoints.length; i++) {
     removeButtons[i].id = "remove-button-" + i;
   }
 };
 
 /* Reinitialize data for requirement point divs */
-var reinitializeRequirementPointData = function reinitializeRequirementPointData() {
-  for (var i = 0; i < requirementPoints.length; i++) {
-    var abbreviation = requirementPoints[i].children[1].textContent;
+const reinitializeRequirementPointData = function() {
+  for (let i = 0; i < requirementPoints.length; i++) {
+    const abbreviation = requirementPoints[i].children[1].textContent;
     requirementPoints[i].dataset.requirementAbbrev = abbreviation;
     requirementPoints[i].dataset.requirementId = i;
     requirementPoints[i].children[0].dataset.requirementAbbrev = abbreviation;
@@ -83,14 +79,13 @@ var reinitializeRequirementPointData = function reinitializeRequirementPointData
 };
 
 /* Reinitialize IDs of cells to ensure consistency after changes made */
-var reinitializeRequirementIds = function reinitializeRequirementIds() {
-  // LAST
+const reinitializeRequirementIds = function() { // LAST
   requirementPoints = document.getElementsByClassName("requirement-point");
-  var requirementCells = document.getElementsByClassName("edit requirement-description");
-  for (var i = 0; i < requirementCells.length; i++) {
-    var abbreviation = requirementPoints[i].dataset.requirementAbbrev;
-    var requirementNumber = parseInt(abbreviation.match(/\d+/g).map(Number));
-    var requirementType = requirementPoints[i].dataset.requirementType;
+  const requirementCells = document.getElementsByClassName("edit requirement-description");
+  for (let i = 0; i < requirementCells.length; i++) {
+    const abbreviation = requirementPoints[i].dataset.requirementAbbrev;
+    const requirementNumber = parseInt(abbreviation.match(/\d+/g).map(Number));
+    const requirementType = requirementPoints[i].dataset.requirementType;
     requirementCells[i].id = requirementType.toLowerCase() + "-" + requirementNumber.toString();
     if (requirementCells[i].children[0]) {
       requirementCells[i].children[0].name = requirementCells[i].id;
@@ -100,9 +95,9 @@ var reinitializeRequirementIds = function reinitializeRequirementIds() {
 };
 
 /* Remove a requirement and reinitialize abbreviations and IDs */
-var removeRequirement = function removeRequirement(requirementId) {
-  for (var i = 0; i < requirementPoints.length; i++) {
-    if (requirementPoints[i].dataset.requirementId == requirementId) {
+const removeRequirement = function(requirementId) {
+  for (let i = 0; i < requirementPoints.length; i++) {
+    if (requirementPoints[i].dataset.requirementId == requirementId)  {
       requirementPoints[i].remove();
     }
   }
@@ -114,59 +109,59 @@ var removeRequirement = function removeRequirement(requirementId) {
 };
 
 /* Return a new blank requirement item */
-var newRequirement = function newRequirement(requirementType) {
-  var newNode = document.createElement("div");
+const newRequirement = function(requirementType) {
+  const newNode = document.createElement("div");
   newNode.classList.add("requirement-point", "row");
   newNode.dataset.requirementType = requirementType;
   newNode.appendChild(removeRequirementButton());
-  var abbrevDiv = document.createElement("div");
+  const abbrevDiv = document.createElement("div");
   abbrevDiv.classList.add("requirement-abbrev", "col");
   newNode.appendChild(abbrevDiv);
-  var descripDiv = document.createElement("div");
+  const descripDiv = document.createElement("div");
   descripDiv.classList.add("requirement-description", "col", "s11", "edit");
   descripDiv.appendChild(createReturnTextInput("", "placeholder", false));
   switch (requirementType) {
-    case "Education":
-      descripDiv.classList.add("education-description");
-      break;
-    case "Experience":
-      descripDiv.classList.add("experience-description");
-      break;
-    case "Asset":
-      descripDiv.classList.add("asset-description");
-      break;
+  case "Education":
+    descripDiv.classList.add("education-description");
+    break;
+  case "Experience":
+    descripDiv.classList.add("experience-description");
+    break;
+  case "Asset":
+    descripDiv.classList.add("asset-description");
+    break;
   }
   newNode.appendChild(descripDiv);
   return newNode;
 };
 
 /* Add a requirement based on its type and reinitialize IDs to ensure consistency */
-var addRequirement = function addRequirement(requirementType) {
-  var newNode = newRequirement(requirementType);
+const addRequirement = function(requirementType) {
+  const newNode = newRequirement(requirementType);
   switch (requirementType) {
-    case "Education":
-      educationRequirementDiv.appendChild(newNode);
-      break;
-    case "Experience":
-      experienceRequirementDiv.appendChild(newNode);
-      break;
-    case "Asset":
-      assetRequirementDiv.appendChild(newNode);
-      break;
+  case "Education":
+    educationRequirementDiv.appendChild(newNode);
+    break;
+  case "Experience":
+    experienceRequirementDiv.appendChild(newNode);
+    break;
+  case "Asset":
+    assetRequirementDiv.appendChild(newNode);
+    break;
   }
   rearrangeAbbreviations();
   reinitializeDeleteButtonIds();
   reinitializeRequirementPointData();
   reinitializeRequirementIds();
 
-  newNode.children[0].addEventListener("click", function () {
+  newNode.children[0].addEventListener("click", () => {
     removeRequirement(newNode.dataset.requirementId);
   });
 };
 
 /* Returns a button used to remove a requirement */
-var removeRequirementButton = function removeRequirementButton(i) {
-  var removeButton = document.createElement("i");
+const removeRequirementButton = function(i) {
+  const removeButton = document.createElement("i");
   removeButton.classList.add("material-icons", "col", "red-text", "remove-requirement-button", "left");
   removeButton.textContent = "remove_circle";
   removeButton.id = "remove-button-" + i;
@@ -174,8 +169,8 @@ var removeRequirementButton = function removeRequirementButton(i) {
 };
 
 /* Returns a button used to add a requirement */
-var addRequirementButton = function addRequirementButton(i) {
-  var addButton = document.createElement("i");
+const addRequirementButton = function(i) {
+  const addButton = document.createElement("i");
   addButton.classList.add("material-icons", "orange-text", "add-requirement-button");
   addButton.textContent = "add_circle";
   addButton.id = "add-button-" + i;
@@ -183,50 +178,42 @@ var addRequirementButton = function addRequirementButton(i) {
 };
 
 /* Adds buttons to requirement headers allowing the user to click to add requirements */
-var addButtonsToRequirementHeaders = function addButtonsToRequirementHeaders() {
-  var _loop = function _loop(i) {
-    var requirementButton = addRequirementButton(i);
+const addButtonsToRequirementHeaders = function() {
+  for (let i = 0; i < requirementTypeHeaders.length; i++) {
+    const requirementButton = addRequirementButton(i);
     requirementButton.dataset.requirementType = requirementTypeHeaders[i].dataset.requirementType;
-    requirementButton.addEventListener("click", function () {
+    requirementButton.addEventListener("click", () => {
       addRequirement(requirementButton.dataset.requirementType);
     });
     requirementTypeHeaders[i].appendChild(requirementButton);
-  };
-
-  for (var i = 0; i < requirementTypeHeaders.length; i++) {
-    _loop(i);
   }
 };
 
 /* Removes buttons from requirement headers */
-var removeButtonsFromRequirementHeaders = function removeButtonsFromRequirementHeaders() {
-  for (var i = 0; i < requirementTypeHeaders.length; i++) {
+const removeButtonsFromRequirementHeaders = function() {
+  for (let i = 0; i < requirementTypeHeaders.length; i++) {
     requirementTypeHeaders[i].removeChild(document.getElementById("add-button-" + i));
   }
 };
 
 /* Adds buttons to requirement items allowing user to delete them */
-var addButtonsToRequirements = function addButtonsToRequirements() {
-  var _loop2 = function _loop2(i) {
-    var removeButton = removeRequirementButton(i);
+const addButtonsToRequirements = function() {
+  for (let i = 0; i < requirementPoints.length; i++) {
+    const removeButton = removeRequirementButton(i);
     removeButton.dataset.requirementType = requirementPoints[i].dataset.requirementType;
     removeButton.dataset.requirementAbbrev = requirementPoints[i].dataset.requirementAbbrev;
     removeButton.dataset.requirementId = requirementPoints[i].dataset.requirementId;
-    removeButton.addEventListener("click", function () {
+    removeButton.addEventListener("click", () => {
       removeRequirement(removeButton.dataset.requirementId);
     });
     requirementPoints[i].prepend(removeButton);
-  };
-
-  for (var i = 0; i < requirementPoints.length; i++) {
-    _loop2(i);
   }
 };
 
 /* Removes delete buttons from requirement items */
-var removeButtonsFromRequirements = function removeButtonsFromRequirements() {
+const removeButtonsFromRequirements = function() {
   requirementPoints = document.getElementsByClassName("requirement-point");
-  for (var i = 0; i < requirementPoints.length; i++) {
+  for (let i = 0; i < requirementPoints.length; i++) {
     try {
       if (document.getElementById("remove-button-" + i)) {
         requirementPoints[i].removeChild(document.getElementById("remove-button-" + i));
@@ -238,27 +225,28 @@ var removeButtonsFromRequirements = function removeButtonsFromRequirements() {
 };
 
 /* Adds all necessary buttons for adding and removing requirements */
-var addReqButtons = function addReqButtons() {
+const addReqButtons = function() {
   addButtonsToRequirements();
   addButtonsToRequirementHeaders();
 };
 
 /* Removes all requirement-related buttons */
-var removeReqButtons = function removeReqButtons() {
+const removeReqButtons = function() {
   removeButtonsFromRequirements();
   removeButtonsFromRequirementHeaders();
 };
 
+
 /* Appends edit cells containing existing position data */
-var defineEditCells = function defineEditCells(cell, name, isReadOnly) {
-  var input = createReturnTextInput(cell.textContent, name, isReadOnly);
+const defineEditCells = function(cell, name, isReadOnly) {
+  let input = createReturnTextInput(cell.textContent, name, isReadOnly);
   cell.textContent = null;
   cell.appendChild(input);
 };
 
 /* Returns an edit cell with the name and value of the table data element */
-var createReturnTextInput = function createReturnTextInput(text, name, isReadOnly) {
-  var editableNode = document.createElement("input");
+const createReturnTextInput = function(text, name, isReadOnly) {
+  let editableNode = document.createElement("input");
   editableNode.readOnly = isReadOnly;
   editableNode.name = name;
   editableNode.className = "editing";
@@ -273,7 +261,7 @@ var createReturnTextInput = function createReturnTextInput(text, name, isReadOnl
 };
 
 /* Create confirm and cancel buttons for editing */
-var defineAdditionalButtons = function defineAdditionalButtons() {
+const defineAdditionalButtons = function() {
   window.location.pathname.includes("/createnewposition") ? okButton.value = document.getElementById("ok-button-text").value : okButton.textContent = document.getElementById("ok-button-text").value;
   okButton.id = "ok-button";
   okButton.name = "save-edits";
@@ -288,34 +276,34 @@ var defineAdditionalButtons = function defineAdditionalButtons() {
 };
 
 /* Adjust card size based on browser window width */
-var setCardSize = function setCardSize() {
-  var percentage = 0;
+const setCardSize = function() {
+  let percentage = 0;
   if (window.location.pathname.includes("/createnewposition")) {
     percentage = sidebarIsOpen ? 50 : 70; // from sd-sidenav.js
   } else {
-    percentage = sidebarIsOpen ? 70 : 88; // from sd-sidenav.js
+    percentage = sidebarIsOpen ? 70 : 88;  // from sd-sidenav.js
   }
   fixPaddingWidth(); // from sd-sidenav.js
-  var width = window.innerWidth < 1800 ? parseInt(window.innerWidth * percentage / 100).toString().concat("px") : 1250;
+  const width = window.innerWidth < 1800 ? parseInt((window.innerWidth * percentage) / 100).toString().concat("px") : 1250;
   card.style.setProperty("max-width", width, "important");
   card.style.setProperty("width", width, "important");
   card.style.setProperty("min-width", "700px", "important");
 };
 
-var showRequirementTypeHeaders = function showRequirementTypeHeaders() {
-  for (var i = 0; i < requirementTypeHeaders.length; i++) {
+const showRequirementTypeHeaders = function() {
+  for (let i = 0; i < requirementTypeHeaders.length; i++) {
     requirementTypeHeaders[i].classList.remove("hide");
   }
 };
 
-var hideShowMissingRequirements = function hideShowMissingRequirements() {
+const hideShowMissingRequirements = function() {
   document.querySelectorAll("div[data-requirement-type='Education']").length == 0 ? requirementTypeHeaders[0].classList.add("hide") : requirementTypeHeaders[0].classList.remove("hide");
   document.querySelectorAll("div[data-requirement-type='Experience']").length == 0 ? requirementTypeHeaders[1].classList.add("hide") : requirementTypeHeaders[1].classList.remove("hide");
   document.querySelectorAll("div[data-requirement-type='Asset']").length == 0 ? requirementTypeHeaders[2].classList.add("hide") : requirementTypeHeaders[2].classList.remove("hide");
 };
 
 /* Convert text fields into editable inputs */
-var startEditing = function startEditing() {
+const startEditing = function() {
   removeRequirementListeners(); // From position-tables.js
   expandAllRequirements(); // From position-tables.js
   showRequirementTypeHeaders();
@@ -326,7 +314,7 @@ var startEditing = function startEditing() {
   showElements(okButton, cancelButton); // From helper-functions.js
   hideElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null); // From helper-functions.js
 
-  cells.forEach(function (cell, i) {
+  cells.forEach(function(cell, i) {
     cellText[i] = cells[i].textContent;
     cell.classList.contains("readonly") ? defineEditCells(cell, cell.id, true) : defineEditCells(cell, cell.id, false);
   });
@@ -334,7 +322,7 @@ var startEditing = function startEditing() {
 };
 
 /* Tasks associated with stopping edit, either via cancel or confirm */
-var stopEditing = function stopEditing() {
+const stopEditing = function() {
   addRequirementListeners(); // From position-tables.js
   hideShowMissingRequirements();
   showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null); // From helper-functions.js
@@ -345,10 +333,10 @@ var stopEditing = function stopEditing() {
 };
 
 /* Confirm changes to position and send data via AJAX */
-var confirmEditChanges = function confirmEditChanges() {
+const confirmEditChanges = function() {
   if (form.reportValidity()) {
     stopEditing();
-    cells.forEach(function (cell) {
+    cells.forEach(function(cell) {
       cell.textContent = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
     });
     editPosition();
@@ -356,7 +344,7 @@ var confirmEditChanges = function confirmEditChanges() {
 };
 
 /* Cancel edits and return position to original imported state */
-var cancelEditChanges = function cancelEditChanges() {
+const cancelEditChanges = function() {
   if (educationRequirementDiv) {
     educationRequirementDiv.replaceWith(resetEducation);
     educationRequirementDiv = document.getElementById("education-requirements");
@@ -372,7 +360,7 @@ var cancelEditChanges = function cancelEditChanges() {
     assetRequirementDiv = document.getElementById("asset-requirements");
     assetRequirementDiv.classList.remove("row-closed");
   }
-  cells.forEach(function (cell, i) {
+  cells.forEach(function(cell, i) {
     cell.textContent = cellText[i];
   });
   cells = Array.from(document.getElementsByClassName("edit"));
@@ -380,7 +368,7 @@ var cancelEditChanges = function cancelEditChanges() {
 };
 
 /* LISTENERS */
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", () => {
   /* Defines additional buttons that do not appear on page load */
   if (document.getElementById("edit-button")) {
     defineAdditionalButtons();

@@ -1,14 +1,12 @@
-"use strict";
-
 /* Clears local storage except the current sidebar status */
-var clearExceptSidebar = function clearExceptSidebar() {
-  var tempSidebarStatus = JSON.parse(localStorage.getItem("sidenavOpen"));
+const clearExceptSidebar = function() {
+  let tempSidebarStatus = JSON.parse(localStorage.getItem("sidenavOpen"));
   localStorage.clear();
   localStorage.setItem("sidenavOpen", tempSidebarStatus);
 };
 
 /* Display persisted form information, or if none exists, hide PDF and URL forms */
-var initializePositionImportVariables = function initializePositionImportVariables() {
+const initializePositionImportVariables = function() {
   if (localStorage.getItem("pdfRequired") === null) {
     document.getElementById("pdf_upload_form").classList.add("hide");
     document.getElementById("url_upload_form").classList.add("hide");
@@ -31,15 +29,15 @@ var initializePositionImportVariables = function initializePositionImportVariabl
 };
 
 /* Persist uploaded file names to display alongside applicant processing bar */
-var persistPdfNames = function persistPdfNames() {
+const persistPdfNames = function() {
   localStorage.setItem("applicationFiles", document.getElementById("pdf_path_input").value);
 };
 
-var persistScrollLocation = function persistScrollLocation() {
+const persistScrollLocation = function() {
   localStorage.setItem("scroll", window.scrollY);
 };
 
-var getScrollLocation = function getScrollLocation() {
+const getScrollLocation = function() {
   if (localStorage.getItem("scroll")) {
     window.scroll(0, localStorage.getItem("scroll"));
     localStorage.removeItem("scroll");
@@ -47,7 +45,7 @@ var getScrollLocation = function getScrollLocation() {
 };
 
 /* Persist the form data to display alongside processed position */
-var persistUploadForm = function persistUploadForm() {
+const persistUploadForm = function() {
   localStorage.setItem("pdfRequired", document.getElementById("pdf_input").required);
   localStorage.setItem("urlRequired", document.getElementById("url_input").required);
   localStorage.setItem("pdfText", document.getElementById("pdf_path_input").value);
@@ -59,7 +57,7 @@ var persistUploadForm = function persistUploadForm() {
 };
 
 /* Show URL form, hide and clear PDF input form */
-var showUrl = function showUrl() {
+const showUrl = function() {
   document.getElementById("pdf_upload_form").classList.add("hide");
   document.getElementById("pdf_input").required = false;
   document.getElementById("pdf_input").value = null;
@@ -72,7 +70,7 @@ var showUrl = function showUrl() {
 };
 
 /* Show PDF form, hide and clear URL input form */
-var showPdf = function showPdf() {
+const showPdf = function() {
   document.getElementById("pdf_upload_form").classList.remove("hide");
   document.getElementById("pdf_input").required = true;
   document.getElementById("url_upload_form").classList.add("hide");
@@ -84,16 +82,16 @@ var showPdf = function showPdf() {
 };
 
 /* Displays loading bar for position upload */
-var displayLoadingBar = function displayLoadingBar() {
+const displayLoadingBar = function() {
   document.getElementById("loading-bar").classList.remove("hide");
 };
 
 /* Initialize listeners for local storage requirements depending on current page */
-var initializeListeners = function initializeListeners() {
+const initializeListeners = function() {
   if (window.location.pathname.includes("/position/")) {
     if (document.getElementsByClassName("applicant-sort")) {
-      var sortLinks = document.getElementsByClassName("applicant-sort");
-      for (var i = 0; i < sortLinks.length; i++) {
+      const sortLinks = document.getElementsByClassName("applicant-sort");
+      for (let i = 0; i < sortLinks.length; i++) {
         sortLinks[i].addEventListener("click", persistScrollLocation);
       }
       getScrollLocation();
@@ -107,7 +105,7 @@ var initializeListeners = function initializeListeners() {
 
     document.getElementById("radio_pdf").addEventListener("click", showPdf);
     document.getElementById("radio_url").addEventListener("click", showUrl);
-    document.getElementById("position_submit_button").addEventListener("click", function () {
+    document.getElementById("position_submit_button").addEventListener("click", function() {
       if (document.getElementById("upload-position").checkValidity()) {
         displayLoadingBar();
         persistUploadForm();
@@ -122,6 +120,6 @@ var initializeListeners = function initializeListeners() {
 };
 
 /* Checks for current page and initializes listeners */
-window.addEventListener("load", function () {
+window.addEventListener("load", function() {
   initializeListeners();
 });
