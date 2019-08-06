@@ -367,6 +367,9 @@
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer">
+      {% if errorMsg %}
+        <span class="error-text" id="upload-applications-error-text">{{ errorMsg }}</span>
+      {% endif %}
       <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
       <input type="hidden" id="task-id" value="{{ task_id }}">
@@ -375,7 +378,7 @@
       <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
       <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
-      <a href="#!" class="modal-close btn-flat blue-text position-button">
+      <a href="#!" id="cancel-upload-applications" class="modal-close btn-flat blue-text position-button">
         {{ userVisibleText.cancel }}
       </a>
     </div>

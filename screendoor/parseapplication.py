@@ -585,7 +585,7 @@ def clean_and_parse(data_frames, position, task_id, total_applicants, applicant_
     return applications
 
 
-def get_total_applicants(filepaths, task_id):
+def get_total_applicants(filepaths, task_id=None):
     count = 0
     for filepath in filepaths:
         df = tabula_read_pdf(filepath)
@@ -594,9 +594,12 @@ def get_total_applicants(filepaths, task_id):
                 first_column = item[item.columns[0]]
                 if first_column.str.contains("Citoyenneté / Citizenship:").any():
                     count += 1
-                    current_task.update_state(task_id=task_id, state='PENDING', meta={
-                        'total': count})
+                    if task_id:
+                        current_task.update_state(task_id=task_id, 
+                            state='PENDING', meta={
+                            'total': count})
     return count
+
 
 
 def tabula_read_pdf(file_path):

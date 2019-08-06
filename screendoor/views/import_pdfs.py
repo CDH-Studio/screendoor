@@ -8,10 +8,11 @@ from django.views.decorators.csrf import csrf_exempt
 from screendoor.forms import CreatePositionForm, ImportApplicationsForm
 from screendoor.models import Position
 from screendoor.parseposter import parse_upload
+from screendoor.parseapplication import get_total_applicants
 from screendoor.redactor import redact_applications
 from screendoor.tasks import process_applications
-from screendoor.uservisibletext import InterfaceText, PositionText
-from .main_views import position_detail
+from screendoor.uservisibletext import InterfaceText, PositionText, ErrorMessages
+from .main_views import position_detail, position_detail_with_upload_error
 from celery.result import AsyncResult
 
 
@@ -81,11 +82,13 @@ def import_position(request):
 @login_required(login_url='login', redirect_field_name=None)
 def upload_applications(request):
     if request.POST.get("upload-applications"):
+        position_id = int(request.POST.get("position-id"))
         # position_id = int(request.POST.get("position-id"))
         form = ImportApplicationsForm(request.POST, request.FILES)
+        # form.add_error('pdf', 'ad')
         if form.is_valid():
-
-            position_id = int(request.POST.get("position-id"))
+            # check if
+            
             files = request.FILES.getlist('pdf')
             file_names = [
                 FileSystemStorage().save(file.name, file) for file in files
@@ -93,16 +96,26 @@ def upload_applications(request):
             file_paths = [
                 FileSystemStorage().url(file_name) for file_name in file_names
             ]
+            total_applicants = int(get_total_applicants(file_paths))
+            if total_applicants == 0:
+                form.add_error('pdf', ErrorMessages.incorrect_applicant_pdf_file)
+                return position_detail_with_upload_error(request, 
+                    Position.objects.get(id=position_id).reference_number, 
+                    position_id, 
+                    form.errors['pdf'][0])
+
             # Call process applications task to execute in Celery
             task_result = process_applications.delay(file_paths, position_id)
             return redirect(position_detail,
                         Position.objects.get(id=position_id).reference_number,
                         position_id, task_result.id)
-        # form.add_error('pdf', "w-oeuibfhwpioqubfwpi")
-        # print(form)
-        # return redirect(position_detail,
-        #                 None,
-        #                 position_id)
+        
+        # Render any error messages
+        return position_detail_with_upload_error(request, 
+            Position.objects.get(id=position_id).reference_number, 
+            position_id, 
+            form.errors['pdf'][0])
+
     # TODO: render error message that application could not be added
     return redirect('home')
 
