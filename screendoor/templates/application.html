@@ -18,7 +18,7 @@
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
           <h6 class="valign-wrapper col">
-            <div class="col favourite-icon tooltip" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
+            <div class="col favourite-icon favourite-icon-applicant tooltip" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
               <span class="tooltiptext">Favourite/unfavourite this applicant</span> </div>
             {{ applicant.applicant_id }}
             <div class="col tooltip {% if applicant.percentage_correct <= 33 %}
