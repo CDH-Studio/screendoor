@@ -89,7 +89,7 @@ def upload_applications(request):
         if form.is_valid():
             files = request.FILES.getlist('pdf')
             file_names = [
-                FileSystemStorage().save(file.name, file) for file in files
+                FileSystemStorage().save(file.name.replace(' ', ''), file) for file in files
             ]
             file_paths = [
                 FileSystemStorage().url(file_name) for file_name in file_names

@@ -16,7 +16,7 @@ from .uservisibletext import ErrorMessages
 tika.TikaClientOnly = True
 
 
-def text_between(start_string, end_strying, text):
+def text_between(start_string, end_string, text):
     # Effectively returns the string between the first occurrence of start_string and end_string in text
     extracted_text = text.split(start_string, 1)[1].split(end_string, 1)[0]
 
