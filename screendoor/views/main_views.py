@@ -71,7 +71,7 @@ def position_detail_data(request, position_id, task_id):
     ]
     return {
         'baseVisibleText': InterfaceText,
-        'form': ImportApplicationsForm,
+        'applicationsForm': ImportApplicationsForm,
         'positionText': PositionText,
         'userVisibleText': PositionsViewText,
         'position': position,
