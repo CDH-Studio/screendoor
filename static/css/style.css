@@ -1601,6 +1601,52 @@ div {
 
 /* Position detail */
 
+.position-buttons a {
+  background-color: #fafafa;
+  margin-left: 10px;
+  padding: 0 10px;
+}
+
+.position-buttons {
+  margin-top: 10px;
+}
+
+.position-buttons a:hover {
+  background-color: #f1f1f1;
+}
+
+#import-position-buttons a, #import-position-buttons button {
+  background-color: #fafafa;
+  margin-left: 10px;
+  padding: 0 10px;
+}
+
+#import-position-buttons a:hover, #import-position-buttons button:hover {
+  background-color: #f1f1f1;
+}
+
+.position-view-buttons {
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+}
+
+
+.add-requirement-button {
+  position: absolute;
+  margin-top: 7px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.remove-requirement-button {
+  position: absolute;
+  margin-top: 2px;
+  margin-left: -20px;
+  font-size: 1rem;
+  display: block;
+  cursor: pointer;
+}
+
 .editing {
   padding: 0px !important;
   margin: 0px !important;
@@ -1735,12 +1781,6 @@ div {
 .remove-user {
   cursor: pointer;
   position: absolute;
-}
-
-.position-view-buttons {
-  margin-left: -5px;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
 }
 
 .position-edit-btn {
