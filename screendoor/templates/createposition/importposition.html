@@ -171,9 +171,8 @@
               <div class="requirements">
                 <!-- Education Headers -->
                 <ul class="requirement-list">
-                  {% if position.requirement_set.all|has_education %}
                   <!-- Position education and experience rows -->
-                  <li id="req-education" class="requirement-type row hoverable" data-requirement-type="Education">
+                  <li id="req-education" class="requirement-type row hoverable hide" data-requirement-type="Education">
                     <i class="requirement-icons material-icons grey-text">school
                     </i>
                     <span class="requirement-type-text">
@@ -192,10 +191,8 @@
                     {% endif %}
                     {% endfor %}
                   </div>
-                  {% endif %}
 
-                  {% if position.requirement_set.all|has_experience %}
-                  <li id="req-experience" class="requirement-type row hoverable" data-requirement-type="Experience">
+                  <li id="req-experience" class="requirement-type row hoverable hide" data-requirement-type="Experience">
                     <i class="requirement-icons material-icons grey-text">build
                     </i>
                     <span class="requirement-type-text">
@@ -214,10 +211,8 @@
                     {% endif %}
                     {% endfor %}
                   </div>
-                  {% endif %}
 
-                  {% if position.requirement_set.all|has_assets %}
-                  <li id="req-asset" class="requirement-type row hoverable" data-requirement-type="Asset">
+                  <li id="req-asset" class="requirement-type row hoverable hide" data-requirement-type="Asset">
                     <i class="requirement-icons material-icons grey-text">done_all
                     </i>
                     <span class="requirement-type-text">
@@ -236,7 +231,6 @@
                     {% endif %}
                     {% endfor %}
                   </div>
-                  {% endif %}
                 </ul>
               </div>
             </div>

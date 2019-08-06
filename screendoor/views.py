@@ -239,7 +239,7 @@ def import_position(request):
 
 @login_required(login_url='login', redirect_field_name=None)
 def filter_applicants(request, reference, position_id, applicant_filter):
-    request.session['applicant_filter'] = applicant_filter
+    request.session['applicant_filter'] = applicant_filter if applicant_filter is not None else get_applicant_filter_method()
     return redirect('position', reference=reference, position_id=position_id)
 
 

@@ -110,50 +110,53 @@ const removeRequirement = function(requirementId) {
 
 /* Return a new blank requirement item */
 const newRequirement = function(requirementType) {
-  for (let i = requirementPoints.length - 1; i > 0; i--) {
-    if (requirementPoints[i].dataset.requirementType == requirementType) {
-      const abbreviation = requirementPoints[i].children[1].textContent;
-      const requirementNumber = parseInt(abbreviation.match(/\d+/g).map(Number));
-      const newAbbreviation = abbreviation.replace(/[0-9]/g, "") + (requirementNumber + 1).toString();
-      const newNode = requirementPoints[i].cloneNode(true);
-      newNode.dataset.requirementId = (parseInt(newNode.dataset.requirementId) + 1).toString();
-      const oldButtonId = newNode.children[0].id;
-      const oldButtonIdNumber = parseInt(oldButtonId.match(/\d+/g).map(Number));
-      newNode.dataset.requirementAbbrev = newAbbreviation;
-      newNode.children[0].id = oldButtonId.replace(/[0-9]/g, "") + (oldButtonIdNumber + 1).toString();
-      newNode.children[0].dataset.requirementAbbrev = newAbbreviation;
-      newNode.children[0].dataset.requirementId = (oldButtonIdNumber + 1).toString();
-      newNode.children[0].addEventListener("click", () => {
-        removeRequirement(newNode.dataset.requirementId);
-      });
-      newNode.children[1].textContent = newAbbreviation;
-      newNode.children[2].children[0].value = "";
-      const inputName = newNode.children[2].children[0].name;
-      const inputNameNumber = parseInt(inputName.match(/\d+/g).map(Number));
-      newNode.children[2].id = inputName.replace(/[0-9]/g, "") + (inputNameNumber + 1).toString();
-      newNode.children[2].children[0].name = inputName.replace(/[0-9]/g, "") + (inputNameNumber + 1).toString();
-      return newNode;
-    }
+  const newNode = document.createElement("div");
+  newNode.classList.add("requirement-point", "row");
+  newNode.dataset.requirementType = requirementType;
+  newNode.appendChild(removeRequirementButton());
+  const abbrevDiv = document.createElement("div");
+  abbrevDiv.classList.add("requirement-abbrev", "col");
+  newNode.appendChild(abbrevDiv);
+  const descripDiv = document.createElement("div");
+  descripDiv.classList.add("requirement-description", "col", "s11", "edit");
+  descripDiv.appendChild(createReturnTextInput("", "placeholder", false));
+  switch (requirementType) {
+  case "Education":
+    descripDiv.classList.add("education-description");
+    break;
+  case "Experience":
+    descripDiv.classList.add("experience-description");
+    break;
+  case "Asset":
+    descripDiv.classList.add("asset-description");
+    break;
   }
+  newNode.appendChild(descripDiv);
+  return newNode;
 };
 
 /* Add a requirement based on its type and reinitialize IDs to ensure consistency */
 const addRequirement = function(requirementType) {
+  const newNode = newRequirement(requirementType);
   switch (requirementType) {
   case "Education":
-    educationRequirementDiv.appendChild(newRequirement(requirementType));
+    educationRequirementDiv.appendChild(newNode);
     break;
   case "Experience":
-    experienceRequirementDiv.appendChild(newRequirement(requirementType));
+    experienceRequirementDiv.appendChild(newNode);
     break;
   case "Asset":
-    assetRequirementDiv.appendChild(newRequirement(requirementType));
+    assetRequirementDiv.appendChild(newNode);
     break;
   }
   rearrangeAbbreviations();
   reinitializeDeleteButtonIds();
   reinitializeRequirementPointData();
   reinitializeRequirementIds();
+
+  newNode.children[0].addEventListener("click", () => {
+    removeRequirement(newNode.dataset.requirementId);
+  });
 };
 
 /* Returns a button used to remove a requirement */
@@ -287,10 +290,23 @@ const setCardSize = function() {
   card.style.setProperty("min-width", "700px", "important");
 };
 
+const showRequirementTypeHeaders = function() {
+  for (let i = 0; i < requirementTypeHeaders.length; i++) {
+    requirementTypeHeaders[i].classList.remove("hide");
+  }
+};
+
+const hideShowMissingRequirements = function() {
+  document.querySelectorAll("div[data-requirement-type='Education']").length == 0 ? requirementTypeHeaders[0].classList.add("hide") : requirementTypeHeaders[0].classList.remove("hide");
+  document.querySelectorAll("div[data-requirement-type='Experience']").length == 0 ? requirementTypeHeaders[1].classList.add("hide") : requirementTypeHeaders[1].classList.remove("hide");
+  document.querySelectorAll("div[data-requirement-type='Asset']").length == 0 ? requirementTypeHeaders[2].classList.add("hide") : requirementTypeHeaders[2].classList.remove("hide");
+};
+
 /* Convert text fields into editable inputs */
 const startEditing = function() {
   removeRequirementListeners(); // From position-tables.js
   expandAllRequirements(); // From position-tables.js
+  showRequirementTypeHeaders();
   reinitializeRequirementIds();
   setCardSize();
   window.addEventListener("resize", setCardSize);
@@ -308,6 +324,7 @@ const startEditing = function() {
 /* Tasks associated with stopping edit, either via cancel or confirm */
 const stopEditing = function() {
   addRequirementListeners(); // From position-tables.js
+  hideShowMissingRequirements();
   showElements(editButton, window.location.pathname.includes("/createnewposition") ? saveButton : null); // From helper-functions.js
   hideElements(okButton, cancelButton); // From helper-functions.js
   card.style.setProperty("max-width", "auto", "important");
@@ -319,7 +336,6 @@ const stopEditing = function() {
 const confirmEditChanges = function() {
   if (form.reportValidity()) {
     stopEditing();
-
     cells.forEach(function(cell) {
       cell.textContent = cell.lastChild.value != null ? cell.lastChild.value : cell.value;
     });
@@ -363,5 +379,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* User presses the cancel button to cancel editing changes and revert to original */
     cancelButton.addEventListener("click", cancelEditChanges);
+
+    hideShowMissingRequirements();
   }
 });
