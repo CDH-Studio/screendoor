@@ -10,7 +10,7 @@ from weasyprint.fonts import FontConfiguration
 from screendoor.forms import ImportApplicationsForm
 from screendoor.models import Position, Applicant, Education, FormAnswer, Stream, Classification, \
     NlpExtract, Note, Qualifier
-from screendoor.uservisibletext import InterfaceText, PositionText, PositionsViewText, ApplicantViewText
+from screendoor.uservisibletext import InterfaceText, PositionText, PositionsViewText, ApplicantViewText, ToolTips
 from .helper_views import get_positions_sort_method, get_applicants_sort_method, get_applicant_filter_method, user_has_position, position_has_applicant, create_applicants_wth_favourite_information
 
 
@@ -80,7 +80,8 @@ def position_detail_data(request, position_id, task_id):
         'sort': sort_by,
         'current_user': request.user,
         'other_users': other_users,
-        'applicant_filter': applicant_filter
+        'applicant_filter': applicant_filter,
+        'toolTips': ToolTips
     }
 
 
@@ -152,7 +153,9 @@ def applicant_detail_data(request, applicant_id, position_id):
         'answers':
         answers,
         "favourite":
-        is_favourited
+        is_favourited,
+        "toolTips":
+        ToolTips
     }
 
 

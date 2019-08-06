@@ -19,6 +19,7 @@ class ToolTips():
         """Relevant dates and experiences from Complementary Response, provided by ScreenDoor's Natural Language Processing (NLP)."""
     )
     add_note_tooltip = _("Add a note on this answer")
+    tabulation_tooltip = _("Number of yes responses out of total questions")
     # how_extract_tooltip = _("An action, duty, or task identified by the NLP model. Statements that do not refer to the applicant are exluded.")
     # when_extract_tooltip = _("A date identified by the NLP model, and how that date is used in the statement. Dates that do not refer to an applicant's experience are excluded.")
 

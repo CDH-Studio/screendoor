@@ -204,7 +204,7 @@
             <td colspan="2">
               <div id="position-detail-favourite" class="tooltip">
                 <i id="favourite-tooltip-icon" class="material-icons blue-text tooltip-icon">help</i>
-                <span class="tooltiptext">{{ toolTipText.favourite }}</span>
+                <span class="tooltiptext">{{ toolTips.favourite }}</span>
               </div>
             </td>
             <td colspan="16" class="applicant-id-text"><a href="{% if '-applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id 'applicant_id' %}{% elif 'applicant_id' in sort %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-applicant_id' %}{% endif %}" class="id-sort applicant-sort {% if 'applicant_id' in sort %}blue-text{% endif %}">
@@ -240,7 +240,7 @@
             <td colspan="8" class="score-text">
               <div id="tabulation-tooltip" class="tooltip">
                 <i id="tabulation-tooltip-icon" class="material-icons blue-text tooltip-icon">help </i>
-                <span class="tooltiptext">Number of yes responses out of total questions</span>
+                <span class="tooltiptext">{{ toolTips.tabulation_tooltip }}</span>
               </div>
               <a href="{% if '-percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id 'percentage_correct' %}{% elif 'percentage_correct' in sort %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% else %}{% url 'sort_applicants' position.reference_number position.id '-percentage_correct' %}{% endif %}" class="applicant-sort {% if 'percentage_correct' in sort %}blue-text{% endif %}">
                 {{ positionText.score }}
@@ -254,7 +254,7 @@
             <td colspan="4">
               <div id="position-detail-pdf" class="tooltip">
                 <i class="material-icons blue-text tooltip-icon">help</i>
-                <span class="tooltiptext">{{ toolTipText.pdf }}</span>
+                <span class="tooltiptext">{{ toolTips.pdf }}</span>
               </div>
             </td>
           </tr>
