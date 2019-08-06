@@ -121,14 +121,14 @@
 
             <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
             <div class="row position-buttons left">
-              <a class="btn-flat blue-text position-button" href="{% url 'position' position.reference_number position.id %}">
+              <a class="btn-flat blue-text waves-effect position-button" href="{% url 'position' position.reference_number position.id %}">
                 {{ userVisibleText.view }}
               </a>
-              <a class="btn-flat blue-text
+              <a class="btn-flat blue-text waves-effect
                         position-button modal-trigger delete-button" href="#delete-modal">
                 {{ userVisibleText.delete }}
               </a>
-              <a class="btn-flat blue-text position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
+              <a class="btn-flat blue-text waves-effect  position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
                 {{ userVisibleText.upload_applications }}
               </a>
             </div>
