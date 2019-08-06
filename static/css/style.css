@@ -1884,10 +1884,14 @@ div {
   margin-left: -3px;
 }
 
-.favourite-icon {
+.favourite-icon-applicant {
   cursor: pointer;
   margin-left: -10px;
   margin-right: -12px;
+  }
+
+.favourite-icon {
+
 }
 
 .favourite-icon-position {
