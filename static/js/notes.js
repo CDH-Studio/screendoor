@@ -5,12 +5,12 @@ const noteTextArea = document.getElementsByClassName("note-box");
 const saveNoteButtons = document.getElementsByClassName("save-note");
 
 const toggleNoteInput = function(i) {
-  if (noteTextArea[i].classList.contains('note-box-visible')) {
-    noteTextArea[i].classList.remove('note-box-visible');
-    addNoteButtons[i].children[0].style.fontSize = '2.1rem';
+  if (noteTextArea[i].classList.contains("note-box-visible")) {
+    noteTextArea[i].classList.remove("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "2.1rem";
   } else {
-    noteTextArea[i].classList.add('note-box-visible');
-    addNoteButtons[i].children[0].style.fontSize = '3rem';
+    noteTextArea[i].classList.add("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "3rem";
   }
 };
 
@@ -92,7 +92,9 @@ const addRemoveNoteHandlers = function() {
 };
 
 const removeNote = function(noteId, answerNum) {
-  const url = "/remove_note?noteId=" + noteId;
+  console.log(document.getElementById(noteId));
+  const url = "/remove_note?noteId=" + noteId +
+    "&parentAnswerId=" + document.getElementById(noteId).dataset.parentAnswer;
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {

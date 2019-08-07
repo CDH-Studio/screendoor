@@ -32,7 +32,7 @@
     <li>
       <p>
         <i class="material-icons sidenav-account-icon">account_circle</i>
-        <span class="sidenav-welcome">
+        <span class="sidenav-welcome" id="user-welcome" data-user-email="{{ user.email }}">
           {{ baseVisibleText.welcome_user|interpolate:user.first_name }}
         </span>
         <span class="menu-close-arrow">
@@ -95,10 +95,14 @@
   <script src="{% static 'js/materialize/materialize.min.js' %}"></script>
   <!-- Script for sidenav expand and collapse -->
   <script src="{% static 'js/sd-sidenav.js' %}"></script>
+  <!-- Script for toasts to alert user of changes to their page -->
+  <script src="{% static 'js/change-alert-toasts.js' %}"></script>
   <div class="row">
     {% block content %}
     {% endblock  %}
   </div>
+  <!-- Toast that appears when another user changes the page a user is looking at-->
+  <div id="snackbar">Page contents have been modified by another user. Please refresh to see any changes. <span class="close-notif-toast" id="close-notif-toast" data-dismiss="alert" aria-label="close">X</span></div>
   </main>
   <!-- End of page content -->
 </body>
