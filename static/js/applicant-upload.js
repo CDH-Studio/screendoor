@@ -1,18 +1,18 @@
 "use strict";
 
 /* DOM constants */
-var uploadCard = document.getElementById("upload-applications-modal");
-var progressBlock = document.getElementById("progress-div");
-var currentNumberSpan = document.getElementById("current-number");
-var totalNumberSpan = document.getElementById("total-number");
-var progressBar = document.getElementById("progress-bar");
-var progressText = document.getElementById("progress-text");
-var loadingEllipses = document.getElementById("loading-ellipses");
+const uploadCard = document.getElementById("upload-applications-modal");
+const progressBlock = document.getElementById("progress-div");
+const currentNumberSpan = document.getElementById("current-number");
+const totalNumberSpan = document.getElementById("total-number");
+const progressBar = document.getElementById("progress-bar");
+const progressText = document.getElementById("progress-text");
+const loadingEllipses = document.getElementById("loading-ellipses");
+const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
-var queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
-var reloadUrl = document.getElementById("reload-url").value;
-var taskId = document.getElementById("task-id").value;
+const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+const reloadUrl = document.getElementById("reload-url").value;
 
 /* Variable representing ajax request timer */
 var updateTimer = null;
@@ -81,8 +81,8 @@ var displayProgress = function displayProgress(queryUrl) {
 };
 
 /* Execute and run timer if applicant file upload is taking place */
-var initializeApplicantUploadProgress = function initializeApplicantUploadProgress() {
-  document.getElementById('files-processing').innerHTML = localStorage.getItem('applicationFiles');
+const initializeApplicantUploadProgress = function() {
+  document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar();
   uploadModal.openInstant();
   try {
@@ -96,7 +96,14 @@ var initializeApplicantUploadProgress = function initializeApplicantUploadProgre
 };
 
 /* Show upload progress if there is a valid task ID */
-window.addEventListener("load", function () {
+window.addEventListener("load", function() {
+  cancelUploadButton.addEventListener("click", () => {
+    document.getElementById("upload-applications-error-text").style.display = "none";
+  });
+
+  if (document.getElementById("upload-applications-error-text") && document.getElementById("upload-applications-error-text").value != "None") {
+    uploadApplicantModal.openInstant();
+  }
   if (document.getElementById("task-id") && document.getElementById("task-id").value != "None") {
     initializeApplicantUploadProgress();
   } else {

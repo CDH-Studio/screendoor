@@ -518,20 +518,6 @@ def extract_open_positions(pdf_poster_text):
     return ""
 
 
-def print_variables(position):
-    print("TITLE: " + position.position_title)
-    print("OPEN TO: " + position.open_to)
-    print("REFERENCE NUMBER: " + position.reference_number)
-    print("SELECTION PROCESS NUMBER: " + position.selection_process_number)
-    print("DATE CLOSED: " + str(position.date_closed))
-    print("POSITIONS: " + str(position.num_positions))
-    print("SALARY: " + position.salary)
-    print("DESCRIPTION: " + position.description)
-    print("CLASSIFICATION: " + position.classification)
-
-    pass
-
-
 def extract_non_text_block_information(position, pdf_poster_text):
     os.chdir(os.getcwd())
     header_text = pdf_poster_text.split("Important messages")[0]
@@ -555,7 +541,6 @@ def extract_non_text_block_information(position, pdf_poster_text):
 
     position.classification = extract_classification(position.description)
 
-    # print_variables(position)
 
     return position
 
