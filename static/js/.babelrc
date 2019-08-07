@@ -1,4 +1,11 @@
 // .babelrc
 {
-  "presets": ["env"]
+  "presets": [
+    ["env", {
+      "targets": {
+          "ie": "11"
+      }
+    }
+    ]
+  ]
 }

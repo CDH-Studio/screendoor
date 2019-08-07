@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
@@ -135,7 +137,10 @@ def import_applications_redact(request):
                   {'form': form})
 
 
-def task_status(request, task_id):
+@csrf_exempt
+def task_status(request):
+    data = json.loads(request.body.decode('utf-8'))
+    task_id = data["taskId"]
     if task_id is not None:
         task = AsyncResult(task_id)
         if task is not None:

@@ -43,7 +43,7 @@ urlpatterns = [
           upload_applications,
           name='upload-applications'),     
      path('createnewposition', import_position, name='importposition'),
-     path('progress/<task_id>', task_status, name='task_status'),
+     path('progress', task_status, name='task_status'),
      
      # Ajax URL views
      path('change_favourites_status',

@@ -240,8 +240,8 @@
       </div>
     </form>
   </div>
-  <data id="ok-button-text" value="{{ form.ok_text }}"></data>
-  <data id="cancel-button-text" value="{{ form.cancel_text }}"></data>
+  <input type="hidden" id="ok-button-text" value="{{ form.ok_text }}"/>
+  <input type="hidden" id="cancel-button-text" value="{{ form.cancel_text }}"/>
   <!-- End of position display -->
   <!-- Misc helper functions -->
   <script src="{% static 'js/helper-functions.js' %}"></script>

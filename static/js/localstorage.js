@@ -21,8 +21,8 @@ var initializePositionImportVariables = function initializePositionImportVariabl
     document.getElementById("pdf_path_input").value = localStorage.getItem("pdfText");
     document.getElementById("pdf_input").value = null;
     document.getElementById("url_input").value = localStorage.getItem("urlText");
-    document.getElementById("pdf_upload_form").classList = localStorage.getItem("pdfDisplay");
-    document.getElementById("url_upload_form").classList = localStorage.getItem("urlDisplay");
+    document.getElementById("pdf_upload_form").className = localStorage.getItem("pdfDisplay");
+    document.getElementById("url_upload_form").className = localStorage.getItem("urlDisplay");
     document.getElementById("radio_url").checked = localStorage.getItem("urlChecked") == "true" ? true : false;
     document.getElementById("radio_pdf").checked = localStorage.getItem("pdfChecked") == "true" ? true : false;
     document.getElementById("position_submit_button").classList.remove("hide");
@@ -122,6 +122,6 @@ var initializeListeners = function initializeListeners() {
 };
 
 /* Checks for current page and initializes listeners */
-window.addEventListener("load", function () {
+window.addEventListener("DOMContentLoaded", function () {
   initializeListeners();
 });

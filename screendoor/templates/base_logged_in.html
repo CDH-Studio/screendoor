@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<meta http-equiv="X-UA-Compatible" content="IE=11, IE=10, IE=9, ie=8, ie=7">
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
   <script>
@@ -92,6 +93,9 @@
    }
   </script>
   <!-- Script for sidenav expand and collapse -->
+  <script src="{% static 'js/url-polyfill.min.js' %}"></script>
+  <script src="{% static 'js/fetch.umd.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
   <script src="{% static 'js/materialize/materialize.min.js' %}"></script>
   <!-- Script for sidenav expand and collapse -->
   <script src="{% static 'js/sd-sidenav.js' %}"></script>

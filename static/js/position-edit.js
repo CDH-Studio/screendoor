@@ -262,7 +262,7 @@ var createReturnTextInput = function createReturnTextInput(text, name, isReadOnl
   editableNode.readOnly = isReadOnly;
   editableNode.name = name;
   editableNode.className = "editing";
-  if (name == "position-date-closed") {
+  if (name == "position-date-closed" && !isIE()) {
     editableNode.type = "date";
   } else {
     editableNode.type = "text";

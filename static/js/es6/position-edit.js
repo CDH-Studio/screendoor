@@ -250,7 +250,7 @@ const createReturnTextInput = function(text, name, isReadOnly) {
   editableNode.readOnly = isReadOnly;
   editableNode.name = name;
   editableNode.className = "editing";
-  if (name == "position-date-closed") {
+  if (name == "position-date-closed" && !isIE()) {
     editableNode.type = "date";
   } else {
     editableNode.type = "text";

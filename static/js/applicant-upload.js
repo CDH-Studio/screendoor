@@ -1,18 +1,21 @@
 "use strict";
 
 /* DOM constants */
-const uploadCard = document.getElementById("upload-applications-modal");
-const progressBlock = document.getElementById("progress-div");
-const currentNumberSpan = document.getElementById("current-number");
-const totalNumberSpan = document.getElementById("total-number");
-const progressBar = document.getElementById("progress-bar");
-const progressText = document.getElementById("progress-text");
-const loadingEllipses = document.getElementById("loading-ellipses");
-const cancelUploadButton = document.getElementById("cancel-upload-applications");
+var uploadCard = document.getElementById("upload-applications-modal");
+var progressBlock = document.getElementById("progress-div");
+var currentNumberSpan = document.getElementById("current-number");
+var totalNumberSpan = document.getElementById("total-number");
+var progressBar = document.getElementById("progress-bar");
+var progressText = document.getElementById("progress-text");
+var loadingEllipses = document.getElementById("loading-ellipses");
+var cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
-const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
-const reloadUrl = document.getElementById("reload-url").value;
+var queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+var taskId = document.getElementById("task-id");
+var reloadUrl = document.getElementById("reload-url").value;
+var taskData = Object.create(null);
+taskData["taskId"] = taskId.value;
 
 /* Variable representing ajax request timer */
 var updateTimer = null;
@@ -59,7 +62,13 @@ var displayError = function displayError() {
 
 /* Define what message displays on the applicant uploading modal */
 var displayProgress = function displayProgress(queryUrl) {
-  fetch(queryUrl).then(function (response) {
+  fetch(queryUrl, {
+    method: "POST",
+    body: JSON.stringify(taskData), // data can be `string` or {object}!
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
       if (data.state == "PENDING") {
@@ -81,7 +90,7 @@ var displayProgress = function displayProgress(queryUrl) {
 };
 
 /* Execute and run timer if applicant file upload is taking place */
-const initializeApplicantUploadProgress = function() {
+var initializeApplicantUploadProgress = function initializeApplicantUploadProgress() {
   document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar();
   uploadModal.openInstant();
@@ -96,8 +105,8 @@ const initializeApplicantUploadProgress = function() {
 };
 
 /* Show upload progress if there is a valid task ID */
-window.addEventListener("load", function() {
-  cancelUploadButton.addEventListener("click", () => {
+window.addEventListener("load", function () {
+  cancelUploadButton.addEventListener("click", function () {
     document.getElementById("upload-applications-error-text").style.display = "none";
   });
 

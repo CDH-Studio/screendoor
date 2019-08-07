@@ -6,11 +6,14 @@ const totalNumberSpan = document.getElementById("total-number");
 const progressBar = document.getElementById("progress-bar");
 const progressText = document.getElementById("progress-text");
 const loadingEllipses = document.getElementById("loading-ellipses");
+const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
 const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+const taskId = document.getElementById("task-id");
 const reloadUrl = document.getElementById("reload-url").value;
-const taskId = document.getElementById("task-id").value;
+const taskData = Object.create(null);
+taskData["taskId"] = taskId.value;
 
 /* Variable representing ajax request timer */
 let updateTimer = null;
@@ -57,7 +60,13 @@ const displayError = function() {
 
 /* Define what message displays on the applicant uploading modal */
 const displayProgress = function(queryUrl) {
-  fetch(queryUrl).then(function(response) {
+  fetch(queryUrl, {
+    method: "POST",
+    body: JSON.stringify(taskData), // data can be `string` or {object}!
+    headers:{
+      "Content-Type": "application/json"
+    }
+  }).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
       if (data.state == "PENDING") {
@@ -78,7 +87,7 @@ const displayProgress = function(queryUrl) {
 
 /* Execute and run timer if applicant file upload is taking place */
 const initializeApplicantUploadProgress = function() {
-  document.getElementById('files-processing').innerHTML = localStorage.getItem('applicationFiles');
+  document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar();
   uploadModal.openInstant();
   try {
@@ -93,9 +102,17 @@ const initializeApplicantUploadProgress = function() {
 
 /* Show upload progress if there is a valid task ID */
 window.addEventListener("load", function() {
+  cancelUploadButton.addEventListener("click", () => {
+    document.getElementById("upload-applications-error-text").style.display = "none";
+  });
+
+  if (document.getElementById("upload-applications-error-text") && document.getElementById("upload-applications-error-text").value != "None") {
+    uploadApplicantModal.openInstant();
+  }
   if (document.getElementById("task-id") && document.getElementById("task-id").value != "None") {
     initializeApplicantUploadProgress();
   } else {
     hideProgressBar();
   }
 });
+
