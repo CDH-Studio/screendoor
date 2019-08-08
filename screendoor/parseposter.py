@@ -395,10 +395,11 @@ def check_for_duplicates_and_errors(requirement_list):
             for index2, item2 in enumerate(requirement_list[offset:], offset):
                 if item1 == item2:
                     requirement_list[index2] = ""
+        item1 = item1.strip()
         if len(item1) < 5:
             requirement_list[index1] = ""
-        # if item1.endswith("."):
-        #     item1 = item1[:len(item1) - 2]
+        if len(item1) > 1 and not item1.endswith("."):
+            item1 += '.'
         if item1.startswith("."):
             item1 = item1[1:]
         item1 = item1.strip("►")
