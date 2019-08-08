@@ -14,6 +14,10 @@ import os
 import ast
 from celery.schedules import crontab
 from screendoor.NLP.helpers.load_nlp import init_spacy_module
+from configparser import RawConfigParser
+
+config = RawConfigParser()
+config.read('settings.ini')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,10 +27,10 @@ LOCALE_PATHS = (
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SCREENDOOR_SECRET_KEY', 'abdef')
+SECRET_KEY = config.get('secret', 'SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(os.getenv('DEBUG', 'True'))
+DEBUG = config.get('secret', 'DEBUG')
 
 NLP_MODEL = init_spacy_module()
 # Quick-start development settings - unsuitable for production
@@ -77,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'screendoor_app.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -118,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -132,7 +134,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -144,7 +145,15 @@ STATICFILES_DIRS = (
 
 # Email Authentication
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Setup
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config.get('email', 'EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config.get('email', 'EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
 PASSWORD_RESET_TIMEOUT_DAYS = 1
 
 # Security
