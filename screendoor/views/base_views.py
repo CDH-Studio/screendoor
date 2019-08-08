@@ -86,7 +86,7 @@ def generate_confirmation_url(request, user):
     token.create_key()
     token.save()
     # TODO: generate first part of URL programmatically not as hardcoded string
-    return "http://localhost/confirm?key=" + str(token.key)
+    return "http://35.182.210.164/confirm?key=" + str(token.key)
 
 
 # Clears any GET data, i.e. account confirmation token string from URL
