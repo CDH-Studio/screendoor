@@ -7,10 +7,6 @@ html {
   background-color: #fafafa;
 }
 
-body {
-
-}
-
 .card {
   background-color: #fff;
 }
@@ -771,8 +767,9 @@ tr {
 
 .extract-full {
   margin-left: -20px !important;
+  margin-right: -15px !important;
   margin-bottom: 10px;
-  display: flex;
+  display: inline-flex;
 }
 
 .pdf-icon {
@@ -855,7 +852,7 @@ tr {
   margin-top: 15px !important;
   margin-left: 25px !important;
   text-overflow: initial !important;
-  overflow: initial !important;
+  overflow: visible !important;
   white-space: normal !important;
   max-height: 500rem !important;
   opacity: 1 !important;
@@ -868,10 +865,12 @@ tr {
 
 .extracts-full-open {
   text-overflow: initial !important;
-  overflow: initial !important;
+  overflow: visible !important;
   white-space: normal !important;
   max-height: 500rem !important;
   opacity: 1 !important;
+  display: flex;
+  flex-direction: column;
 
   -webkit-transition: opacity .3s, max-height .3s;
   -moz-transition: opacity .3s, max-height .3s;
@@ -914,6 +913,8 @@ tr {
   text-overflow: hidden;
   margin: 15px 15px !important;
   background-color: inherit;
+  display: flex;
+  flex-direction: column;
 
   -webkit-transition: opacity .3s, max-height .3s;
   -moz-transition: opacity .3s, max-height .3s;
@@ -1746,6 +1747,9 @@ div {
 .position-import-cell {
     font-size: 1.1rem;
 
+}
+
+.position-upload-card {
 }
 
 .position-upload-information {

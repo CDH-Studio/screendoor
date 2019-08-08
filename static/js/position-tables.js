@@ -1,23 +1,25 @@
-const requirementTypes = document.getElementsByClassName("requirement-type");
-const hiddenRequirementSections = document.getElementsByClassName("hidden-requirement-info");
-const expandRequirementButtons = document.getElementsByClassName("expand-requirement");
-const expandAllRequirementsButton = document.getElementById("expand-collapse-criteria");
+"use strict";
 
-const expandAllRequirements = function() {
+var requirementTypes = document.getElementsByClassName("requirement-type");
+var hiddenRequirementSections = document.getElementsByClassName("hidden-requirement-info");
+var expandRequirementButtons = document.getElementsByClassName("expand-requirement");
+var expandAllRequirementsButton = document.getElementById("expand-collapse-criteria");
+
+var expandAllRequirements = function expandAllRequirements() {
   expandAllRequirementsButton.innerText = "unfold_less";
-  for (let i = 0; i < hiddenRequirementSections.length; i++) {
+  for (var i = 0; i < hiddenRequirementSections.length; i++) {
     expandRequirement(i);
   }
 };
 
-const collapseAllRequirements = function() {
+var collapseAllRequirements = function collapseAllRequirements() {
   expandAllRequirementsButton.innerText = "unfold_more";
-  for (let i = 0; i < hiddenRequirementSections.length; i++) {
+  for (var i = 0; i < hiddenRequirementSections.length; i++) {
     collapseRequirement(i);
   }
 };
 
-const expandCollapseAllRequirements = function() {
+var expandCollapseAllRequirements = function expandCollapseAllRequirements() {
   if (expandAllRequirementsButton.innerText == "unfold_more") {
     expandAllRequirements();
   } else {
@@ -25,49 +27,53 @@ const expandCollapseAllRequirements = function() {
   }
 };
 
-const expandRequirement = function(i) {
+var expandRequirement = function expandRequirement(i) {
   expandRequirementButtons[i].innerText = "expand_less";
   hiddenRequirementSections[i].classList.remove("row-closed");
   requirementTypes[i].classList.remove("hoverable");
 };
 
-const collapseRequirement = function(i) {
+var collapseRequirement = function collapseRequirement(i) {
   expandRequirementButtons[i].innerText = "expand_more";
   hiddenRequirementSections[i].classList.add("row-closed");
   requirementTypes[i].classList.add("hoverable");
 };
 
-const expandCollapseRequirement = function(i) {
+var expandCollapseRequirement = function expandCollapseRequirement(i) {
   hiddenRequirementSections[i].classList.contains("row-closed") ? expandRequirement(i) : collapseRequirement(i);
 };
 
-let listenerList = [];
+var listenerList = [];
 
-const addRequirementListeners = function() {
+var addRequirementListeners = function addRequirementListeners() {
   listenerList = [];
-  for (let i = 0; i < requirementTypes.length; i++) {
-    const expandCollapseListener = () => {
+
+  var _loop = function _loop(i) {
+    var expandCollapseListener = function expandCollapseListener() {
       expandCollapseRequirement(i);
     };
     requirementTypes[i].addEventListener("click", expandCollapseListener);
     requirementTypes[i].style.cursor = "pointer";
     listenerList.push(expandCollapseListener);
+  };
+
+  for (var i = 0; i < requirementTypes.length; i++) {
+    _loop(i);
   }
 };
 
-const removeRequirementListeners = function() {
-  for (let i = 0; i < requirementTypes.length; i++) {
-    const expandCollapseListener = listenerList[i];
+var removeRequirementListeners = function removeRequirementListeners() {
+  for (var i = 0; i < requirementTypes.length; i++) {
+    var expandCollapseListener = listenerList[i];
     requirementTypes[i].removeEventListener("click", expandCollapseListener);
     requirementTypes[i].style.cursor = "default";
   }
 };
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", function () {
   addRequirementListeners();
 
-
-  expandAllRequirementsButton.addEventListener("click", () => {
+  expandAllRequirementsButton.addEventListener("click", function () {
     expandCollapseAllRequirements();
   });
 });

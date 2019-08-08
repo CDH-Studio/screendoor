@@ -1,33 +1,31 @@
-"use strict";
-
 /* Register sidenav and related variables */
-var elems = document.querySelectorAll(".sidenav-fixed"),
-    instances = M.Sidenav.init(elems, {} /* options */),
-    elem = document.querySelector(".sidenav-fixed"),
-    instance = M.Sidenav.getInstance(elem);
-var sidebarIsOpen = false;
+const elems = document.querySelectorAll(".sidenav-fixed"),
+      instances = M.Sidenav.init(elems, {}/* options */),
+      elem = document.querySelector(".sidenav-fixed"),
+      instance = M.Sidenav.getInstance(elem);
+let sidebarIsOpen = false;
 
-var sidenavToggles = document.getElementsByClassName("toggle-sidenav");
+const sidenavToggles = document.getElementsByClassName("toggle-sidenav");
 
 /* Is the window above 992 pixels */
-var isWindowFullSize = function isWindowFullSize() {
+const isWindowFullSize = function() {
   return window.innerWidth > 992;
 };
 
 /* Change CSS to add padding when sidenav opened */
-var addSidenavPadding = function addSidenavPadding() {
+const addSidenavPadding = function() {
   document.getElementById("base-header").style.paddingLeft = "300";
   document.getElementById("base-main").style.paddingLeft = "300";
 };
 
 /* Change CSS to remove padding when sidenav closed */
-var removeSidenavPadding = function removeSidenavPadding() {
+const removeSidenavPadding = function() {
   document.getElementById("base-header").style.paddingLeft = "0";
   document.getElementById("base-main").style.paddingLeft = "0";
 };
 
 /* Adjusts navbar and body main padding if window is > 992px width */
-var fixPaddingWidth = function fixPaddingWidth() {
+const fixPaddingWidth = function() {
   if (!isWindowFullSize()) {
     removeSidenavPadding();
   } else if (isWindowFullSize() && JSON.parse(localStorage.getItem("sidenavOpen"))) {
@@ -36,7 +34,7 @@ var fixPaddingWidth = function fixPaddingWidth() {
 };
 
 /* Open sidenav */
-var openSideNav = function openSideNav() {
+const openSideNav = function() {
   document.getElementById("slide-out").classList.remove("hide");
   document.getElementById("slide-out").classList.remove("sidenav-closed");
   document.getElementById("slide-out").classList.add("sidenav-open");
@@ -50,7 +48,7 @@ var openSideNav = function openSideNav() {
 };
 
 /* Close sidenav */
-var closeSideNav = function closeSideNav() {
+const closeSideNav = function() {
   document.getElementById("slide-out").classList.add("sidenav-closed");
   document.getElementById("slide-out").classList.remove("sidenav-open");
   sidebarIsOpen = false;
@@ -63,7 +61,7 @@ var closeSideNav = function closeSideNav() {
 };
 
 /* Toggle sidebar */
-var toggleSidebar = function toggleSidebar() {
+const toggleSidebar = function() {
   sidebarIsOpen ? closeSideNav() : openSideNav();
   if (isWindowFullSize()) {
     localStorage.setItem("sidenavOpen", JSON.stringify(sidebarIsOpen));
@@ -71,9 +69,10 @@ var toggleSidebar = function toggleSidebar() {
 };
 
 /* Initialize sidenav to close and load storage */
-var initSideNav = function initSideNav() {
+const initSideNav = function() {
   /* Open sidebar if saved state is to open */
-  if (JSON.parse(localStorage.getItem("sidenavOpen")) && isWindowFullSize() || JSON.parse(localStorage.getItem("sidenavOpen")) == null) {
+  if ((JSON.parse(localStorage.getItem("sidenavOpen")) && isWindowFullSize())
+      || (JSON.parse(localStorage.getItem("sidenavOpen")) == null)) {
     sidebarIsOpen = false;
     toggleSidebar();
     localStorage.setItem("sidenavOpen", JSON.stringify(sidebarIsOpen));
@@ -88,18 +87,18 @@ var initSideNav = function initSideNav() {
 };
 
 /* Listen for window size changes */
-window.addEventListener("resize", function () {
+window.addEventListener("resize", function() {
   fixPaddingWidth();
 });
 
 /* Listener for page load */
-window.addEventListener("DOMContentLoaded", function (event) {
+window.addEventListener("DOMContentLoaded", (event) => {
   initSideNav();
 });
 
 /* Listen for menu button clicks */
-for (var i = 0; i < sidenavToggles.length; i++) {
-  sidenavToggles[i].addEventListener("click", function () {
+for (let i = 0; i < sidenavToggles.length; i++) {
+  sidenavToggles[i].addEventListener("click", function() {
     toggleSidebar();
   });
 }

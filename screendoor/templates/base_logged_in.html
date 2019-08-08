@@ -5,14 +5,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+<meta http-equiv="X-UA-Compatible" content="IE=11, IE=10, IE=9, ie=8, ie=7">
+
 <body>
   <!-- Top navbar in purple displaying ScreenDoor logo -->
   <script>
-   if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
-     document.write('<header id="base-header" style="padding-left: 300px;">');
-   } else {
-     document.write('<header id="base-header" style="padding-left: 0px;">');
-   }
+    if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+      document.write('<header id="base-header" style="padding-left: 300px;">');
+    } else {
+      document.write('<header id="base-header" style="padding-left: 0px;">');
+    }
   </script>
   <nav>
     <div class="nav-wrapper">
@@ -84,17 +86,36 @@
   </ul>
   <!-- End of sidebar menu -->
   <!-- Beginning of page content -->
-  <script>
-   if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
-     document.write('<main id="base-main" style="padding-left: 300px;">');
-   } else {
-     document.write('<main id="base-main" style="padding-left: 0px;">');
-   }
-  </script>
   <!-- Script for sidenav expand and collapse -->
+  <input type="hidden" class="polyfill" value="{% static 'js/polyfills.js' %}" />
+  <input type="hidden" class="polyfill" value="{% static 'js/url-polyfill.min.js' %}" />
+  <input type="hidden" class="polyfill" value="{% static 'js/fetch.umd.js' %}" />
+  <input type="hidden" class="polyfill" value="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js" />
   <script src="{% static 'js/materialize/materialize.min.js' %}"></script>
   <!-- Script for sidenav expand and collapse -->
   <script src="{% static 'js/sd-sidenav.js' %}"></script>
+  <script type="text/javascript">
+    if ((JSON.parse(localStorage.getItem('sidenavOpen')))) {
+      document.write('<main id="base-main" style="padding-left: 300px;">');
+    } else {
+      document.write('<main id="base-main" style="padding-left: 0px;">');
+    }
+  </script>
+  <script>
+    function isIE() {
+      var ua = window.navigator.userAgent; //Check the userAgent property of the window.navigator object
+      var msie = ua.indexOf('MSIE '); // IE 10 or older
+      var trident = ua.indexOf('Trident/'); //IE 11
+
+      return (msie > 0 || trident > 0);
+    }
+    if (isIE()) {
+      var polyfillScripts = document.getElementsByClassName("polyfill");
+      for (var v = 0; v < polyfillScripts.length; v++) {
+        document.write('<script src="' + polyfillScripts[v].value + '" type="text/javascript"><\/script>');
+      }
+    }
+  </script>
   <!-- Script for toasts to alert user of changes to their page -->
   <script src="{% static 'js/change-alert-toasts.js' %}"></script>
   <div class="row">

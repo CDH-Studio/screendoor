@@ -51,8 +51,8 @@
                 </a>
                 <button id="edit-button" name="edit" class="btn-flat blue-text waves-effect ">{{ positionText.edit }}</button>
                 <button id="save-button" name="save" class="btn-flat blue-text waves-effect hide">{{ positionText.save }}</button>
-                <data id="ok-button-text" value="{{ positionText.ok }}"></data>
-                <data id="cancel-button-text" value="{{ positionText.cancel }}"></data>
+                <input type="hidden" id="ok-button-text" value="{{ positionText.ok }}"/>
+                <input type="hidden" id="cancel-button-text" value="{{ positionText.cancel }}"/>
               </div>
             </div>
 
@@ -368,7 +368,7 @@
       <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
       <input type="hidden" id="task-id" value="{{ task_id }}">
-      <input type="hidden" id="task-url" value="{% url 'task_status' task_id %}">
+      <input type="hidden" id="task-url" value="{% url 'task_status' %}">
       <input type="hidden" id="calculating-applicants-text" value="{{ applicationsForm.calculating_number_applicants }}">
       <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
       <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">

@@ -1,115 +1,63 @@
-"use strict";
-
 /* CONSTANTS AND VARIABLES */
 
 /* Collapsible table elements */
-var collapseElements = document.getElementsByClassName("collapse");
-var collapseArrows = document.getElementsByClassName("collapse-arrows");
+const collapseElements = document.getElementsByClassName("collapse");
+const collapseArrows = document.getElementsByClassName("collapse-arrows");
 
 /* Buttons */
-var collapseAllButton = document.getElementById("collapse-all");
-var expandAllButton = document.getElementById("expand-all");
+const collapseAllButton = document.getElementById("collapse-all");
+const expandAllButton = document.getElementById("expand-all");
 
 /* Ellipses */
-var questionEllipses = document.getElementsByClassName("question-ellipsis");
-var questionHeaders = document.getElementsByClassName("question-header");
-var questionSubheads = document.getElementsByClassName("question-subhead");
+const questionEllipses = document.getElementsByClassName("question-ellipsis");
+const questionHeaders = document.getElementsByClassName("question-header");
+const questionSubheads = document.getElementsByClassName("question-subhead");
 
 /* Analysis preview and full */
-var analysisSpan = document.getElementsByClassName("analysis-preview");
-var questionSpan = document.getElementsByClassName("question-preview");
-var questionTruncated = [];
-var questionTruncatedAnalysis = [];
-var analysisSubheads = [];
-var previewFull = [];
-var previewSmall = [];
-var clickedHeaders = [];
+const analysisSpan = document.getElementsByClassName("analysis-preview");
+const questionSpan = document.getElementsByClassName("question-preview");
+let questionTruncated = [];
+let questionTruncatedAnalysis = [];
+let analysisSubheads = [];
+let previewFull = [];
+let previewSmall = [];
+let clickedHeaders = [];
 
 /* Education preview */
-var educationEllipses = document.getElementsByClassName("education-ellipsis");
+const educationEllipses = document.getElementsByClassName("education-ellipsis");
 // const educationHeaders = document.getElementsByClassName("education-header");
-var educationHeadersClicked = document.getElementsByClassName("education-header-clicked");
-var educationAcademicTruncated = [];
-var educationInstitutionTruncated = [];
-var educationAreaStudyTruncated = [];
+const educationHeadersClicked = document.getElementsByClassName("education-header-clicked");
+let educationAcademicTruncated = [];
+let educationInstitutionTruncated = [];
+let educationAreaStudyTruncated = [];
 
 /* HELPER FUNCTIONS */
 
-var slideCloseElements = function slideCloseElements() {
-  for (var _len = arguments.length, elements = Array(_len), _key = 0; _key < _len; _key++) {
-    elements[_key] = arguments[_key];
-  }
-
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = elements[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var element = _step.value;
-
-      if (element) {
-        element.classList.add("row-closed");
-        // element.ontransitionend = () => {
-        //   element.classList.add("invisible");
-        // };
-      }
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
+const slideCloseElements = function(...elements) {
+  for (let element of elements) {
+    if (element) {
+      element.classList.add("row-closed");
+      // element.ontransitionend = () => {
+      //   element.classList.add("invisible");
+      // };
     }
   }
 };
 
-var slideOpenElements = function slideOpenElements() {
-  for (var _len2 = arguments.length, elements = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    elements[_key2] = arguments[_key2];
-  }
-
-  var _iteratorNormalCompletion2 = true;
-  var _didIteratorError2 = false;
-  var _iteratorError2 = undefined;
-
-  try {
-    for (var _iterator2 = elements[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-      var element = _step2.value;
-
-      if (element) {
-        element.classList.remove("row-closed");
-        // element.classList.remove("invisible");
-        // element.ontransitionend = () => {
-        //   element.classList.remove("invisible");
-        // };
-      }
-    }
-  } catch (err) {
-    _didIteratorError2 = true;
-    _iteratorError2 = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion2 && _iterator2.return) {
-        _iterator2.return();
-      }
-    } finally {
-      if (_didIteratorError2) {
-        throw _iteratorError2;
-      }
+const slideOpenElements = function(...elements) {
+  for (let element of elements) {
+    if (element) {
+      element.classList.remove("row-closed");
+      // element.classList.remove("invisible");
+      // element.ontransitionend = () => {
+      //   element.classList.remove("invisible");
+      // };
     }
   }
 };
 
 /* Toggles TBODY collapse and expand */
-var toggleRow = function toggleRow(row) {
+const toggleRow = function(row) {
   if (row) {
     row.classList.contains("row-closed") ? slideOpenElements(row) : slideCloseElements(row);
     try {
@@ -122,29 +70,29 @@ var toggleRow = function toggleRow(row) {
 };
 
 /* Display ellipses if there is truncated text on row */
-var displayEllipsesIfNeeded = function displayEllipsesIfNeeded(i) {
+const displayEllipsesIfNeeded = function(i) {
   !isEllipsisActive(questionTruncated[i], questionTruncatedAnalysis[i]) ? slideCloseElements(questionEllipses[i]) : slideOpenElements(questionEllipses[i]);
 };
 
 /* Arrow indicates row is open or closed */
-var openCloseArrow = function openCloseArrow(i) {
+const openCloseArrow = function(i) {
   if (collapseArrows[i]) {
-    collapseArrows[i].innerHTML == "keyboard_arrow_right" ? collapseArrows[i].innerHTML = "keyboard_arrow_down" : collapseArrows[i].innerHTML = "keyboard_arrow_right";
+  collapseArrows[i].innerHTML == "keyboard_arrow_right" ? collapseArrows[i].innerHTML = "keyboard_arrow_down" : collapseArrows[i].innerHTML = "keyboard_arrow_right";
   }
 };
 
 /* User wants to view question detail */
-var expandCollapseQuestionHeaders = function expandCollapseQuestionHeaders(i) {
+const expandCollapseQuestionHeaders = function(i) {
   !isOpen(previewSmall[i]) ? expandQuestionHeaders(i) : collapseQuestionHeaders(i);
 };
 
-var expandQuestionHeaders = function expandQuestionHeaders(i) {
+const expandQuestionHeaders = function(i) {
   slideOpenElements(clickedHeaders[i]);
   slideCloseElements(previewFull[i], previewSmall[i]);
   // backgroundOffWhite(questionHeaders[i]);
 };
 
-var collapseQuestionHeaders = function collapseQuestionHeaders(i) {
+const collapseQuestionHeaders = function(i) {
   slideOpenElements(previewSmall[i]);
   slideCloseElements(clickedHeaders[i]);
   // backgroundWhite(questionHeaders[i]);
@@ -152,7 +100,7 @@ var collapseQuestionHeaders = function collapseQuestionHeaders(i) {
 };
 
 /* User moves mouse over question ellipses */
-var showQuestionPreview = function showQuestionPreview(i) {
+const showQuestionPreview = function(i) {
   slideCloseElements(analysisSpan[i], questionSpan[i]);
   slideOpenElements(previewFull[i], questionSubheads[i]);
   // backgroundOffWhite(previewSmall[i]);
@@ -168,7 +116,7 @@ var showQuestionPreview = function showQuestionPreview(i) {
 };
 
 /* User moves mouse off question preview */
-var hideQuestionPreview = function hideQuestionPreview(i) {
+const hideQuestionPreview = function(i) {
   slideOpenElements(analysisSpan[i], questionSpan[i]);
   slideCloseElements(questionSubheads[i], previewFull[i]);
   // backgroundWhite(previewSmall[i]);
@@ -184,7 +132,7 @@ var hideQuestionPreview = function hideQuestionPreview(i) {
 };
 
 /* User clicks an education row */
-var showEducationFull = function showEducationFull(i) {
+const showEducationFull = function(i) {
   showElements(educationHeadersClicked[i]);
   slideOpenElements(educationHeadersClicked[i]);
   hideElements(educationHeaders[i]);
@@ -192,7 +140,7 @@ var showEducationFull = function showEducationFull(i) {
 };
 
 /* User clicks an expanded education row */
-var hideEducationFull = function hideEducationFull(i) {
+const hideEducationFull = function(i) {
   hideElements(educationHeadersClicked[i]);
   slideCloseElements(educationHeadersClicked[i]);
   showElements(educationHeaders[i]);
@@ -200,7 +148,7 @@ var hideEducationFull = function hideEducationFull(i) {
 };
 
 /* User moves mouse over education ellipses */
-var showEducationPreview = function showEducationPreview(i) {
+const showEducationPreview = function(i) {
   if (isEllipsisActive(educationAreaStudyTruncated[i], educationInstitutionTruncated[i], educationAcademicTruncated[i])) {
     growEllipsis(educationEllipses[i]);
   }
@@ -209,19 +157,19 @@ var showEducationPreview = function showEducationPreview(i) {
 };
 
 /* User moves mouse off education preview */
-var hideEducationPreview = function hideEducationPreview(i) {
+const hideEducationPreview = function(i) {
   // backgroundWhite(educationHeaders[i]);
   shrinkEllipsis(educationEllipses[i]);
   truncate(educationAcademicTruncated[i], educationAreaStudyTruncated[i], educationInstitutionTruncated[i]);
 };
 
 /* Row is currently expanded */
-var isOpen = function isOpen(row) {
+const isOpen = function(row) {
   return !row.classList.contains("row-closed");
 };
 
 /* Recursively expands successive TBODY rows */
-var expandRow = function expandRow(row) {
+const expandRow = function(row) {
   row.classList.remove("row-closed");
   try {
     if (row.nextElementSibling.classList.contains("body-row")) {
@@ -232,7 +180,7 @@ var expandRow = function expandRow(row) {
 };
 
 /* Recursively collapses successive TBODY rows */
-var collapseRow = function collapseRow(row) {
+const collapseRow = function(row) {
   if (row) {
     row.classList.add("row-closed");
     try {
@@ -245,7 +193,7 @@ var collapseRow = function collapseRow(row) {
 };
 
 /* Toggles TBODY collapse and expand */
-var expandOrCollapseRows = function expandOrCollapseRows(row) {
+const expandOrCollapseRows = function(row) {
   row.classList.contains("row-closed") ? row.classList.remove("row-closed") : row.classList.add("row-closed");
   try {
     if (row.nextElementSibling.classList.contains("body-row")) {
@@ -256,46 +204,42 @@ var expandOrCollapseRows = function expandOrCollapseRows(row) {
 };
 
 /* Collapse all rows */
-var collapseAll = function collapseAll() {
-  for (var i = 0; i < collapseElements.length; i++) {
-    var row = collapseElements[i].nextElementSibling;
+const collapseAll = function() {
+  for (let i = 0; i < collapseElements.length; i++) {
+    let row = collapseElements[i].nextElementSibling;
     collapseArrows[i].innerHTML = "keyboard_arrow_right";
     collapseRow(row);
   }
 
-  for (var _i = 0; _i < questionHeaders.length; _i++) {
-    collapseQuestionHeaders(_i);
+  for (let i = 0; i < questionHeaders.length; i++) {
+    collapseQuestionHeaders(i);
   }
 
-  for (var _i2 = 0; _i2 < questionHeaders.length; _i2++) {
-    hideEducationFull(_i2);
+  for (let i = 0; i < questionHeaders.length; i++) {
+    hideEducationFull(i);
   }
 };
 
 /* Expand all rows */
-var expandAll = function expandAll() {
-  for (var i = 0; i < collapseElements.length; i++) {
-    var row = collapseElements[i].nextElementSibling;
+const expandAll = function() {
+  for (let i = 0; i < collapseElements.length; i++) {
+    let row = collapseElements[i].nextElementSibling;
     collapseArrows[i].innerHTML = "keyboard_arrow_down";
     expandRow(row);
   }
 
-  for (var _i3 = 0; _i3 < questionHeaders.length; _i3++) {
-    expandQuestionHeaders(_i3);
+  for (let i = 0; i < questionHeaders.length; i++) {
+    expandQuestionHeaders(i);
   }
 
-  for (var _i4 = 0; _i4 < questionHeaders.length; _i4++) {
-    showEducationFull(_i4);
+  for (let i = 0; i < questionHeaders.length; i++) {
+    showEducationFull(i);
   }
 };
 
 /* Truncate the text in an HTML element */
-var truncate = function truncate() {
-  for (var _len3 = arguments.length, elements = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-    elements[_key3] = arguments[_key3];
-  }
-
-  elements.forEach(function (element) {
+const truncate = function(...elements) {
+  elements.forEach(function(element) {
     if (element) {
       element.classList.add("truncation");
       element.classList.remove("truncation-open");
@@ -304,12 +248,8 @@ var truncate = function truncate() {
 };
 
 /* Un-truncate the text in an HTML element */
-var unTruncate = function unTruncate() {
-  for (var _len4 = arguments.length, elements = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-    elements[_key4] = arguments[_key4];
-  }
-
-  elements.forEach(function (element) {
+const unTruncate = function(...elements) {
+  elements.forEach(function(element) {
     if (element) {
       element.classList.remove("truncation");
       element.classList.add("truncation-open");
@@ -318,35 +258,31 @@ var unTruncate = function unTruncate() {
 };
 
 /* Indicate that an ellipsis has mouse over it */
-var growEllipsis = function growEllipsis(element) {
+const growEllipsis = function(element) {
   element.classList.remove("ellipsis");
   element.classList.add("ellipsis-larger");
 };
 
 /* Restore ellipsis to default look */
-var shrinkEllipsis = function shrinkEllipsis(element) {
+const shrinkEllipsis = function(element) {
   element.classList.remove("ellipsis-larger");
   element.classList.add("ellipsis");
 };
 
 /* Highlight element with off-white background */
-var backgroundOffWhite = function backgroundOffWhite(element) {
+const backgroundOffWhite = function(element) {
   element.style.transition = "all .5s ease";
   element.style.backgroundColor = "rgba(242, 242, 242, 0.5)";
 };
 
 /* Restore background to white */
-var backgroundWhite = function backgroundWhite(element) {
+const backgroundWhite = function(element) {
   element.style.backgroundColor = "#ffffff";
 };
 
 /* Returns true if the text in an element is truncated */
-var isEllipsisActive = function isEllipsisActive() {
-  for (var _len5 = arguments.length, elements = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-    elements[_key5] = arguments[_key5];
-  }
-
-  for (var i = 0; i < elements.length; i++) {
+const isEllipsisActive = function(...elements) {
+  for (let i = 0; i < elements.length; i++) {
     if (elements[i]) {
       if (elements[i].offsetWidth < elements[i].scrollWidth) {
         return true;
@@ -359,19 +295,21 @@ var isEllipsisActive = function isEllipsisActive() {
 /* LISTENERS */
 
 /* Individual row click listeners */
-var initializeRowListeners = function initializeRowListeners(i) {
+const initializeRowListeners = function(i) {
   collapseElements[i].style.cursor = 'pointer';
-  var row = collapseElements[i].nextElementSibling;
+  let row = collapseElements[i].nextElementSibling;
 
-  collapseElements[i].addEventListener("click", function () {
+  collapseElements[i].addEventListener("click", function() {
     openCloseArrow(i);
     toggleRow(row);
   });
 };
 
 /* Initialize question listeners */
-var initializeQuestionListeners = function initializeQuestionListeners() {
-  var _loop = function _loop(i) {
+const initializeQuestionListeners = function() {
+
+  /* Initializes and adds listeners for truncated question text */
+  for (let i = 0; i < questionEllipses.length; i++) {
     previewFull[i] = document.getElementById("previews-full" + i);
     previewSmall[i] = document.getElementById("previews-small" + i);
     questionTruncated[i] = document.getElementById("truncated" + i);
@@ -383,35 +321,22 @@ var initializeQuestionListeners = function initializeQuestionListeners() {
     displayEllipsesIfNeeded(i);
 
     /* User clicks question header */
-    questionHeaders[i].addEventListener("click", function () {
-      expandCollapseQuestionHeaders(i);
-    });
+    questionHeaders[i].addEventListener("click", () => { expandCollapseQuestionHeaders(i); });
 
     /* User moves mouse over a question ellipsis */
-    questionEllipses[i].addEventListener("mouseover", function () {
-      showQuestionPreview(i);
-    });
+    questionEllipses[i].addEventListener("mouseover", () => { showQuestionPreview(i); });
 
     /* User moves mouse off a question ellipsis */
-    questionHeaders[i].addEventListener("mouseleave", function () {
-      hideQuestionPreview(i);
-    });
+    questionHeaders[i].addEventListener("mouseleave", () => { hideQuestionPreview(i); });
 
     /* Resize adjustment for ellipses */
-    window.addEventListener('resize', function () {
-      displayEllipsesIfNeeded(i);
-    });
-  };
-
-  /* Initializes and adds listeners for truncated question text */
-  for (var i = 0; i < questionEllipses.length; i++) {
-    _loop(i);
+    window.addEventListener('resize', () => { displayEllipsesIfNeeded(i); });
   }
 };
 
 /* Initializes and creates listeners for education header truncation */
-var initializeEducationListeners = function initializeEducationListeners() {
-  var _loop2 = function _loop2(i) {
+const initializeEducationListeners = function() {
+  for (let i = 0; i < educationEllipses.length; i++) {
     educationAcademicTruncated[i] = document.getElementById("education-academic-truncated" + i);
     educationInstitutionTruncated[i] = document.getElementById("education-institution-truncated" + i);
     educationAreaStudyTruncated[i] = document.getElementById("education-areastudy-truncated" + i);
@@ -421,45 +346,31 @@ var initializeEducationListeners = function initializeEducationListeners() {
     }
 
     /* User clicks to show education detail */
-    educationHeaders[i].addEventListener("click", function () {
-      showEducationFull(i);
-    });
+    educationHeaders[i].addEventListener("click", () => { showEducationFull(i); });
 
     /* User clicks to hide education detail */
-    educationHeadersClicked[i].addEventListener("click", function () {
-      hideEducationFull(i);
-    });
+    educationHeadersClicked[i].addEventListener("click", () => { hideEducationFull(i); });
 
     /* User moves mouse over education ellipsis */
-    educationEllipses[i].addEventListener("mouseover", function () {
-      showEducationPreview(i);
-    });
+    educationEllipses[i].addEventListener("mouseover", () => { showEducationPreview(i); });
 
     /* User moves mouse off education ellipsis */
-    educationHeaders[i].addEventListener("mouseleave", function () {
-      hideEducationPreview(i);
-    });
+    educationHeaders[i].addEventListener("mouseleave", () => { hideEducationPreview(i); });
 
     /* Handles window resizing and adding/removing ellipses based on browser window size */
-    window.addEventListener('resize', function () {
-      displayEllipsesIfNeeded(i);
-    });
-  };
-
-  for (var i = 0; i < educationEllipses.length; i++) {
-    _loop2(i);
+    window.addEventListener('resize', () => { displayEllipsesIfNeeded(i); });
   }
 };
 
 /* Initializes positions table with experience and assets collapsed */
-window.addEventListener('DOMContentLoaded', function (event) {
+window.addEventListener('DOMContentLoaded', (event) => {
   /* Collapse All button listener */
   collapseAllButton.addEventListener("click", collapseAll);
 
   /* Expand all button listener */
   expandAllButton.addEventListener("click", expandAll);
 
-  for (var i = 0; i < collapseElements.length; i++) {
+  for (let i = 0; i < collapseElements.length; i++) {
     initializeRowListeners(i);
     // if (i > (window.location.pathname.includes("application") ? 3 : 2)) {
     //   collapseArrows[i].innerHTML = "keyboard_arrow_right";
