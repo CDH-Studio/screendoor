@@ -105,8 +105,8 @@ var initializeApplicantUploadProgress = function initializeApplicantUploadProgre
 };
 
 /* Show upload progress if there is a valid task ID */
-window.addEventListener("DOMContentLoaded", function () {
-  cancelUploadButton.addEventListener("click", () => {
+window.addEventListener("load", function () {
+  cancelUploadButton.addEventListener("click", function () {
     document.getElementById("upload-applications-error-text").style.display = "none";
   });
 
