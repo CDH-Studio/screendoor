@@ -8,7 +8,8 @@
   <a href="{% url 'position' applicant.parent_position.reference_number applicant.parent_position.id %}" class="btn-flat blue-text sort-positions">
     ←  {{ applicantText.back_to_position }}: {{ applicant.parent_position.position_title }}
   </a>
-  <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+  <input type="hidden" class="hidden" id="position-id" name="position-id" value='{{ position.id }}'>
+  <input type="hidden" class="hidden" id="applicant-id" value='{{ applicant.id }}'>
   <h6 class="btn-flat disabled"></h6>
   <div class="row">
     <!--Beginning of application card -->
