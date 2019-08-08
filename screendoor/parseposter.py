@@ -65,7 +65,6 @@ def extract_experience(essential_block):
 
     if experience == "":
         experience = essential_block
-
     experience = clean_block(experience)
 
     return experience
@@ -398,8 +397,8 @@ def check_for_duplicates_and_errors(requirement_list):
                     requirement_list[index2] = ""
         if len(item1) < 5:
             requirement_list[index1] = ""
-        if item1.endswith("."):
-            item1 = item1[:len(item1) - 2]
+        # if item1.endswith("."):
+        #     item1 = item1[:len(item1) - 2]
         if item1.startswith("."):
             item1 = item1[1:]
         item1 = item1.strip("►")
@@ -407,7 +406,6 @@ def check_for_duplicates_and_errors(requirement_list):
         item1 = item1.strip("*")
         item1 = item1.strip("•")
         requirement_list[index1] = item1
-
     return requirement_list
 
 
