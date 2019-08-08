@@ -3,10 +3,13 @@ import sys, traceback
 from io import BytesIO
 from string import digits
 from urllib import parse
+from datetime import datetime, timezone
+from dateutil.relativedelta import *
 import dateutil
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from screendoor.models import Position, Applicant, Education, FormAnswer, Note, Qualifier, ScreenDoorUser, Requirement
 
@@ -41,6 +44,7 @@ def add_user_to_position(request):
             return JsonResponse(
                 {'exception': 'User already has access to this position.'})
         position.position_users.add(new_user)
+        position.last_modified_by = request.user
         position.save()
         return JsonResponse({
             'userName': new_user.username,
@@ -59,6 +63,7 @@ def remove_user_from_position(request):
     try:
         user_to_remove = ScreenDoorUser.objects.get(email=user_email)
         position.position_users.remove(user_to_remove)
+        position.last_modified_by = request.user
         position.save()
         return JsonResponse({'userEmail': user_email})
 
@@ -77,6 +82,11 @@ def add_note(request):
                     parent_answer=answer,
                     note_text=note_text)
         note.save()
+
+        # Change who last modified the application
+        answer.parent_applicant.last_modified_by = request.user
+        answer.parent_applicant.save()
+
         return JsonResponse({
             'noteId': note.id,
             'noteAuthor': note.author.username,
@@ -91,9 +101,15 @@ def add_note(request):
 # Ajax url
 def remove_note(request):
     note_id = request.GET.get("noteId")
+    answer_id = request.GET.get("parentAnswerId")
     try:
         note = Note.objects.get(id=note_id)
+        answer = FormAnswer.objects.get(id=answer_id)
         note.delete()
+
+        # Change who last modified the application
+        answer.parent_applicant.last_modified_by = request.user
+        answer.parent_applicant.save()
         return JsonResponse({'noteId': note_id})
     except:
         return JsonResponse({})
@@ -118,6 +134,7 @@ def edit_position(request):
         position.salary = position_dictionary["position-salary"]
         position.open_to = position_dictionary["position-open-to"]
         position.description = position_dictionary["position-description"]
+        position.last_modified_by = request.user
         position.save()
 
         for requirement in Requirement.objects.filter(position=position):
@@ -157,3 +174,49 @@ def edit_position(request):
         print("ERROR!")
         traceback.print_exc(file=sys.stdout)
         return JsonResponse({'message': 'failure'})
+
+
+# Ajax url
+def change_notification(request):
+    # Determine what type of view the user is on based on the url pathname
+    path = request.GET.get("path")
+    split_path = path.split('/')
+    path_identifier = split_path[1]
+
+    # position list view
+    if path_identifier == 'positions':
+        # Pull all of the positions on the page
+        for position in request.user.positions.all():
+            # If any changed recently, trigger a change-notification toast
+            if check_if_within_time_interval(position.updated_at):
+                return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
+
+    # position detail view
+    elif path_identifier == 'position':
+        # Pull the position being looked at
+        position_ref = split_path[2]
+        position = Position.objects.get(reference_number=position_ref)
+
+        # If changed recently, trigger a change-notification toast
+        if check_if_within_time_interval(position.updated_at):
+                return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
+
+    # applicant view
+    elif path_identifier == 'application':
+        # Pull the application being looked at
+        application_id = split_path[2]
+        applicant = Applicant.objects.get(applicant_id=application_id)
+
+        # If changed recently, trigger a change-notification toast
+        if check_if_within_time_interval(applicant.updated_at):
+                return  JsonResponse({'message': 'change', 'lastEditedBy' : applicant.last_modified_by.email})
+
+    # Return nothing
+    return JsonResponse({})
+
+# check if the updated at date was within the last 7 seconds
+def check_if_within_time_interval(updated_at_date):
+    lower_bound = datetime.now(timezone.utc) + relativedelta(seconds=-7)
+    if updated_at_date > lower_bound:
+        return True
+    return False

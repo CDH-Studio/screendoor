@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 from cryptography.fernet import Fernet
+from django.utils import timezone
+from datetime import *
 
 
 class Position(models.Model):
@@ -28,6 +30,12 @@ class Position(models.Model):
     number_applicants = models.IntegerField(blank=True, null=True, default=0)
     mean_score = models.IntegerField(blank=True, null=True, default=0)
 
+    updated_at = models.DateTimeField()
+    last_modified_by = models.ForeignKey("ScreenDoorUser",
+                                      on_delete=models.CASCADE,
+                                      null=True,
+                                      related_name='position_last_modified_by')
+
     def __str__(self):
         return self.position_title
 
@@ -42,6 +50,12 @@ class Position(models.Model):
                 for applicant in self.applicant_set.all()
             ]) // self.applicant_set.all().count()
             self.save()
+
+    # Custom save to make sure the updated_at field is accurate
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        self.updated_at = datetime.now(timezone.utc)
+        return super(Position, self).save(*args, **kwargs)
 
 
 class Applicant(models.Model):
@@ -89,6 +103,12 @@ class Applicant(models.Model):
     stream_count = models.PositiveIntegerField(default=0)
     classification_names = models.TextField(null=True)
 
+    updated_at = models.DateTimeField()
+    last_modified_by = models.ForeignKey("ScreenDoorUser",
+                                      on_delete=models.CASCADE,
+                                      null=True,
+                                      related_name='application_last_modified_by')
+
     def __str__(self):
         return self.applicant_id
 
@@ -107,6 +127,12 @@ class Applicant(models.Model):
             for classification in classifications
         ]).join(" ").join([(classification.classification_current or "")
                            for classification in classifications])
+
+    # Custom save to make sure the updated_at field is accurate
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        self.updated_at = datetime.now(timezone.utc)
+        return super(Applicant, self).save(*args, **kwargs)
 
 
 class ScreenDoorUser(AbstractUser):

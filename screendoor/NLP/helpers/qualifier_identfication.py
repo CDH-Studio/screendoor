@@ -1,6 +1,6 @@
 import re
 
-from dateutil.parser import *
+from dateutil.parser import parse
 from datetime import *
 from .date_range import DateRange
 from dateutil.relativedelta import *

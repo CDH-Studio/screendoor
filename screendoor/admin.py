@@ -27,6 +27,7 @@ class PositionAdmin(admin.ModelAdmin):
 
 class ApplicantAdmin(admin.ModelAdmin):
     inlines = [AnswerInLine]
+    readonly_fields = ("updated_at",)
 
 
 class AnswerAdmin(admin.ModelAdmin):

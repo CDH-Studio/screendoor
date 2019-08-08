@@ -75,6 +75,7 @@ class InterfaceText():
     welcome_user = _("Welcome, %s")
     # Translators: Sidebar
     logout = _("Logout")
+    page_change_notification = _("Page contents have been modified by another user. Please refresh to see any changes.")
 
 
 class ImportApplicationsText():
