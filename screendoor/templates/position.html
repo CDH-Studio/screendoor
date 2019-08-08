@@ -364,6 +364,8 @@
     <div class="modal-footer">
       {% if errorMsg %}
         <span class="error-text" id="upload-applications-error-text">{{ errorMsg }}</span>
+      {% else %}
+      <span class="col uploading-text uploading hide" id="upload-applications-uploading-text">{{ positionText.uploading_text }}</span>
       {% endif %}
       <input type="hidden" id="upload-applications-id" name="position-id" value="{{ position.id }}">
       <input type="hidden" id="reload-url" value="{% url 'position' position.reference_number position.id %}">
