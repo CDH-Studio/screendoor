@@ -37,12 +37,14 @@
         <span class="sidenav-welcome" id="user-welcome" data-user-email="{{ user.email }}">
           {{ baseVisibleText.welcome_user|interpolate:user.first_name }}
         </span>
+      </p>
+
         <span class="menu-close-arrow">
           <a class="toggle-sidenav">
-            <i class="material-icons grey-text text-darken-3">keyboard_arrow_left</i>
+            <i id="sidenav-open-close-icon" class="material-icons grey-text text-darken-3">keyboard_arrow_left</i>
           </a>
         </span>
-      </p>
+
     </li>
     <br>
     <!-- Display View Positions menu item in blue if user is at that page -->
