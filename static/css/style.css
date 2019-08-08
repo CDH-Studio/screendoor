@@ -62,11 +62,14 @@ input {
   cursor: pointer;
 }
 
+#sidenav-open-close-icon {
+
+}
+
 .menu-close-arrow {
-  position: absolute;
-  display: inline;
-  margin-left: 100px;
-  margin-top: -12px;
+float: right;
+margin-top: -73px;
+margin-right: 15px;
 }
 
 .menu-close-arrow i {
