@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
@@ -19,12 +21,6 @@ from celery.result import AsyncResult
 def parse_position_return_dictionary(create_position_form):
     # don't commit partial positions with only pdf/url into db
     return parse_upload(create_position_form.save(commit=False))
-
-
-# Adds position to user data
-def save_position_to_user(request):
-    request.user.positions.add(
-        Position.objects.get(id=request.session['position_id']))
 
 
 # Displays form allowing users to upload job posting PDF files and URLs
@@ -66,7 +62,15 @@ def import_position(request):
 
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            save_position_to_user(request)
+            # Pull position from session
+            position = Position.objects.get(id=request.session['position_id'])
+            # Set the last modified user to the current user
+            position.last_modified_by = request.user
+            position.save()
+            # Save the position to the user
+            request.user.positions.add(
+                Position.objects.get(id=request.session['position_id']))
+                
             return redirect('home')
 
     # Default view for GET request
@@ -135,7 +139,10 @@ def import_applications_redact(request):
                   {'form': form})
 
 
-def task_status(request, task_id):
+@csrf_exempt
+def task_status(request):
+    data = json.loads(request.body.decode('utf-8'))
+    task_id = data["taskId"]
     if task_id is not None:
         task = AsyncResult(task_id)
         if task is not None:

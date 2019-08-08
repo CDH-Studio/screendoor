@@ -102,12 +102,11 @@ def add_note(request):
 def remove_note(request):
     note_id = request.GET.get("noteId")
     answer_id = request.GET.get("parentAnswerId")
+    answer = FormAnswer.objects.get(id=answer_id)
     try:
         note = Note.objects.get(id=note_id)
-        answer = FormAnswer.objects.get(id=answer_id)
         note.delete()
-
-        # Change who last modified the application
+        # # Change who last modified the application
         answer.parent_applicant.last_modified_by = request.user
         answer.parent_applicant.save()
         return JsonResponse({'noteId': note_id})
@@ -177,11 +176,11 @@ def edit_position(request):
 
 
 # Ajax url
+@csrf_exempt
 def change_notification(request):
     # Determine what type of view the user is on based on the url pathname
-    path = request.GET.get("path")
-    split_path = path.split('/')
-    path_identifier = split_path[1]
+    data = json.loads(request.body.decode('utf-8'))
+    path_identifier = data["pageType"].split('/')[1]
 
     # position list view
     if path_identifier == 'positions':
@@ -194,8 +193,7 @@ def change_notification(request):
     # position detail view
     elif path_identifier == 'position':
         # Pull the position being looked at
-        position_ref = split_path[2]
-        position = Position.objects.get(reference_number=position_ref)
+        position = Position.objects.get(id=int(data["positionId"]))
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(position.updated_at):
@@ -204,8 +202,7 @@ def change_notification(request):
     # applicant view
     elif path_identifier == 'application':
         # Pull the application being looked at
-        application_id = split_path[2]
-        applicant = Applicant.objects.get(applicant_id=application_id)
+        applicant = Applicant.objects.get(id=int(data["applicantId"]))
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(applicant.updated_at):

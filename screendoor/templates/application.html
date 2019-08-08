@@ -8,7 +8,8 @@
   <a href="{% url 'position' applicant.parent_position.reference_number applicant.parent_position.id %}" class="btn-flat blue-text sort-positions">
     ←  {{ applicantText.back_to_position }}: {{ applicant.parent_position.position_title }}
   </a>
-  <input type="hidden" class="hidden" name="position-id" value='{{ position.id }}'>
+  <input type="hidden" class="hidden" id="position-id" name="position-id" value='{{ position.id }}'>
+  <input type="hidden" class="hidden" id="applicant-id" value='{{ applicant.id }}'>
   <h6 class="btn-flat disabled"></h6>
   <div class="row">
     <!--Beginning of application card -->
@@ -48,8 +49,8 @@
           </div>
           <div class="col s5 truncation">
             <span class="applicant-classification">
-              <data id="substantive-classification-text" value=" {{ applicantText.substantive }} Classification"></data>
-              <data id="current-classification-text" value=" {{ applicantText.current }} Classification"></data>
+              <input type="hidden" id="substantive-classification-text" value=" {{ applicantText.substantive }} Classification"/>
+              <input type="hidden" id="current-classification-text" value=" {{ applicantText.current }} Classification"/>
               {% for classification in classifications %}
               {% if classification.classification_substantive is not None %}
               <span class="classification-substantive card-panel applicant-summary-card list screendoor-color white-text">
@@ -84,10 +85,10 @@
         <div class="hidden-applicant-info row row-closed">
           <div class="hidden-applicant-row row body-row">
             <div class="specialization col s3 cell-body">
-              {{ applicantText.priority }}: <br>{{ applicant.priority }}
+              {{ applicantText.priority }} <br>{{ applicant.priority }}
             </div>
             <div class="program-length col s3 cell-body">
-              {{ applicantText.veteran_preference }}: <br>{{ applicant.veteran_preference }}
+              {{ applicantText.veteran_preference }} <br>{{ applicant.veteran_preference }}
             </div>
             <div class="years-completed col s3 cell-body">
               {{ applicantText.french_working_ability }}: <br>{{ applicant.french_working_ability }}
@@ -201,8 +202,8 @@
                 <div class="col requirement-abbreviation applicant-summary-card-small list card-panel screendoor-color">
                   {{ answer.parent_question.parent_requirement.abbreviation }}
                 </div>
-                <data class="question-data-text" value=": {{ answer.short_question_text }} "></data>
-                <data class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "></data>
+                <input type="hidden" class="question-data-text" value=": {{ answer.short_question_text }} "/>
+                <input type="hidden" class="requirement-text" value=": {{ answer.parent_question.parent_requirement.description }} "/>
                 {% endif %}
                 <div class="col {% if answer.qualifier_set.all is not None %}
                             s9 {% elif answer.parent_question.parent_requirement is not None %} s9 {% else %} s10 {% endif %} cell-header question-row short-question-text truncation">{{ forloop.counter }}. {{ answer.parent_question.short_question_text }}
@@ -286,18 +287,18 @@
                   </div>
                   {% endif %}
                   <div class="extracts-full">
-                    <data class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
-                    <data class="answer-id" value="{{ answer.id }}" >
+                    <input type="hidden" class="answer-complementary-response-value" value="{{ answer.applicant_complementary_response }}" />
+                    <input type="hidden"  class="answer-id" value="{{ answer.id }}" />
                       {% for extract in answer.extract_set|dictsort:"extract_sentence_index" %}
 
                       <!-- Data classes for sentence highlighting -->
-                      <data class="extract-string-index" value="{{ extract.extract_sentence_index }}"></data>
-                      <data class="extract-ending-index" value="{{ extract.extract_ending_index }}"></data>
-                      <data class="extract-next-index" value="{{ extract.next_extract_index }}"></data>
-                      <data class="extract-string" value="{{ extract.extract_text }}"></data>
-                      <data class="extract-id" value="{{ extract.id }}"></data>
-                      <data class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"></data>
-                      <data class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"></data>
+                      <input type="hidden"  class="extract-string-index" value="{{ extract.extract_sentence_index }}"/>
+                      <input type="hidden" class="extract-ending-index" value="{{ extract.extract_ending_index }}"/>
+                      <input type="hidden" class="extract-next-index" value="{{ extract.next_extract_index }}"/>
+                      <input type="hidden" class="extract-string" value="{{ extract.extract_text }}"/>
+                      <input type="hidden" class="extract-id" value="{{ extract.id }}"/>
+                      <input type="hidden" class="extract-parent-answer-id" value="{{ extract.parent_answer.id }}"/>
+                      <input type="hidden" class="extract-parent-answer" value="{{ extract.parent_answer.applicant_complementary_response }}"/>
                       <!-- Extracts full -->
                       <div class="extract-full">
                         {% if extract.extract_type == 'WHEN' %}
