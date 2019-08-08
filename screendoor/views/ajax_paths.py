@@ -102,12 +102,11 @@ def add_note(request):
 def remove_note(request):
     note_id = request.GET.get("noteId")
     answer_id = request.GET.get("parentAnswerId")
+    answer = FormAnswer.objects.get(id=answer_id)
     try:
         note = Note.objects.get(id=note_id)
-        answer = FormAnswer.objects.get(id=answer_id)
         note.delete()
-
-        # Change who last modified the application
+        # # Change who last modified the application
         answer.parent_applicant.last_modified_by = request.user
         answer.parent_applicant.save()
         return JsonResponse({'noteId': note_id})
