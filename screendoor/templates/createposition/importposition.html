@@ -2,14 +2,14 @@
 {% load string_interpolation %}
 {% load static %}
 {% block content %}
-<div class="container valign-wrapper form-cards">
-  <div class="row card-center">
+<div class="container form-cards">
+  <div class="row card-center valign-wrapper">
     <!--Beginning of upload position card -->
     <div class="row">
       {% if position is not None %}
-      <div class="card horizontal">
+      <div class="card horizontal position-upload-card">
         {% else %}
-        <div class="col s12 card horizontal">
+        <div class="col s12 card horizontal position-upload-card">
           {% endif %}
           <!-- Beginning of upload position form -->
           <form method="post" id="upload-position" enctype="multipart/form-data" action="">
@@ -72,7 +72,7 @@
                   </div>
                   <div class="file-path-wrapper">
                     <input id="pdf_path_input" class="file-path validate" type="text"
-                           placeholder="{{ form.upload_text }}" />
+                      placeholder="{{ form.upload_text }}" />
                   </div>
                 </div>
               </div>
@@ -87,7 +87,8 @@
                 </div>
               </div>
               <!-- Submit button -->
-              <button class="right btn hide" name="upload-position" id="position_submit_button"> {{ form.submit_text }}</button>
+              <button class="right btn hide" name="upload-position" id="position_submit_button">
+                {{ form.submit_text }}</button>
             </div>
             <!-- End of form -->
           </form>
@@ -108,11 +109,10 @@
       </div>
     </div>
 
-
     <form method="post" id="edit-position" enctype="multipart/form-data" action="">
       <div class="row">
+        <!--Beginning of confirm position card -->
         <div class="col s12">
-          <!--Beginning of confirm position card -->
           <div id="position-card" class="card white">
             <div class="card-content">
               <div class="row valign-wrapper">
@@ -127,39 +127,53 @@
                 <!-- Confirm/Edit button row -->
                 <div class="col s4 right right-align" id="import-position-buttons">
                   {% csrf_token %}
-                  <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button" value="{{ userVisibleText.edit }}">
-                  <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit" value="{{ userVisibleText.save }}">
+                  <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button"
+                    value="{{ userVisibleText.edit }}">
+                  <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit"
+                    value="{{ userVisibleText.save }}">
                 </div>
               </div>
               <!-- New position area -->
               <div class="row position-information position-upload-information">
                 <div class="row body-row position-row">
                   <div class="col s3 cell-body">
-                    <span class="position-heading">{{ userVisibleText.classification }}:</span> <br><span id="position-classification" class="position-import-cell edit">{{ position.classification }}</span>
+                    <span class="position-heading">{{ userVisibleText.classification }}:</span> <br><span
+                      id="position-classification"
+                      class="position-import-cell edit">{{ position.classification }}</span>
                   </div>
                   <div class="col s3 cell-body">
-                    <span class="position-heading">{{ userVisibleText.reference_number }}:</span> <br><span id="position-reference" class="position-import-cell edit">{{ position.reference_number }}</span>
+                    <span class="position-heading">{{ userVisibleText.reference_number }}:</span> <br><span
+                      id="position-reference" class="position-import-cell edit">{{ position.reference_number }}</span>
                   </div>
                   <div class="col s4 cell-body">
-                    <span class="position-heading">{{ userVisibleText.selection_process_number }}:</span> <br><span id="position-selection" class="position-import-cell edit">{{ position.selection_process_number }}</span>
+                    <span class="position-heading">{{ userVisibleText.selection_process_number }}:</span> <br><span
+                      id="position-selection"
+                      class="position-import-cell edit">{{ position.selection_process_number }}</span>
                   </div>
                   <div class="col s2 cell-body">
-                    <span class="position-heading">{{ userVisibleText.date_closed }}:</span> <br><span class="position-import-cell edit" id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
+                    <span class="position-heading">{{ userVisibleText.date_closed }}:</span> <br><span
+                      class="position-import-cell edit"
+                      id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
                   </div>
                 </div>
                 <div class="row body-row position-row">
-                  <div class="col s3 cell-body" class="position-heading">{{ userVisibleText.number_of_positions }}:</span> <br><span id="position-num-positions" class="position-import-cell edit">{{ position.num_positions }}</span>
+                  <div class="col s3 cell-body" class="position-heading">
+                    {{ userVisibleText.number_of_positions }}:</span> <br><span id="position-num-positions"
+                      class="position-import-cell edit">{{ position.num_positions }}</span>
                   </div>
                   <div class="col s3 cell-body">
-                    <span class="position-heading">{{ userVisibleText.salary_range }}:</span> <br><span id="position-salary" class="position-import-cell edit">{{ position.salary }}</span>
+                    <span class="position-heading">{{ userVisibleText.salary_range }}:</span> <br><span
+                      id="position-salary" class="position-import-cell edit">{{ position.salary }}</span>
                   </div>
                   <div class="col s6 cell-body">
-                    <span class="position-heading">{{ userVisibleText.open_to }}:</span> <br><span id="position-open-to" class="position-import-cell edit">{{ position.open_to }}</span>
+                    <span class="position-heading">{{ userVisibleText.open_to }}:</span> <br><span id="position-open-to"
+                      class="position-import-cell edit">{{ position.open_to }}</span>
                   </div>
                 </div>
                 <div class="row body-row position-row">
                   <div class="col s12 cell-body">
-                    <span class="position-heading">{{ userVisibleText.position_information }}:</span> <br><span id="position-description" class="position-import-cell edit">{{ position.description }}</span>
+                    <span class="position-heading">{{ userVisibleText.position_information }}:</span> <br><span
+                      id="position-description" class="position-import-cell edit">{{ position.description }}</span>
                   </div>
                 </div>
               </div>
@@ -184,15 +198,18 @@
                   </li>
                   <div id="education-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
-                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
+                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description education-description col s10 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description education-description col s10 edit"
+                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
                   </div>
 
-                  <li id="req-experience" class="requirement-type row hoverable hide" data-requirement-type="Experience">
+                  <li id="req-experience" class="requirement-type row hoverable hide"
+                    data-requirement-type="Experience">
                     <i class="requirement-icons material-icons grey-text">build
                     </i>
                     <span class="requirement-type-text">
@@ -204,9 +221,11 @@
                   </li>
                   <div id="experience-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
-                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
+                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description experience-description col s11 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description experience-description col s11 edit"
+                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -224,9 +243,11 @@
                   </li>
                   <div id="asset-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
-                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}" data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
+                    <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
+                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
-                      <div class="requirement-description asset-description col s11 edit" id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                      <div class="requirement-description asset-description col s11 edit"
+                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -240,8 +261,8 @@
       </div>
     </form>
   </div>
-  <input type="hidden" id="ok-button-text" value="{{ form.ok_text }}"/>
-  <input type="hidden" id="cancel-button-text" value="{{ form.cancel_text }}"/>
+  <input type="hidden" id="ok-button-text" value="{{ form.ok_text }}" />
+  <input type="hidden" id="cancel-button-text" value="{{ form.cancel_text }}" />
   <!-- End of position display -->
   <!-- Misc helper functions -->
   <script src="{% static 'js/helper-functions.js' %}"></script>
