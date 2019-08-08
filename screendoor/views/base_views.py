@@ -9,9 +9,12 @@ from django.shortcuts import render, redirect
 from screendoor.forms import ScreenDoorUserCreationForm, LoginForm
 from screendoor.models import EmailAuthenticateToken
 from screendoor.uservisibletext import InterfaceText, CreateAccountFormText, LoginFormText
+from screendoor_app import settings
 
 
 # Index currently redirects to the positions view if logged in
+
+
 @login_required(login_url='login', redirect_field_name=None)
 def index(request):
     return redirect('positions')
@@ -70,14 +73,11 @@ def create_account(request):
 # Currently sends mock e-mail via console
 def send_user_email(request, user):
     url = generate_confirmation_url(request, user)
-    send_mail(
-        'ScreenDoor: Please confirm e-mail address',
-        'Please visit the following URL to confirm your account: ' + url,
-        'screendoor@screendoor.ca',
-        # Address: should be user.email
-        [user.email],
-        fail_silently=False,
-    )
+    subject = 'ScreenDoor: Please confirm e-mail address'
+    message = 'Please visit the following URL to confirm your account: ' + url
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [user.email, ]
+    send_mail(subject, message, email_from, recipient_list)
 
 
 # Creates and returns a working account confirmation URL
