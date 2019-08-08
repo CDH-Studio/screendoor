@@ -11,8 +11,8 @@ var toggleNoteInput = function toggleNoteInput(i) {
     noteTextArea[i].classList.remove('note-box-visible');
     addNoteButtons[i].children[0].style.fontSize = '2.1rem';
   } else {
-    noteTextArea[i].classList.add('note-box-visible');
-    addNoteButtons[i].children[0].style.fontSize = '3rem';
+    noteTextArea[i].classList.add("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "3rem";
   }
 };
 

@@ -4,7 +4,7 @@ from screendoor.views.base_views import index, register_form, login_form, logout
 from screendoor.views.main_views import positions, position_detail, position_detail_with_upload_error, delete_position, application, render_pdf
 from screendoor.views.helper_views import sort_positions, sort_applicants, filter_applicants
 from screendoor.views.import_pdfs import upload_applications, import_position, task_status
-from screendoor.views.ajax_paths import change_favourites_status, add_user_to_position, remove_user_from_position, add_note, remove_note, edit_position
+from screendoor.views.ajax_paths import change_favourites_status, add_user_to_position, remove_user_from_position, add_note, remove_note, edit_position, change_notification
 
 # Set application namespace
 # app_name = 'screendoor'
@@ -57,5 +57,6 @@ urlpatterns = [
           name='remove_user_from_position'),
      path('add_note', add_note, name='add_note'),
      path('remove_note', remove_note, name='remove_note'),
-     path('edit-position', edit_position, name='edit-position')
+     path('edit-position', edit_position, name='edit-position'),
+     path('change_notification', change_notification, name='change_notification'),
 ]
