@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.forms import UserCreationForm
 
+from datetime import datetime
+
 from .models import ScreenDoorUser, Position, Applicant
 from .uservisibletext import ErrorMessages, CreatePositionFormText, \
     CreateAccountFormText, StandardFormText, LoginFormText, \

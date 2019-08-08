@@ -1,12 +1,11 @@
 import base64
-import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 from cryptography.fernet import Fernet
 from django.utils import timezone
-from datetime import *
+from datetime import datetime
 
 
 class Position(models.Model):
@@ -156,7 +155,7 @@ class EmailAuthenticateToken(models.Model):
     def create_key(self):
         initial_key = Fernet.generate_key()
         byte_values = bytes(
-            str(self.user.email) + str(datetime.datetime.now()), 'utf-8')
+            str(self.user.email) + str(datetime.now(timezone.utc)), 'utf-8')
         encoded_bytes = Fernet(initial_key).encrypt(byte_values)
         self.key = base64.b64encode(encoded_bytes).decode('utf-8')
 
