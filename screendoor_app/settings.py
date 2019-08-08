@@ -16,6 +16,9 @@ from celery.schedules import crontab
 from screendoor.NLP.helpers.load_nlp import init_spacy_module
 from configparser import RawConfigParser
 
+config = RawConfigParser()
+config.read('settings.ini')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -24,10 +27,10 @@ LOCALE_PATHS = (
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SCREENDOOR_SECRET_KEY', 'abdef')
+SECRET_KEY = config.get('secret', 'SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(os.getenv('DEBUG', 'True'))
+DEBUG = config.get('secret', 'DEBUG')
 
 NLP_MODEL = init_spacy_module()
 # Quick-start development settings - unsuitable for production
@@ -143,8 +146,6 @@ STATICFILES_DIRS = (
 # Email Authentication
 
 # Email Setup
-config = RawConfigParser()
-config.read('settings.ini')
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

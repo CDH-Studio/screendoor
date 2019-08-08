@@ -5,7 +5,6 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-
 from screendoor.forms import ScreenDoorUserCreationForm, LoginForm
 from screendoor.models import EmailAuthenticateToken
 from screendoor.uservisibletext import InterfaceText, CreateAccountFormText, LoginFormText
