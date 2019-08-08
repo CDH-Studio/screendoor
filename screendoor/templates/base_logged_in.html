@@ -102,7 +102,9 @@
     {% endblock  %}
   </div>
   <!-- Toast that appears when another user changes the page a user is looking at-->
-  <div id="snackbar">Page contents have been modified by another user. Please refresh to see any changes. <span class="close-notif-toast" id="close-notif-toast" data-dismiss="alert" aria-label="close">X</span></div>
+  <div id="snackbar"><span id="user-change-toast-text">{{ baseVisibleText.page_change_notification }}</span></span>
+    <i class="material-icons close-notif-toast white-text" id="close-notif-toast" data-dismiss="alert" aria-label="close">close</i>
+  </div>
   </main>
   <!-- End of page content -->
 </body>

@@ -1,31 +1,18 @@
 const showToast = function() {
   // Get the snackbar DIV
-  var x = document.getElementById("snackbar");
+  const snackbar = document.getElementById("snackbar");
   
   // Add the "show" class to DIV
-  x.className = "show";
-
+  snackbar.className = "show";
 };
 
 const closeToast = function() {
   // Get the snackbar DIV
-  var x = document.getElementById("snackbar");
+  const snackbar = document.getElementById("snackbar");
     
   // Add the "show" class to DIV
-  x.className = "hide";
-  
+  snackbar.className = "hide";
 };
-
-/* Show upload progress if there is a valid task ID */
-window.addEventListener("load", function() {
-  this.document.getElementById("close-notif-toast").addEventListener("click", () => {
-    closeToast();
-  });
-  setInterval(function() {
-    checkForPageChanges();
-  }, 7000); 
-});
-
 
 const checkForPageChanges = function() {
   const pageType = window.location.pathname;
@@ -44,3 +31,16 @@ const checkForPageChanges = function() {
     }).catch(() => console.error());
   });
 };
+
+/* Show upload progress if there is a valid task ID */
+window.addEventListener("DOMContentLoaded", () => {
+  this.document.getElementById("close-notif-toast").addEventListener("click", () => {
+    closeToast();
+  });
+  this.document.getElementById("user-change-toast-text").addEventListener("click", () => {
+    location.reload();
+  });
+  setInterval(function() {
+    checkForPageChanges();
+  }, 7000); 
+});
