@@ -23,12 +23,6 @@ def parse_position_return_dictionary(create_position_form):
     return parse_upload(create_position_form.save(commit=False))
 
 
-# Adds position to user data
-def save_position_to_user(request):
-    request.user.positions.add(
-        Position.objects.get(id=request.session['position_id']))
-
-
 # Displays form allowing users to upload job posting PDF files and URLs
 @login_required(login_url='login', redirect_field_name=None)
 def import_position(request):
@@ -68,7 +62,15 @@ def import_position(request):
 
         # User pressed save button on uploaded and parsed position
         if request.POST.get("save-position"):
-            save_position_to_user(request)
+            # Pull position from session
+            position = Position.objects.get(id=request.session['position_id'])
+            # Set the last modified user to the current user
+            position.last_modified_by = request.user
+            position.save()
+            # Save the position to the user
+            request.user.positions.add(
+                Position.objects.get(id=request.session['position_id']))
+                
             return redirect('home')
 
     # Default view for GET request
