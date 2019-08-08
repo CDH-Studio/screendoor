@@ -149,6 +149,7 @@ class PositionText():
     streams = _("Streams")
     score = _("Tabulation")
     pdf = _("PDF")
+    uploading_text = _("Please wait while your file is uploading")
 
 
 class CreatePositionFormText():

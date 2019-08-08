@@ -33,3 +33,14 @@ function isIE() {
 
   return is_ie;
 }
+
+window.addEventListener("DOMContentLoaded", function () {
+  if (document.getElementById("upload-applications-form")) {
+    document.getElementById("upload-applications-form").addEventListener("submit", function () {
+      showElements(document.getElementById("upload-applications-uploading-text"));
+    });
+  }
+  if (document.getElementById("upload-applications-error-text")) {
+    hideElements(document.getElementById("upload-applications-uploading-text"));
+  }
+});

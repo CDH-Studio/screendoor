@@ -1602,6 +1602,10 @@ div {
 
 /* Position detail */
 
+.uploading-text {
+  color: #8477d6;
+}
+
 .position-buttons a {
   background-color: #fafafa;
   margin-left: 10px;
@@ -2028,6 +2032,23 @@ div {
   margin-left: -15px;
   text-align: left;
   font-size: 1.3rem;
+}
+
+.uploading {
+  display: inline-flex;
+  position: relative;
+  top: 15;
+  left: 15;
+}
+
+.uploading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0em; 
 }
 
 .loading:after {
