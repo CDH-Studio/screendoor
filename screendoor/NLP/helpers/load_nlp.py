@@ -5,19 +5,23 @@ from spacy_langdetect import LanguageDetector
 
 def init_spacy_module():
     nlp = spacy.load('en_core_web_sm')
-    months_regex = r'\bjanuary\b|\bjan\b|\bjan\.|' \
-                   r'\bfebruary\b|\bfeb\b|\bfeb\.|' \
-                   r'\bmarch\b|\bmar\b|\bmar\.|' \
-                   r'\bapril\b|\bapr\b|\bapr\.|' \
-                   r'\bmay\b|' \
-                   r'\bjune\b|\bjun\b|\bjun\.|' \
-                   r'\bjuly\b|\bjul\b|\bjul\.|' \
-                   r'\baugust\b|\baug\b|\baug\.|' \
-                   r'\bseptember\b|\bsept\b|\bsept\.|\bsep\b|\bsep\.|' \
-                   r'\boctober\b|\bnov\b|\bnov\.|' \
-                   r'\bnovember\b|\bnov\b|\bnov\.|' \
-                   r'\bdecember\b|\bdec\b|\bdec\.|' \
+    months_regex = r'\bjanuary\.\b|\bjanuary\b|\bjan\b|\bjan\.|' \
+                   r'\bfebruary\.\b|\bfebruary\b|\bfeb\b|\bfeb\.|' \
+                   r'\bmarch\.\b|\bmarch\b|\bmar\b|\bmar\.|' \
+                   r'\bapril\.\b|\bapril\b|\bapr\b|\bapr\.|' \
+                   r'\bmay\.\b|\bmay\b|' \
+                   r'\bjune\.\b\bjune\b|\bjun\b|\bjun\.|' \
+                   r'\bjuly\.\b|\bjuly\b|\bjul\b|\bjul\.|' \
+                   r'\baugust\.\b|\baugust\b|\baug\b|\baug\.|' \
+                   r'\bseptember\.\b|\bseptember\b|\bsept\b|\bsept\.|\bsep\b|\bsep\.|' \
+                   r'\boctober\.\b|\boctober\b|\bnov\b|\bnov\.|' \
+                   r'\bnovember\.\b|\bnovember\b|\bnov\b|\bnov\.|' \
+                   r'\bdecember\.\b|\bdecember\b|\bdec\b|\bdec\.|' \
                    r'\bpresent\b'
+
+    starting_words = r'from|starting|since'
+    linking_characters = r'until|to|~|-|–' 
+
     ruler = EntityRuler(nlp, overwrite_ents=True)
     sentencizer = nlp.create_pipe("sentencizer")
     nlp.add_pipe(sentencizer, first=True)
@@ -30,11 +34,11 @@ def init_spacy_module():
         #   from 2014, lasting 5 years
         #   since April 2011
         {'label': 'DATE1', 'pattern': [
-            {'LOWER': {'REGEX': 'from|starting|since'}, 'OP': '?'},
+            {'LOWER': {'REGEX': starting_words}, 'OP': '?'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
             {'LOWER': {"NOT_IN": [',', '.', '(', ')', ';', ':', '=', '\n', 'and', 'within']}, 'OP': '*'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
-            {'LOWER': {'REGEX': 'until|to'}, 'OP': '?'},
+            {'LOWER': {'REGEX': linking_characters}, 'OP': '?'},
             {'LOWER': {'REGEX': 'the'}, 'OP': '?'},
             {'LOWER': {'REGEX': 'present|current|today|now'}, 'OP': '?'}
         ]},
@@ -43,10 +47,10 @@ def init_spacy_module():
         #   From July 2011 to October 2013
         # (NOTE: edge case prevention)
         {'label': 'DATE1A', 'pattern': [
-            {'LOWER': 'from'},
+            {'LOWER': {'REGEX': starting_words}},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
-            {'LOWER': 'to|-|–'},
+            {'LOWER': {'REGEX': linking_characters}},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
         ]},
@@ -62,9 +66,9 @@ def init_spacy_module():
         #   starting December 31st until the present
         #   from July 2011 to now
         {'label': 'DATE3', 'pattern': [
-            {'LOWER': {'REGEX': 'from|between|starting'}, 'OP': '?'},
+            {'LOWER': {'REGEX': starting_words}, 'OP': '?'},
             {'ENT_TYPE': 'DATE', 'OP': '+'},
-            {'LOWER': {'REGEX': 'until|to|-|–'}},
+            {'LOWER': {'REGEX': linking_characters}},
             {'LOWER': {'REGEX': 'present|current|today|now'}}]},
 
         # Example catches:
@@ -73,9 +77,9 @@ def init_spacy_module():
         #   from 2015 - today
         #
         {'label': 'DATE4', 'pattern': [
-            {'LOWER': {'REGEX': 'from'}, 'OP': '?'},
+            {'LOWER': {'REGEX': starting_words}, 'OP': '?'},
             {'POS': 'NUM', 'SHAPE': 'dddd'},
-            {'LOWER': {'REGEX': '-|–'}},
+            {'LOWER': {'REGEX': linking_characters}},
             {'LOWER': {'REGEX': 'present|current|today|now'}}]},
 
         # Example catches:
@@ -94,9 +98,9 @@ def init_spacy_module():
         # Example catches:
         #   from 2011-2015
         {'label': 'DATE6', 'pattern': [
-            {'LOWER': {'REGEX': 'from|between|starting'}, 'OP': '?'},
+            {'LOWER': {'REGEX': starting_words}, 'OP': '?'},
             {'SHAPE': 'dddd'},
-            {'LOWER': '-'},
+            {'LOWER': {'REGEX': linking_characters}},
             {'SHAPE': 'dddd'}]},
 
         # Example catches:
@@ -104,7 +108,7 @@ def init_spacy_module():
         {'label': 'DATE7', 'pattern': [
             {'SHAPE': 'dd'},
             {'SHAPE': 'dddd'},
-            {'LOWER': {'REGEX': '-|to|–'}},
+            {'LOWER': {'REGEX': linking_characters}},
             {'SHAPE': 'dd'},
             {'SHAPE': 'dddd'}]},
 
@@ -117,7 +121,7 @@ def init_spacy_module():
         #   07/2015 - 09/2016
         {'label': 'DATE9', 'pattern': [
             {'LOWER': {'REGEX': '\d*\/\d*'}},
-            {'LOWER': '-|–'},
+            {'LOWER': {'REGEX': linking_characters}},
             {'LOWER': {'REGEX': '\d*\/\d*'}}]},
 
         # Example catches:
@@ -126,7 +130,7 @@ def init_spacy_module():
         {'label': 'DATE10', 'pattern': [
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'},
-            {'LOWER': '-|–'},
+            {'LOWER': {'REGEX': linking_characters}},
             {'LOWER': {'REGEX': months_regex}},
             {'POS': 'NUM', 'SHAPE': 'dd'}]},
 

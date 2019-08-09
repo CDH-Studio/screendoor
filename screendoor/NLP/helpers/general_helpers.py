@@ -32,8 +32,10 @@ def remove_bad_subjects(sent):
 
         # Checks for specific phrases that are neeced
         secondary_check = [item for sublist in [re.findall(r'\b[m|M]y responsibilities|[m|M]y tasks\b', x.text) for x in identified_subjects] for item in sublist]
+        
+        subject_an_org = not set([x.text for x in identified_subjects]).isdisjoint([x.text for x in sent.ents if x.label_ == 'ORG'])
 
-        if not (primary_check + secondary_check == []):
+        if not (primary_check + secondary_check == []) or subject_an_org:
             #print_if_debug(('INCLUDED Applicant subject', identified_subjects, sent))
             return True
 
