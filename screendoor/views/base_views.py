@@ -3,12 +3,14 @@ from string import digits
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from screendoor.forms import ScreenDoorUserCreationForm, LoginForm
 from screendoor.models import EmailAuthenticateToken
 from screendoor.uservisibletext import InterfaceText, CreateAccountFormText, LoginFormText
 from screendoor_app import settings
+import urllib.request
 
 
 # Index currently redirects to the positions view if logged in
@@ -82,11 +84,15 @@ def send_user_email(request, user):
 # Creates and returns a working account confirmation URL
 def generate_confirmation_url(request, user):
     token = EmailAuthenticateToken()
+    current_site = get_current_site(request)
     token.user = user
     token.create_key()
     token.save()
+    print(current_site.domain)
+    print(current_site.name)
+
     # TODO: generate first part of URL programmatically not as hardcoded string
-    return "http://35.182.210.164/confirm?key=" + str(token.key)
+    return current_site.domain + "/confirm?key=" + str(token.key)
 
 
 # Clears any GET data, i.e. account confirmation token string from URL

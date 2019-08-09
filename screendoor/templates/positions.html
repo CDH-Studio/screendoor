@@ -201,7 +201,8 @@
       </div>
     </div>
     <!-- Upload and cancel buttons -->
-    <div class="modal-footer">
+    <div class="modal-footer row">
+      <span class="col uploading-text uploading hide" id="upload-applications-uploading-text">{{ positionText.uploading_text }}</span>
       <input type="hidden" id="upload-applications-id" name="position-id" value="">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">

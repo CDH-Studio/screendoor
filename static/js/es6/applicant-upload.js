@@ -1,76 +1,74 @@
-"use strict";
-
 /* DOM constants */
-var uploadCard = document.getElementById("upload-applications-modal");
-var progressBlock = document.getElementById("progress-div");
-var currentNumberSpan = document.getElementById("current-number");
-var totalNumberSpan = document.getElementById("total-number");
-var progressBar = document.getElementById("progress-bar");
-var progressText = document.getElementById("progress-text");
-var loadingEllipses = document.getElementById("loading-ellipses");
-var cancelUploadButton = document.getElementById("cancel-upload-applications");
+const uploadCard = document.getElementById("upload-applications-modal");
+const progressBlock = document.getElementById("progress-div");
+const currentNumberSpan = document.getElementById("current-number");
+const totalNumberSpan = document.getElementById("total-number");
+const progressBar = document.getElementById("progress-bar");
+const progressText = document.getElementById("progress-text");
+const loadingEllipses = document.getElementById("loading-ellipses");
+const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
-var queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
-var taskId = document.getElementById("task-id");
-var reloadUrl = document.getElementById("reload-url").value;
-var taskData = Object.create(null);
+const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+const taskId = document.getElementById("task-id");
+const reloadUrl = document.getElementById("reload-url").value;
+const taskData = Object.create(null);
 taskData["taskId"] = taskId.value;
 
 /* Variable representing ajax request timer */
-var updateTimer = null;
+let updateTimer = null;
 
-var updateProgressText = function updateProgressText(total, current) {
+const updateProgressText = function(total, current) {
   progressText.innerHTML = document.getElementById("progress-text-value").value;
   document.getElementById("current-number").innerHTML = current;
   document.getElementById("total-number").innerHTML = total;
 };
 
-var updateLoadingBarProgress = function updateLoadingBarProgress(total, current) {
+const updateLoadingBarProgress = function(total, current) {
   progressBar.style.width = Math.floor(current * 100 / total) + "%";
 };
 
-var showEllipses = function showEllipses() {
+const showEllipses = function() {
   loadingEllipses.classList.add("loading");
 };
 
-var hideEllipses = function hideEllipses() {
+const hideEllipses = function() {
   loadingEllipses.classList.remove("loading");
 };
 
-var showProgressBar = function showProgressBar() {
+const showProgressBar = function() {
   progressBlock.classList.remove("hide");
 };
 
-var hideProgressBar = function hideProgressBar() {
+const hideProgressBar = function() {
   progressBlock.classList.add("hide");
 };
 
-var updateProgress = function updateProgress(state, meta) {
-  var total = meta.total;
-  var current = meta.current;
+const updateProgress = function(state, meta) {
+  let total = meta.total;
+  let current = meta.current;
   updateLoadingBarProgress(total, current);
   updateProgressText(total, current);
 };
 
 /* Display error message on applicant upload modal */
-var displayError = function displayError() {
+const displayError = function() {
   console.error();
   clearInterval(updateTimer);
   progressText.innerHTML = document.getElementById("upload-error-text").value;
 };
 
 /* Define what message displays on the applicant uploading modal */
-var displayProgress = function displayProgress(queryUrl) {
+const displayProgress = function(queryUrl) {
   fetch(queryUrl, {
     method: "POST",
     body: JSON.stringify(taskData), // data can be `string` or {object}!
-    headers: {
+    headers:{
       "Content-Type": "application/json"
     }
-  }).then(function (response) {
+  }).then(function(response) {
     /* data being the json object returned from Django function */
-    response.json().then(function (data) {
+    response.json().then(function(data) {
       if (data.state == "PENDING") {
         progressText.innerHTML = document.getElementById("calculating-applicants-text").value + ": " + data.meta.total;
       } else if (data.state == "PROGRESS") {
@@ -83,20 +81,18 @@ var displayProgress = function displayProgress(queryUrl) {
       } else if (data.state == "FAILURE") {
         displayError();
       }
-    }).catch(function (error) {
-      return console.error();
-    });
+    }).catch(error => console.error());
   });
 };
 
 /* Execute and run timer if applicant file upload is taking place */
-var initializeApplicantUploadProgress = function initializeApplicantUploadProgress() {
+const initializeApplicantUploadProgress = function() {
   document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar();
   uploadModal.openInstant();
   try {
     displayProgress(queryUrl.href);
-    updateTimer = setInterval(function () {
+    updateTimer = setInterval(function() {
       displayProgress(queryUrl.href);
     }, 1000);
   } catch (e) {
@@ -105,8 +101,8 @@ var initializeApplicantUploadProgress = function initializeApplicantUploadProgre
 };
 
 /* Show upload progress if there is a valid task ID */
-window.addEventListener("load", function () {
-  cancelUploadButton.addEventListener("click", function () {
+window.addEventListener("load", function() {
+  cancelUploadButton.addEventListener("click", () => {
     document.getElementById("upload-applications-error-text").style.display = "none";
   });
 
@@ -119,3 +115,4 @@ window.addEventListener("load", function () {
     hideProgressBar();
   }
 });
+

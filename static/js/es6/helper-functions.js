@@ -1,12 +1,6 @@
-"use strict";
-
 /* Show an HTML element */
-var showElements = function showElements() {
-  for (var _len = arguments.length, elements = Array(_len), _key = 0; _key < _len; _key++) {
-    elements[_key] = arguments[_key];
-  }
-
-  for (var i = 0; i < elements.length; i++) {
+const showElements = function (...elements) {
+  for (let i = 0; i < elements.length; i++) {
     if (elements[i]) {
       elements[i].classList.remove("hide");
     }
@@ -14,12 +8,8 @@ var showElements = function showElements() {
 };
 
 /* Hide an HTML element */
-var hideElements = function hideElements() {
-  for (var _len2 = arguments.length, elements = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    elements[_key2] = arguments[_key2];
-  }
-
-  for (var i = 0; i < elements.length; i++) {
+const hideElements = function (...elements) {
+  for (let i = 0; i < elements.length; i++) {
     if (elements[i]) {
       elements[i].classList.add("hide");
     }
@@ -34,9 +24,9 @@ function isIE() {
   return is_ie;
 }
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("upload-applications-form")) {
-    document.getElementById("upload-applications-form").addEventListener("submit", function () {
+    document.getElementById("upload-applications-form").addEventListener("submit", () => {
       showElements(document.getElementById("upload-applications-uploading-text"));
     });
   }
