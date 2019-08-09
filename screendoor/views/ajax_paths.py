@@ -6,6 +6,7 @@ from urllib import parse
 from datetime import datetime, timezone
 from dateutil.relativedelta import *
 import dateutil
+from django.contrib.auth.decorators import login_required
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,6 +16,7 @@ from screendoor.models import Position, Applicant, Education, FormAnswer, Note, 
 
 
 # Ajax url
+@login_required(login_url='login', redirect_field_name=None)
 def change_favourites_status(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
@@ -33,6 +35,7 @@ def change_favourites_status(request):
 
 
 # Ajax url
+@login_required(login_url='login', redirect_field_name=None)
 def add_user_to_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
@@ -55,6 +58,7 @@ def add_user_to_position(request):
 
 
 # Ajax url
+@login_required(login_url='login', redirect_field_name=None)
 def remove_user_from_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
@@ -72,6 +76,7 @@ def remove_user_from_position(request):
 
 
 # Ajax url
+@login_required(login_url='login', redirect_field_name=None)
 def add_note(request):
     note_text = parse.unquote_plus(request.GET.get("noteText"))
     answer_id = request.GET.get("parentAnswerId")
@@ -99,6 +104,7 @@ def add_note(request):
 
 
 # Ajax url
+@login_required(login_url='login', redirect_field_name=None)
 def remove_note(request):
     note_id = request.GET.get("noteId")
     answer_id = request.GET.get("parentAnswerId")
@@ -116,6 +122,7 @@ def remove_note(request):
 
 # Ajax url
 @csrf_exempt
+@login_required(login_url='login', redirect_field_name=None)
 def edit_position(request):
     try:
         position_dictionary = json.loads(request.body.decode('utf-8'))
@@ -177,6 +184,7 @@ def edit_position(request):
 
 # Ajax url
 @csrf_exempt
+@login_required(login_url='login', redirect_field_name=None)
 def change_notification(request):
     # Determine what type of view the user is on based on the url pathname
     data = json.loads(request.body.decode('utf-8'))
