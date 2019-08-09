@@ -14,21 +14,22 @@ var addUserToPosition = function addUserToPosition(positionId) {
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
-      if (data.exception != undefined) {
+      if (data.exception) {
         addUserMessagePrompt.text = data.exception;
       } else {
         addUserMessagePrompt.text = "";
-        // retrieve the default element to mimic (so new element isn"t built
-        // from ground up
-        var user = document.getElementById(data.userEmail);
 
         // create clone of element: simply setting x = y makes ashallow copy
         var newUser = currentUser.cloneNode(true);
 
         // change the relevant fields (id, text fields, add remove button)
         newUser.id = data.userEmail;
-        newUser.innerHTML = '<p>' + data.userName + ' - ' + data.userEmail + '</p>';
-        newUser.innerHTML += '<i class="material-icons red-text ' + 'remove-user">cancel</i>';
+        newUser.children[0].textContent = data.userEmail;
+        newUser.children[0].classList.remove("grey-text");
+        var removeButton = document.createElement("i");
+        removeButton.classList.add("material-icons", "red-text", "remove-user");
+        removeButton.textContent = "cancel";
+        newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
@@ -50,7 +51,6 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
     response.json().then(function (data) {
       // retrieves the element and removes it from the holder element
       var user = document.getElementById(data.userEmail);
-
       userDisplayLocation.removeChild(user);
 
       // re-init remove buttons
@@ -67,7 +67,7 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
 
   var _loop = function _loop(i) {
     removeUserButtons[i].addEventListener("click", function () {
-      if (removeUserButtons[i] != undefined) {
+      if (removeUserButtons[i]) {
         removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
       }
     });
@@ -80,7 +80,7 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
 
 window.addEventListener("DOMContentLoaded", function () {
   // stores position id
-  if (userDisplayLocation != undefined) {
+  if (userDisplayLocation) {
     var positionId = userDisplayLocation.dataset.positionId;
     addUser.addEventListener("click", function () {
       addUserToPosition(positionId);
