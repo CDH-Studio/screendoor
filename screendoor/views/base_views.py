@@ -10,7 +10,6 @@ from screendoor.forms import ScreenDoorUserCreationForm, LoginForm
 from screendoor.models import EmailAuthenticateToken
 from screendoor.uservisibletext import InterfaceText, CreateAccountFormText, LoginFormText
 from screendoor_app import settings
-import urllib.request
 
 
 # Index currently redirects to the positions view if logged in
@@ -88,10 +87,6 @@ def generate_confirmation_url(request, user):
     token.user = user
     token.create_key()
     token.save()
-    print(current_site.domain)
-    print(current_site.name)
-
-    # TODO: generate first part of URL programmatically not as hardcoded string
     return current_site.domain + "/confirm?key=" + str(token.key)
 
 
