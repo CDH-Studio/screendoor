@@ -10,14 +10,18 @@
     <h6 class="btn-flat disabled sortby-button">
       {{ userVisibleText.sort_by }}
     </h6>
-    <a name="sort-method" href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}" class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
+    <a name="sort-method"
+      href="{% if '-created' in sort %}{% url 'sort_positions' 'created' %}{% elif 'created' in sort %}{% url 'sort_positions' '-created' %}{% else %}{% url 'sort_positions' '-created' %}{% endif %}"
+      class="sort-button btn-flat {% if 'created' in sort %}blue-text{% endif %}">
       {% if '-created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'created' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.date_uploaded }}
     </a>
-    <a name="sort-method" href="{% if '-date_closed' in sort %}{% url 'sort_positions' 'date_closed' %}{% elif 'date_closed' in sort %}{% url 'sort_positions' '-date_closed' %}{% else %}{% url 'sort_positions' '-date_closed' %}{% endif %}" class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
+    <a name="sort-method"
+      href="{% if '-date_closed' in sort %}{% url 'sort_positions' 'date_closed' %}{% elif 'date_closed' in sort %}{% url 'sort_positions' '-date_closed' %}{% else %}{% url 'sort_positions' '-date_closed' %}{% endif %}"
+      class="sort-button btn-flat {% if 'closed' in sort %}blue-text{% endif %}">
       {% if '-date_closed' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'date_closed' in sort %}
@@ -25,21 +29,27 @@
       {% endif %}
       {{ userVisibleText.date_closed }}
     </a>
-    <a name="sort-method" href="{% if '-position_title' in sort %}{% url 'sort_positions' 'position_title' %}{% elif 'position_title' in sort %}{% url 'sort_positions' '-position_title' %}{% else %}{% url 'sort_positions' 'position_title' %}{% endif %}" class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
+    <a name="sort-method"
+      href="{% if '-position_title' in sort %}{% url 'sort_positions' 'position_title' %}{% elif 'position_title' in sort %}{% url 'sort_positions' '-position_title' %}{% else %}{% url 'sort_positions' 'position_title' %}{% endif %}"
+      class="sort-button btn-flat {% if 'position' in sort %}blue-text{% endif %}">
       {% if '-position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'position_title' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.position }}
     </a>
-    <a name="sort-method" href="{% if '-number_applicants' in sort %}{% url 'sort_positions' 'number_applicants' %}{% elif 'number_applicants' in sort %}{% url 'sort_positions' '-number_applicants' %}{% else %}{% url 'sort_positions' '-number_applicants' %}{% endif %}" class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
+    <a name="sort-method"
+      href="{% if '-number_applicants' in sort %}{% url 'sort_positions' 'number_applicants' %}{% elif 'number_applicants' in sort %}{% url 'sort_positions' '-number_applicants' %}{% else %}{% url 'sort_positions' '-number_applicants' %}{% endif %}"
+      class="sort-button btn-flat {% if 'number_applicants' in sort %}blue-text{% endif %}">
       {% if '-number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'number_applicants' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_down</i>
       {% endif %}{{ userVisibleText.no_applicants }}
     </a>
-    <a name="sort-method" href="{% if '-mean_score' in sort %}{% url 'sort_positions' 'mean_score' %}{% elif 'mean_score' in sort %}{% url 'sort_positions' '-mean_score' %}{% else %}{% url 'sort_positions' '-mean_score' %}{% endif %}" class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
+    <a name="sort-method"
+      href="{% if '-mean_score' in sort %}{% url 'sort_positions' 'mean_score' %}{% elif 'mean_score' in sort %}{% url 'sort_positions' '-mean_score' %}{% else %}{% url 'sort_positions' '-mean_score' %}{% endif %}"
+      class="sort-button btn-flat {% if 'mean_score' in sort %}blue-text{% endif %}">
       {% if '-mean_score' in sort %}
       <i class="sort-arrow material-icons">arrow_drop_up</i>
       {% elif 'mean_score' in sort %}
@@ -64,7 +74,8 @@
         <div class="card-content">
           <div class="row valign-wrapper">
             <!-- Link to position detail using GET request -->
-            <a class="col {% if position.number_applicants > 1 %}s8 {% else %} s12 {% endif %} left position-title position-list-title left-align position-header grey-text text-darken-3" href="{% url 'position' position.reference_number position.id %}">
+            <a class="col {% if position.number_applicants > 1 %}s8 {% else %} s12 {% endif %} left position-title position-list-title left-align position-header grey-text text-darken-3"
+              href="{% url 'position' position.reference_number position.id %}">
               {{ position.position_title }}
             </a>
             {% if position.applicants is not None %}
@@ -79,7 +90,8 @@
                 {{ userVisibleText.average_score }}: {{ position.mean_score }}
               </span>
               <span class="applicant-summary-card white-text blue card-panel right">
-                {{ position.number_applicants }} {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
+                {{ position.number_applicants }}
+                {% if position.number_applicants > 1 %}{{ userVisibleText.applicants }}{% else %}{{ userVisibleText.applicant }}{% endif %}
               </span>
             </div>
             {% endif %}
@@ -89,46 +101,56 @@
           <div class="row position-information-list">
             <div class="row body-row position-row">
               <div class="col s3 cell-body">
-                <span class="position-heading">{{ positionText.classification }}:</span> <br><span class="position-preview-cell">{{ position.classification }}</span>
+                <span class="position-heading">{{ positionText.classification }}:</span> <br><span
+                  class="position-preview-cell">{{ position.classification }}</span>
               </div>
               <div class="col s3 cell-body">
-                <span class="position-heading">{{ positionText.reference_number }}:</span> <br><span class="position-preview-cell">{{ position.reference_number }}</span>
+                <span class="position-heading">{{ positionText.reference_number }}:</span> <br><span
+                  class="position-preview-cell">{{ position.reference_number }}</span>
               </div>
               <div class="col s4 cell-body">
-                <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br><span class="position-preview-cell">{{ position.selection_process_number }}</span>
+                <span class="position-heading">{{ positionText.selection_process_number }}:</span> <br><span
+                  class="position-preview-cell">{{ position.selection_process_number }}</span>
               </div>
               <div class="col s2 cell-body">
-                <span class="position-heading">{{ positionText.date_closed }}:</span> <br><span class="position-preview-cell">{{ position.date_closed|date:'Y-m-d' }}</span>
+                <span class="position-heading">{{ positionText.date_closed }}:</span> <br><span
+                  class="position-preview-cell">{{ position.date_closed|date:'Y-m-d' }}</span>
               </div>
             </div>
             <div class="row body-row position-row">
               <div class="col s3 cell-body">
-                <span class="position-heading">{{ positionText.number_of_positions }}:</span> <br><span class="position-preview-cell">{{ position.num_positions }}</span>
+                <span class="position-heading">{{ positionText.number_of_positions }}:</span> <br><span
+                  class="position-preview-cell">{{ position.num_positions }}</span>
               </div>
               <div class="col s3 cell-body">
-                <span class="position-heading">{{ positionText.salary_range }}:</span> <br><span class="position-preview-cell">{{ position.salary|strip }}</span>
+                <span class="position-heading">{{ positionText.salary_range }}:</span> <br><span
+                  class="position-preview-cell">{{ position.salary|strip }}</span>
               </div>
               <div class="col s6 cell-body">
-                <span class="position-heading">{{ positionText.open_to }}:</span> <br><span class="position-preview-celll">{{ position.open_to|strip }}</span>
+                <span class="position-heading">{{ positionText.open_to }}:</span> <br><span
+                  class="position-preview-celll">{{ position.open_to|strip }}</span>
               </div>
             </div>
             <div class="row body-row position-row">
               <div class="col s12 cell-body">
-                <span class="position-heading">{{ positionText.position_information }}:</span> <br><span class="position-preview-cell">{{ position.description|strip }}</span>
+                <span class="position-heading">{{ positionText.position_information }}:</span> <br><span
+                  class="position-preview-cell">{{ position.description|strip }}</span>
               </div>
             </div>
 
 
             <!-- Position row 3 / buttons (View, Delete, Upload Applications) -->
             <div class="row position-buttons left">
-              <a class="btn-flat blue-text waves-effect position-button" href="{% url 'position' position.reference_number position.id %}">
+              <a class="btn-flat blue-text waves-effect position-button"
+                href="{% url 'position' position.reference_number position.id %}">
                 {{ userVisibleText.view }}
               </a>
               <a class="btn-flat blue-text waves-effect
                         position-button modal-trigger delete-button" href="#delete-modal">
                 {{ userVisibleText.delete }}
               </a>
-              <a class="btn-flat blue-text waves-effect  position-button modal-trigger upload-applicants-button" href="#upload-applications-modal">
+              <a class="btn-flat blue-text waves-effect  position-button modal-trigger upload-applicants-button"
+                href="#upload-applications-modal">
                 {{ userVisibleText.upload_applications }}
               </a>
             </div>
@@ -144,11 +166,16 @@
     </div>
     <input type="hidden" class="position-id-list" value="{{ position.id }}">
     <input type="hidden" class="position-reference-list" value="{{ position.reference }}">
-    <input type="hidden" class="position-applicant-text" value="{{ applicationsForm.description|interpolate:position.position_title }}">
+    <input type="hidden" class="position-applicant-text"
+      value="{{ applicationsForm.description|interpolate:position.position_title }}">
     <input type="hidden" class="position-title-list" value="{{ position.position_title }}">
     <!-- Message displayed if user has no positions -->
     {% empty %}
-    <h6>{{ userVisibleText.no_positions|interpolate:baseVisibleText.new_position }}</h6>
+    <div class="card col s8 offset-s2">
+      <div class="card-content">
+        <h6 class="no-position-text">{{ userVisibleText.no_positions|interpolate:baseVisibleText.new_position|safe|linebreaksbr }}</h6>
+      </div>
+    </div>
   </div>
   <!-- End of position display -->
   {% endfor %}
@@ -167,7 +194,8 @@
     <div class="modal-footer">
       {% csrf_token %}
       <input type="hidden" id="delete-confirm-id" name="position-id" value="">
-      <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
+      <input type="submit" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete"
+        value="{{ userVisibleText.delete }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">
         {{ userVisibleText.cancel }}
       </a>
@@ -177,7 +205,8 @@
 
 <!-- Modal upload applications pop-up -->
 <div id="upload-applications-modal" class="modal">
-  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
+  <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST"
+    enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
       <h5>
@@ -192,19 +221,22 @@
             {{ applicationsForm.browse }}
           </span>
           <!-- Input accepts multiple PDF file -->
-          <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
+          <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required
+            multiple>
         </div>
         <div class="file-path-wrapper">
           <input id="pdf_path_input" class="file-path validate" type="text"
-                 placeholder="{{ applicationsForm.choose_files }}" />
+            placeholder="{{ applicationsForm.choose_files }}" />
         </div>
       </div>
     </div>
     <!-- Upload and cancel buttons -->
     <div class="modal-footer row">
-      <span class="col uploading-text uploading hide" id="upload-applications-uploading-text">{{ positionText.uploading_text }}</span>
+      <span class="col uploading-text uploading hide"
+        id="upload-applications-uploading-text">{{ positionText.uploading_text }}</span>
       <input type="hidden" id="upload-applications-id" name="position-id" value="">
-      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
+      <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button"
+        name="upload-applications" value="{{ applicationsForm.upload }}">
       <a href="#!" class="modal-close btn-flat blue-text position-button">
         {{ userVisibleText.cancel }}
       </a>
