@@ -25,7 +25,7 @@ months_regex = r'(?:\bjanuary\b|' \
 
 present_day_regex = r'(?:present|today|current|now)'
 
-linked_words = r'\band\b|\bto\b|\buntil\b|–'
+linked_words = r'\band\b|\bto\b|\buntil\b|–|~'
 
 special_words = r'(?:years|last|months|since)'
 
@@ -39,7 +39,6 @@ def create_list_of_ranges(doc_ents, closing_date):
         date_range = remove_noise_from_date(ent, closing_date)
         if date_range is not None:
             date_range_list.append(date_range)
-    print(date_range_list)
     return date_range_list
 
 

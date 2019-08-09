@@ -73,19 +73,22 @@ def construct_extract_indices(token, dates):
         extract.update_indices_with_list([x.i for x in token.lefts if
                                           x.dep_ in prepend_relations and
                                           not x.tag_ == 'XX' and
-                                          x.text not in dates])
+                                          x.text not in dates and
+                                          token.text not in dates])
 
         # Add append-relations to extract.
         extract.update_indices_with_list([x.i for x in token.children if
                                           x.dep_ in append_relations and
                                           x == token.nbor() and
-                                          x.text not in dates])
+                                          x.text not in dates and
+                                          token.text not in dates])
 
         # Add punctuation to extract.
         extract.update_indices_with_list([x.i for x in token.children if
                                           x.dep_ == 'punct' and
                                           x.i == token.nbor().i and
-                                          x.text not in dates])
+                                          x.text not in dates and
+                                          token.text not in dates])
 
         # Stores any additional iterations for later retrieval.
         split_branch = check_for_additional_iterations(token, dates)

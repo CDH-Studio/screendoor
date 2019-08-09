@@ -83,7 +83,7 @@ def reprocess_line_breaks(text_block):
             # middle of a sentence, a blank line being read in, a sentence
             # end followed by a blank line, and the next element being a bullet
             # point character
-            if ((len(text) < 115)
+            if ((len(text) < 110)
                     or text in ['', ' ']
                     or next_elem in ['', ' ']
                     or next_elem.strip().startswith(a_bullet_point_char)
