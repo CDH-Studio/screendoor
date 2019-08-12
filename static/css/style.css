@@ -1375,6 +1375,10 @@ th {
   max-height: 500px;
 }
 
+.no-position-text {
+  line-height: 1.6rem;
+}
+
 /* New "Table" structure */
 
 .collapse-table {

@@ -3,6 +3,7 @@ from string import digits
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from screendoor.forms import ScreenDoorUserCreationForm, LoginForm
@@ -82,11 +83,11 @@ def send_user_email(request, user):
 # Creates and returns a working account confirmation URL
 def generate_confirmation_url(request, user):
     token = EmailAuthenticateToken()
+    current_site = get_current_site(request)
     token.user = user
     token.create_key()
     token.save()
-    # TODO: generate first part of URL programmatically not as hardcoded string
-    return "http://ec2-35-182-210-164.ca-central-1.compute.amazonaws.com/confirm?key=" + str(token.key)
+    return current_site.domain + "/confirm?key=" + str(token.key)
 
 
 # Clears any GET data, i.e. account confirmation token string from URL

@@ -168,12 +168,11 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1
 #     "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
 
 # FILE_UPLOAD_TEMP_DIR = ("/code/screendoor/temp")
-MEDIA_URL = 'code/screendoor/temp/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'code/screendoor/temp')
-FILE_UPLOAD_PERMISSIONS = 0o644
-FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o644
+MEDIA_URL = 'temp/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'temp')
+FILE_UPLOAD_PERMISSIONS = 0o666
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o666
 # FILE_UPLOAD_MAX_MEMORY_SIZE = 0
-# MEDIA_ROOT = ("/code/screendoor/temp")
 
 # Celery Settings
 
@@ -184,10 +183,14 @@ CELERYD_STATE_DB = '/tmp/celery_state'
 CELERY_BEAT_SCHEDULE = {
     'delete_authorization_tokens': {
         'task': 'screendoor.tasks.delete_authorization_tokens',
-        'schedule': crontab(hour='*/2')
+        'schedule': crontab(minute=0, hour='*/3')
     },
     'delete_orphaned_positions': {
         'task': 'screendoor.tasks.delete_orphaned_positions',
-        'schedule': crontab(hour='*/2')
+        'schedule': crontab(minute=0, hour='*/3')
+    },
+    'delete_temp_files': {
+        'task': 'screendoor.tasks.delete_temp_files',
+        'schedule': crontab(minute=0, hour='*/3')
     }
 }

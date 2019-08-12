@@ -1,6 +1,8 @@
 import string
 import time
 import os
+import re
+import os.path
 from celery import shared_task, current_task
 from celery.contrib import rdb
 from celery.result import AsyncResult
@@ -46,15 +48,19 @@ def process_applications(self, file_paths, position_id):
 
 # Scheduled tasks
 
-
-# Once per day
 @shared_task
 def delete_authorization_tokens():
     EmailAuthenticateToken.objects.filter(created=datetime.now() -
                                           timedelta(days=2)).delete()
 
 
-# Once per day
 @shared_task
 def delete_orphaned_positions():
     Position.objects.filter(position_users=None).delete()
+
+
+@shared_task
+def delete_temp_files():
+    for root, dirs, files, in os.walk("temp"):
+        for file in files:
+            os.remove(os.path.join(root, file))

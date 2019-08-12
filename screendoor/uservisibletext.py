@@ -233,7 +233,7 @@ class PositionsViewText():
     upload_applications = _("Upload applications")
     # Translators: Position View
     no_positions = _(
-        'You have not uploaded any positons. Click %s to get started.')
+        'Welcome to <span style="font-weight: 600 !important;">ScreenDoor</span>, the applicant screening assistant that leverages Natural Language Processing technology to make Government of Canada hiring easier.  \n\nTo start, open the sidebar to the left and click <a href="/createnewposition" style="color: #2196f3;"><em>%s</em></a>, and choose either a job poster PDF or link to a jobs.gc.ca position. \n\nAfter that, you can upload PDFs containing completed applications for processing, then access summaries of and extracts from applicants’ responses, add notes, share the position with other users, and export Screening Board Report-style PDFs.')
     # Translators: Position View
     confirm_delete_header = _("Please Confirm Deletion")
     # Translators: Position View

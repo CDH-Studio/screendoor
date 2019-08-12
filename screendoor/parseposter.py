@@ -644,7 +644,6 @@ def parse_poster_text_from_file(pdf_file):
     job_poster_text = file_data['content']
     job_poster_text = correct_poster_for_external_access(job_poster_text)
     job_poster_text = scrub_raw_text(job_poster_text)
-
     return job_poster_text
 
 
