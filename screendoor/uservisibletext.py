@@ -58,7 +58,8 @@ class ErrorMessages():
         'Unable to parse pdf. Please enter a pdf from jobs.gc.ca.')
     # Translators: When a user tries to upload a pdf we cant parse.
     incorrect_applicant_pdf_file = _(
-        'Unable to parse pdf. Please enter a pdf containing a batch of applications.')
+        'Unable to parse pdf. Please enter a pdf containing a batch of applications.'
+    )
     # Translators: When a user tries to upload a url.
     url_upload_not_supported_yet = _(
         'URL uploading not currently supported. Please upload a pdf file.')
@@ -75,7 +76,9 @@ class InterfaceText():
     welcome_user = _("Welcome, %s")
     # Translators: Sidebar
     logout = _("Logout")
-    page_change_notification = _("Page contents have been modified by another user. Please refresh to see any changes.")
+    page_change_notification = _(
+        "Page contents have been modified by another user. Please refresh to see any changes."
+    )
 
 
 class ImportApplicationsText():
@@ -261,6 +264,9 @@ class PositionsViewText():
     add_user = _("Add another user to this position")
     current_users = _("Current users")
     you = _("you")
+    add_user_text = _(
+        "Enter the canada.ca email address of a user with whom you would like to share this position (user must be registered with ScreenDoor)"
+    )
 
 
 class ApplicantViewText():

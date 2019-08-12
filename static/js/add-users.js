@@ -5,8 +5,11 @@ var userDisplayLocation = document.getElementById("userDisplay");
 var currentUser = document.getElementById("current-user");
 var userEmailField = document.getElementById("user-email-input");
 var addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+var positionId = userDisplayLocation.dataset.positionId;
+var removeUserButtons = document.getElementsByClassName("remove-user");
+var removeUserListeners = [];
 
-var addUserToPosition = function addUserToPosition(positionId) {
+var addUserToPosition = function addUserToPosition() {
   var url = "/add_user_to_position?email=" + userEmailField.value + "&id=" + positionId;
   // reset field input
   userEmailField.value = "";
@@ -14,27 +17,33 @@ var addUserToPosition = function addUserToPosition(positionId) {
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
-      if (data.exception != undefined) {
-        addUserMessagePrompt.text = data.exception;
+      if (data.exception) {
+        addUserMessagePrompt.textContent = data.exception;
       } else {
-        addUserMessagePrompt.text = "";
-        // retrieve the default element to mimic (so new element isn"t built
-        // from ground up
-        var user = document.getElementById(data.userEmail);
+        addUserMessagePrompt.textContent = "";
 
         // create clone of element: simply setting x = y makes ashallow copy
         var newUser = currentUser.cloneNode(true);
 
         // change the relevant fields (id, text fields, add remove button)
         newUser.id = data.userEmail;
-        newUser.innerHTML = '<p>' + data.userName + ' - ' + data.userEmail + '</p>';
-        newUser.innerHTML += '<i class="material-icons red-text ' + 'remove-user">cancel</i>';
+        newUser.children[0].textContent = data.userEmail;
+        newUser.children[0].classList.remove("grey-text");
+        var removeButton = document.createElement("i");
+        removeButton.classList.add("material-icons", "red-text", "remove-user");
+        removeButton.textContent = "cancel";
+        removeButton.dataset.userEmail = data.userEmail;
+
+        removeButton.addEventListener("click", function () {
+          removeUserFromPosition(removeButton.dataset.userEmail);
+        });
+
+        newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
 
-        // re-init remove buttons
-        setRemoveButtonHandlers(positionId);
+        setRemoveButtonHandlers();
       }
     }).catch(function () {
       return console.error();
@@ -42,35 +51,36 @@ var addUserToPosition = function addUserToPosition(positionId) {
   });
 };
 
-var removeUserFromPosition = function removeUserFromPosition(email, positionId) {
+var removeUserFromPosition = function removeUserFromPosition(email) {
   var url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
-
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
       // retrieves the element and removes it from the holder element
       var user = document.getElementById(data.userEmail);
 
-      userDisplayLocation.removeChild(user);
+      user.remove();
 
       // re-init remove buttons
-      setRemoveButtonHandlers();
     }).catch(function () {
       return console.error();
     });
   });
 };
 
-var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
+var setRemoveButtonHandlers = function setRemoveButtonHandlers() {
+  removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
-  var removeUserButtons = document.getElementsByClassName("remove-user");
+  removeUserButtons = document.getElementsByClassName("remove-user");
 
   var _loop = function _loop(i) {
-    removeUserButtons[i].addEventListener("click", function () {
-      if (removeUserButtons[i] != undefined) {
-        removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
-      }
-    });
+    removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
+    var email = removeUserButtons[i].dataset.userEmail;
+    var removeButtonListener = function removeButtonListener() {
+      removeUserFromPosition(email);
+    };
+    removeUserButtons[i].addEventListener("click", removeButtonListener);
+    removeUserListeners.push(removeButtonListener);
   };
 
   for (var i = 0; i < removeUserButtons.length; i++) {
@@ -79,12 +89,10 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
 };
 
 window.addEventListener("DOMContentLoaded", function () {
-  // stores position id
-  if (userDisplayLocation != undefined) {
-    var positionId = userDisplayLocation.dataset.positionId;
-    addUser.addEventListener("click", function () {
-      addUserToPosition(positionId);
-    });
-    setRemoveButtonHandlers(positionId);
-  }
+  addUser.addEventListener("click", function () {
+    if (userEmailField.reportValidity()) {
+      addUserToPosition();
+    }
+  });
+  setRemoveButtonHandlers();
 });

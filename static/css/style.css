@@ -807,7 +807,7 @@ tr {
   -webkit-transition: opacity .3s, max-height .3s, visibility .3s;
   -moz-transition: opacity .3s, max-height .3s, visibility .3s;
   -o-transition: opacity .3s, max-height .3s, visibility .3s;
-  transition: opacity .3s, max-height .3s, visibility .3s; 
+  transition: opacity .3s, max-height .3s, visibility .3s;
 }
 
 .applicant-response-full-open {
@@ -1633,6 +1633,16 @@ div {
   padding: 0 10px;
 }
 
+.modal-footer input, .modal-footer a {
+  background-color: #f2f2f2;
+  margin-left: 10px !important;
+  padding: 0 10px !important;
+}
+
+.modal-footer input:hover, .modal-footer a:hover {
+  background-color: #e7e7e7;
+}
+
 #import-position-buttons a:hover, #import-position-buttons button:hover {
   background-color: #f1f1f1;
 }
@@ -1793,9 +1803,16 @@ div {
   transition: max-height .3s, white-space .3s, max-lines .3s;
 }
 
+.user {
+  margin-top: 7px;
+}
+
 .remove-user {
   cursor: pointer;
-  position: absolute;
+  position: relative;
+  left: 4;
+  top: 3;
+  font-size: 1rem;
 }
 
 .position-edit-btn {
@@ -2055,7 +2072,7 @@ div {
   -webkit-animation: ellipsis steps(4,end) 900ms infinite;
   animation: ellipsis steps(4,end) 900ms infinite;
   content: "\2026"; /* ascii code for the ellipsis character */
-  width: 0em; 
+  width: 0em;
 }
 
 .loading:after {
@@ -2090,7 +2107,7 @@ hr {
   visibility: hidden; /* Hidden by default. Visible on click */
   min-width: 250px; /* Set a default minimum width */
   margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #2196F3; 
+  background-color: #2196F3;
   color: #fff; /* White text color */
   text-align: center; /* Centered text */
   border-radius: 4px; /* Rounded borders */
@@ -2105,7 +2122,7 @@ hr {
 /* Show the snackbar when clicking on a button (class added with JavaScript) */
 #snackbar.show {
   visibility: visible; /* Show the snackbar */
-  /* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
   However, delay the fade out process for 2.5 seconds */
   -webkit-animation: fadein 0.5s;
   animation: fadein 0.5s;
@@ -2123,7 +2140,7 @@ hr {
 }
 /* Animations to fade the snackbar in and out */
 @-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;} 
+  from {bottom: 0; opacity: 0;}
   to {bottom: 30px; opacity: 1;}
 }
 
@@ -2133,7 +2150,7 @@ hr {
 }
 
 @-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;} 
+  from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
 }
 
