@@ -3,6 +3,9 @@ const userDisplayLocation = document.getElementById("userDisplay");
 const currentUser = document.getElementById("current-user");
 const userEmailField = document.getElementById("user-email-input");
 const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+const positionId = userDisplayLocation.dataset.positionId;
+const addUsersForm = document.getElementById("add-users-form");
+let removeUserButtons = document.getElementsByClassName("remove-user");
 let removeUserListeners = [];
 
 const addUserToPosition = function(positionId) {
@@ -29,34 +32,36 @@ const addUserToPosition = function(positionId) {
         const removeButton = document.createElement("i");
         removeButton.classList.add("material-icons", "red-text", "remove-user");
         removeButton.textContent = "cancel";
+        removeButton.dataset.userEmail = data.userEmail;
+
         removeButton.addEventListener("click", () => {
-          removeUserFromPosition(data.userEmail, positionId);
+          removeUserFromPosition(removeButton.dataset.userEmail, positionId);
         });
+
         newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
 
-        // re-init remove buttons
-        removeRemoveButtonHandlers();
-        setRemoveButtonHandlers(positionId);
+        setRemoveButtonHandlers();
       }
     }).catch(() => console.error());
   });
 };
 
 const removeUserFromPosition = function(email, positionId) {
+  console.log(email);
+  console.log(positionId);
   const url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
       // retrieves the element and removes it from the holder element
       const user = document.getElementById(data.userEmail);
-      userDisplayLocation.removeChild(user);
+
+      user.remove();
 
       // re-init remove buttons
-      removeRemoveButtonHandlers();
-      setRemoveButtonHandlers(positionId);
     }).catch(() => console.error());
   });
 };
@@ -64,31 +69,23 @@ const removeUserFromPosition = function(email, positionId) {
 const setRemoveButtonHandlers = function(positionId) {
   removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
-  const removeUserButtons = document.getElementsByClassName("remove-user");
+  removeUserButtons = document.getElementsByClassName("remove-user");
   for (let i = 0; i < removeUserButtons.length; i++) {
+    removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
+    const email = removeUserButtons[i].dataset.userEmail;
     const removeButtonListener = () => {
-      removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
+      removeUserFromPosition(email, positionId);
     };
     removeUserButtons[i].addEventListener("click", removeButtonListener);
     removeUserListeners.push(removeButtonListener);
   }
 };
 
-const removeRemoveButtonHandlers = function() {
-  const removeUserButtons = document.getElementsByClassName("remove-user");
-  for (let i = 0; i < removeUserButtons.length; i++) {
-    const removeButtonListener = removeUserListeners[i];
-    removeUserButtons[i].removeEventListener("click", removeButtonListener);
-  }
-};
-
 window.addEventListener("DOMContentLoaded", () => {
-  // stores position id
-  if (userDisplayLocation) {
-    const positionId = userDisplayLocation.dataset.positionId;
-    addUser.addEventListener("click", () => {
+  addUser.addEventListener("click", () => {
+    if (userEmailField.reportValidity()) {
       addUserToPosition(positionId);
-    });
-    setRemoveButtonHandlers(positionId);
-  }
+    }
+  });
+  setRemoveButtonHandlers(positionId);
 });

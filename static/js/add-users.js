@@ -5,6 +5,9 @@ var userDisplayLocation = document.getElementById("userDisplay");
 var currentUser = document.getElementById("current-user");
 var userEmailField = document.getElementById("user-email-input");
 var addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+var positionId = userDisplayLocation.dataset.positionId;
+var addUsersForm = document.getElementById("add-users-form");
+var removeUserButtons = document.getElementsByClassName("remove-user");
 var removeUserListeners = [];
 
 var addUserToPosition = function addUserToPosition(positionId) {
@@ -30,17 +33,18 @@ var addUserToPosition = function addUserToPosition(positionId) {
         var removeButton = document.createElement("i");
         removeButton.classList.add("material-icons", "red-text", "remove-user");
         removeButton.textContent = "cancel";
+        removeButton.dataset.userEmail = data.userEmail;
+
         removeButton.addEventListener("click", function () {
-          removeUserFromPosition(data.userEmail, positionId);
+          removeUserFromPosition(removeButton.dataset.userEmail, positionId);
         });
+
         newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
 
-        // re-init remove buttons
-        removeRemoveButtonHandlers();
-        setRemoveButtonHandlers(positionId);
+        setRemoveButtonHandlers();
       }
     }).catch(function () {
       return console.error();
@@ -49,17 +53,18 @@ var addUserToPosition = function addUserToPosition(positionId) {
 };
 
 var removeUserFromPosition = function removeUserFromPosition(email, positionId) {
+  console.log(email);
+  console.log(positionId);
   var url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
       // retrieves the element and removes it from the holder element
       var user = document.getElementById(data.userEmail);
-      userDisplayLocation.removeChild(user);
+
+      user.remove();
 
       // re-init remove buttons
-      removeRemoveButtonHandlers();
-      setRemoveButtonHandlers(positionId);
     }).catch(function () {
       return console.error();
     });
@@ -69,11 +74,13 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
 var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
   removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
-  var removeUserButtons = document.getElementsByClassName("remove-user");
+  removeUserButtons = document.getElementsByClassName("remove-user");
 
   var _loop = function _loop(i) {
+    removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
+    var email = removeUserButtons[i].dataset.userEmail;
     var removeButtonListener = function removeButtonListener() {
-      removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
+      removeUserFromPosition(email, positionId);
     };
     removeUserButtons[i].addEventListener("click", removeButtonListener);
     removeUserListeners.push(removeButtonListener);
@@ -84,21 +91,11 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
   }
 };
 
-var removeRemoveButtonHandlers = function removeRemoveButtonHandlers() {
-  var removeUserButtons = document.getElementsByClassName("remove-user");
-  for (var i = 0; i < removeUserButtons.length; i++) {
-    var removeButtonListener = removeUserListeners[i];
-    removeUserButtons[i].removeEventListener("click", removeButtonListener);
-  }
-};
-
 window.addEventListener("DOMContentLoaded", function () {
-  // stores position id
-  if (userDisplayLocation) {
-    var positionId = userDisplayLocation.dataset.positionId;
-    addUser.addEventListener("click", function () {
+  addUser.addEventListener("click", function () {
+    if (userEmailField.reportValidity()) {
       addUserToPosition(positionId);
-    });
-    setRemoveButtonHandlers(positionId);
-  }
+    }
+  });
+  setRemoveButtonHandlers(positionId);
 });
