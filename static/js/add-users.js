@@ -5,6 +5,7 @@ var userDisplayLocation = document.getElementById("userDisplay");
 var currentUser = document.getElementById("current-user");
 var userEmailField = document.getElementById("user-email-input");
 var addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+var removeUserListeners = [];
 
 var addUserToPosition = function addUserToPosition(positionId) {
   var url = "/add_user_to_position?email=" + userEmailField.value + "&id=" + positionId;
@@ -15,7 +16,7 @@ var addUserToPosition = function addUserToPosition(positionId) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
       console.log(data);
-      if (data.exception != undefined) {
+      if (data.exception) {
         addUserMessagePrompt.textContent = data.exception;
       } else {
         addUserMessagePrompt.textContent = "";
@@ -39,7 +40,8 @@ var addUserToPosition = function addUserToPosition(positionId) {
         userDisplayLocation.appendChild(newUser);
 
         // re-init remove buttons
-        // setRemoveButtonHandlers(positionId);
+        removeRemoveButtonHandlers();
+        setRemoveButtonHandlers(positionId);
       }
     }).catch(function () {
       return console.error();
@@ -59,7 +61,8 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
       userDisplayLocation.removeChild(user);
 
       // re-init remove buttons
-      // setRemoveButtonHandlers(positionId);
+      removeRemoveButtonHandlers();
+      setRemoveButtonHandlers(positionId);
     }).catch(function () {
       return console.error();
     });
@@ -67,15 +70,16 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
 };
 
 var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
+  removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
   var removeUserButtons = document.getElementsByClassName("remove-user");
 
   var _loop = function _loop(i) {
-    removeUserButtons[i].addEventListener("click", function () {
-      if (removeUserButtons[i] != undefined) {
-        removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
-      }
-    });
+    var removeButtonListener = function removeButtonListener() {
+      removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
+    };
+    removeUserButtons[i].addEventListener("click", removeButtonListener);
+    removeUserListeners.push(removeButtonListener);
   };
 
   for (var i = 0; i < removeUserButtons.length; i++) {
@@ -83,9 +87,17 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
   }
 };
 
+var removeRemoveButtonHandlers = function removeRemoveButtonHandlers() {
+  var removeUserButtons = document.getElementsByClassName("remove-user");
+  for (var i = 0; i < removeUserButtons.length; i++) {
+    var removeButtonListener = removeUserListeners[i];
+    removeUserButtons[i].removeEventListener("click", removeButtonListener);
+  }
+};
+
 window.addEventListener("DOMContentLoaded", function () {
   // stores position id
-  if (userDisplayLocation != undefined) {
+  if (userDisplayLocation) {
     var positionId = userDisplayLocation.dataset.positionId;
     addUser.addEventListener("click", function () {
       addUserToPosition(positionId);

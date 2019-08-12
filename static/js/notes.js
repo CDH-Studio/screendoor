@@ -7,12 +7,12 @@ var noteTextArea = document.getElementsByClassName("note-box");
 var saveNoteButtons = document.getElementsByClassName("save-note");
 
 var toggleNoteInput = function toggleNoteInput(i) {
-  if (noteTextArea[i].classList.contains('note-box-visible')) {
-    noteTextArea[i].classList.remove('note-box-visible');
-    addNoteButtons[i].children[0].style.fontSize = '2.1rem';
+  if (noteTextArea[i].classList.contains("note-box-visible")) {
+    noteTextArea[i].classList.remove("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "2.1rem";
   } else {
-    noteTextArea[i].classList.add('note-box-visible');
-    addNoteButtons[i].children[0].style.fontSize = '3rem';
+    noteTextArea[i].classList.add("note-box-visible");
+    addNoteButtons[i].children[0].style.fontSize = "3rem";
   }
 };
 
