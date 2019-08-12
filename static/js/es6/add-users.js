@@ -4,11 +4,10 @@ const currentUser = document.getElementById("current-user");
 const userEmailField = document.getElementById("user-email-input");
 const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
 const positionId = userDisplayLocation.dataset.positionId;
-const addUsersForm = document.getElementById("add-users-form");
 let removeUserButtons = document.getElementsByClassName("remove-user");
 let removeUserListeners = [];
 
-const addUserToPosition = function(positionId) {
+const addUserToPosition = function() {
   const url = "/add_user_to_position?email=" + userEmailField.value +
         "&id=" + positionId;
   // reset field input
@@ -35,7 +34,7 @@ const addUserToPosition = function(positionId) {
         removeButton.dataset.userEmail = data.userEmail;
 
         removeButton.addEventListener("click", () => {
-          removeUserFromPosition(removeButton.dataset.userEmail, positionId);
+          removeUserFromPosition(removeButton.dataset.userEmail);
         });
 
         newUser.appendChild(removeButton);
@@ -49,7 +48,7 @@ const addUserToPosition = function(positionId) {
   });
 };
 
-const removeUserFromPosition = function(email, positionId) {
+const removeUserFromPosition = function(email) {
   console.log(email);
   console.log(positionId);
   const url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
@@ -66,7 +65,7 @@ const removeUserFromPosition = function(email, positionId) {
   });
 };
 
-const setRemoveButtonHandlers = function(positionId) {
+const setRemoveButtonHandlers = function() {
   removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
   removeUserButtons = document.getElementsByClassName("remove-user");
@@ -74,7 +73,7 @@ const setRemoveButtonHandlers = function(positionId) {
     removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
     const email = removeUserButtons[i].dataset.userEmail;
     const removeButtonListener = () => {
-      removeUserFromPosition(email, positionId);
+      removeUserFromPosition(email);
     };
     removeUserButtons[i].addEventListener("click", removeButtonListener);
     removeUserListeners.push(removeButtonListener);
@@ -84,8 +83,8 @@ const setRemoveButtonHandlers = function(positionId) {
 window.addEventListener("DOMContentLoaded", () => {
   addUser.addEventListener("click", () => {
     if (userEmailField.reportValidity()) {
-      addUserToPosition(positionId);
+      addUserToPosition();
     }
   });
-  setRemoveButtonHandlers(positionId);
+  setRemoveButtonHandlers();
 });

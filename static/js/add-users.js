@@ -6,11 +6,10 @@ var currentUser = document.getElementById("current-user");
 var userEmailField = document.getElementById("user-email-input");
 var addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
 var positionId = userDisplayLocation.dataset.positionId;
-var addUsersForm = document.getElementById("add-users-form");
 var removeUserButtons = document.getElementsByClassName("remove-user");
 var removeUserListeners = [];
 
-var addUserToPosition = function addUserToPosition(positionId) {
+var addUserToPosition = function addUserToPosition() {
   var url = "/add_user_to_position?email=" + userEmailField.value + "&id=" + positionId;
   // reset field input
   userEmailField.value = "";
@@ -36,7 +35,7 @@ var addUserToPosition = function addUserToPosition(positionId) {
         removeButton.dataset.userEmail = data.userEmail;
 
         removeButton.addEventListener("click", function () {
-          removeUserFromPosition(removeButton.dataset.userEmail, positionId);
+          removeUserFromPosition(removeButton.dataset.userEmail);
         });
 
         newUser.appendChild(removeButton);
@@ -52,7 +51,7 @@ var addUserToPosition = function addUserToPosition(positionId) {
   });
 };
 
-var removeUserFromPosition = function removeUserFromPosition(email, positionId) {
+var removeUserFromPosition = function removeUserFromPosition(email) {
   console.log(email);
   console.log(positionId);
   var url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
@@ -71,7 +70,7 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
   });
 };
 
-var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
+var setRemoveButtonHandlers = function setRemoveButtonHandlers() {
   removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
   removeUserButtons = document.getElementsByClassName("remove-user");
@@ -80,7 +79,7 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
     removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
     var email = removeUserButtons[i].dataset.userEmail;
     var removeButtonListener = function removeButtonListener() {
-      removeUserFromPosition(email, positionId);
+      removeUserFromPosition(email);
     };
     removeUserButtons[i].addEventListener("click", removeButtonListener);
     removeUserListeners.push(removeButtonListener);
@@ -94,8 +93,8 @@ var setRemoveButtonHandlers = function setRemoveButtonHandlers(positionId) {
 window.addEventListener("DOMContentLoaded", function () {
   addUser.addEventListener("click", function () {
     if (userEmailField.reportValidity()) {
-      addUserToPosition(positionId);
+      addUserToPosition();
     }
   });
-  setRemoveButtonHandlers(positionId);
+  setRemoveButtonHandlers();
 });
