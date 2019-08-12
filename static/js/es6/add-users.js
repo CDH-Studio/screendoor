@@ -13,7 +13,7 @@ const addUserToPosition = function(positionId) {
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      if (data.exception) {
+      if (data.exception != undefined) {
         addUserMessagePrompt.text = data.exception;
       } else {
         addUserMessagePrompt.text = "";
@@ -61,7 +61,7 @@ const setRemoveButtonHandlers = function(positionId) {
   const removeUserButtons = document.getElementsByClassName("remove-user");
   for (let i = 0; i < removeUserButtons.length; i++) {
     removeUserButtons[i].addEventListener("click", () => {
-      if (removeUserButtons[i]) {
+      if (removeUserButtons[i] != undefined) {
         removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
       }
     });
@@ -70,7 +70,7 @@ const setRemoveButtonHandlers = function(positionId) {
 
 window.addEventListener("DOMContentLoaded", () => {
   // stores position id
-  if (userDisplayLocation) {
+  if (userDisplayLocation != undefined) {
     const positionId = userDisplayLocation.dataset.positionId;
     addUser.addEventListener("click", () => {
       addUserToPosition(positionId);
