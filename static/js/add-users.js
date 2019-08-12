@@ -51,8 +51,6 @@ var addUserToPosition = function addUserToPosition(positionId) {
 
 var removeUserFromPosition = function removeUserFromPosition(email, positionId) {
   var url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
-  console.log(email);
-  console.log(positionId);
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
