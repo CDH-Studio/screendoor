@@ -15,7 +15,6 @@ var addUserToPosition = function addUserToPosition(positionId) {
   fetch(url).then(function (response) {
     /* data being the json object returned from Django function */
     response.json().then(function (data) {
-      console.log(data);
       if (data.exception) {
         addUserMessagePrompt.textContent = data.exception;
       } else {
