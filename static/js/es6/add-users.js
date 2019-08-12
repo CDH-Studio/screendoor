@@ -14,7 +14,6 @@ const addUserToPosition = function(positionId) {
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      console.log(data);
       if (data.exception) {
         addUserMessagePrompt.textContent = data.exception;
       } else {
@@ -48,8 +47,6 @@ const addUserToPosition = function(positionId) {
 
 const removeUserFromPosition = function(email, positionId) {
   const url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
-  console.log(email);
-  console.log(positionId);
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
