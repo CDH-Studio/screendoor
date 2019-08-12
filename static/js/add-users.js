@@ -56,7 +56,7 @@ var removeUserFromPosition = function removeUserFromPosition(email, positionId) 
       userDisplayLocation.removeChild(user);
 
       // re-init remove buttons
-      setRemoveButtonHandlers();
+      setRemoveButtonHandlers(positionId);
     }).catch(function () {
       return console.error();
     });
