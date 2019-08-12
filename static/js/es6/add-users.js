@@ -29,13 +29,16 @@ const addUserToPosition = function(positionId) {
         const removeButton = document.createElement("i");
         removeButton.classList.add("material-icons", "red-text", "remove-user");
         removeButton.textContent = "cancel";
+        removeButton.addEventListener("click", () => {
+          removeUserFromPosition(data.userEmail, positionId);
+        });
         newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
 
         // re-init remove buttons
-        setRemoveButtonHandlers(positionId);
+        // setRemoveButtonHandlers(positionId);
       }
     }).catch(() => console.error());
   });
@@ -53,7 +56,7 @@ const removeUserFromPosition = function(email, positionId) {
       userDisplayLocation.removeChild(user);
 
       // re-init remove buttons
-      setRemoveButtonHandlers(positionId);
+      // setRemoveButtonHandlers(positionId);
     }).catch(() => console.error());
   });
 };
