@@ -3,8 +3,11 @@ const userDisplayLocation = document.getElementById("userDisplay");
 const currentUser = document.getElementById("current-user");
 const userEmailField = document.getElementById("user-email-input");
 const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+const positionId = userDisplayLocation.dataset.positionId;
+let removeUserButtons = document.getElementsByClassName("remove-user");
+let removeUserListeners = [];
 
-const addUserToPosition = function(positionId) {
+const addUserToPosition = function() {
   const url = "/add_user_to_position?email=" + userEmailField.value +
         "&id=" + positionId;
   // reset field input
@@ -13,70 +16,75 @@ const addUserToPosition = function(positionId) {
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      if (data.exception != undefined) {
-        addUserMessagePrompt.text = data.exception;
+      if (data.exception) {
+        addUserMessagePrompt.textContent = data.exception;
       } else {
-        addUserMessagePrompt.text = "";
-        // retrieve the default element to mimic (so new element isn"t built
-        // from ground up
-        const user = document.getElementById(data.userEmail);
+        addUserMessagePrompt.textContent = "";
 
         // create clone of element: simply setting x = y makes ashallow copy
         const newUser = currentUser.cloneNode(true);
 
         // change the relevant fields (id, text fields, add remove button)
         newUser.id = data.userEmail;
-        newUser.innerHTML = '<p>' + data.userName + ' - ' +
-          data.userEmail + '</p>';
-        newUser.innerHTML += ('<i class="material-icons red-text ' +
-                              'remove-user">cancel</i>');
+        newUser.children[0].textContent = data.userEmail;
+        newUser.children[0].classList.remove("grey-text");
+        const removeButton = document.createElement("i");
+        removeButton.classList.add("material-icons", "red-text", "remove-user");
+        removeButton.textContent = "cancel";
+        removeButton.dataset.userEmail = data.userEmail;
+
+        removeButton.addEventListener("click", () => {
+          removeUserFromPosition(removeButton.dataset.userEmail);
+        });
+
+        newUser.appendChild(removeButton);
 
         // append the element to the end of the holder element
         userDisplayLocation.appendChild(newUser);
 
-        // re-init remove buttons
-        setRemoveButtonHandlers(positionId);
+        setRemoveButtonHandlers();
       }
     }).catch(() => console.error());
   });
 };
 
-const removeUserFromPosition = function(email, positionId) {
+const removeUserFromPosition = function(email) {
+  console.log(email);
+  console.log(positionId);
   const url = "/remove_user_from_position?email=" + email + "&id=" + positionId;
-
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
       // retrieves the element and removes it from the holder element
       const user = document.getElementById(data.userEmail);
 
-      userDisplayLocation.removeChild(user);
+      user.remove();
 
       // re-init remove buttons
-      setRemoveButtonHandlers();
     }).catch(() => console.error());
   });
 };
 
-const setRemoveButtonHandlers = function(positionId) {
+const setRemoveButtonHandlers = function() {
+  removeUserListeners = [];
   // As remove buttons can be added/removed, need to continually redefine them.
-  const removeUserButtons = document.getElementsByClassName("remove-user");
+  removeUserButtons = document.getElementsByClassName("remove-user");
   for (let i = 0; i < removeUserButtons.length; i++) {
-    removeUserButtons[i].addEventListener("click", () => {
-      if (removeUserButtons[i] != undefined) {
-        removeUserFromPosition(removeUserButtons[i].parentNode.id, positionId);
-      }
-    });
+    removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
+    const email = removeUserButtons[i].dataset.userEmail;
+    const removeButtonListener = () => {
+      removeUserFromPosition(email);
+    };
+    removeUserButtons[i].addEventListener("click", removeButtonListener);
+    removeUserListeners.push(removeButtonListener);
   }
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-  // stores position id
-  if (userDisplayLocation != undefined) {
-    const positionId = userDisplayLocation.dataset.positionId;
-    addUser.addEventListener("click", () => {
-      addUserToPosition(positionId);
-    });
-    setRemoveButtonHandlers(positionId);
-  }
+  addUser.addEventListener("click", () => {
+    if (userEmailField.reportValidity()) {
+      addUserToPosition();
+    }
+  });
+  setRemoveButtonHandlers();
 });

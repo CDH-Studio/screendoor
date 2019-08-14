@@ -1,5 +1,8 @@
 import os
+import random
 import re
+import string
+
 import numpy as np
 import pandas as pd
 import tabula
@@ -16,7 +19,8 @@ forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales 
              "Lieu de travail du poste d'attache / Substantive work location:",
              "Code d'identification de dossier personnel (CIDP) / Personal Record Identifier (PRI):",
              "Courriel / E-mail:", "Adresse / Address:", "Autre courriel / Alternate E-mail:",
-             "Télécopieur / Facsimile:", "Téléphone / Telephone:", "Autre Téléphone / Alternate Telephone:"]
+             "Télécopieur / Facsimile:", "Numéro ATS / TTY Number:", "Téléphone / Telephone:",
+             "Autre Téléphone / Alternate Telephone:"]
 
 
 def to_html_pretty(df, title='REDACTED DATA'):
@@ -70,10 +74,6 @@ def check_if_table_valid(table):
     return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
-def split_complementary_answer(tables):
-    return tables
-
-
 def is_valid_cell(string):
     return (string is not None) and (string != "")
 
@@ -99,21 +99,57 @@ def clean_question_data(x, spacing_array):
     return x
 
 
-def handle_new_lines(table, spacing_array):
-    table = table.replace("\r", "\n", regex=True)
+def merge_questions(tables):
+    # Merges questions.
+    for index, item in enumerate(tables):
 
-    if is_question(table):
-        for index, row in table.iterrows():
-            cell_1 = table.iloc[index, 0]
-            cell_2 = table.iloc[index, 1]
-            for item in spacing_array:
-                text = item
-                if fuzz.ratio(cell_1, text) > 90:
-                    table.iloc[index, 0] = text
-                if fuzz.ratio(cell_2, text) > 90:
-                    table.iloc[index, 1] = text
-    table = table.replace("\n", "jJio", regex=True)
-    return table
+        if check_if_table_valid(item) and is_question(item):
+
+            if (index + 1) != len(tables):
+
+                for second_index, second_table in enumerate(tables[index + 1:], index + 1):
+
+                    if second_table is None or second_table.empty:
+                        for idx, table in enumerate(tables[index + 1:], second_index):
+                            if check_if_table_valid(table):
+                                second_table = table
+                                break
+
+                    if check_if_table_valid(second_table):
+                        second_table_column = second_table[second_table.columns[0]]
+                        if second_table_column.str.startswith("Question - Français / French:").any():
+                            break
+                        elif second_table_column.str.startswith("No SRFP / PSRS no:").any():
+                            break
+                        elif second_table_column.str.startswith("Poste disponible / Job Opportunity:").any():
+                            break
+                        else:
+                            item = pd.concat(
+                                [item, second_table], ignore_index=True)
+                            tables[index] = item
+                            tables[second_index] = None
+
+    return tables
+
+
+def handle_new_lines(tables, spacing_array):
+    for index, table in enumerate(tables):
+        if table is not None and isinstance(table, pd.DataFrame):
+
+            if is_question(table):
+                for idx, row in table.iterrows():
+                    cell_1 = table.iloc[idx, 0]
+                    for item in spacing_array:
+                        text = item
+                        if fuzz.ratio(cell_1, text) > 90:
+                            table.iloc[idx, 0] = text
+
+            table = table.replace("\r", "\n", regex=True)
+            table = table.replace("\\t", " ", regex=True)
+            table = table.replace("\n", "jJio", regex=True)
+            tables[index] = table
+
+    return tables
 
 
 def is_stream(item):
@@ -128,13 +164,68 @@ def is_stream(item):
     return False
 
 
-def find_essential_details(list_of_data_frames, spacing_array):
-    list_of_data_frames = split_complementary_answer(list_of_data_frames)
+def correct_split_item(tables):
+    # Corrects splits between tables. (Not including splits between questions or educations)
+    for index, item in enumerate(tables):
+
+        if check_if_table_valid(item):
+            if ((index + 1) != len(tables)) and not str(item.shape) == "(1, 1)":
+                item2 = tables[index + 1]
+
+                if item2 is None or item2.empty:
+                    if (index + 2) != len(tables):
+                        item2 = tables[index + 2]
+
+                if check_if_table_valid(item2):
+                    if "nan" == item2.iloc[0, 0].lower():
+                        item.iloc[-1, -1] = item.iloc[-1, -1] + " " + item2.iloc[0, 1]
+                        item2 = item2.iloc[1:, ]
+                        item = pd.concat([item, item2], ignore_index=True)
+                        tables[index] = item
+                        tables[index + 1] = None
+                    elif str(item2.shape) == "(1, 1)":
+                        if "AUCUNE / NONE" not in item2.iloc[0, 0] and not is_stream(item):
+                            item.iloc[-1, 0] = item.iloc[-1, 0] + " " + item2.iloc[0, 0]
+                            tables[index] = item
+                            tables[index + 1] = None
+
+    return tables
+
+
+def find__previous_legitimate_table(tables, index):
+    for idx, table in enumerate(reversed(tables[0:index - 1])):
+        if check_if_table_valid(table):
+            found_table = table
+            break
+
+    return found_table
+
+
+def remove_all_spacing(text):
+    text = text.replace("\n", "")
+    text = text.replace("\t", "")
+    text = re.sub(r'jJio', "", text)
+    text = text.replace(" ", "")
+    return text
+
+
+def remove_tables(tables, resume_string):
+    delete = False
+
+    for index, item in enumerate(tables):
+        if item is not None and str(item.shape) == "(1, 1)":
+            print("STRING TO MATCH: " + remove_all_spacing(resume_string))
+            cell_contents = str(item.iloc[0, 0].replace("\r", "\n"))
+            print(remove_all_spacing(cell_contents))
+            if remove_all_spacing(cell_contents).startswith(remove_all_spacing(resume_string)):
+                return tables[:index]
+
+    return tables
+
+
+def redact_fields(list_of_data_frames):
     for idx, item in enumerate(list_of_data_frames):
-        if item is None or item[0].dtype == np.float64 or item[0].dtype == np.int64:
-            continue
-        else:
-            item = handle_new_lines(item, spacing_array)
+        if item is not None and isinstance(item, pd.DataFrame):
             for field in forbidden:
                 for index, row in item.iterrows():
                     found_string = item.iloc[index, 0]
@@ -143,12 +234,21 @@ def find_essential_details(list_of_data_frames, spacing_array):
                         item.iloc[index, 1] = "REDACTED"
 
             list_of_data_frames[idx] = item
+    return list_of_data_frames
+
+
+def find_essential_details(list_of_data_frames, spacing_array, resume_string):
+    list_of_data_frames = remove_tables(list_of_data_frames, resume_string)
+    list_of_data_frames = correct_split_item(list_of_data_frames)
+    list_of_data_frames = merge_questions(list_of_data_frames)
+    list_of_data_frames = handle_new_lines(list_of_data_frames, spacing_array)
+    list_of_data_frames = redact_fields(list_of_data_frames)
 
     documents = []
     ignore = False
 
     for idx, item in enumerate(list_of_data_frames):
-        if item is None or item[0].dtype == np.float64 or item[0].dtype == np.int64:
+        if item is None or not isinstance(item, pd.DataFrame):
             continue
 
         if str(item.shape) == "(1, 1)" and ((idx - 1) >= 0) and is_stream(list_of_data_frames[idx - 1]):
@@ -176,55 +276,32 @@ def find_essential_details(list_of_data_frames, spacing_array):
 
 
 def get_resume_starter_string(text):
-    resume_text = text.split("Curriculum vitae / Résumé\n")[1]
-    resume_text = resume_text.replace("\n", "")
+    resume_text = text.split("Curriculum vitae / Résumé")[1]
     resume_text = resume_text.replace("\n", "")
     resume_text = re.sub(r'jJio', "", resume_text)
     resume_text = resume_text.strip()
     resume_text = " ".join(resume_text.split(" ", 2)[:2])
     resume_text = resume_text.replace(" ", "")
+    print("RESUME TEXT:" + resume_text)
 
     return resume_text
 
 
-def get_spacing_array_of_tuples(text):
+def get_properly_spaced_text_array(text):
     # Page numbers cleaned out
     text = re.sub(r"\s+Page: [0-9]+ / [0-9]+\s+", "\n", text)
     text = re.sub(r"\s+Qualifications essentielles / Essential Qualifications\s+", "\n", text)
     text = re.sub(r"\s+Qualifications constituant un atout / Asset Qualifications\s+", "\n", text)
     text = re.sub(r"\n\n+", "\n\n", text)
 
-    ignore_question = False
     answer_text_array = []
-    question_text_array = []
-    answer_text = []
-    x = 0
-    while "Question - Anglais / English:" in text:
-        x += 1
-        question_text = text.split("Question - Anglais / English:", 1)[1].split("Réponse du postulant", 1)[0]
-        if "Complementary Answer:" in text:
-            answer_text = "Réponse Complémentaire: / Complementary Answer:\n" + text.split("Complementary Answer:", 1)[1].split("Question - Français", 1)[0]
-            answer_text_array.append(answer_text)
-        for item in question_text_array:
-            if fuzz.ratio(question_text, item) > 90:
-                ignore_question = True
-        if not ignore_question:
-            question_text_array.append(question_text)
-            ignore_question = False
+    while "Complementary Answer:" in text:
+        answer_text = "Réponse Complémentaire: / Complementary Answer:\n" + \
+                      text.split("Complementary Answer:", 1)[1].split("Question - Français", 1)[0]
+        answer_text_array.append(answer_text)
+        text = text.replace("Complementary Answer:", "", 1)
 
-        text = text.replace("Question - Anglais / English:" + question_text + "Réponse du postulant", "", 1)
-        text = text.replace("Complementary Answer:" + answer_text + "Question - Français", "", 1)
-
-    spacing_array = []
-
-    for idx, question in enumerate(question_text_array):
-        lookup_text = question
-        spacing_array.append(lookup_text)
-
-    for idx, answer in enumerate(answer_text_array):
-        lookup_text = answer
-        spacing_array.append(lookup_text)
-    return spacing_array
+    return answer_text_array
 
 
 def get_tika_text(pdf_file_path):
@@ -235,19 +312,23 @@ def get_tika_text(pdf_file_path):
 
 def split_tika_text(tika_text):
     applicant_text_list = []
-    applicant_list = tika_text.split("Liste des postulants / Applicant List", 1)[1].split("Page", 1)[0]
-    applicant_list = applicant_list.split("\n\n")
+    if "Liste des postulants / Applicant List" in tika_text:
+        applicant_list = \
+            tika_text.split("Liste des postulants / Applicant List", 1)[1].split("Information sur le poste", 1)[0]
+    else:
+        return [tika_text]
+    applicant_list = re.findall(r"^\d+\..+", applicant_list, re.MULTILINE)
     for idx, item in enumerate(applicant_list):
+        applicant_list[idx] = item.strip("\n")
         applicant_list[idx] = item.strip()
-        if item == "":
-            del applicant_list[idx]
+    applicant_list = list(dict.fromkeys(applicant_list))
 
-    main_text = tika_text.split("applicant starts on a new page.", 1)[1]
+    main_text = applicant_list[0] + tika_text.split(applicant_list[0], 2)[2]
     for index, applicant_text in enumerate(applicant_list):
-        if index == (len(applicant_list) - 1):
+        if index == (len(applicant_list) - 1) and applicant_list[index] != "":
             temp_text = main_text.split(applicant_list[index], 1)[1].strip()
             applicant_text_list.append(temp_text)
-        else:
+        elif applicant_list[index] != "":
             temp_text = main_text.split(applicant_list[index], 1)[1]
             temp_text = temp_text.split(applicant_list[index + 1], 1)[0]
             applicant_text_list.append(temp_text)
@@ -262,7 +343,7 @@ def get_first_page(item):
     return document
 
 
-def clean_and_redact(data_frames, pdf_file_path, filename):
+def clean_and_redact(data_frames, pdf_file_path, save_file_path):
     # Pre-processing of the tables to insure for easy processing and string matching.
     applicant_page_numbers = []
     applicant_count = 0
@@ -280,25 +361,28 @@ def clean_and_redact(data_frames, pdf_file_path, filename):
     pages = []
 
     tika_text = get_tika_text(pdf_file_path)
-
     applicant_text_array = split_tika_text(tika_text)
     for current_applicant in range(len(applicant_page_numbers)):
 
         if current_applicant == (applicant_count - 1):
             print("Processing Applicant: " + str(current_applicant + 1))
             text = applicant_text_array[current_applicant]
-            spacing_array = get_spacing_array_of_tuples(text)
+            spacing_array = get_properly_spaced_text_array(text)
+            resume_strings = get_resume_starter_string(text)
+
             pages += find_essential_details(
-                data_frames[applicant_page_numbers[current_applicant]:], spacing_array)
+                data_frames[applicant_page_numbers[current_applicant]:], spacing_array, resume_strings)
         else:
             print("Processing Applicant: " + str(current_applicant + 1))
             text = applicant_text_array[current_applicant]
-            spacing_array = get_spacing_array_of_tuples(text)
+            spacing_array = get_properly_spaced_text_array(text)
+            resume_strings = get_resume_starter_string(text)
+
             pages += find_essential_details(
                 data_frames[applicant_page_numbers[current_applicant]:applicant_page_numbers[current_applicant + 1]],
-                spacing_array)
+                spacing_array, resume_strings)
     document = get_first_page(data_frames[0])
-    document.copy(pages).write_pdf('redacted/re' + filename)
+    document.copy(pages).write_pdf(save_file_path)
     pass
 
 
@@ -310,16 +394,26 @@ def redact_applications():
         os.mkdir("redacted")
 
     directory = "sensitive"
-    for filename in os.listdir(directory):
-        if filename.endswith(".pdf"):
-            pdf_file_path = os.path.join(directory, filename)
-            df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true", guess=False,
-                                 lattice="true")
-            clean_and_redact(df, pdf_file_path, filename)
+    print(os.listdir(directory))
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".pdf"):
+                pdf_file_path = os.path.join(root, file)
+                print(pdf_file_path)
+                df = tabula.read_pdf(pdf_file_path, options, pages="all", multiple_tables="true", guess=False,
+                                     lattice="true")
+                save_folder_directory = "redacted" + pdf_file_path.strip(directory).strip(file)
+                print(save_folder_directory)
+                if not os.path.isdir(save_folder_directory):
+                    os.mkdir(save_folder_directory)
+                new_file_name = ''.join(
+                    random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(20))
+                save_file_path = "redacted" + pdf_file_path.strip(directory).replace(file, new_file_name + ".pdf")
+                print(save_file_path)
+                clean_and_redact(df, pdf_file_path, save_file_path)
 
-            continue
-        else:
-            continue
+                continue
+            else:
+                continue
 
     return count
-
