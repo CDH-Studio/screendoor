@@ -15,18 +15,18 @@ from django.utils import timezone
 from screendoor.models import Position, Applicant, Education, FormAnswer, Note, Qualifier, ScreenDoorUser, Requirement
 
 
-# Ajax url
+# Favourite or unfavourite an applicant
 @login_required(login_url='login', redirect_field_name=None)
 def change_favourites_status(request):
     app_id = request.GET.get("app_id")
     applicant = Applicant.objects.get(applicant_id=app_id)
+    # Is the user favouriting or unfavouriting the applicant
     favourite_status = request.GET.get("favouriteStatus")
-
+    # Add or remove applicant from user's favourites
     if favourite_status == "True":
         request.user.favourites.remove(applicant)
     else:
         request.user.favourites.add(applicant)
-
     request.user.save()
     return JsonResponse({
         'app_id': app_id,
@@ -34,7 +34,7 @@ def change_favourites_status(request):
     })
 
 
-# Ajax url
+# Add another user to a position
 @login_required(login_url='login', redirect_field_name=None)
 def add_user_to_position(request):
     user_email = request.GET.get("email")
@@ -43,9 +43,11 @@ def add_user_to_position(request):
 
     try:
         new_user = ScreenDoorUser.objects.get(email=user_email)
+        # User already has access to position
         if new_user in position.position_users.all():
             return JsonResponse(
                 {'exception': 'User already has access to this position.'})
+        # User is added to position and last_modified_by value is updated
         position.position_users.add(new_user)
         position.last_modified_by = request.user
         position.save()
@@ -53,11 +55,12 @@ def add_user_to_position(request):
             'userName': new_user.username,
             'userEmail': new_user.email
         })
+    # Exception triggered by user not existing
     except:
         return JsonResponse({'exception': 'User does not exist.'})
 
 
-# Ajax url
+# Remove a user from position
 @login_required(login_url='login', redirect_field_name=None)
 def remove_user_from_position(request):
     user_email = request.GET.get("email")
@@ -75,7 +78,7 @@ def remove_user_from_position(request):
         return JsonResponse({})
 
 
-# Ajax url
+# Add a note to an applicant's response
 @login_required(login_url='login', redirect_field_name=None)
 def add_note(request):
     note_text = parse.unquote_plus(request.GET.get("noteText"))
@@ -103,7 +106,7 @@ def add_note(request):
         return JsonResponse({})
 
 
-# Ajax url
+# Delete a note from an applicant's response
 @login_required(login_url='login', redirect_field_name=None)
 def remove_note(request):
     note_id = request.GET.get("noteId")
@@ -112,7 +115,7 @@ def remove_note(request):
     try:
         note = Note.objects.get(id=note_id)
         note.delete()
-        # # Change who last modified the application
+        # Change who last modified the application
         answer.parent_applicant.last_modified_by = request.user
         answer.parent_applicant.save()
         return JsonResponse({'noteId': note_id})
@@ -120,12 +123,14 @@ def remove_note(request):
         return JsonResponse({})
 
 
-# Ajax url
+# Edit a position
 @csrf_exempt
 @login_required(login_url='login', redirect_field_name=None)
 def edit_position(request):
     try:
+        # Get the JSON data from AJAX request
         position_dictionary = json.loads(request.body.decode('utf-8'))
+        # Replace existing fields with JSON data
         position_id = int(position_dictionary["positionId"])
         position = Position.objects.get(id=position_id)
         position.position_title = position_dictionary["position-title"]
@@ -142,14 +147,14 @@ def edit_position(request):
         position.description = position_dictionary["position-description"]
         position.last_modified_by = request.user
         position.save()
-
+        # Delete existing requirements
         for requirement in Requirement.objects.filter(position=position):
             requirement.delete()
 
         education_count = 1
         experience_count = 1
         asset_count = 1
-
+        # Recreate requirements based on JSON data
         for key, value in position_dictionary.items():
             if "education" in key:
                 requirement = Requirement(position=position,
@@ -182,7 +187,7 @@ def edit_position(request):
         return JsonResponse({'message': 'failure'})
 
 
-# Ajax url
+# Notify the user that the current page has been changed by another user
 @csrf_exempt
 @login_required(login_url='login', redirect_field_name=None)
 def change_notification(request):
@@ -196,7 +201,12 @@ def change_notification(request):
         for position in request.user.positions.all():
             # If any changed recently, trigger a change-notification toast
             if check_if_within_time_interval(position.updated_at):
-                return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
+                return JsonResponse({
+                    'message':
+                    'change',
+                    'lastEditedBy':
+                    position.last_modified_by.email
+                })
 
     # position detail view
     elif path_identifier == 'position':
@@ -205,7 +215,10 @@ def change_notification(request):
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(position.updated_at):
-                return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
+            return JsonResponse({
+                'message': 'change',
+                'lastEditedBy': position.last_modified_by.email
+            })
 
     # applicant view
     elif path_identifier == 'application':
@@ -214,10 +227,16 @@ def change_notification(request):
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(applicant.updated_at):
-                return  JsonResponse({'message': 'change', 'lastEditedBy' : applicant.last_modified_by.email})
+            return JsonResponse({
+                'message':
+                'change',
+                'lastEditedBy':
+                applicant.last_modified_by.email
+            })
 
     # Return nothing
     return JsonResponse({})
+
 
 # check if the updated at date was within the last 7 seconds
 def check_if_within_time_interval(updated_at_date):
