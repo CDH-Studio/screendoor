@@ -1,42 +1,42 @@
 "use strict";
 
-/* CONSTANTS AND VARIABLES */
-
-/* Same length */
+/* Hidden inputs containing extract string starting indexes */
 var extractStringStarts = document.getElementsByClassName("extract-string-index");
+
+/* Hidden inputs containing extract string ending indexes */
 var extractStringEnds = document.getElementsByClassName("extract-ending-index");
-var extractStringNext = document.getElementsByClassName("extract-next-index");
-var extractText = document.getElementsByClassName("extract-string");
+
+/* Spans containing the text of each individual extract */
 var visibleExtracts = document.getElementsByClassName("extract-text");
+
+/* Divs containing a span containing an individual extract */
 var extractDivs = document.getElementsByClassName("extract-full");
+
+/* Hidden inputs containing the id of the parent answer of an extract */
 var extractParentAnswerIds = document.getElementsByClassName("extract-parent-answer-id");
+
+/* Hidden inputs containing the parent answer text of the extract */
 var extractParentAnswerTexts = document.getElementsByClassName("extract-parent-answer");
 
-/* Same length */
+/* Spans containing applicant complementary response text */
 var answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
+
+/* Hidden inputs containing applicant complementary response text */
 var answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
 
-var underlineExtracts = function underlineExtracts(extractIndex, direction) {
+/* Underline the extract over which the user is hovering  */
+var underlineExtracts = function underlineExtracts(extractIndex) {
   visibleExtracts[extractIndex].classList.add("extract-bold");
-  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-  //     underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-  //   }
-  // }
 };
 
-var clearExtractsUnderline = function clearExtractsUnderline(extractIndex, direction) {
+/* Remove underline when user moves mouse away  */
+var clearExtractsUnderline = function clearExtractsUnderline(extractIndex) {
   visibleExtracts[extractIndex].classList.remove("extract-bold");
-  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-  //     clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-  //   }
-  // }
 };
 
+/* Highlight the sentence corresponding to extract user is hovering */
 var highlightSentence = function highlightSentence(extractIndex, answerId) {
-  underlineExtracts(extractIndex, "backwards");
-  underlineExtracts(extractIndex, "forwards");
+  underlineExtracts(extractIndex);
 
   for (var i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
@@ -50,14 +50,14 @@ var highlightSentence = function highlightSentence(extractIndex, answerId) {
       var answerAfter = answerText.slice(endIndex);
 
       answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
-      document.getElementById('answer-highlight').classList.add("answer-highlighted");
+      document.getElementById("answer-highlight").classList.add("answer-highlighted");
     }
   }
 };
 
+/* Remove highlight from sentence */
 var unHighlightSentence = function unHighlightSentence(extractIndex, answerId) {
-  clearExtractsUnderline(extractIndex, "backwards");
-  clearExtractsUnderline(extractIndex, "forwards");
+  clearExtractsUnderline(extractIndex);
 
   for (var i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
@@ -66,6 +66,7 @@ var unHighlightSentence = function unHighlightSentence(extractIndex, answerId) {
   }
 };
 
+/* Initialize listeners for hovering over extracts */
 var setHighlightListeners = function setHighlightListeners() {
   var _loop = function _loop(i) {
     extractDivs[i].addEventListener("mouseover", function () {
@@ -84,4 +85,4 @@ var setHighlightListeners = function setHighlightListeners() {
   }
 };
 
-window.addEventListener('DOMContentLoaded', setHighlightListeners);
+window.addEventListener("DOMContentLoaded", setHighlightListeners);
