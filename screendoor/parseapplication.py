@@ -116,17 +116,17 @@ def create_short_question_text(long_text):
 
 def find_and_get_req(position, question_text):
     best_req = 0
-
+    best_matched_requirement = None
     for requirement in position.requirement_set.all():
         comparison = fuzz.partial_ratio(requirement.description, question_text)
         if comparison > best_req:
             best_req = comparison
             best_matched_requirement = requirement
-
-    if fuzz.partial_ratio(best_matched_requirement.description, question_text) > 85:
-        return best_matched_requirement
-    else:
-        return None
+    if best_matched_requirement:
+        if fuzz.partial_ratio(best_matched_requirement.description, question_text) > 85:
+            return best_matched_requirement
+    
+    return None
 
 
 def does_exist(question, all_questions):

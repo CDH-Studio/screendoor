@@ -124,7 +124,6 @@ def upload_applications(request):
     return redirect('home')
 
 
-
 def import_applications_redact(request):
     if request.method == 'POST':
         form = ImportApplicationsForm(request.POST, request.FILES)

@@ -41,25 +41,6 @@ sessions, new acquisitions list, etc.)
 - Managed the physical move of the Library in March 2014.
 
 
-1.Statistics Canada: New Dissemination Model (NDM) Navigation Project - Project Leader (CS-03) 7/2013-4/2015
-The NDM Navigation was the front-end portal of the New Dissemination Model (NDM) project. It was a 3-year, complex project in
-terms of technology challenge and architecture. NDM Navigation is designed to modernize the methods and framework for coherent
-dissemination of data to public with a main focus on aggregated statistics and to provide a new efficient, fast way of navigating and
-searching for public information.
-My main responsibilities were to lead a team of 5 developers (including consultants) providing the NDM Navigation Website with
-Treasury Board Secretariat (TBS) Web Experience Toolkit (WET) Version 4.0 compliance using Drupal technology and communicate
-with SOLR/CKAN via web services. I led the team throughout the project lifecycle including organizing and leading requirements
-gathering in JAD sessions, analysis, developing project plan and schedules, identifying risk and providing mitigation strategies,
-managing developer workload, coordinating activities between team members for the best use of their technical strengths, monitoring
-and reporting on team progress to clients, the architectural team & senior management. I also ensured NDM Navigation portal was
-designed in such a way that it was flexible, scalable, and robust to client's frequent changes.
-2. Statistics Canada: Census CLF3 conversion - Project Leader (CS-03) 09/2012-01/2013
-Led a team of 4 developers in converting a CLF2 based website to be CLF3 compliant using ColdFusion, HTML5, CSS3 technologies.
-Duties included planning, requirements gathering in JAD sessions, managing and directing the implementation. Coordinated with SSC
-for deployment of releases. Created a support communication channel so clients/users knows who to contact when needed;
-The project was successfully delivered on time with high quality.
-
-
 Team Lead - Systems Maintenance at CNSC, December 2010 to October 2015. During my tenure at CNSC, I was responsible for all
 aspects relating to contracted resources, having at one time more than 12 contracted resources reporting to me. This included the
 creation of the TBIPS, the evaluation and results, and as necessary informal discussions on results with unsuccessful companies. In
@@ -119,28 +100,3 @@ recommended human resource levels through input into business plans.
 I am experienced in staffing and HR relations. I acquired knowledge working with various HR specialties in government such as
 staffing boards, labor relations, occupational health and safety and official languages. In FY 11/12, I Handled an HR file that required
 tact and diplomacy and was successful in reaching its targeted state. I completed the CBSA staffing sub-delegation in March 2012.
-
-
-In my roles as a CS03 project/team leader and A/CS4 IT Manager at CBSA, since April 2008 until the present, I acquired a broad
-range of experiences in IT application development, Infrastructure support and COTS software maintenance and support:
-. From October 2015 until the present as the DW COTS infrastructure team leader, supporting the transition of additional various DW
-COTS and resources to my team as well as the planning for the roll out of the newly acquired COTS IBM OPTIM.
-. From October 2014 until April 2015, as the BIRS infrastructure and production support Team leader, responsible for a team of five
-resources supporting the Cognos 10.2 infrastructure and the production services for the all the BI Cognos solutions at CBSA.
-. From December 2013 until September 2014, as a team leader, I worked in a matrix resources set up in the enterprise common
-services: I led the work to research and identify opportunities exploiting the use of new technology "MOTIO" and advising clients and
-management on its optimum use to secure funding.
-. From December 2012 until June 2013 as the acting manager for the Master data Management and the Enterprise Portal section:
-o Completed a deep dive analysis of the Enterprise Portal project in order to bring clarity and accuracy in reporting the health of the
-project to senior management. This then trigger the needs to hire more resources as well as to re-baseline the project
-o Initiated the structuring and creation of the COTS Master Data Management (MDM) project artefacts ( such as project plan, project
-schedule and various technical artefacts) to ensure the project was well organized and that information was provided to senior
-management
-o Hired 4 consultants and 2 employees for the section
-. From June 2011 until November 2012, I managed the Business intelligence infrastructure Cognos upgrade project while also leading
-the production support and infrastructure services team of 8 resources to support the existing infrastructure and the production
-services for all the Business intelligence and reporting Solutions releases under various initiatives at CBSA.
-. From March 2010 until May 2011 as the Titan production support Team Leader, I was leading a multi-disciplinary technical team
-responsible for the maintenance and the production support the web based IT application Titan. The activities include corrective,
-preventative, adaptive and enhancement activities to support the products transition from development to production and ensure
-production stabilization of all commercial system development releases.
