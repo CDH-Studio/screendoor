@@ -4,18 +4,22 @@ from django.shortcuts import redirect
 
 from screendoor.models import Position, Applicant
 
+
+# Sets the applicant filter session variable
 @login_required(login_url='login', redirect_field_name=None)
 def filter_applicants(request, reference, position_id, applicant_filter):
     request.session['applicant_filter'] = applicant_filter
     return redirect('position', reference=reference, position_id=position_id)
 
 
+# Sets the applicant sort session variable
 @login_required(login_url='login', redirect_field_name=None)
 def sort_applicants(request, reference, position_id, sort_by):
     request.session['applicants_sort'] = sort_by
     return redirect('position', reference=reference, position_id=position_id)
 
 
+# Sets the position sort session variable
 @login_required(login_url='login', redirect_field_name=None)
 def sort_positions(request, sort_by):
     # Persists positions sorting
@@ -39,6 +43,7 @@ def get_applicants_sort_method(request):
         return '-percentage_correct'
 
 
+# Gets the user's persisted applicant filter method, or returns default
 def get_applicant_filter_method(request):
     try:
         return request.session['applicant_filter']
@@ -54,6 +59,7 @@ def user_has_position(request, reference, position_id):
     return None
 
 
+# Combines applicants with whether they are favourited or not
 def create_applicants_wth_favourite_information(applicants, favourites):
     stitched_lists = {}
     for applicant in applicants:

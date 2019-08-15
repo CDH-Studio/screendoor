@@ -43,9 +43,11 @@ def positions(request):
     return render(request, 'positions.html', positions_list_data(request))
 
 
-# Data and visible text to render with positions
+# Data and visible text to render with a position
 def position_detail_data(request, position_id, task_id, error_msg):
+    # Filter applicants by the last chosen method or default
     applicant_filter = get_applicant_filter_method(request)
+    # Sort applicants by the last chosen methdod or default
     sort_by = get_applicants_sort_method(request)
     position = Position.objects.get(id=position_id)
     if applicant_filter == "all":
@@ -57,15 +59,18 @@ def position_detail_data(request, position_id, task_id, error_msg):
             request.user.favourites.filter(parent_position=position).order_by(
                 sort_by)) if request.user.favourites.filter(
                     parent_position=position).count() > 0 else []
+    # Applicants the user has favourited
     favourites = request.user.favourites.filter(parent_position=position)
+    # Dictionary of applicants with the favourites information
     applicant_dict = create_applicants_wth_favourite_information(
         applicants, favourites)
+    # Attach streams and classifications to each applicant
     for applicant in applicants:
         applicant.classifications_set = Classification.objects.filter(
             parent_applicant=applicant)
         applicant.streams_set = Stream.objects.filter(
             parent_applicant=applicant)
-
+    # Any other users with access to the position
     other_users = [
         x for x in position.position_users.all() if not x == request.user
     ]
@@ -91,27 +96,34 @@ def position_detail_data(request, position_id, task_id, error_msg):
 def position_detail(request, reference, position_id, task_id=None):
     # GET request
     try:
+        # Verify that user has access to position
         position = user_has_position(request, reference, position_id)
         if position is not None:
-            return render(request, 'position.html',
-                          position_detail_data(request, position.id, task_id, None))
+            return render(
+                request, 'position.html',
+                position_detail_data(request, position.id, task_id, None))
     except ObjectDoesNotExist:
-        # TODO: add error message that position cannot be retrieved
+        # Redirects user if position does not exist
         return redirect('home')
+
 
 # Position detail view, which renders the upload application modal with the presence of an error message
 # the above either renders the default page, or the processing view, depending on the prescence of the task id
-# jank!
 @login_required(login_url='login', redirect_field_name=None)
-def position_detail_with_upload_error(request, reference, position_id, error_msg=None):
+def position_detail_with_upload_error(request,
+                                      reference,
+                                      position_id,
+                                      error_msg=None):
     # GET request
     try:
+        # Verify that user has access to position
         position = user_has_position(request, reference, position_id)
         if position is not None:
-            return render(request, 'position.html',
-                          position_detail_data(request, position.id, None, error_msg))
+            return render(
+                request, 'position.html',
+                position_detail_data(request, position.id, None, error_msg))
     except ObjectDoesNotExist:
-        # TODO: add error message that position cannot be retrieved
+        # Redirects user if position does not exist
         return redirect('home')
 
 
@@ -120,7 +132,6 @@ def delete_position(request):
     # User wants to delete position
     if request.POST.get("delete"):
         Position.objects.get(id=request.POST.get("position-id")).delete()
-    # TODO: render error that position could not be deleted
     return redirect('home')
 
 
@@ -128,6 +139,7 @@ def delete_position(request):
 def applicant_detail_data(request, applicant_id, position_id):
 
     applicant = Applicant.objects.get(id=applicant_id)
+    # Determine whether applicant is in user's favourites list
     if [x for x in request.user.favourites.all() if x == applicant]:
         is_favourited = True
     else:
@@ -136,6 +148,7 @@ def applicant_detail_data(request, applicant_id, position_id):
     position = Position.objects.get(id=position_id)
     answers = FormAnswer.objects.filter(
         parent_applicant=applicant).order_by("parent_question")
+    # Attach qualifiers, extracts, and notes to answer objects
     for answer in answers:
         answer.qualifier_set = Qualifier.objects.filter(
             parent_answer=answer).order_by(
@@ -175,9 +188,10 @@ def applicant_detail_data(request, applicant_id, position_id):
     }
 
 
-# View an application
+# Applicant view using applicant_detail_data
 @login_required(login_url='login', redirect_field_name=None)
 def application(request, app_id):
+    # Verify that applicant belongs to position held by user
     applicant = position_has_applicant(request, app_id)
     if applicant is not None:
         return render(
@@ -185,7 +199,6 @@ def application(request, app_id):
             applicant_detail_data(
                 request, applicant.id,
                 Applicant.objects.get(applicant_id=app_id).parent_position.id))
-    # TODO: render error message that the applicant trying to be access is unavailable/invalid
     return redirect('home')
 
 
