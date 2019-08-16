@@ -12,7 +12,7 @@ services:
   # Django project on gunicorn server
   web:
     build: .
-    command: bash -c "python manage.py collectstatic --no-input && python manage.py makemigrations && python manage.py migrate && gunicorn --timeout=600 --workers=2 --reload --bind=0.0.0.0:8000 screendoor_app.wsgi:application"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && gunicorn --timeout=600 --workers=2 --reload --bind=0.0.0.0:8000 screendoor_app.wsgi:application"
     container_name: django-gunicorn
     restart: always
     volumes:
@@ -111,6 +111,6 @@ services:
   sonarqube-scanner:
     build: .
     container_name: sonar-scanner
-    command: bash -c "sleep 40 && /code/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=screendoor -Dsonar.sources=. -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=4f25305f0a759fe5d345fda6e5e583c9b09e689a"
+    command: bash -c "sleep 40 && ./sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=screendoor -Dsonar.sources=. -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=4f25305f0a759fe5d345fda6e5e583c9b09e689a"
     depends_on:
       - sonarqube
