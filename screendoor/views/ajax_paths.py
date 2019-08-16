@@ -40,7 +40,6 @@ def add_user_to_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
     position = Position.objects.get(id=position_id)
-
     try:
         new_user = ScreenDoorUser.objects.get(email=user_email)
         if new_user in position.position_users.all():
@@ -125,6 +124,7 @@ def remove_note(request):
 @login_required(login_url='login', redirect_field_name=None)
 def edit_position(request):
     try:
+        
         position_dictionary = json.loads(request.body.decode('utf-8'))
         position_id = int(position_dictionary["positionId"])
         position = Position.objects.get(id=position_id)

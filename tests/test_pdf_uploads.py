@@ -88,7 +88,6 @@ class TestPDFUpload(TestCase):
         )
         self.testPosition.save()
 
-
         self.testApplication = Applicant(
             citizenship='Canadian Citizen',
             priority=False,
