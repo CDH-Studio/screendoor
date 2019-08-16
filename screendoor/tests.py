@@ -151,9 +151,6 @@ class UploadApplicationTests(TestCase):
             username="good@canada.ca", email="good@canada.ca",
             password="password76")
         self.user.save()
-        # self.pdf_file = SimpleUploadedFile("tests/sample_app.pdf",
-        #                                    b"file_content",
-        #                                    content_type="application/pdf")
         self.html_file = SimpleUploadedFile("tests/Sample Job Poster.html",
                                             b"file_content",
                                             content_type="application/html")
@@ -170,35 +167,11 @@ class UploadApplicationTests(TestCase):
         self.assertTrue(form.errors['pdf'],
                         ErrorMessages.empty_application_form)
 
-    # NOTE: commented out until clearance for test data is resolved
-
-    # # needs to be verbose, else the mime type gets identified as .ksh
-    # def test_pass_good_form(self):
-    #     with open(
-    #             'tests/sample_app.pdf'.format(
-    #                 "Sample Job Poster.pdf"),
-    #             'rb') as file:
-    #         form = ImportApplicationsForm(data={})
-    #         form.fields['pdf'].initial = file
-    #         self.assertTrue(form.is_valid())
-
     def test_reject_bad_file_type(self):
         form = ImportApplicationsForm(data={})
         form.fields['pdf'].initial = self.html_file
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors['pdf'], ErrorMessages.incorrect_mime_type)
-
-    # NOTE: commented out until clearance for test data is resolved
-    # def test_upload_applications(self):
-    #     with open(
-    #             'tests/sample_app.pdf',
-    #             'rb') as file:
-    #         self.c.login(username="good@canada.ca", password="password76")
-    #         response = self.c.post('/position/upload-applications', {
-    #             'upload-applications': 'Upload Applications', 'position-id': self.position.id, 'pdf': file})
-    #         self.assertRedirects(
-    #             response, '/position/' + self.position.reference_number + '/' + str(self.position.id))
-    #         self.assertEqual(response.status_code, 302)
 
 
 class PositionDeleteTests(TestCase):

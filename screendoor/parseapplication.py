@@ -527,8 +527,8 @@ def find_essential_details(tables, position):
     educations = []
 
     tables = correct_split_item(tables)
-    tables = merge_elements(tables, is_question, (
-        ("Question - Français / French:", "No SRFP / PSRS no:", "Poste disponible / Job Opportunity:")))
+    tables = merge_elements(tables, is_question, 
+        ("Question - Français / French:", "No SRFP / PSRS no:", "Poste disponible / Job Opportunity:"))
     tables = merge_elements(tables, is_education, ("Niveau d'études", "Province", "Type d'emploi"))
 
     for table_counter, item in enumerate(tables):

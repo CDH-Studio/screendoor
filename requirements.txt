@@ -13,6 +13,9 @@ flower>=0.9.3
 # Postgres database integration with Django
 psycopg2>=2.7,<3.0
 
+# Python code coverage cool
+coverage>=4.5.4
+
 # Python cryptography library
 cryptography>=2.6
 

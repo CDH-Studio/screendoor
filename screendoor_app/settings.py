@@ -95,11 +95,6 @@ DATABASES = {
     }
 }
 
-# Session Management
-# SESSION_ENGINE = [
-#    'django.contrib.sessions.backends.cached_db',
-# ]
-
 # User Management
 AUTH_USER_MODEL = 'screendoor.ScreenDoorUser'
 
@@ -156,23 +151,10 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 PASSWORD_RESET_TIMEOUT_DAYS = 1
 
-# Security
-
-# SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-
-# File Uploads
-
-# FILE_UPLOAD_HANDLERS = (
-#     "django.core.files.uploadhandler.TemporaryFileUploadHandler",)
-
-# FILE_UPLOAD_TEMP_DIR = ("/code/screendoor/temp")
 MEDIA_URL = 'temp/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'temp')
 FILE_UPLOAD_PERMISSIONS = 0o666
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o666
-# FILE_UPLOAD_MAX_MEMORY_SIZE = 0
 
 # Celery Settings
 

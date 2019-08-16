@@ -10,9 +10,6 @@ const progressText = document.getElementById("progress-text");
 /* Button to close upload modal */
 const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
-/* Constants derived from Django variables in hidden inputs */
-const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
-
 /* Hidden input containing current task ID */
 const taskId = document.getElementById("task-id");
 
@@ -95,6 +92,7 @@ const initializeApplicantUploadProgress = function() {
   document.getElementById("files-processing").innerHTML = localStorage.getItem("applicationFiles");
   clearExceptSidebar(); // from localstorage.js
   uploadModal.openInstant(); // from sd-modal.js
+  const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
   try {
     displayProgress(queryUrl.href);
     updateTimer = setInterval(function() {
