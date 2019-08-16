@@ -26,14 +26,16 @@ var hideElements = function hideElements() {
   }
 };
 
+/* Returns true if user is on MS Internet Explorer */
 function isIE() {
   var ua = navigator.userAgent;
   /* MSIE used to detect old browsers and Trident used to newer ones*/
   var is_ie = ua.indexOf("MSIE ") > -1 || ua.indexOf("Trident/") > -1;
-
   return is_ie;
 }
 
+/* Initialize error text for uploading applicantions */
+/* NOTE: Why is this here? */
 window.addEventListener("DOMContentLoaded", function () {
   if (document.getElementById("upload-applications-form")) {
     document.getElementById("upload-applications-form").addEventListener("submit", function () {
