@@ -54,6 +54,7 @@ services:
   # Async task management for Django
   celery:
     build: .
+    container_name: celery
     command: python manage.py celery
     restart: always
     volumes:
@@ -88,3 +89,28 @@ services:
     image: selenium/standalone-chrome
     ports:
       - 4444:4444
+  coverage:
+    build: .
+    container_name: coverage
+    command: bash -c "coverage run --source='.' manage.py test screendoor && coverage report && coverage xml"
+  sonarqube:
+    image: sonarqube
+    container_name: sonarqube
+    expose:
+      - 9000
+    ports:
+      - 9000:9000
+    environment:
+      - sonar.jdbc.username=cdhstudio
+      - sonar.jdbc.password=cdhadmin
+      - sonar.jdbc.url=jdbc:postgresql://db/screendoor_db
+    volumes:
+      - .:/code
+    depends_on:
+      - web
+  sonarqube-scanner:
+    build: .
+    container_name: sonar-scanner
+    command: bash -c "sleep 40 && /code/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=screendoor -Dsonar.sources=. -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=4f25305f0a759fe5d345fda6e5e583c9b09e689a"
+    depends_on:
+      - sonarqube
