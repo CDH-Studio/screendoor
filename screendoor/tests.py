@@ -170,35 +170,11 @@ class UploadApplicationTests(TestCase):
         self.assertTrue(form.errors['pdf'],
                         ErrorMessages.empty_application_form)
 
-    # NOTE: commented out until clearance for test data is resolved
-
-    # # needs to be verbose, else the mime type gets identified as .ksh
-    # def test_pass_good_form(self):
-    #     with open(
-    #             'tests/sample_app.pdf'.format(
-    #                 "Sample Job Poster.pdf"),
-    #             'rb') as file:
-    #         form = ImportApplicationsForm(data={})
-    #         form.fields['pdf'].initial = file
-    #         self.assertTrue(form.is_valid())
-
     def test_reject_bad_file_type(self):
         form = ImportApplicationsForm(data={})
         form.fields['pdf'].initial = self.html_file
         self.assertFalse(form.is_valid())
         self.assertTrue(form.errors['pdf'], ErrorMessages.incorrect_mime_type)
-
-    # NOTE: commented out until clearance for test data is resolved
-    # def test_upload_applications(self):
-    #     with open(
-    #             'tests/sample_app.pdf',
-    #             'rb') as file:
-    #         self.c.login(username="good@canada.ca", password="password76")
-    #         response = self.c.post('/position/upload-applications', {
-    #             'upload-applications': 'Upload Applications', 'position-id': self.position.id, 'pdf': file})
-    #         self.assertRedirects(
-    #             response, '/position/' + self.position.reference_number + '/' + str(self.position.id))
-    #         self.assertEqual(response.status_code, 302)
 
 
 class PositionDeleteTests(TestCase):
@@ -228,51 +204,3 @@ class PositionDeleteTests(TestCase):
             self.c.post('/position/delete',
                         {'delete': 'Delete', 'position-id': 99999})
 
-
-class PositionEditTests(TestCase):
-
-    def setUp(self):
-        self.c = Client()
-        self.user = ScreenDoorUser.objects.create_user(
-            username="good@canada.ca", email="good@canada.ca",
-            password="password76")
-        self.user.save()
-        self.position = Position()
-        self.position.position_title = "Unedited"
-        self.position.classification = "AAA"
-        self.position.reference_number = "ABCD"
-        self.position.selection_process_number = "EFGH"
-        self.position.date_closed = datetime.datetime.now()
-        self.position.num_positions = 1
-        self.position.salary_min = 1
-        self.position.salary_max = 10
-        self.position.open_to = "Everyone"
-        self.position.description = "Position before editing"
-        self.position.save()
-
-    def test_successful_edit(self):
-        self.c.login(username="good@canada.ca", password="password76")
-        date_time = datetime.date(2011, 3, 23)
-        position_edits = {'save-position': 'Save',
-                          'position-id': self.position.id, 'position-title': "Edited", 'position-classification': "BBB", 'position-reference': "DCBA", 'position-selection': "HGFE", 'position-date-closed': date_time, 'position-num-positions': 100, 'position-salary-range': "$1000 - $2000", 'position-open-to': "No one", 'position-description': "Position after editing"}
-        self.c.post('/position/edit', position_edits)
-        self.assertEqual("Edited", Position.objects.get(
-            id=self.position.id).position_title)
-        self.assertEqual("BBB", Position.objects.get(
-            id=self.position.id).classification)
-        self.assertEqual("DCBA", Position.objects.get(
-            id=self.position.id).reference_number)
-        self.assertEqual("HGFE", Position.objects.get(
-            id=self.position.id).selection_process_number)
-        self.assertEqual(date_time, Position.objects.get(
-            id=self.position.id).date_closed)
-        self.assertEqual('100', Position.objects.get(
-            id=self.position.id).num_positions)
-        self.assertEqual(1000, Position.objects.get(
-            id=self.position.id).salary_min)
-        self.assertEqual(2000, Position.objects.get(
-            id=self.position.id).salary_max)
-        self.assertEqual("No one", Position.objects.get(
-            id=self.position.id).open_to)
-        self.assertEqual("Position after editing", Position.objects.get(
-            id=self.position.id).description)
