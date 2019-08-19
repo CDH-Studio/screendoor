@@ -1,19 +1,22 @@
+/* Pop-up alert that page contents have changed */
 const showToast = function() {
-  // Get the snackbar DIV
+  /* Get the snackbar div */
   const snackbar = document.getElementById("snackbar");
-  
-  // Add the "show" class to DIV
+
+  /* Set the div class to "show" */
   snackbar.className = "show";
 };
 
+/* Close alert that page contents have changed */
 const closeToast = function() {
-  // Get the snackbar DIV
+  /* Get the snackbar div */
   const snackbar = document.getElementById("snackbar");
-    
-  // Add the "show" class to DIV
+
+  /* Set the div class to "hide" */
   snackbar.className = "hide";
 };
 
+/* Poll to see if any of the page's values were changed externally. */
 const checkForPageChanges = function() {
   const data = Object.create(null);
   data["pageType"] = window.location.pathname;
@@ -33,11 +36,11 @@ const checkForPageChanges = function() {
   }).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      //If there is a message indicating a change
+      /* If there is a message indicating a change */
       if ((data.message == "change")) {
-        //If the user is not the same as the user who made the changes
+        /* If the user is not the same as the user who made the changes */
         if (document.getElementById("user-welcome").dataset.userEmail != data.lastEditedBy) {
-          // Then show change notification toast
+          /* Then show change notification toast */
           showToast();
         }
       }

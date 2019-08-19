@@ -1,16 +1,29 @@
+/* Button user clicks to add another user to position */
 const addUser = document.getElementById("add-users-button");
-const userDisplayLocation = document.getElementById("userDisplay");
-const currentUser = document.getElementById("current-user");
-const userEmailField = document.getElementById("user-email-input");
-const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
-const positionId = userDisplayLocation.dataset.positionId;
-let removeUserButtons = document.getElementsByClassName("remove-user");
-let removeUserListeners = [];
 
+/* Div containing all users who can access a position */
+const userDisplayLocation = document.getElementById("userDisplay");
+
+/* Div containing information about the currently-logged in user */
+const currentUser = document.getElementById("current-user");
+
+/* Input for adding another user's e-mail address */
+const userEmailField = document.getElementById("user-email-input");
+
+/* Span containing error messages, if any */
+const addUserMessagePrompt = document.getElementById("addUserMessagePrompt");
+
+/* Id of the current position */
+const positionId = userDisplayLocation.dataset.positionId;
+
+/* Buttons to remove each user */
+let removeUserButtons = document.getElementsByClassName("remove-user");
+
+/* Add another user to position */
 const addUserToPosition = function() {
   const url = "/add_user_to_position?email=" + userEmailField.value +
         "&id=" + positionId;
-  // reset field input
+  /* reset field input */
   userEmailField.value = "";
 
   fetch(url).then(function(response) {
@@ -21,10 +34,10 @@ const addUserToPosition = function() {
       } else {
         addUserMessagePrompt.textContent = "";
 
-        // create clone of element: simply setting x = y makes ashallow copy
+        /* create clone of element: simply setting x = y makes ashallow copy */
         const newUser = currentUser.cloneNode(true);
 
-        // change the relevant fields (id, text fields, add remove button)
+        /* change the relevant fields (id, text fields, add remove button) */
         newUser.id = data.userEmail;
         newUser.children[0].textContent = data.userEmail;
         newUser.children[0].classList.remove("grey-text");
@@ -39,7 +52,7 @@ const addUserToPosition = function() {
 
         newUser.appendChild(removeButton);
 
-        // append the element to the end of the holder element
+        /* append the element to the end of the holder element */
         userDisplayLocation.appendChild(newUser);
 
         setRemoveButtonHandlers();
@@ -48,6 +61,7 @@ const addUserToPosition = function() {
   });
 };
 
+/* Remove a user's access to a position */
 const removeUserFromPosition = function(email) {
   console.log(email);
   console.log(positionId);
@@ -55,19 +69,18 @@ const removeUserFromPosition = function(email) {
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
-      // retrieves the element and removes it from the holder element
+      /* retrieves the element and removes it from the holder element */
       const user = document.getElementById(data.userEmail);
 
       user.remove();
 
-      // re-init remove buttons
     }).catch(() => console.error());
   });
 };
 
+/* Initialize listeners for buttons to remove users from a position */
 const setRemoveButtonHandlers = function() {
-  removeUserListeners = [];
-  // As remove buttons can be added/removed, need to continually redefine them.
+  /* As remove buttons can be added/removed, need to continually redefine them. */
   removeUserButtons = document.getElementsByClassName("remove-user");
   for (let i = 0; i < removeUserButtons.length; i++) {
     removeUserButtons[i].dataset.userEmail = removeUserButtons[i].parentNode.id;
@@ -76,10 +89,10 @@ const setRemoveButtonHandlers = function() {
       removeUserFromPosition(email);
     };
     removeUserButtons[i].addEventListener("click", removeButtonListener);
-    removeUserListeners.push(removeButtonListener);
   }
 };
 
+/* Initializes button to add user to a position and remove button listeners */
 window.addEventListener("DOMContentLoaded", () => {
   addUser.addEventListener("click", () => {
     if (userEmailField.reportValidity()) {

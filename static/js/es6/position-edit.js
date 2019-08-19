@@ -1,23 +1,53 @@
 /* CONSTANTS AND VARIABLES */
 
+/* "Card" div containing position */
 const card = document.getElementById("position-card");
+
+/* Button user clicks to begin editing position */
 const editButton = document.getElementById("edit-button");
+
+/* Button user clicks to save position during upload */
 const saveButton = document.getElementById("save-button");
+
+/* Button user clicks to confirm changes during edit  */
 const okButton = document.getElementById("edit-button") ? editButton.cloneNode() : null;
+
+/* Button user clicks to discard changes during edit */
 const cancelButton = document.getElementById("save-button") ? saveButton.cloneNode() : null;
+
+/* Form element surrounding position edit fields  */
 const form = document.getElementById("edit-position");
+
+/* li elements for each category of position requirement  */
 const requirementTypeHeaders = document.getElementsByClassName("requirement-type");
+
+/* Array comprised of divs holding editable text */
 let cells = Array.from(document.getElementsByClassName("edit"));
+
+/* Divs containing individual requirements  */
 let requirementPoints = document.getElementsByClassName("requirement-point");
+
+/* Div containing all education requirements */
 let educationRequirementDiv = document.getElementById("education-requirements");
+
+/* Div containing all experience requirements */
 let experienceRequirementDiv = document.getElementById("experience-requirements");
+
+/* Div containing all asset requirements */
 let assetRequirementDiv = document.getElementById("asset-requirements");
+
+/* Persisted education, experience, and asset rows to restore if user cancels editing */
 let resetEducation = educationRequirementDiv ? educationRequirementDiv.cloneNode(true) : null;
 let resetExperience = experienceRequirementDiv ? experienceRequirementDiv.cloneNode(true) : null;
 let resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : null;
+
+/* Row of editing-related buttons */
 let buttonRow = document.getElementById("import-position-buttons");
+
+/* Array to be populated by the text from each editable field */
 let cellText = [];
 
+/* Return data for body of AJAX request */
 const getEditData = function() {
   const params = Object.create(null);
   params["positionId"] = document.getElementById("position-id").value;
@@ -304,6 +334,9 @@ const hideShowMissingRequirements = function() {
 
 /* Convert text fields into editable inputs */
 const startEditing = function() {
+  resetEducation = educationRequirementDiv ? educationRequirementDiv.cloneNode(true) : null;
+  resetExperience = experienceRequirementDiv ? experienceRequirementDiv.cloneNode(true) : null;
+  resetAsset = assetRequirementDiv ? assetRequirementDiv.cloneNode(true) : null;
   removeRequirementListeners(); // From position-tables.js
   expandAllRequirements(); // From position-tables.js
   showRequirementTypeHeaders();
