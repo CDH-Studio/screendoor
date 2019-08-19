@@ -40,6 +40,11 @@ const checkForPageChanges = function() {
       if ((responseData.message == "change")) {
         /* If the user is not the same as the user who made the changes */
         if (document.getElementById("user-welcome").dataset.userEmail != responseData.lastEditedBy) {
+    response.json().then(function(data) {
+      /* If there is a message indicating a change */
+      if ((data.message == "change")) {
+        /* If the user is not the same as the user who made the changes */
+        if (document.getElementById("user-welcome").dataset.userEmail != data.lastEditedBy) {
           /* Then show change notification toast */
           showToast();
         }
