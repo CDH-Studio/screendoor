@@ -7,7 +7,7 @@
   <form action="" method="post">
     <div class="card-content col s12">
       <!-- Displays "Login" -->
-      <label class="card-title col s12" for="login">{{ login_form.login_text }}</label>
+      <label class="card-title col s12" for="login-button">{{ login_form.login_text }}</label>
       {% csrf_token %}
       <div class="col s12">
         <!-- Account confirmed success message -->
@@ -39,7 +39,7 @@
       </div>
       <!-- Create account and login buttons -->
       <div class="row">
-        <input class="right btn btn-margin" type="submit" value="{{ login_form.login_text }}">
+        <input id="login-button" class="right btn btn-margin" type="submit" value="{{ login_form.login_text }}">
         <a class="btn-flat btn-margin waves-effect right" href="{% url 'register' %}">
           {{ login_form.create_account_text }}
         </a>

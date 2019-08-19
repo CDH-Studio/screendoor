@@ -16,8 +16,10 @@
             <div class="card-content col s12">
               <!-- Upload position title -->
               <div class="row">
-                <label class="card-title col s12" for="importposition">
-                  {{ form.text }}
+                <label for="pdf_path_input">
+                  <h2 class="card-title col s12 grey-text" for="importposition">
+                    {{ form.text }}
+                  </h2>
                 </label>
               </div>
               {% csrf_token %}
@@ -32,32 +34,34 @@
                   {{ form.errors.url_ref }}
                 </span>
                 {% endif %}
-                <!-- Upload position form instructions -->
-                <div class="col s12 grey-text">
-                  <p>
-                    {{ form.description }}
-                  </p>
-                </div>
-                <br>
-                <br>
-                <!-- PDF upload radio button -->
-                <div class="col s4">
-                  <label>
-                    <input name="upload_method" id="radio_pdf" type="radio" />
-                    <span>
-                      {{ form.pdf_name }}
-                    </span>
-                  </label>
-                </div>
-                <!-- URL submit radio button -->
-                <div class="col s4">
-                  <label>
-                    <input name="upload_method" id="radio_url" type="radio" />
-                    <span>
-                      {{ form.url_name }}
-                    </span>
-                  </label>
-                </div>
+                <fieldset>
+                  <!-- Upload position form instructions -->
+                  <div class="col s12 grey-text">
+                    <legend>
+                      {{ form.description }}
+                    </legend>
+                  </div>
+                  <br>
+                  <br>
+                  <!-- PDF upload radio button -->
+                  <div class="col s4">
+                    <label for="radio_pdf">
+                      <input name="upload_method" id="radio_pdf" type="radio" />
+                      <span>
+                        {{ form.pdf_name }}
+                      </span>
+                    </label>
+                  </div>
+                  <!-- URL submit radio button -->
+                  <div class="col s4">
+                    <label>
+                      <input name="upload_method" id="radio_url" type="radio" />
+                      <span>
+                        {{ form.url_name }}
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
                 <br>
                 <br>
               </div>
@@ -65,14 +69,16 @@
               <div class="row">
                 <div id="pdf_upload_form" class="col s12 file-field input-field hide">
                   <div class="btn-small">
-                    <span>
-                      {{ form.browse_text }}
-                    </span>
+                    <label for="pdf_input">
+                      <span class="white-text">
+                        {{ form.browse_text }}
+                      </span>
+                    </label>
                     <input type="file" name="pdf" id="pdf_input">
                   </div>
                   <div class="file-path-wrapper">
                     <input id="pdf_path_input" class="file-path validate" type="text"
-                      placeholder="{{ form.upload_text }}" />
+                           placeholder="{{ form.upload_text }}" />
                   </div>
                 </div>
               </div>
@@ -83,12 +89,13 @@
               <div class="row">
                 <div id="url_upload_form" class="col s12 hide">
                   <input id="url_input" name="url_ref" type="url">
-                  <label for="url">{{ form.url_text }}</label>
+                  <label for="url_input">{{ form.url_text }}</label>
                 </div>
               </div>
               <!-- Submit button -->
               <button class="right btn hide" name="upload-position" id="position_submit_button">
-                {{ form.submit_text }}</button>
+                {{ form.submit_text }}
+              </button>
             </div>
             <!-- End of form -->
           </form>
@@ -100,11 +107,9 @@
     {% if position is not None %}
     <div class="row">
       <div class="col s12">
-        <label>
-          <h5 class="center">
-            {{ userVisibleText.we_think_this_is_correct }}
-          </h5>
-        </label>
+        <h3 class="confirm-position-text center grey-text">
+          {{ userVisibleText.we_think_this_is_correct }}
+        </h3>
         <br>
       </div>
     </div>
@@ -128,9 +133,9 @@
                 <div class="col s4 right right-align" id="import-position-buttons">
                   {% csrf_token %}
                   <input class="btn-small btn-left btn-pad" id="edit-button" name="edit-position" type="button"
-                    value="{{ userVisibleText.edit }}">
+                         value="{{ userVisibleText.edit }}">
                   <input class="btn-small btn-left btn-pad" id="save-button" name="save-position" type="submit"
-                    value="{{ userVisibleText.save }}">
+                         value="{{ userVisibleText.save }}">
                 </div>
               </div>
               <!-- New position area -->
@@ -138,50 +143,50 @@
                 <div class="row body-row position-row">
                   <div class="col s3 cell-body">
                     <span class="position-heading">{{ userVisibleText.classification }}:</span> <br><span
-                      id="position-classification"
-                      class="position-import-cell edit">{{ position.classification }}</span>
+                                                                                                      id="position-classification"
+                                                                                                      class="position-import-cell edit">{{ position.classification }}</span>
                   </div>
                   <div class="col s3 cell-body">
                     <span class="position-heading">{{ userVisibleText.reference_number }}:</span> <br><span
-                      id="position-reference" class="position-import-cell edit">{{ position.reference_number }}</span>
+                                                                                                        id="position-reference" class="position-import-cell edit">{{ position.reference_number }}</span>
                   </div>
                   <div class="col s4 cell-body">
                     <span class="position-heading">{{ userVisibleText.selection_process_number }}:</span> <br><span
-                      id="position-selection"
-                      class="position-import-cell edit">{{ position.selection_process_number }}</span>
+                                                                                                                id="position-selection"
+                                                                                                                class="position-import-cell edit">{{ position.selection_process_number }}</span>
                   </div>
                   <div class="col s2 cell-body">
                     <span class="position-heading">{{ userVisibleText.date_closed }}:</span> <br><span
-                      class="position-import-cell edit"
-                      id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
+                                                                                                   class="position-import-cell edit"
+                                                                                                   id="position-date-closed">{{ position.date_closed|date:'Y-m-d' }}</span>
                   </div>
                 </div>
                 <div class="row body-row position-row">
                   <div class="col s3 cell-body" class="position-heading">
                     {{ userVisibleText.number_of_positions }}:</span> <br><span id="position-num-positions"
-                      class="position-import-cell edit">{{ position.num_positions }}</span>
+                                                                                class="position-import-cell edit">{{ position.num_positions }}</span>
                   </div>
                   <div class="col s3 cell-body">
                     <span class="position-heading">{{ userVisibleText.salary_range }}:</span> <br><span
-                      id="position-salary" class="position-import-cell edit">{{ position.salary }}</span>
+                                                                                                    id="position-salary" class="position-import-cell edit">{{ position.salary }}</span>
                   </div>
                   <div class="col s6 cell-body">
                     <span class="position-heading">{{ userVisibleText.open_to }}:</span> <br><span id="position-open-to"
-                      class="position-import-cell edit">{{ position.open_to }}</span>
+                                                                                                   class="position-import-cell edit">{{ position.open_to }}</span>
                   </div>
                 </div>
                 <div class="row body-row position-row">
                   <div class="col s12 cell-body">
                     <span class="position-heading">{{ userVisibleText.position_information }}:</span> <br><span
-                      id="position-description" class="position-import-cell edit">{{ position.description }}</span>
+                                                                                                            id="position-description" class="position-import-cell edit">{{ position.description }}</span>
                   </div>
                 </div>
               </div>
 
-              <h6>
+              <h4 class="education-experience-criteria">
                 {{ userVisibleText.education_and_experience_criteria }}
                 <i id="expand-collapse-criteria" class="material-icons grey-text text-darken-2">unfold_more</i>
-              </h6>
+              </h4>
               <div class="requirements">
                 <!-- Education Headers -->
                 <ul class="requirement-list">
@@ -199,17 +204,17 @@
                   <div id="education-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Education" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
-                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
+                         data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="{{ req.requirement_type }}">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
                       <div class="requirement-description education-description col s10 edit"
-                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                           id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
                   </div>
 
                   <li id="req-experience" class="requirement-type row hoverable hide"
-                    data-requirement-type="Experience">
+                      data-requirement-type="Experience">
                     <i class="requirement-icons material-icons grey-text">build
                     </i>
                     <span class="requirement-type-text">
@@ -222,10 +227,10 @@
                   <div id="experience-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Experience" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
-                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
+                         data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Experience">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
                       <div class="requirement-description experience-description col s11 edit"
-                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                           id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -244,10 +249,10 @@
                   <div id="asset-requirements" class="hidden-requirement-info row body-row">
                     {% for req in position.requirement_set.all|dictsort:'id' %}{% if req.requirement_type == "Asset" %}
                     <div class="requirement-point row" data-requirement-abbrev="{{ req.abbreviation }}"
-                      data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
+                         data-requirement-id="{{ forloop.counter0 }}" data-requirement-type="Asset">
                       <div class="requirement-abbrev col">{{ req.abbreviation }}</div>
                       <div class="requirement-description asset-description col s11 edit"
-                        id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
+                           id="requirement-description-{{ forloop.counter }}">{{ req.description }}</div>
                     </div>
                     {% endif %}
                     {% endfor %}
