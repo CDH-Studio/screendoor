@@ -9,7 +9,7 @@ const loadingEllipses = document.getElementById("loading-ellipses");
 const cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
-const queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+const queryUrl = new URL(document.getElementById("task-url").value, window.location.protocol + window.location.hostname);
 const taskId = document.getElementById("task-id");
 const reloadUrl = document.getElementById("reload-url").value;
 const taskData = Object.create(null);
@@ -115,4 +115,3 @@ window.addEventListener("load", function() {
     hideProgressBar();
   }
 });
-
