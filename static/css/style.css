@@ -1178,7 +1178,7 @@ th a {
   border-bottom: solid 0px #e0e0e0;
 }
 
-.hidden-applicant-info {
+#hidden-applicant-info {
   background-color: #fafafa;
   max-height: 100rem;
   overflow: initial;
@@ -1191,7 +1191,7 @@ th a {
   transition: max-height .3s, white-space .3s, visibility .3s;
 }
 
-.hidden-applicant-info.row-closed {
+#hidden-applicant-info.row-closed {
   max-height: 0rem !important;
   overflow: hide !important;
   text-overflow: hide !important;
@@ -1217,12 +1217,12 @@ th a {
   margin-left: 5px !important;
 }
 
-.hidden-education-info.body-row, hidden-applicant-info.body-row {
+.hidden-education-info.body-row, #hidden-applicant-info.body-row {
   border-top: solid 0px #e0e0e0;
   border-bottom: solid 0px #e0e0e0;
 }
 
-.hidden-applicant-info .body-row {
+#hidden-applicant-info .body-row {
   border-top: solid 0px #e0e0e0;
   border-bottom: solid 0px #e0e0e0;
 }
@@ -1259,7 +1259,7 @@ th a {
   cursor: pointer;
 }
 
-.hidden-education-info .cell-body, .hidden-application-info .body-row .cell-body {
+.hidden-education-info .cell-body, #hidden-application-info .body-row .cell-body {
   font-weight: 400 !important;
   color: #616161 !important;
 }
@@ -1871,6 +1871,7 @@ div {
 #title {
   font-size: 1.6rem;
   line-height: 2.4rem;
+  margin-bottom: 15px !important;
 }
 
 .requirements-header {
