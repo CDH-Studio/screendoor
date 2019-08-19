@@ -1,7 +1,9 @@
 "use strict";
 
+/* Spans containing favouriting "star" icons */
 var favouriteIcons = document.getElementsByClassName("favourite-icon");
 
+/* Change the "favourite" status of an applicant for a user via AJAX */
 var changeFavouriteStatus = function changeFavouriteStatus(i, id) {
   var url = "/change_favourites_status?app_id=" + id + "&favouriteStatus=" + document.getElementById(id).dataset.favouriteStatus;
   fetch(url).then(function (response) {
@@ -21,6 +23,7 @@ var changeFavouriteStatus = function changeFavouriteStatus(i, id) {
   });
 };
 
+/* Initialize icons for whether an applicant is favourited or not */
 var setDefaultFavouriteStatus = function setDefaultFavouriteStatus(element) {
   var favouriteStatus = element.dataset.favouriteStatus;
   if (favouriteStatus == "False") {
@@ -30,6 +33,7 @@ var setDefaultFavouriteStatus = function setDefaultFavouriteStatus(element) {
   }
 };
 
+/* Initialize listeners for favouriting applicants */
 window.addEventListener("DOMContentLoaded", function () {
   var _loop = function _loop(i) {
     setDefaultFavouriteStatus(favouriteIcons[i]);

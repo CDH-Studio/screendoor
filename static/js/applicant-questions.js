@@ -1,38 +1,93 @@
 "use strict";
 
+/* Divs containing an applicant's full response to a question */
 var applicantResponseFull = document.getElementsByClassName("applicant-response-full");
+
+/* li elements corresponding to each education header */
 var educationItems = document.getElementsByClassName("education-item");
+
+/* Divs containing education header info for each education item */
 var educationHeaders = document.getElementsByClassName("education-header");
+
+/* Divs containing all of the extracts corresponding to a particular answer */
 var extractFull = document.getElementsByClassName("extracts-full");
+
+/* Divs containing all of the extracts corresponding to a particular answer,
+   to be displayed when user hovers over the question-answer icon */
 var extractPreviews = document.getElementsByClassName("extract-previews");
-var applicantHeader = document.getElementsByClassName("applicant-header");
+
+/* Div containing applicant icon, id, stream, and classification info  */
+var applicantHeader = document.getElementById("applicant-header");
+
+/* Div containing elements with basic applicant info, e.g. priority, language preferences */
 var hiddenApplicantInfo = document.getElementsByClassName("hidden-applicant-info");
+
+/* Div containing additional education info for each education row */
 var hiddenEducationInfo = document.getElementsByClassName("hidden-education-info");
+
+/* li elements containing the header for each question  */
 var questionPreviews = document.getElementsByClassName("question-preview");
+
+/* Top-level divs within questionPreviews li elements */
 var questionPreviewDivs = document.getElementsByClassName("question-preview-div");
+
+/* Icons on the left side of each question row */
 var questionIcons = document.getElementsByClassName("question-icons");
+
+/* Divs which each contain a questionIcon */
 var questionIconDivs = document.getElementsByClassName("question-icon-div");
+
+/* Divs containing the full question/answer information for each question,
+   revealed when header clicked */
 var questionAnswerFull = document.getElementsByClassName("question-answer-full");
+
+/* Divs containing abbreviations for requirements, present in a question header
+   if that question has a matching requirement */
 var requirementAbbreviations = document.getElementsByClassName("requirement-abbreviation");
+
+/* Hidden input elements containing the full text of each requirement */
 var requirementTips = document.getElementsByClassName("requirement-text");
+
+/* Divs containing question preview text that appears on question headers */
 var shortQuestionTexts = document.getElementsByClassName("short-question-text");
+
+/* Divs containing substantive classifications of an applicant  */
 var substantiveClassifications = document.getElementsByClassName("classification-substantive");
+
+/* Divs containing current classifications of an applicant  */
 var currentClassifications = document.getElementsByClassName("classification-current");
+
+/* Spans containing substantive classification text of an applicant  */
 var substantiveClassificationText = document.getElementById("substantive-classification-text");
+
+/* Spans containing current classification text of an applicant  */
 var currentClassificationText = document.getElementById("current-classification-text");
+
+/* Expand/collapse education icon */
 var expandCollapseEducationButton = document.getElementById("expand-collapse-education");
+
+/* Expand/collapse questions icon */
 var expandCollapseQuestionsButton = document.getElementById("expand-collapse-questions");
+
+/* Expand/collapse applicant info icon */
 var expandCollapseApplicantButton = document.getElementById("expand-collapse-applicant");
+
+/* Icon indicating education row can be expanded/collapsed */
 var expandCollapseEducationButtons = document.getElementsByClassName("expand-collapse-education-item");
+
+/* Icon indicating education row can be expanded/collapsed */
 var expandCollapseQuestionButtons = document.getElementsByClassName("expand-collapse-questions");
 
+/* Spans corresponding to each stream to which an applicant is applying */
 var streams = document.getElementsByClassName("stream");
 
+/* To hold requirement and classification info that will be shown upon hovering */
 var abbreviations = [];
 var descriptions = [];
 var substantiveClassificationAbbrev = [];
 var currentClassificationAbbrev = [];
 
+/* Expand all of an applicant's questions */
 var expandAllQuestions = function expandAllQuestions() {
   for (var i = 0; i < questionPreviews.length; i++) {
     openQuestionFull(i);
@@ -40,6 +95,7 @@ var expandAllQuestions = function expandAllQuestions() {
   }
 };
 
+/* Collapse all of an applicant's questions */
 var collapseAllQuestions = function collapseAllQuestions() {
   for (var i = 0; i < questionPreviews.length; i++) {
     closeQuestionFull(i);
@@ -47,6 +103,8 @@ var collapseAllQuestions = function collapseAllQuestions() {
   }
 };
 
+/* Expand or collapse all questions depending on whether they are
+   collapsed or expanded */
 var expandOrCollapseAllQuestions = function expandOrCollapseAllQuestions() {
   if (expandCollapseQuestionsButton.innerText == "unfold_more") {
     expandAllQuestions();
@@ -57,6 +115,7 @@ var expandOrCollapseAllQuestions = function expandOrCollapseAllQuestions() {
   }
 };
 
+/* Expand all education rows */
 var expandAllEducation = function expandAllEducation() {
   for (var i = 0; i < educationItems.length; i++) {
     untruncateEducationHeader(i);
@@ -66,6 +125,7 @@ var expandAllEducation = function expandAllEducation() {
   }
 };
 
+/* Collapse all education rows */
 var collapseAllEducation = function collapseAllEducation() {
   for (var i = 0; i < educationItems.length; i++) {
     expandCollapseEducationButtons[i].innerText = "expand_more";
@@ -75,6 +135,8 @@ var collapseAllEducation = function collapseAllEducation() {
   }
 };
 
+/* Expand or collapse all education rows depending on whether they
+   are expanded or collapsed */
 var expandOrCollapseAllEducation = function expandOrCollapseAllEducation() {
   if (expandCollapseEducationButton.innerText == "unfold_more") {
     expandAllEducation();
@@ -85,19 +147,13 @@ var expandOrCollapseAllEducation = function expandOrCollapseAllEducation() {
   }
 };
 
+/* Initialize values of requirement abbreviations and descriptions */
 var initializeText = function initializeText(i) {
   abbreviations[i] = requirementAbbreviations[i].innerText;
   descriptions[i] = requirementTips[i].value;
 };
 
-var expandStream = function expandStream() {
-  document.getElementById("stream-div").classList.remove("truncation");
-};
-
-var collapseStream = function collapseStream() {
-  // document.getElementById("stream-div").classList.add("truncation");
-};
-
+/* Adds classification description one letter at a time upon hover */
 var expandCurrentClassification = function expandCurrentClassification(i) {
   var currentTextSplit = currentClassificationText.value.split();
 
@@ -106,14 +162,7 @@ var expandCurrentClassification = function expandCurrentClassification(i) {
   }
 };
 
-var contractCurrentClassification = function contractCurrentClassification(i) {
-  currentClassifications[i].innerText = currentClassificationAbbrev[i];
-};
-
-var contractSubstantiveClassification = function contractSubstantiveClassification(i) {
-  substantiveClassifications[i].innerText = substantiveClassificationAbbrev[i];
-};
-
+/* Adds classification description one letter at a time upon hover */
 var expandSubstantiveClassification = function expandSubstantiveClassification(i) {
   var substantiveTextSplit = substantiveClassificationText.value.split();
 
@@ -122,6 +171,17 @@ var expandSubstantiveClassification = function expandSubstantiveClassification(i
   }
 };
 
+/* Return classification to abbreviation */
+var contractCurrentClassification = function contractCurrentClassification(i) {
+  currentClassifications[i].innerText = currentClassificationAbbrev[i];
+};
+
+/* Return classification to abbreviation */
+var contractSubstantiveClassification = function contractSubstantiveClassification(i) {
+  substantiveClassifications[i].innerText = substantiveClassificationAbbrev[i];
+};
+
+/* Expand requirement one letter at a time */
 var expandRequirementTip = function expandRequirementTip(i) {
   var descriptionChars = descriptions[i].split();
 
@@ -134,6 +194,7 @@ var expandRequirementTip = function expandRequirementTip(i) {
   });
 };
 
+/* Restore requirement to abbreviation */
 var contractRequirementTip = function contractRequirementTip(i) {
   requirementAbbreviations[i].innerText = abbreviations[i];
   requirementAbbreviations[i].addEventListener("transitionend", function () {
@@ -141,18 +202,21 @@ var contractRequirementTip = function contractRequirementTip(i) {
   });
 };
 
+/* Remove ellipses from education header and show the full text */
 var untruncateEducationHeader = function untruncateEducationHeader(i) {
   for (var j = 1; j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
     educationHeaders[i].getElementsByClassName("cell-header")[j].classList.remove("truncation");
   }
 };
 
+/* Truncate education header text and restore ellipses for overflow */
 var truncateEducationHeader = function truncateEducationHeader(i) {
   for (var j = 1; j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
     educationHeaders[i].getElementsByClassName("cell-header")[j].classList.add("truncation");
   }
 };
 
+/* Expand basic applicant information section */
 var expandApplicantHeaders = function expandApplicantHeaders(i) {
   if (hiddenApplicantInfo[i].classList.contains("row-closed")) {
     expandCollapseApplicantButton.innerText = "expand_less";
@@ -165,6 +229,7 @@ var expandApplicantHeaders = function expandApplicantHeaders(i) {
   }
 };
 
+/* Expand an education row upon clicking */
 var expandEducationHeaders = function expandEducationHeaders(i) {
   if (hiddenEducationInfo[i].classList.contains("row-closed")) {
     untruncateEducationHeader(i);
@@ -179,6 +244,7 @@ var expandEducationHeaders = function expandEducationHeaders(i) {
   }
 };
 
+/* Expand a question upon clicking */
 var openQuestionFull = function openQuestionFull(i) {
   shortQuestionTexts[i].classList.add("short-question-text-open");
   questionPreviewDivs[i].classList.remove("hoverable");
@@ -205,6 +271,7 @@ var closeQuestionFull = function closeQuestionFull(i) {
   }
 };
 
+/* Close a question upon clicking */
 var openCloseQuestionFull = function openCloseQuestionFull(i) {
   questionAnswerFull[i].classList.contains("row-closed") ? questionAnswerFull[i].classList.remove("row-closed") : questionAnswerFull[i].classList.add("row-closed");
   extractPreviews[i].classList.remove("extract-previews-open");
@@ -221,22 +288,9 @@ var openCloseQuestionFull = function openCloseQuestionFull(i) {
   }
 };
 
+/* Initialize listeners */
 window.addEventListener("DOMContentLoaded", function () {
   var _loop = function _loop(i) {
-    streams[i].addEventListener("mouseover", function () {
-      expandStream(i);
-    });
-
-    streams[i].addEventListener("mouseleave", function () {
-      collapseStream(i);
-    });
-  };
-
-  for (var i = 0; i < streams.length; i++) {
-    _loop(i);
-  }
-
-  var _loop2 = function _loop2(i) {
     substantiveClassificationAbbrev[i] = substantiveClassifications[i].innerText.toString();
 
     substantiveClassifications[i].addEventListener("mouseover", function () {
@@ -249,10 +303,10 @@ window.addEventListener("DOMContentLoaded", function () {
   };
 
   for (var i = 0; i < substantiveClassifications.length; i++) {
-    _loop2(i);
+    _loop(i);
   }
 
-  var _loop3 = function _loop3(i) {
+  var _loop2 = function _loop2(i) {
     currentClassificationAbbrev[i] = currentClassifications[i].innerText.toString();
 
     currentClassifications[i].addEventListener("mouseover", function () {
@@ -265,10 +319,10 @@ window.addEventListener("DOMContentLoaded", function () {
   };
 
   for (var i = 0; i < currentClassifications.length; i++) {
-    _loop3(i);
+    _loop2(i);
   }
 
-  var _loop4 = function _loop4(i) {
+  var _loop3 = function _loop3(i) {
 
     shortQuestionTexts[i].addEventListener("mouseleave", function () {
       extractPreviews[i].classList.remove("extract-extra-margin");
@@ -296,20 +350,20 @@ window.addEventListener("DOMContentLoaded", function () {
   };
 
   for (var i = 0; i < questionPreviews.length; i++) {
-    _loop4(i);
+    _loop3(i);
   }
 
-  var _loop5 = function _loop5(i) {
+  var _loop4 = function _loop4(i) {
     applicantHeader[i].addEventListener("click", function () {
       expandApplicantHeaders(i);
     });
   };
 
   for (var i = 0; i < applicantHeader.length; i++) {
-    _loop5(i);
+    _loop4(i);
   }
 
-  var _loop6 = function _loop6(i) {
+  var _loop5 = function _loop5(i) {
     educationHeaders[i].addEventListener("click", function () {
       expandEducationHeaders(i);
     });
@@ -326,10 +380,10 @@ window.addEventListener("DOMContentLoaded", function () {
   };
 
   for (var i = 0; i < educationHeaders.length; i++) {
-    _loop6(i);
+    _loop5(i);
   }
 
-  var _loop7 = function _loop7(i) {
+  var _loop6 = function _loop6(i) {
     initializeText(i);
 
     requirementAbbreviations[i].addEventListener("mouseover", function () {
@@ -344,7 +398,7 @@ window.addEventListener("DOMContentLoaded", function () {
   };
 
   for (var i = 0; i < requirementAbbreviations.length; i++) {
-    _loop7(i);
+    _loop6(i);
   }
 
   expandCollapseQuestionsButton.addEventListener("click", function () {
