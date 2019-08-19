@@ -365,8 +365,6 @@ input[type=number]::-webkit-outer-spin-button {
   margin-left: 5px !important;
 }
 
-
-
 .classification-substantive {
   display: inline-block;
   margin-top: 5px !important;
@@ -2121,8 +2119,13 @@ div {
 
 /* Position list */
 
+.sort-positions {
+  margin-top: 15px;
+
+}
+
 .sortby-button {
-  margin-top: 9px;
+  margin-top: -5px !important;
 }
 
 /* Misc */
