@@ -2,8 +2,6 @@ import os
 import random
 import re
 import string
-
-import numpy as np
 import pandas as pd
 import tabula
 
@@ -23,59 +21,13 @@ forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales 
              "Autre Téléphone / Alternate Telephone:"]
 
 
-def to_html_pretty(df, title='REDACTED DATA'):
-    ht = ''
-    if title != '':
-        ht += '<h2> %s </h2>\n' % title
-    ht += df.to_html(classes='wide', escape=False, index=False, header=False)
-
-    return HTML_TEMPLATE1 + ht + HTML_TEMPLATE2
-
-
-HTML_TEMPLATE1 = '''
-<html>
-<head>
-<style>
-  h2 {
-    text-align: center;
-    font-family: Helvetica, Arial, sans-serif;
-  }
-  table { 
-    table-layout: auto;
-  }
-  table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: 5px;
-    text-align: center;
-    font-family: Helvetica, Arial, sans-serif;
-  }
-  table tbody tr:hover {
-    background-color: #dddddd;
-  }
-  .wide {
-    width: 90%; 
-  }
-</style>
-</head>
-<body>
-'''
-
-HTML_TEMPLATE2 = '''
-</body>
-</html>
-'''
-
-
 def check_if_table_valid(table):
     # Checks if the table is a dataframe, not empty, and isn't None.
     return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
-def is_valid_cell(string):
-    return (string is not None) and (string != "")
+def is_valid_cell(content):
+    return (content is not None) and (content != "")
 
 
 def is_question(item):
@@ -147,6 +99,7 @@ def handle_new_lines(tables, spacing_array):
             table = table.replace("\r", "\n", regex=True)
             table = table.replace("\\t", " ", regex=True)
             table = table.replace("\n", "jJio", regex=True)
+            table = table.replace("Qualifications essentielles / Essential Qualifications\n", "", regex=True)
             tables[index] = table
 
     return tables
@@ -193,6 +146,7 @@ def correct_split_item(tables):
 
 
 def find__previous_legitimate_table(tables, index):
+    found_table = None
     for idx, table in enumerate(reversed(tables[0:index - 1])):
         if check_if_table_valid(table):
             found_table = table
@@ -210,8 +164,6 @@ def remove_all_spacing(text):
 
 
 def remove_tables(tables, resume_string):
-    delete = False
-
     for index, item in enumerate(tables):
         if item is not None and str(item.shape) == "(1, 1)":
             print("STRING TO MATCH: " + remove_all_spacing(resume_string))
@@ -264,7 +216,8 @@ def find_essential_details(list_of_data_frames, spacing_array, resume_string):
                     HTML(string=html).render(
                         stylesheets=[
                             CSS(
-                                string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: middle;}')]))
+                                string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: '
+                                       '7px; vertical-align: middle;}')]))
 
     pages = []
 
@@ -339,7 +292,8 @@ def split_tika_text(tika_text):
 def get_first_page(item):
     html = item.to_html(index=False, header=False)
     document = HTML(string=html).render(stylesheets=[CSS(
-        string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: middle;}')])
+        string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: '
+               'middle;}')])
     return document
 
 
