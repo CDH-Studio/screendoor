@@ -40,7 +40,6 @@ def add_user_to_position(request):
     user_email = request.GET.get("email")
     position_id = request.GET.get("id")
     position = Position.objects.get(id=position_id)
-
     try:
         new_user = ScreenDoorUser.objects.get(email=user_email)
         # User already has access to position
