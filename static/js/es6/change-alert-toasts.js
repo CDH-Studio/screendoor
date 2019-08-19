@@ -18,28 +18,28 @@ const closeToast = function() {
 
 /* Poll to see if any of the page's values were changed externally. */
 const checkForPageChanges = function() {
-  const data = Object.create(null);
-  data["pageType"] = window.location.pathname;
+  const requestData = Object.create(null);
+  requestData["pageType"] = window.location.pathname;
   if (document.getElementById("position-id")) {
-    data["positionId"] = document.getElementById("position-id").value;
+    requestData["positionId"] = document.getElementById("position-id").value;
   }
   if (document.getElementById("applicant-id")) {
-    data["applicantId"] = document.getElementById("applicant-id").value;
+    requestData["applicantId"] = document.getElementById("applicant-id").value;
   }
   const url = "/change_notification";
   fetch(url, {
     method: "POST",
-    body: JSON.stringify(data), // data can be `string` or {object}!
+    body: JSON.stringify(requestData), // data can be `string` or {object}!
     headers:{
       "Content-Type": "application/json"
     }
   }).then(function(response) {
     /* data being the json object returned from Django function */
-    response.json().then(function(data) {
+    response.json().then(function(responseData) {
       /* If there is a message indicating a change */
-      if ((data.message == "change")) {
+      if ((responseData.message == "change")) {
         /* If the user is not the same as the user who made the changes */
-        if (document.getElementById("user-welcome").dataset.userEmail != data.lastEditedBy) {
+        if (document.getElementById("user-welcome").dataset.userEmail != responseData.lastEditedBy) {
           /* Then show change notification toast */
           showToast();
         }
@@ -47,6 +47,7 @@ const checkForPageChanges = function() {
     }).catch(() => console.error());
   });
 };
+
 
 /* Show upload progress if there is a valid task ID */
 window.addEventListener("DOMContentLoaded", () => {

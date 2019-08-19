@@ -186,7 +186,7 @@
     <h6 class="btn-flat disabled sortby-button">
       Filter
     </h6>
-    <a name="filter-method" href="{% if 'favourites' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'all' %}{% elif 'all' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'favourites' %}{% endif %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
+    <a href="{% if 'favourites' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'all' %}{% elif 'all' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'favourites' %}{% endif %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
       Favourites
     </a>
     {% if applicants %}
@@ -417,9 +417,6 @@
           </div>
         </div>
       </div>
-      <!-- <div class="modal-footer"> -->
-      <!-- <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a> -->
-      <!-- </div> -->
     </div>
   </div>
 </div>

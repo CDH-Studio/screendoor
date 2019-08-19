@@ -10,7 +10,7 @@ import re
 # may impede overall performance. No way around this.
 def post_nlp_format_input(nlp_parsed_text):
     dates = get_valid_dates(nlp_parsed_text.ents)
-    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
+    a_bullet_point_char = ('.', '-', 'o', '•', '&#61656;', '&#61607;')
     reformatted_text = ''
     # Note: a sentence is broken by sentence boundary characters (. ! ?)
     for sentence in nlp_parsed_text.sents:
@@ -64,7 +64,7 @@ def post_nlp_format_input(nlp_parsed_text):
 # Takes a block of line breaks, and attempts to cut out the pdf-imposed style
 # line breaks, leaving only the line breaks the applicants added.
 def reprocess_line_breaks(text_block):
-    a_bullet_point_char = (('.', '-', 'o', '•', '&#61656;', '&#61607;'))
+    a_bullet_point_char = ('.', '-', 'o', '•', '&#61656;', '&#61607;')
     if text_block is not None:
         line_split_blocks = text_block.split('\n')
         reprocessed_blocks = []

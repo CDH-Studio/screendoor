@@ -156,9 +156,7 @@ def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
 
-        if value_column.str.startswith("Are you applying for Stream").any():
-            return True
-        elif value_column.str.startswith("Are you applying to Stream").any():
+        if value_column.str.startswith("Are you applying for Stream").any() or value_column.str.startswith("Are you applying to Stream").any():
             return True
 
     return False
@@ -210,8 +208,6 @@ def remove_all_spacing(text):
 
 
 def remove_tables(tables, resume_string):
-    delete = False
-
     for index, item in enumerate(tables):
         if item is not None and str(item.shape) == "(1, 1)":
             print("STRING TO MATCH: " + remove_all_spacing(resume_string))
@@ -305,8 +301,8 @@ def get_properly_spaced_text_array(text):
 
 
 def get_tika_text(pdf_file_path):
-    fileData = parser.from_file(pdf_file_path)
-    text = fileData['content']
+    file_data = parser.from_file(pdf_file_path)
+    text = file_data['content']
     return text
 
 
@@ -383,7 +379,6 @@ def clean_and_redact(data_frames, pdf_file_path, save_file_path):
                 spacing_array, resume_strings)
     document = get_first_page(data_frames[0])
     document.copy(pages).write_pdf(save_file_path)
-    pass
 
 
 def redact_applications():
