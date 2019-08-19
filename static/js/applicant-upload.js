@@ -13,7 +13,7 @@ var progressText = document.getElementById("progress-text");
 var cancelUploadButton = document.getElementById("cancel-upload-applications");
 
 /* Constants derived from Django variables in hidden inputs */
-var queryUrl = new URL(document.getElementById("task-url").value, "http://localhost");
+var queryUrl = new URL(document.getElementById("task-url").value, window.location.protocol + window.location.hostname);
 
 /* Hidden input containing current task ID */
 var taskId = document.getElementById("task-id");
