@@ -86,9 +86,7 @@ def import_position(request):
 def upload_applications(request):
     if request.POST.get("upload-applications"):
         position_id = int(request.POST.get("position-id"))
-        # position_id = int(request.POST.get("position-id"))
         form = ImportApplicationsForm(request.POST, request.FILES)
-        # form.add_error('pdf', 'ad')
         if form.is_valid():
             files = request.FILES.getlist('pdf')
             file_names = [

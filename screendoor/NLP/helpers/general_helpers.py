@@ -81,12 +81,12 @@ def fuzzy_search_extract_in_orig_doc(original_doc_text, searched_text, stored_ma
 
         match = get_first_elem_or_none(matches)
         if len(matches) == 1:
-            return (((match[0], match[1]), match))
+            return ((match[0], match[1]), match)
         while match:
             if not check_if_stored_already(match, stored_matches):
                 print_if_debug(("MATCH FOUND: ", original_doc_text[match[0]:match[1]], threshold))
                 matches += match
-                return (((match[0], match[1]), match))
+                return ((match[0], match[1]), match)
             matches = matches[1:len(matches)]
             match = get_first_elem_or_none(matches)
 
