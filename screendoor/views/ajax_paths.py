@@ -205,7 +205,7 @@ def change_notification(request):
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(position.updated_at):
-                return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
+            return  JsonResponse({'message': 'change', 'lastEditedBy' : position.last_modified_by.email})
 
     # applicant view
     elif path_identifier == 'application':
@@ -214,7 +214,7 @@ def change_notification(request):
 
         # If changed recently, trigger a change-notification toast
         if check_if_within_time_interval(applicant.updated_at):
-                return  JsonResponse({'message': 'change', 'lastEditedBy' : applicant.last_modified_by.email})
+            return  JsonResponse({'message': 'change', 'lastEditedBy' : applicant.last_modified_by.email})
 
     # Return nothing
     return JsonResponse({})

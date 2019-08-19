@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from screendoor.models import Position, Applicant, Requirement, ScreenDoorUser, FormAnswer, Note
 import json
+import time
 
 class FavouriteTests(TestCase):
 
@@ -300,6 +301,108 @@ class EditPositionTests(TestCase):
         self.assertEqual(position.open_to, 'EDITED')
         self.assertEqual(position.description, 'EDITED')
         self.assertEqual(position.last_modified_by , self.user)
+
+
+class ChangeNotificationTests(TestCase):
+
+    def setUp(self):
+        self.c = Client()
+        self.user = ScreenDoorUser.objects.create_user(
+            username="good@canada.ca", email="good@canada.ca",
+            password="password76")
+        self.anotherUser = ScreenDoorUser.objects.create_user(
+            username="alsogood@canada.ca", email="alsogood@canada.ca",
+            password="password76")
+        self.user.save()
+
+        self.testPosition = Position(
+            last_modified_by=self.user
+        )
+        self.testPosition.save()
+        self.testPosition.position_users.add(self.user)
+
+        self.testApplication = Applicant(
+            applicant_id="testId",
+            citizenship='Canadian Citizen',
+            priority=False,
+            veteran_preference=False,
+            french_working_ability='Advanced',
+            english_working_ability='Advanced',
+            first_official_language='French',
+            written_exam='English',
+            correspondence='English',
+            interview='English',
+            number_questions=24,
+            number_yes_responses=13,
+            percentage_correct=54,
+            stream_count=2
+        )
+        self.testApplication.save()
+
+
+    def test_change_notif_path_redirects_logged_out_users(self):
+        response = self.c.post(reverse('change_notification'))
+        self.assertEqual(response.status_code, 302)
+
+
+    def test_outdated_change_doesnt_trigger_notif(self):
+        self.c.login(username="good@canada.ca", password="password76")
+        self.testPosition.last_modified_by = self.anotherUser
+        self.testPosition.save()
+        time.sleep(8)
+
+        response = self.c.post(reverse('change_notification'), {
+            'pageType': 'domainName/positions'
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content.decode()), {}) 
+
+
+    def test_change_notif_positions_view(self):
+        self.c.login(username="good@canada.ca", password="password76")
+        self.testPosition.last_modified_by = self.anotherUser
+        self.testPosition.save()
+        
+        response = self.c.post(reverse('change_notification'), {
+            'pageType': 'domainName/positions'
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        parsed_response = json.loads(response.content.decode())
+
+        self.assertEqual(parsed_response['message'], 'change')   
+        self.assertEqual(parsed_response['lastEditedBy'], self.anotherUser.email) 
+
+
+    def test_change_notif_position_view(self):
+        self.c.login(username="good@canada.ca", password="password76")
+        self.testPosition.last_modified_by = self.anotherUser
+        self.testPosition.save()
+        
+        response = self.c.post(reverse('change_notification'), {
+            'pageType': 'domainName/position',
+            'positionId': self.testPosition.id
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        parsed_response = json.loads(response.content.decode())
+
+        self.assertEqual(parsed_response['message'], 'change')   
+        self.assertEqual(parsed_response['lastEditedBy'], self.anotherUser.email)
+
+    
+    def test_change_notif_applicant_view(self):
+        self.c.login(username="good@canada.ca", password="password76")
+        self.testApplication.last_modified_by = self.anotherUser
+        self.testApplication.save()
+        
+        response = self.c.post(reverse('change_notification'), {
+            'pageType': 'domainName/application',
+            'applicantId': self.testApplication.id
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        parsed_response = json.loads(response.content.decode())
+
+        self.assertEqual(parsed_response['message'], 'change')   
+        self.assertEqual(parsed_response['lastEditedBy'], self.anotherUser.email)
 
 
 #python manage.py test
