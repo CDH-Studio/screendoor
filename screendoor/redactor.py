@@ -98,8 +98,8 @@ def handle_new_lines(tables, spacing_array):
 
             table = table.replace("\r", "\n", regex=True)
             table = table.replace("\\t", " ", regex=True)
+            table = table.replace(r'Qualifications essentielles / Essential\s+Qualifications\s+', " ", regex=True)
             table = table.replace("\n", "jJio", regex=True)
-            table = table.replace("Qualifications essentielles / Essential Qualifications\n", "", regex=True)
             tables[index] = table
 
     return tables
@@ -371,3 +371,4 @@ def redact_applications():
                 continue
 
     return count
+
