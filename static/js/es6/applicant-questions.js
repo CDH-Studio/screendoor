@@ -210,7 +210,7 @@ const untruncateEducationHeader = function(i) {
 
 /* Truncate education header text and restore ellipses for overflow */
 const truncateEducationHeader = function(i) {
-  for (let j = 1;j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
+  for (let j = 1; j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
     educationHeaders[i].getElementsByClassName("cell-header")[j].classList.add("truncation");
   }
 };
