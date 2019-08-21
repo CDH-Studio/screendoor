@@ -8,7 +8,6 @@
   <a href="{% url 'positions' %}" class="btn-flat blue-text sort-positions">
     ←  {{ positionText.back_to_positions }}
   </a>
-  <h6 class="btn-flat disabled"></h6>
   <form method="post" action="javascript:void(0);" id="edit-position" enctype="multipart/form-data">
     <input type="hidden" id="position-id" name="position-id" value="{{ position.id }}">
     {% csrf_token %}
@@ -20,11 +19,11 @@
             <div class="row valign-wrapper">
               <input type="hidden" name="position-id" value="{{ position.id }}">
               <input type="hidden" class="hidden" name="position-title" value="{{ position.position_title }}">
-              <h5 name="position-title" id="title" class="col {% if applicants %}s8 {% else %} s12 {% endif %} left left-align position-header grey-text text-darken-3">
+              <h2 name="position-title" id="title" class="col {% if applicants %}s8 {% else %} s12 {% endif %} left left-align position-header grey-text text-darken-3">
                 <span class="edit" id="position-title">
                   {{ position.position_title }}
                 </span>
-              </h5>
+              </h2>
               <!-- Applicants summary information -->
               {% if applicants %}
               <div class="applicant-summary-cards col s5 right">
@@ -89,10 +88,10 @@
               </div>
             </div>
 
-            <h6>
+            <h3 id="position-education-experience">
               {{ positionText.education_and_experience_criteria }}
               <i id="expand-collapse-criteria" class="material-icons grey-text text-darken-2">unfold_more</i>
-            </h6>
+            </h3>
 
             <div class="requirements">
               <!-- Education Headers -->
@@ -162,9 +161,9 @@
             </div>
             <!-- Date and time position was added -->
             <div class="row position-bottom-buttons">
-              <h6 class="position-created btn-flat right black-text">
+              <h4 class="position-created btn-flat right black-text">
                 {{ userVisibleText.position_added }}: {{ position.created }}
-              </h6>
+              </h4>
             </div>
           </div>
         </div>
@@ -183,9 +182,9 @@
   <a id="applications"></a>
   <!-- Application field headers -->
   <div class="col">
-    <h6 class="btn-flat disabled sortby-button">
+    <h5 class="btn-flat disabled sortby-button">
       Filter
-    </h6>
+    </h5>
     <a href="{% if 'favourites' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'all' %}{% elif 'all' in applicant_filter %}{% url 'filter_applicants' position.reference_number position.id 'favourites' %}{% endif %}" class="sort-button btn-flat {% if 'favourites' in applicant_filter %} blue-text {% endif %}">
       Favourites
     </a>
@@ -255,6 +254,7 @@
         </thead>
       </table>
     </div>
+    <ul>
     {% for applicant, favourite in applicants.items %}
     <!-- Applicant -->
     <div data-appId="{{ applicant.applicant_id }}" class="col s12 applicant-list-item application-preview card card-content white hoverable {% if forloop.counter|divisibleby:'2' %} nobg{% endif %} ">
@@ -327,7 +327,7 @@
       <div class="modal-footer">
         <input type="hidden" id="delete-confirm-id" name="position-id" value="{{ position.id }}">
         <input type="submit" formaction="{% url 'delete' %}" id="delete-confirm-button" class="btn-flat blue-text position-button" name="delete" value="{{ userVisibleText.delete }}">
-        <a href="#!" class="modal-close btn-flat blue-text position-button">
+        <a href="" class="modal-close btn-flat blue-text position-button">
           Cancel
         </a>
       </div>
@@ -339,18 +339,22 @@
   <form id="upload-applications-form" action="{% url 'upload-applications' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-content">
-      <h5>
-        {{ applicationsForm.title }}
-      </h5>
-      <p id="upload-applications-text">
-        {{ applicationsForm.description|interpolate:position.position_title }}
-      </p>
+      <label class="modal-label" for="pdf_path_input" id="upload-applications-title">
+        <h5>
+          {{ applicationsForm.title }}
+        </h5>
+      </label>
+      <label class="modal-label" for="upload-applications-button">
+        <p id="upload-applications-text">
+          {{ applicationsForm.description|interpolate:position.position_title }}
+        </p>
+      </label>
       <!-- PDF/File input -->
       <div class="file-field input-field">
         <div class="btn-small">
-          <span>
-            {{ applicationsForm.browse }}
-          </span>
+          <label for="pdf">
+            <span class="white-text">{{ applicationsForm.browse }}</span>
+          </label>
           <!-- Input accepts multiple PDF file -->
           <input type="file" name="pdf" id="pdf" class="btn-small" value="{{ applicationsForm.browse }}" required multiple>
         </div>
@@ -375,7 +379,7 @@
       <input type="hidden" id="upload-error-text" value="{{ applicationsForm.upload_error }}">
       <input type="hidden" id="progress-text-value" value="{{ applicationsForm.processing_applicant }} <span id='current-number'></span> {{ applicationsForm.of }} <span id='total-number'></span>">
       <input type="submit" id="upload-applications-button" class="btn-flat blue-text position-button" name="upload-applications" value="{{ applicationsForm.upload }}">
-      <a href="#!" id="cancel-upload-applications" class="modal-close btn-flat blue-text position-button">
+      <a href="" id="cancel-upload-applications" class="modal-close btn-flat blue-text position-button">
         {{ userVisibleText.cancel }}
       </a>
     </div>
@@ -425,7 +429,9 @@
     <h5>
       {{ userVisibleText.add_users }}
     </h5>
-    {{ userVisibleText.add_user_text }}
+    <label for="user-email-input">
+      {{ userVisibleText.add_user_text }}
+    </label>
     <!-- PDF/File input -->
     <div class="user-input-field">
       <input type="email" required name="user-email" maxlength="120" id="user-email-input" autofocus="">
@@ -446,7 +452,7 @@
     <div class="modal-footer">
       <span class="red-text position-button" id="addUserMessagePrompt"></span>
       <button id="add-users-button" class="btn-flat blue-text position-button" name="add-users">Add User</button>
-      <a href="#!" class="modal-close btn-flat blue-text position-button">exit</a>
+      <a href="" class="modal-close btn-flat blue-text position-button">exit</a>
     </div>
   </div>
 </div>

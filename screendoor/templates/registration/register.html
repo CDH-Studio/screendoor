@@ -7,7 +7,7 @@
   <form action="" method="post">
     <div class="card-content col s12">
       <!-- Text displays "Create Account" -->
-      <label class="card-title col s12" for="register">
+      <label class="card-title col s12" for="submit-registration-button">
         {{ register_form.text }}
       </label>
       {% csrf_token %}
@@ -51,7 +51,7 @@
         {% if account_created is not None %}
         <input class="right btn btn-margin disabled" type="submit" value="{{ register_form.text }}">
         {% else %}
-        <input class="right btn btn-margin" type="submit" value="{{ register_form.text }}">
+        <input id="submit-registration-button" class="right btn btn-margin" type="submit" value="{{ register_form.text }}">
         {% endif %}
         <a class="btn-flat btn-margin waves-effect right" href="{% url 'login' %}">
           {{ register_form.login_button_text }}
