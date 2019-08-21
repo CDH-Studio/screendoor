@@ -10,7 +10,7 @@ jobs:
           command: |
             sed 'env_file' docker-compose.yml
             sed 'django.env' docker-compose.yml
-            docker-compose up -- build
+            docker-compose up --build
       - run:
           name: run tests and create xml file
           command: |
