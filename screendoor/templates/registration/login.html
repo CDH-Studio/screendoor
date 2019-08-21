@@ -39,8 +39,8 @@
       </div>
       <!-- Create account and login buttons -->
       <div class="row">
-        <input id="login-button" class="right btn btn-margin" type="submit" value="{{ login_form.login_text }}">
-        <a class="btn-flat btn-margin waves-effect right" href="{% url 'register' %}">
+        <input class="right btn btn-margin" type="submit" value="{{ login_form.login_text }}">
+        <a class="btn-flat btn-margin waves-effect right" id="register-button" href="{% url 'register' %}">
           {{ login_form.create_account_text }}
         </a>
       </div>

@@ -5,10 +5,10 @@ from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ObjectDoesNotExist
 
-from .uservisibletext import ErrorMessages
-from .forms import CreatePositionForm, LoginForm, ImportApplicationsForm
-from .models import ScreenDoorUser, Position
-from .parseposter import parse_upload
+from screendoor.uservisibletext import ErrorMessages
+from screendoor.forms import CreatePositionForm, LoginForm, ImportApplicationsForm
+from screendoor.models import ScreenDoorUser, Position
+from screendoor.parseposter import parse_upload
 
 
 class UserRegistrationTests(TestCase):
@@ -200,4 +200,6 @@ class PositionDeleteTests(TestCase):
         with self.assertRaises(Position.DoesNotExist):
             self.c.post('/position/delete',
                         {'delete': 'Delete', 'position-id': 99999})
+
+#python manage.py test
 
