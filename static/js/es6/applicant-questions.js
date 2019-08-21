@@ -18,7 +18,7 @@ const extractPreviews = document.getElementsByClassName("extract-previews");
 const applicantHeader = document.getElementById("applicant-header");
 
 /* Div containing elements with basic applicant info, e.g. priority, language preferences */
-const hiddenApplicantInfo = document.getElementsByClassName("hidden-applicant-info");
+const hiddenApplicantInfo = document.getElementById("hidden-applicant-info");
 
 /* Div containing additional education info for each education row */
 const hiddenEducationInfo = document.getElementsByClassName("hidden-education-info");
@@ -210,21 +210,21 @@ const untruncateEducationHeader = function(i) {
 
 /* Truncate education header text and restore ellipses for overflow */
 const truncateEducationHeader = function(i) {
-  for (let j = 1;j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
+  for (let j = 1; j < educationHeaders[i].getElementsByClassName("cell-header").length; j++) {
     educationHeaders[i].getElementsByClassName("cell-header")[j].classList.add("truncation");
   }
 };
 
 /* Expand basic applicant information section */
-const expandApplicantHeaders = function(i) {
-  if (hiddenApplicantInfo[i].classList.contains("row-closed")) {
+const expandApplicantHeaders = function() {
+  if (hiddenApplicantInfo.classList.contains("row-closed")) {
     expandCollapseApplicantButton.innerText = "expand_less";
-    applicantHeader[i].classList.remove("hoverable");
-    hiddenApplicantInfo[i].classList.remove("row-closed");
+    applicantHeader.classList.remove("hoverable");
+    hiddenApplicantInfo.classList.remove("row-closed");
   } else {
     expandCollapseApplicantButton.innerText = "expand_more";
-    applicantHeader[i].classList.add("hoverable");
-    hiddenApplicantInfo[i].classList.add("row-closed");
+    applicantHeader.classList.add("hoverable");
+    hiddenApplicantInfo.classList.add("row-closed");
   }
 };
 
@@ -342,11 +342,9 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  for (let i = 0; i < applicantHeader.length; i++) {
-    applicantHeader[i].addEventListener("click", () => {
+    applicantHeader.addEventListener("click", () => {
       expandApplicantHeaders(i);
     });
-  }
 
   for (let i = 0; i < educationHeaders.length; i++) {
     educationHeaders[i].addEventListener("click", () => {

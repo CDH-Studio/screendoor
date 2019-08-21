@@ -1,28 +1,33 @@
 {% load static %}
-<!-- MaterializeCSS stylesheet -->
-<link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
-<!-- Additional stylesheet -->
-<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-<!-- MaterializeCSS JS library -->
-<script src="{% static 'js/materialize/materialize.min.js' %}"></script>
-<body>
-  <!-- Top navbar in purple displaying ScreenDoor logo -->
-  <nav>
-    <div class="nav-wrapper">
-      <a href="/" class="brand-logo left logged-out-logo">
-        <img src="{% static 'img/ScreenDoor-White.png' %}" alt="ScreenDoor Logo">
-      </a>
-    </div>
-  </nav>
-  <!-- Page Layout here -->
-  <div class="container">
-    <div class="row">
-      <div class="container valign-wrapper form-cards">
-        <div class="row">
-          {% block content %}
-          {% endblock %}
+<html lang="en">
+  <head>
+    <!-- MaterializeCSS stylesheet -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/materialize.min.css' %}">
+    <!-- Additional stylesheet -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <!-- MaterializeCSS JS library -->
+    <script src="{% static 'js/materialize/materialize.min.js' %}"></script>
+    <title>ScreenDoor</title>
+  </head>
+  <body>
+    <!-- Top navbar in purple displaying ScreenDoor logo -->
+    <nav>
+      <div class="nav-wrapper">
+        <a href="/" class="brand-logo left logged-out-logo">
+          <h1><img src="{% static 'img/ScreenDoor-White.png' %}" alt="ScreenDoor Logo"></h1>
+        </a>
+      </div>
+    </nav>
+    <!-- Page Layout here -->
+    <div class="container">
+      <div class="row">
+        <div class="container valign-wrapper form-cards">
+          <div class="row">
+            {% block content %}
+            {% endblock %}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
+</html>
