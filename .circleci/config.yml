@@ -15,4 +15,4 @@ jobs:
           name: run tests and create xml file
           command: |
             docker-compose exec web sh
-            coverage run --source='.' manage.py test
+            python manage.py test
