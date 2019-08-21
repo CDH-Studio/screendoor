@@ -94,7 +94,8 @@ const addRemoveNoteHandlers = function() {
 
 /* User clicks the remove note button */
 const removeNote = function(noteId, answerNum) {
-  const url = "/remove_note?noteId=" + noteId;
+  const url = "/remove_note?noteId=" + noteId +
+        "&parentAnswerId=" + document.getElementById(noteId).dataset.parentAnswer;
   fetch(url).then(function(response) {
     /* data being the json object returned from Django function */
     response.json().then(function(data) {
