@@ -1,41 +1,41 @@
-/* CONSTANTS AND VARIABLES */
-
-/* Same length */
+/* Hidden inputs containing extract string starting indexes */
 const extractStringStarts = document.getElementsByClassName("extract-string-index");
+
+/* Hidden inputs containing extract string ending indexes */
 const extractStringEnds = document.getElementsByClassName("extract-ending-index");
-const extractStringNext = document.getElementsByClassName("extract-next-index");
-const extractText = document.getElementsByClassName("extract-string");
+
+/* Spans containing the text of each individual extract */
 const visibleExtracts = document.getElementsByClassName("extract-text");
+
+/* Divs containing a span containing an individual extract */
 const extractDivs = document.getElementsByClassName("extract-full");
+
+/* Hidden inputs containing the id of the parent answer of an extract */
 const extractParentAnswerIds = document.getElementsByClassName("extract-parent-answer-id");
+
+/* Hidden inputs containing the parent answer text of the extract */
 const extractParentAnswerTexts = document.getElementsByClassName("extract-parent-answer");
 
-/* Same length */
+/* Spans containing applicant complementary response text */
 const answerComplementaryResponse = document.getElementsByClassName("answer-complementary-response");
+
+/* Hidden inputs containing applicant complementary response text */
 const answerComplementaryResponseValue = document.getElementsByClassName("answer-complementary-response-value");
 
-
-const underlineExtracts = function(extractIndex, direction) {
+/* Underline the extract over which the user is hovering  */
+const underlineExtracts = function(extractIndex) {
   visibleExtracts[extractIndex].classList.add("extract-bold");
-  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-  //     underlineExtracts(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-  //   }
-  // }
 };
 
-const clearExtractsUnderline = function(extractIndex, direction) {
+
+/* Remove underline when user moves mouse away  */
+const clearExtractsUnderline = function(extractIndex) {
   visibleExtracts[extractIndex].classList.remove("extract-bold");
-  // if (extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1]) {
-  //   if (extractStringStarts[extractIndex].value == extractStringStarts[direction == "backwards" ? extractIndex - 1 : extractIndex + 1].value) {
-  //     clearExtractsUnderline(direction == "backwards" ? extractIndex - 1 : extractIndex + 1, direction);
-  //   }
-  // }
 };
 
+/* Highlight the sentence corresponding to extract user is hovering */
 const highlightSentence = function(extractIndex, answerId) {
-  underlineExtracts(extractIndex, "backwards");
-  underlineExtracts(extractIndex, "forwards");
+  underlineExtracts(extractIndex);
 
   for (let i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
@@ -49,14 +49,14 @@ const highlightSentence = function(extractIndex, answerId) {
       const answerAfter = answerText.slice(endIndex);
 
       answerComplementaryResponse[i].innerHTML = answerBefore + answerHighlight + answerAfter;
-      document.getElementById('answer-highlight').classList.add("answer-highlighted");
+      document.getElementById("answer-highlight").classList.add("answer-highlighted");
     }
   }
 };
 
+/* Remove highlight from sentence */
 const unHighlightSentence = function(extractIndex, answerId) {
-  clearExtractsUnderline(extractIndex, "backwards");
-  clearExtractsUnderline(extractIndex, "forwards");
+  clearExtractsUnderline(extractIndex);
 
   for (let i = 0; i < answerComplementaryResponse.length; i++) {
     if (answerComplementaryResponse[i].answerId.value == answerId) {
@@ -65,6 +65,7 @@ const unHighlightSentence = function(extractIndex, answerId) {
   }
 };
 
+/* Initialize listeners for hovering over extracts */
 const setHighlightListeners = function() {
   for (let i = 0; i < visibleExtracts.length; i++) {
     extractDivs[i].addEventListener("mouseover", function() {
@@ -79,4 +80,4 @@ const setHighlightListeners = function() {
   }
 };
 
-window.addEventListener('DOMContentLoaded', setHighlightListeners);
+window.addEventListener("DOMContentLoaded", setHighlightListeners);

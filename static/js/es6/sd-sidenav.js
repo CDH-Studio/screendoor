@@ -1,10 +1,15 @@
-/* Register sidenav and related variables */
+/* Sidenav instance */
 const elems = document.querySelectorAll(".sidenav-fixed"),
       instances = M.Sidenav.init(elems, {}/* options */),
       elem = document.querySelector(".sidenav-fixed"),
       instance = M.Sidenav.getInstance(elem);
+
+/* Local variable to keep track of whether sidenav is open
+   This is required because the materialize.js logic on which
+   the sidebar is built is very annoying and doesn't work well */
 let sidebarIsOpen = false;
 
+/* a elements clicking on which will open or close sidenav */
 const sidenavToggles = document.getElementsByClassName("toggle-sidenav");
 
 /* Is the window above 992 pixels */

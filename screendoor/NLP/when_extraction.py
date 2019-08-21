@@ -196,7 +196,6 @@ def construct_date_and_context(orig_doc_text, nlp_doc):
     dates_and_their_contexts = []
 
     stored_sentence = None
-    char_index = -1 * len(list(nlp_doc.sents)[0].text)
     sentence_index = -1
     sentence_has_valid_subject = True
     matches = []
@@ -206,7 +205,6 @@ def construct_date_and_context(orig_doc_text, nlp_doc):
         # If it is not, skip over the sentence, as it refers to something the
         # applicant did not do themselves (eg a project's duration).
         if not token.sent == stored_sentence:
-            char_index += len(token.sent.text)
             sentence_index += 1
 
         if (not token.sent == stored_sentence and

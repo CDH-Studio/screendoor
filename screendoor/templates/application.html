@@ -10,7 +10,6 @@
   </a>
   <input type="hidden" class="hidden" id="position-id" name="position-id" value='{{ position.id }}'>
   <input type="hidden" class="hidden" id="applicant-id" value='{{ applicant.id }}'>
-  <h6 class="btn-flat disabled"></h6>
   <div class="row">
     <!--Beginning of application card -->
     <div class="col s12 card white">
@@ -18,10 +17,10 @@
         <!-- Application row 1 headers -->
         <!-- Upload Applications and Delete buttons -->
         <div class="row applicant-top-row">
-          <h6 class="valign-wrapper col">
+          <h2 class="valign-wrapper col">
             <div class="col favourite-icon favourite-icon-applicant tooltip" id="{{ applicant.applicant_id }}" data-favourite-status="{{ favourite }}"><i class="applicant-detail-star applicant-icon material-icons small grey-text">star_border</i>
-              <span class="tooltiptext">Favourite/unfavourite this applicant</span> </div>
-            {{ applicant.applicant_id }}
+              <span class="tooltiptext">Favourite/unfavourite this applicant</span></div>
+            <span id="applicant-id">{{ applicant.applicant_id }}</span>
             <div class="col tooltip {% if applicant.percentage_correct <= 33 %}
                         applicant-summary-card list card-panel red
                         {% elif applicant.percentage_correct > 33 and applicant.percentage_correct <= 66 %}
@@ -38,7 +37,7 @@
                 <span class="tooltiptext screening-pdf">{{ toolTips.screening_evaluation_sheet }}</span>
               </a>
             </div>
-          </h6>
+          </h2>
         </div>
         <div id="applicant-header" class="row applicant-header hoverable header-row">
           <div class="col applicant-icon">
@@ -82,7 +81,7 @@
           </div>
         </div>
 
-        <div class="hidden-applicant-info row row-closed">
+        <div id="hidden-applicant-info" class="row row-closed">
           <div class="hidden-applicant-row row body-row">
             <div class="specialization col s3 cell-body">
               {{ applicantText.priority }} <br>{{ applicant.priority }}
@@ -117,9 +116,9 @@
         {% if educations is not None %}
         <div class="row header-row">
           <div class="col s11">
-            <h6>
+            <h3 class="applicant-section-text">
               {{ applicantText.education }} <i id="expand-collapse-education" class="material-icons grey-text text-darken-2">unfold_more</i>
-            </h6>
+            </h3>
           </div>
         </div>
 
@@ -181,10 +180,10 @@
         {% endif %}
         <div class="row">
           <div class="col s11 cell-header">
-            <h6>
+            <h3 class="applicant-section-text">
               <br>
               {{ applicantText.questions }} <i id="expand-collapse-questions" class="material-icons grey-text text-darken-2">unfold_more</i>
-            </h6>
+            </h3>
           </div>
         </div>
 
@@ -244,7 +243,7 @@
               <div class="row question-row question-buttons notes-row">
                 <div class="col add-note tooltip">
                   <i class="material-icons orange-text">note_add</i>
-                  <span class="tooltiptext">{{ toolTips.add_note_tooltip }}</span>
+                  <span class="tooltiptext"><label for="note-input-{{ forloop.counter0 }}">{{ toolTips.add_note_tooltip }}</label></span>
                 </div>
                 <div class="col s10 notes-area">
                   <div class="note-box">
@@ -326,8 +325,6 @@
 
 <!-- Misc. helper functions -->
 <script src="{% static 'js/helper-functions.js' %}"></script>
-<!-- Script for expanding and collapsing table rows -->
-<!-- <script src="{% static 'js/tables.js' %}"></script> -->
 <!-- Script for local storage -->
 <script src="{% static 'js/localstorage.js' %}"></script>
 <!-- Script for extract origin highlighting -->

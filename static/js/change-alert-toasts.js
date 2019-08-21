@@ -1,45 +1,48 @@
 "use strict";
 
+/* Pop-up alert that page contents have changed */
 var showToast = function showToast() {
-  // Get the snackbar DIV
+  /* Get the snackbar div */
   var snackbar = document.getElementById("snackbar");
 
-  // Add the "show" class to DIV
+  /* Set the div class to "show" */
   snackbar.className = "show";
 };
 
+/* Close alert that page contents have changed */
 var closeToast = function closeToast() {
-  // Get the snackbar DIV
+  /* Get the snackbar div */
   var snackbar = document.getElementById("snackbar");
 
-  // Add the "show" class to DIV
+  /* Set the div class to "hide" */
   snackbar.className = "hide";
 };
 
+/* Poll to see if any of the page's values were changed externally. */
 var checkForPageChanges = function checkForPageChanges() {
-  var data = Object.create(null);
-  data["pageType"] = window.location.pathname;
+  var requestData = Object.create(null);
+  requestData["pageType"] = window.location.pathname;
   if (document.getElementById("position-id")) {
-    data["positionId"] = document.getElementById("position-id").value;
+    requestData["positionId"] = document.getElementById("position-id").value;
   }
   if (document.getElementById("applicant-id")) {
-    data["applicantId"] = document.getElementById("applicant-id").value;
+    requestData["applicantId"] = document.getElementById("applicant-id").value;
   }
   var url = "/change_notification";
   fetch(url, {
     method: "POST",
-    body: JSON.stringify(data), // data can be `string` or {object}!
+    body: JSON.stringify(requestData), // data can be `string` or {object}!
     headers: {
       "Content-Type": "application/json"
     }
   }).then(function (response) {
     /* data being the json object returned from Django function */
-    response.json().then(function (data) {
-      //If there is a message indicating a change
-      if (data.message == "change") {
-        //If the user is not the same as the user who made the changes
-        if (document.getElementById("user-welcome").dataset.userEmail != data.lastEditedBy) {
-          // Then show change notification toast
+    response.json().then(function (responseData) {
+      /* If there is a message indicating a change */
+      if (responseData.message == "change") {
+        /* If the user is not the same as the user who made the changes */
+        if (document.getElementById("user-welcome").dataset.userEmail != responseData.lastEditedBy) {
+          /* Then show change notification toast */
           showToast();
         }
       }

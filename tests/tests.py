@@ -151,9 +151,6 @@ class UploadApplicationTests(TestCase):
             username="good@canada.ca", email="good@canada.ca",
             password="password76")
         self.user.save()
-        # self.pdf_file = SimpleUploadedFile("tests/sample_app.pdf",
-        #                                    b"file_content",
-        #                                    content_type="application/pdf")
         self.html_file = SimpleUploadedFile("tests/Sample Job Poster.html",
                                             b"file_content",
                                             content_type="application/html")

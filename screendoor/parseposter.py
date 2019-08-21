@@ -385,7 +385,6 @@ def write_text_file(filename, filetext):
     text_file = open(filename + ".txt", "w")
     text_file.write(filetext)
     text_file.close()
-    pass
 
 
 def check_for_duplicates_and_errors(requirement_list):

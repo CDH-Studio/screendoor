@@ -1,0 +1,19 @@
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true    # default - false    
+    steps:
+      - checkout
+      - run:
+          name: building and starting application
+          command: |
+            sed -i '/env_file/d' docker-compose.yml
+            sed -i '/django.env/d' docker-compose.yml
+            docker-compose up --build --detach
+            sleep 60
+      - run:
+          name: run tests
+          command: |
+            docker-compose exec web python manage.py test
+            docker-compose down -t 1 -v

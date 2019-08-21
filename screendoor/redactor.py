@@ -2,8 +2,6 @@ import os
 import random
 import re
 import string
-
-import numpy as np
 import pandas as pd
 import tabula
 
@@ -23,59 +21,13 @@ forbidden = ["Nom de famille / Last Name:", "Prénom / First Name:", "Initiales 
              "Autre Téléphone / Alternate Telephone:"]
 
 
-def to_html_pretty(df, title='REDACTED DATA'):
-    ht = ''
-    if title != '':
-        ht += '<h2> %s </h2>\n' % title
-    ht += df.to_html(classes='wide', escape=False, index=False, header=False)
-
-    return HTML_TEMPLATE1 + ht + HTML_TEMPLATE2
-
-
-HTML_TEMPLATE1 = '''
-<html>
-<head>
-<style>
-  h2 {
-    text-align: center;
-    font-family: Helvetica, Arial, sans-serif;
-  }
-  table { 
-    table-layout: auto;
-  }
-  table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: 5px;
-    text-align: center;
-    font-family: Helvetica, Arial, sans-serif;
-  }
-  table tbody tr:hover {
-    background-color: #dddddd;
-  }
-  .wide {
-    width: 90%; 
-  }
-</style>
-</head>
-<body>
-'''
-
-HTML_TEMPLATE2 = '''
-</body>
-</html>
-'''
-
-
 def check_if_table_valid(table):
     # Checks if the table is a dataframe, not empty, and isn't None.
     return (isinstance(table, pd.DataFrame)) and (not table.empty) and (table is not None)
 
 
-def is_valid_cell(string):
-    return (string is not None) and (string != "")
+def is_valid_cell(content):
+    return (content is not None) and (content != "")
 
 
 def is_question(item):
@@ -146,6 +98,7 @@ def handle_new_lines(tables, spacing_array):
 
             table = table.replace("\r", "\n", regex=True)
             table = table.replace("\\t", " ", regex=True)
+            table = table.replace(r'Qualifications essentielles / Essential\s+Qualifications\s+', " ", regex=True)
             table = table.replace("\n", "jJio", regex=True)
             tables[index] = table
 
@@ -156,9 +109,7 @@ def is_stream(item):
     if not str(item.shape) == "(1, 1)":
         value_column = item[item.columns[1]]
 
-        if value_column.str.startswith("Are you applying for Stream").any():
-            return True
-        elif value_column.str.startswith("Are you applying to Stream").any():
+        if value_column.str.startswith("Are you applying for Stream").any() or value_column.str.startswith("Are you applying to Stream").any():
             return True
 
     return False
@@ -193,6 +144,7 @@ def correct_split_item(tables):
 
 
 def find__previous_legitimate_table(tables, index):
+    found_table = None
     for idx, table in enumerate(reversed(tables[0:index - 1])):
         if check_if_table_valid(table):
             found_table = table
@@ -210,8 +162,6 @@ def remove_all_spacing(text):
 
 
 def remove_tables(tables, resume_string):
-    delete = False
-
     for index, item in enumerate(tables):
         if item is not None and str(item.shape) == "(1, 1)":
             print("STRING TO MATCH: " + remove_all_spacing(resume_string))
@@ -264,7 +214,8 @@ def find_essential_details(list_of_data_frames, spacing_array, resume_string):
                     HTML(string=html).render(
                         stylesheets=[
                             CSS(
-                                string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: middle;}')]))
+                                string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: '
+                                       '7px; vertical-align: middle;}')]))
 
     pages = []
 
@@ -305,8 +256,8 @@ def get_properly_spaced_text_array(text):
 
 
 def get_tika_text(pdf_file_path):
-    fileData = parser.from_file(pdf_file_path)
-    text = fileData['content']
+    file_data = parser.from_file(pdf_file_path)
+    text = file_data['content']
     return text
 
 
@@ -339,7 +290,8 @@ def split_tika_text(tika_text):
 def get_first_page(item):
     html = item.to_html(index=False, header=False)
     document = HTML(string=html).render(stylesheets=[CSS(
-        string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: middle;}')])
+        string='table, th, td {border: 1px solid black; border-collapse: collapse; font-size: 7px; vertical-align: '
+               'middle;}')])
     return document
 
 
@@ -383,7 +335,6 @@ def clean_and_redact(data_frames, pdf_file_path, save_file_path):
                 spacing_array, resume_strings)
     document = get_first_page(data_frames[0])
     document.copy(pages).write_pdf(save_file_path)
-    pass
 
 
 def redact_applications():
@@ -417,3 +368,4 @@ def redact_applications():
                 continue
 
     return count
+
