@@ -1,0 +1,15 @@
+jobs:
+  build:
+    steps:
+      - setup_remote_docker
+      - run:
+          name: building and starting application
+          command: |
+            docker-compose up -- build
+      - run:
+          name: run tests
+          command: |
+            docker-compose exec web sh
+            coverage run --source='.' manage.py test
+            coverage report
+            coverage xml
