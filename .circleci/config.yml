@@ -1,5 +1,6 @@
 jobs:
   build:
+    machine: true
     steps:
       - setup_remote_docker
       - run:
