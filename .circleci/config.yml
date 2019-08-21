@@ -1,5 +1,6 @@
 jobs:
   build:
+    machine: true
     steps:
       - setup_remote_docker
       - run:
@@ -7,7 +8,7 @@ jobs:
           command: |
             docker-compose up -- build
       - run:
-          name: run tests
+          name: run tests and create xml file
           command: |
             docker-compose exec web sh
             coverage run --source='.' manage.py test
