@@ -85,6 +85,7 @@ services:
     command: docker run -d -p 9998:9998 docker-tikaserver
   # Virtual browser
   selenium:
-    image: selenium/standalone-chrome
+    image: selenium/standalone-chrome-debug
     ports:
       - 4444:4444
+      - 5900:5900

@@ -66,21 +66,21 @@
     <!-- Display create new position menu item in blue if user is at that page -->
     {% if request.path == '/createnewposition' %}
     <li>
-      <a href="{% url 'importposition' %}" class="blue-text">
+      <a href="{% url 'importposition' %}" class="blue-text" id="create-new-position-button">
         <i class="material-icons blue-text">create_new_folder</i>
         {{ baseVisibleText.new_position }}
       </a>
     </li>
     {% else %}
     <li>
-      <a href="{% url 'importposition' %}">
+      <a href="{% url 'importposition' %}" id="create-new-position-button">
         <i class="material-icons">create_new_folder</i>
         {{ baseVisibleText.new_position }}
       </a>
     </li>
     {% endif %}
     <li>
-      <a href="/logout">
+      <a href="/logout" id="logout-button">
         <i class="material-icons">arrow_back</i>
         {{ baseVisibleText.logout }}
       </a>
