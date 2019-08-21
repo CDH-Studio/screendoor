@@ -16,4 +16,4 @@ jobs:
           name: run tests
           command: |
             docker-compose exec web python manage.py test
-            docker-compose down
+            docker-compose down -t 1 -v
