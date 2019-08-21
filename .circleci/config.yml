@@ -8,8 +8,8 @@ jobs:
       - run:
           name: building and starting application
           command: |
-            sed 'env_file' docker-compose.yml
-            sed 'django.env' docker-compose.yml
+            sed -i '/env_file/d' docker-compose.yml
+            sed -i '/django.env/d' docker-compose.yml
             docker-compose up --build
       - run:
           name: run tests and create xml file
