@@ -10,11 +10,8 @@ jobs:
           command: |
             sed -i '/env_file/d' docker-compose.yml
             sed -i '/django.env/d' docker-compose.yml
-            docker-compose up --build
+            docker-compose up --build --no-start
       - run:
-          name: run tests and create xml file
+          name: run tests
           command: |
-            docker-compose exec web sh
-            coverage run --source='.' manage.py test
-            coverage report
-            coverage xml
+            python3 manage.py test
