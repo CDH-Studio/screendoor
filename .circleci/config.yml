@@ -10,7 +10,7 @@ jobs:
           command: |
             sed -i '/env_file/d' docker-compose.yml
             sed -i '/django.env/d' docker-compose.yml
-            docker-compose up --build --detach
+            docker-compose up --build --timeout 240
       - run:
           name: run tests and create xml file
           command: |
